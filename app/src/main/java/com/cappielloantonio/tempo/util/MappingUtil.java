@@ -26,7 +26,16 @@ public class MappingUtil {
         ArrayList<MediaItem> mediaItems = new ArrayList<>();
 
         for (int i = 0; i < items.size(); i++) {
-            mediaItems.add(mapMediaItem(items.get(i)));
+            Child media = items.get(i);
+            // cassette: offline-first (Server Mode off) never streams. A track
+            // that isn't fully on disk is dropped from the queue rather than
+            // streamed — the Android analogue of iOS's silent skip-non-owned
+            // gate (BackendAudioPlayer). In Server Mode this is a no-op.
+            if (Preferences.isOfflineFirst()
+                    && !DownloadUtil.getDownloadTracker(App.getContext()).isCompleted(media.getId())) {
+                continue;
+            }
+            mediaItems.add(mapMediaItem(media));
         }
 
         return mediaItems;

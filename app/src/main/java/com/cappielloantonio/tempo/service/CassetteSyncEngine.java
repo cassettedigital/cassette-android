@@ -115,6 +115,9 @@ public final class CassetteSyncEngine {
             CassetteSyncApi.Account account = CassetteSyncApi.getAccount(token);
             if (account.downloadQuality != null) Preferences.setCassetteDownloadQuality(account.downloadQuality);
             if (account.themeId != null) Preferences.setCassetteThemeId(account.themeId);
+            // cassette: Server Mode is account-sourced (mirrors iOS). The phone
+            // only reads it; the desktop writes it. Default/offline-first is off.
+            Preferences.setServerMode(account.serverMode);
         } catch (Exception e) {
             Log.d(TAG, "account refresh skipped: " + e.getMessage());
         }

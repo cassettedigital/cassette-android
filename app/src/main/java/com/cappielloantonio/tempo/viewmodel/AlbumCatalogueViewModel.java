@@ -41,6 +41,16 @@ public class AlbumCatalogueViewModel extends AndroidViewModel {
         page = 0;
         status = Status.RUNNING;
         albumList.setValue(new ArrayList<>());
+        // cassette: offline-first (Server Mode off) browses only synced music —
+        // albums come from the on-device Download store, not the hub.
+        if (com.cappielloantonio.tempo.util.Preferences.isOfflineFirst()) {
+            status = Status.STOPPED;
+            com.cappielloantonio.tempo.util.CassetteOfflineLibrary.albums(albums -> {
+                albumList.setValue(albums);
+                loading.setValue(false);
+            });
+            return;
+        }
         loadAlbums(500);
     }
 

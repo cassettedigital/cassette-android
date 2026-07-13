@@ -381,6 +381,25 @@ object Preferences {
     }
 
     @JvmStatic
+    fun isServerMode(): Boolean {
+        // cassette: Server Mode is account-sourced + web-authoritative (mirrors
+        // iOS cassette.serverMode — read-only on the phone, no toggle). The
+        // desktop owns the write path; the engine reads it from /api/sync/account.
+        // false (default, and when absent) = offline-first / on-device-only:
+        // browse shows only synced music and non-downloaded tracks never stream.
+        // true = the account opted in: full-library browse + streaming return.
+        return App.getInstance().preferences.getBoolean("cassette_server_mode", false)
+    }
+
+    @JvmStatic
+    fun setServerMode(serverMode: Boolean) {
+        App.getInstance().preferences.edit().putBoolean("cassette_server_mode", serverMode).apply()
+    }
+
+    @JvmStatic
+    fun isOfflineFirst(): Boolean = !isServerMode()
+
+    @JvmStatic
     fun getCassetteDeviceId(): String {
         // cassette: this phone's identity in the account's device registry
         // (iOS uses identifierForVendor). Minted once, never re-keyed — the

@@ -30,6 +30,12 @@ public class ArtistCatalogueViewModel extends AndroidViewModel {
     }
 
     public void loadArtists() {
+        // cassette: offline-first (Server Mode off) browses only synced music —
+        // artists come from the on-device Download store, not the hub.
+        if (com.cappielloantonio.tempo.util.Preferences.isOfflineFirst()) {
+            com.cappielloantonio.tempo.util.CassetteOfflineLibrary.artists(artistList::setValue);
+            return;
+        }
         App.getSubsonicClientInstance(false)
                 .getBrowsingClient()
                 .getArtists()

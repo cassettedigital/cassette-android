@@ -408,7 +408,11 @@ public class MainActivity extends BaseActivity {
             } else {
                 mainViewModel.ping().observe(this, subsonicResponse -> {
                     if (subsonicResponse == null) {
-                        if (Preferences.showServerUnreachableDialog()) {
+                        // cassette: offline-first is a local player — a parked/
+                        // unreachable hub is normal, not an error to nag about.
+                        // The sync engine handles reachability (parking
+                        // downloads); browse + playback never touch the hub.
+                        if (Preferences.showServerUnreachableDialog() && !Preferences.isOfflineFirst()) {
                             ServerUnreachableDialog dialog = new ServerUnreachableDialog();
                             dialog.show(getSupportFragmentManager(), null);
                         }

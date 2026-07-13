@@ -197,7 +197,14 @@ public class HomeViewModel extends AndroidViewModel {
 
     public LiveData<List<AlbumID3>> getMostRecentlyAddedAlbums(LifecycleOwner owner) {
         if (recentlyAddedAlbumSample.getValue() == null) {
-            albumRepository.getAlbums("newest", 20, null, null).observe(owner, recentlyAddedAlbumSample::postValue);
+            // cassette: offline-first shows only synced music — album shelves
+            // come from the on-device Download store, not the hub.
+            if (com.cappielloantonio.tempo.util.Preferences.isOfflineFirst()) {
+                com.cappielloantonio.tempo.util.CassetteOfflineLibrary.albums(
+                        albums -> recentlyAddedAlbumSample.postValue(cassetteCap(albums)));
+            } else {
+                albumRepository.getAlbums("newest", 20, null, null).observe(owner, recentlyAddedAlbumSample::postValue);
+            }
         }
 
         return recentlyAddedAlbumSample;
@@ -205,7 +212,14 @@ public class HomeViewModel extends AndroidViewModel {
 
     public LiveData<List<AlbumID3>> getRecentlyPlayedAlbumList(LifecycleOwner owner) {
         if (recentlyPlayedAlbumSample.getValue() == null) {
-            albumRepository.getAlbums("recent", 20, null, null).observe(owner, recentlyPlayedAlbumSample::postValue);
+            if (com.cappielloantonio.tempo.util.Preferences.isOfflineFirst()) {
+                // cassette: offline-first Home is Resume + one "Albums" shelf.
+                // Hide the recently-played shelf (empty) so it isn't a duplicate
+                // of the downloaded-albums shelf below it.
+                recentlyPlayedAlbumSample.postValue(new java.util.ArrayList<>());
+            } else {
+                albumRepository.getAlbums("recent", 20, null, null).observe(owner, recentlyPlayedAlbumSample::postValue);
+            }
         }
 
         return recentlyPlayedAlbumSample;
@@ -323,11 +337,29 @@ public class HomeViewModel extends AndroidViewModel {
     }
 
     public void refreshMostRecentlyAddedAlbums(LifecycleOwner owner) {
+        // cassette: offline-first shows only synced music — the album shelves
+        // come from the on-device Download store, not the hub.
+        if (com.cappielloantonio.tempo.util.Preferences.isOfflineFirst()) {
+            com.cappielloantonio.tempo.util.CassetteOfflineLibrary.albums(
+                    albums -> recentlyAddedAlbumSample.postValue(cassetteCap(albums)));
+            return;
+        }
         albumRepository.getAlbums("newest", 20, null, null).observe(owner, recentlyAddedAlbumSample::postValue);
     }
 
     public void refreshRecentlyPlayedAlbumList(LifecycleOwner owner) {
+        if (com.cappielloantonio.tempo.util.Preferences.isOfflineFirst()) {
+            // cassette: keep the recently-played shelf hidden offline (Resume +
+            // the Albums shelf cover it) — consistent with the getter.
+            recentlyPlayedAlbumSample.postValue(new java.util.ArrayList<>());
+            return;
+        }
         albumRepository.getAlbums("recent", 20, null, null).observe(owner, recentlyPlayedAlbumSample::postValue);
+    }
+
+    private static java.util.List<com.cappielloantonio.tempo.subsonic.models.AlbumID3> cassetteCap(
+            java.util.List<com.cappielloantonio.tempo.subsonic.models.AlbumID3> albums) {
+        return albums.subList(0, Math.min(20, albums.size()));
     }
 
     public void refreshShares(LifecycleOwner owner) {
