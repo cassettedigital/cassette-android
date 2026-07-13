@@ -110,9 +110,15 @@ public class PlayerControllerFragment extends Fragment {
         // GPU blur (API 31+); below that, hide it and keep the flat surface.
         if (playerBlurredBackground != null) {
             if (android.os.Build.VERSION.SDK_INT >= 31) {
+                // cassette: aim for ambient light (colour bleeding off the cover),
+                // not a recognisable blurred duplicate. A heavy radius plus a
+                // zoom pushes the cover's shapes off-screen so only soft colour
+                // fields remain — like backlight behind a TV.
                 playerBlurredBackground.setRenderEffect(
                         android.graphics.RenderEffect.createBlurEffect(
-                                50f, 50f, android.graphics.Shader.TileMode.CLAMP));
+                                140f, 140f, android.graphics.Shader.TileMode.CLAMP));
+                playerBlurredBackground.setScaleX(1.6f);
+                playerBlurredBackground.setScaleY(1.6f);
             } else {
                 playerBlurredBackground.setVisibility(android.view.View.GONE);
                 bind.getRoot().findViewById(R.id.player_background_scrim).setVisibility(android.view.View.GONE);
