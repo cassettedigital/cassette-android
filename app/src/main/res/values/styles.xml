@@ -50,7 +50,7 @@
     <!-- cassette: album/cover art with softly rounded corners (iOS reference). -->
     <style name="CassetteRoundedCover">
         <item name="cornerFamily">rounded</item>
-        <item name="cornerSize">14dp</item>
+        <item name="cornerSize">7dp</item>
     </style>
 
     <!-- cassette: cross-device skin overlays — applied at activity creation from

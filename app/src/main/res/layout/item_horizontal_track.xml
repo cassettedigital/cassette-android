@@ -55,9 +55,11 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/different_disk_divider_sector" />
 
+    <!-- cassette: track number in the muted mono metadata voice (iOS), so the
+         title carries the row — was LabelLarge (bold cream), which out-shouted it. -->
     <TextView
         android:id="@+id/track_number_text_view"
-        style="@style/LabelLarge"
+        style="@style/TitleMedium"
         android:layout_width="52dp"
         android:layout_height="52dp"
         android:layout_marginStart="16dp"
@@ -76,6 +78,7 @@
         app:layout_constraintStart_toEndOf="@+id/song_cover_image_view"
         app:layout_constraintTop_toTopOf="@+id/song_cover_image_view" />
 
+    <!-- cassette: the title is the row's lead — bumped to 16sp/600 (iOS flare). -->
     <TextView
         android:id="@+id/search_result_song_title_text_view"
         style="@style/LabelMedium"
@@ -84,6 +87,8 @@
         android:ellipsize="marquee"
         android:paddingEnd="12dp"
         android:singleLine="true"
+        android:textSize="16sp"
+        android:textFontWeight="600"
         android:text="@string/label_placeholder"
         app:layout_constraintBottom_toTopOf="@+id/search_result_song_subtitle_text_view"
         app:layout_constraintEnd_toStartOf="@+id/rating_indicator_image_view"
@@ -93,7 +98,7 @@
 
     <TextView
         android:id="@+id/search_result_song_subtitle_text_view"
-        style="@style/LabelSmall"
+        style="@style/TitleSmall"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:ellipsize="marquee"
@@ -111,7 +116,7 @@
         android:layout_height="wrap_content"
         android:paddingVertical="8dp"
         app:layout_constraintBottom_toBottomOf="@+id/song_cover_image_view"
-        app:layout_constraintEnd_toStartOf="@+id/search_result_download_indicator_image_view"
+        app:layout_constraintEnd_toStartOf="@+id/search_result_song_more_button"
         app:layout_constraintStart_toEndOf="@+id/search_result_song_title_text_view"
         app:layout_constraintTop_toTopOf="@+id/song_cover_image_view">
 
@@ -170,32 +175,13 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <FrameLayout
-        android:id="@+id/search_result_download_indicator_image_view"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="12dp"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="@+id/song_cover_image_view"
-        app:layout_constraintEnd_toStartOf="@+id/search_result_song_more_button"
-        app:layout_constraintStart_toEndOf="@+id/rating_indicator_image_view"
-        app:layout_constraintTop_toTopOf="@+id/song_cover_image_view"
-        tools:visibility="visible">
-
-        <ImageView
-            android:layout_width="18dp"
-            android:layout_height="18dp"
-            android:background="@drawable/ic_download"
-            android:foreground="?android:attr/selectableItemBackgroundBorderless" />
-    </FrameLayout>
-
-    <FrameLayout
         android:id="@+id/search_result_song_more_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="12dp"
         app:layout_constraintBottom_toBottomOf="@+id/song_cover_image_view"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/search_result_download_indicator_image_view"
+        app:layout_constraintStart_toEndOf="@+id/rating_indicator_image_view"
         app:layout_constraintTop_toTopOf="@+id/song_cover_image_view">
 
         <ImageView

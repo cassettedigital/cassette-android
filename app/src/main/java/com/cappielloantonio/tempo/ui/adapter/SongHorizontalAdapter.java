@@ -102,26 +102,17 @@ public class SongHorizontalAdapter extends RecyclerView.Adapter<SongHorizontalAd
         boolean artistIsAlbumArtist = !this.showAlbum && this.album != null
                 && subtitlePrimary != null && subtitlePrimary.equals(this.album.getArtist());
 
-        holder.item.searchResultSongSubtitleTextView.setText(
-                artistIsAlbumArtist
-                        ? holder.itemView.getContext().getString(
-                                R.string.song_subtitle_track_only_formatter,
-                                MusicUtil.getReadableDurationString(song.getDuration(), false),
-                                MusicUtil.getReadableAudioQualityString(song))
-                        : holder.itemView.getContext().getString(
-                                R.string.song_subtitle_formatter,
-                                subtitlePrimary,
-                                MusicUtil.getReadableDurationString(song.getDuration(), false),
-                                MusicUtil.getReadableAudioQualityString(song))
-        );
+        // cassette: iOS-clean rows — drop the duration/quality clutter. Show the
+        // secondary line only when it adds something: a featured/different artist
+        // on an album page, or the album name in other lists.
+        if (artistIsAlbumArtist || subtitlePrimary == null || subtitlePrimary.trim().isEmpty()) {
+            holder.item.searchResultSongSubtitleTextView.setVisibility(View.GONE);
+        } else {
+            holder.item.searchResultSongSubtitleTextView.setVisibility(View.VISIBLE);
+            holder.item.searchResultSongSubtitleTextView.setText(subtitlePrimary);
+        }
 
         holder.item.trackNumberTextView.setText(MusicUtil.getReadableTrackNumber(holder.itemView.getContext(), song.getTrack()));
-
-        if (DownloadUtil.getDownloadTracker(holder.itemView.getContext()).isDownloaded(song.getId())) {
-            holder.item.searchResultDownloadIndicatorImageView.setVisibility(View.VISIBLE);
-        } else {
-            holder.item.searchResultDownloadIndicatorImageView.setVisibility(View.GONE);
-        }
 
         if (showCoverArt) CustomGlideRequest.Builder
                 .from(holder.itemView.getContext(), song.getCoverArtId(), CustomGlideRequest.ResourceType.Song)
