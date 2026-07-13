@@ -47,6 +47,12 @@
         <item name="cornerSize">50%</item>
     </style>
 
+    <!-- cassette: album/cover art with softly rounded corners (iOS reference). -->
+    <style name="CassetteRoundedCover">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">14dp</item>
+    </style>
+
     <!-- cassette: cross-device skin overlays — applied at activity creation from
          the account's theme_id (Cassette dynamic color; wallpaper gets no vote).
          Classic is a no-op (the base theme IS classic orange). -->
