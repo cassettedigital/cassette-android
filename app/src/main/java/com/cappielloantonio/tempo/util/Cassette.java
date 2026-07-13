@@ -1,0 +1,148 @@
+package com.cappielloantonio.tempo.util;
+
+import android.os.Build;
+
+import com.cappielloantonio.tempo.BuildConfig;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.concurrent.TimeUnit;
+
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+
+/**
+ * Cassette account pairing. The phone signs into the Cassette account in the
+ * browser (/auth/player), the cloud redirects back with a bearer token via the
+ * cassette:// scheme, and this client exchanges the token at /api/player/me for
+ * the hub's LAN address + Subsonic credential. The cloud is authoritative for
+ * that credential and keeps it stable across re-pairs, so the phone is never
+ * re-keyed (the iOS stranding lesson).
+ */
+public final class Cassette {
+    /** www, not apex: the apex 307-redirects and would double every request. */
+    public static final String BASE_URL = "https://www.cassette.digital";
+
+    public static final String CLIENT_ID = "cassette-android";
+    public static final String REDIRECT_URI = "cassette://auth/callback";
+
+    private Cassette() {
+    }
+
+    /**
+     * Cassette dynamic color: map the account skin to its theme overlay. The
+     * accents are the web's own dial math (scripts/icon/spec.mjs skinColors).
+     */
+    public static int themeOverlayFor(String themeId) {
+        if (themeId == null) return com.cappielloantonio.tempo.R.style.CassetteSkin;
+        switch (themeId) {
+            case "amber":
+                return com.cappielloantonio.tempo.R.style.CassetteSkin_Amber;
+            case "rust":
+                return com.cappielloantonio.tempo.R.style.CassetteSkin_Rust;
+            case "marine":
+                return com.cappielloantonio.tempo.R.style.CassetteSkin_Marine;
+            case "lime":
+                return com.cappielloantonio.tempo.R.style.CassetteSkin_Lime;
+            case "violet":
+                return com.cappielloantonio.tempo.R.style.CassetteSkin_Violet;
+            case "rose":
+                return com.cappielloantonio.tempo.R.style.CassetteSkin_Rose;
+            default:
+                return com.cappielloantonio.tempo.R.style.CassetteSkin;
+        }
+    }
+
+    private static boolean isEmulator() {
+        String fingerprint = Build.FINGERPRINT;
+        return fingerprint != null
+                && (fingerprint.contains("generic")
+                || fingerprint.contains("emulator")
+                || fingerprint.contains("sdk_gphone"));
+    }
+
+    /** The browser URL that starts the sign-in + pairing flow. */
+    public static String pairingUrl() {
+        try {
+            return BASE_URL + "/auth/player?client=" + CLIENT_ID
+                    + "&redirect_uri=" + URLEncoder.encode(REDIRECT_URI, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new AssertionError(e); // UTF-8 always exists
+        }
+    }
+
+    /** The registered player config, as returned by /api/player/me. */
+    public static final class PlayerConfig {
+        public final String lanHostname;
+        public final int lanPort;
+        public final String subsonicUsername;
+        public final String subsonicPassword;
+        /** The account's cross-device skin (users.theme_id); null on older clouds. */
+        public final String themeId;
+
+        PlayerConfig(String lanHostname, int lanPort, String subsonicUsername, String subsonicPassword, String themeId) {
+            this.lanHostname = lanHostname;
+            this.lanPort = lanPort;
+            this.subsonicUsername = subsonicUsername;
+            this.subsonicPassword = subsonicPassword;
+            this.themeId = themeId;
+        }
+
+        public String address() {
+            return "http://" + lanHostname + ":" + lanPort;
+        }
+    }
+
+    /** Blocking; call off the main thread. */
+    public static PlayerConfig fetchPlayerConfig(String bearerToken) throws IOException {
+        OkHttpClient client = new OkHttpClient.Builder()
+                .connectTimeout(15, TimeUnit.SECONDS)
+                .readTimeout(15, TimeUnit.SECONDS)
+                .build();
+
+        Request request = new Request.Builder()
+                .url(BASE_URL + "/api/player/me")
+                .header("Authorization", "Bearer " + bearerToken)
+                .get()
+                .build();
+
+        try (Response response = client.newCall(request).execute()) {
+            if (!response.isSuccessful() || response.body() == null) {
+                throw new IOException("Cassette sign-in failed (HTTP " + response.code() + ")");
+            }
+
+            JsonObject json = JsonParser.parseString(response.body().string()).getAsJsonObject();
+            if (!json.has("lanHostname") || !json.has("subsonicUsername") || !json.has("subsonicPassword")) {
+                throw new IOException("No player is registered to this Cassette account yet");
+            }
+
+            int port = json.has("lanPort") && !json.get("lanPort").isJsonNull()
+                    ? json.get("lanPort").getAsInt()
+                    : 4533;
+
+            String lanHostname = json.get("lanHostname").getAsString();
+            // Emulator dev affordance (debug builds only): the emulator has no
+            // mDNS, so the hub's .local name never resolves. 10.0.2.2 is the
+            // emulator's fixed alias for the host Mac — which is where the hub
+            // runs during development. Real devices always use the LAN name.
+            if (BuildConfig.DEBUG && isEmulator()) {
+                lanHostname = "10.0.2.2";
+            }
+
+            String themeId = json.has("themeId") && !json.get("themeId").isJsonNull()
+                    ? json.get("themeId").getAsString()
+                    : null;
+
+            return new PlayerConfig(
+                    lanHostname,
+                    port,
+                    json.get("subsonicUsername").getAsString(),
+                    json.get("subsonicPassword").getAsString(),
+                    themeId);
+        }
+    }
+}

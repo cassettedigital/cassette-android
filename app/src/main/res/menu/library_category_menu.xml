@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- cassette: Library category switcher (iOS "Albums ⌄" title-dropdown). -->
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/library_menu_albums"
+        android:title="@string/library_title_album" />
+    <item
+        android:id="@+id/library_menu_artists"
+        android:title="@string/library_title_artist" />
+    <item
+        android:id="@+id/library_menu_playlists"
+        android:title="@string/library_title_playlist" />
+    <item
+        android:id="@+id/library_menu_downloads"
+        android:title="@string/library_title_download" />
+</menu>

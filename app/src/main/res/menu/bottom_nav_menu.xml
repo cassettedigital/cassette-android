@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- cassette: bottom tabs mirror the iOS app (Home / Library / Search),
+         Lucide glyphs matching the iOS icon language. Downloads lives in Library. -->
+    <item
+        android:id="@+id/homeFragment"
+        android:icon="@drawable/ic_lucide_house"
+        android:title="@string/menu_home_label" />
+    <item
+        android:id="@+id/libraryFragment"
+        android:icon="@drawable/ic_lucide_library"
+        android:title="@string/menu_library_label" />
+    <item
+        android:id="@+id/searchFragment"
+        android:icon="@drawable/ic_lucide_search"
+        android:title="@string/menu_search_button" />
+</menu>

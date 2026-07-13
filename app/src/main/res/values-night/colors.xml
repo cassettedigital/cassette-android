@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- cassette: warm-grey inks on the dark chassis — the REAL web ramp
+     (globals.css gray-12 cream / gray-11 muted / gray-4 divider / gray-7 shadow),
+     not hand-stepped browns. -->
+<resources>
+    <color name="titleTextColor">#F2EDE4</color>
+    <color name="subtitleTextColor">#C2B191</color>
+    <color name="dividerColor">#332E24</color>
+
+    <color name="lyricsTextColor">#F2EDE4</color>
+    <color name="shadowsLyricsTextColor">#534832</color>
+
+    <color name="searchPlaceholderColor">#C2B191</color>
+    <color name="searchColor">#F2EDE4</color>
+</resources>

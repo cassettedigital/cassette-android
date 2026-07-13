@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- cassette: Library = the iOS pattern — one full catalogue grid with the
+     title as a category dropdown ("Albums ⌄"), opening on the last category
+     viewed. Replaces Tempo's sampler-sections screen. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <fragment
+        android:id="@+id/toolbar_fragment"
+        android:name="com.cappielloantonio.tempo.ui.fragment.ToolbarFragment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/library_category_title"
+        style="@style/HeadlineLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:drawablePadding="8dp"
+        android:focusable="true"
+        android:gravity="center_vertical"
+        android:paddingStart="16dp"
+        android:paddingTop="16dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="12dp"
+        android:textSize="30sp"
+        app:drawableEndCompat="@drawable/ic_arrow_down"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        tools:text="Albums" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/library_catalogue_recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
+        android:paddingBottom="@dimen/global_padding_bottom" />
+</LinearLayout>
