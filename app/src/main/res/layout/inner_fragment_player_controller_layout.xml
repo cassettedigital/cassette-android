@@ -28,6 +28,12 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <!-- cassette: the source-format strip ("flac 997kbps" + info button) is
+         hidden. It read the hub master's suffix/bitrate from the Subsonic song
+         metadata, which is misleading on a paired phone: downloads are the
+         hub's ~192k mp3 transcode (format=mp3), not the flac master it named.
+         iOS has no such strip. Kept in the tree (GONE) so it's trivially
+         restorable. -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/player_media_quality_sector"
         android:layout_width="match_parent"
@@ -35,6 +41,7 @@
         android:layout_marginVertical="8dp"
         android:gravity="center"
         android:orientation="horizontal"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
