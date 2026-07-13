@@ -1,20 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
-
-    <!-- cassette: transparent chrome — the art owns the top of the page; back
-         and overflow float beside it (iOS album-page reference). -->
-    <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/anim_toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="@android:color/transparent"
-        app:layout_collapseMode="pin"
-        app:navigationIcon="@drawable/ic_arrow_back" />
+    android:layout_height="match_parent">
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/fragment_album_page_nested_scroll_view"
@@ -33,15 +22,17 @@
                 android:clipChildren="false"
                 android:paddingTop="8dp">
 
+                <!-- cassette: compact cover (~56% width, centred) sits up in the
+                     toolbar band so the floating back/overflow flank it — iOS
+                     album-page reference. -->
                 <ImageView
                     android:id="@+id/album_cover_image_view"
                     android:layout_width="0dp"
                     android:layout_height="0dp"
-                    android:layout_marginLeft="28dp"
-                    android:layout_marginTop="0dp"
-                    android:layout_marginRight="28dp"
+                    android:layout_marginTop="12dp"
                     android:layout_marginBottom="8dp"
-                    app:layout_constraintDimensionRatio="H,1:1"
+                    app:layout_constraintDimensionRatio="1:1"
+                    app:layout_constraintWidth_percent="0.56"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -57,19 +48,20 @@
                     android:singleLine="false"
                     android:text="@string/label_placeholder"
                     android:textAlignment="center"
-                    app:layout_constraintEnd_toEndOf="@+id/album_cover_image_view"
-                    app:layout_constraintStart_toStartOf="@+id/album_cover_image_view"
+                    android:layout_marginStart="24dp"
+                    android:layout_marginEnd="24dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/album_cover_image_view" />
 
                 <FrameLayout
                     android:id="@+id/album_other_info_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
+                    android:layout_marginEnd="10dp"
                     android:foreground="?android:attr/selectableItemBackgroundBorderless"
                     app:layout_constraintBottom_toBottomOf="@+id/album_name_label"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/album_name_label"
                     app:layout_constraintTop_toTopOf="@+id/album_name_label">
 
                     <ImageView
@@ -197,10 +189,10 @@
                         android:layout_height="48dp"
                         android:background="?attr/selectableItemBackgroundBorderless"
                         android:contentDescription="@string/album_page_repeat_button"
-                        android:padding="10dp"
+                        android:padding="9dp"
                         android:scaleType="fitCenter"
-                        android:src="@drawable/ic_repeat"
-                        android:tint="?attr/colorOnSurfaceVariant" />
+                        android:src="@drawable/ic_lucide_repeat"
+                        android:tint="?attr/colorOnSurface" />
 
                     <com.google.android.material.floatingactionbutton.FloatingActionButton
                         android:id="@+id/album_page_play_button"
@@ -210,11 +202,11 @@
                         android:layout_marginEnd="40dp"
                         android:contentDescription="@string/album_page_play_button"
                         android:src="@drawable/ic_play"
-                        app:backgroundTint="?attr/colorPrimary"
+                        app:backgroundTint="?attr/colorOnSurface"
                         app:fabCustomSize="76dp"
-                        app:maxImageSize="36dp"
+                        app:maxImageSize="34dp"
                         app:shapeAppearanceOverlay="@style/CassetteCircleFab"
-                        app:tint="?attr/colorOnPrimary" />
+                        app:tint="?attr/colorSurface" />
 
                     <ImageButton
                         android:id="@+id/album_page_shuffle_button"
@@ -222,10 +214,10 @@
                         android:layout_height="48dp"
                         android:background="?attr/selectableItemBackgroundBorderless"
                         android:contentDescription="@string/album_page_shuffle_button"
-                        android:padding="10dp"
+                        android:padding="9dp"
                         android:scaleType="fitCenter"
-                        android:src="@drawable/ic_shuffle"
-                        android:tint="?attr/colorOnSurfaceVariant" />
+                        android:src="@drawable/ic_lucide_shuffle"
+                        android:tint="?attr/colorOnSurface" />
                 </LinearLayout>
 
                 <TextView
@@ -301,4 +293,14 @@
             </LinearLayout>
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
-</LinearLayout>
+
+    <!-- cassette: transparent chrome overlaid on the art — back + overflow float
+         at the top corners, flanking the compact cover (iOS album-page ref). -->
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/anim_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:layout_gravity="top"
+        android:background="@android:color/transparent"
+        app:navigationIcon="@drawable/ic_arrow_back" />
+</FrameLayout>
