@@ -97,7 +97,12 @@ public final class CassetteOfflineLibrary {
                 artist = new ArtistID3();
                 artist.setId(artistId);
                 artist.setName(track.getArtist());
-                artist.setCoverArtId(track.getCoverArtId());
+                // cassette: use the ARTIST cover id ("ar-<id>"), not the track's
+                // album cover — CustomGlideRequest resolves this against the
+                // synced attributed artist photos (Wikidata/Commons via
+                // CassetteArtistArt, keyed by artist id), matching the web + iOS.
+                // A track's coverArtId would show album art instead.
+                artist.setCoverArtId("ar-" + artistId);
                 artist.setAlbumCount(0);
                 byArtist.put(artistId, artist);
                 albumsPerArtist.put(artistId, new HashSet<>());
