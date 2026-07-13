@@ -261,8 +261,7 @@
         app:layout_constraintEnd_toStartOf="@+id/placeholder_view_middle_left"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/placeholder_view_middle_left"
-        app:srcCompat="@drawable/ic_shuffle"
-        app:tint="?attr/colorOnSurface" />
+        app:srcCompat="@drawable/ic_shuffle" />
 
     <ImageButton
         android:id="@+id/exo_rew"
@@ -340,8 +339,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/placeholder_view_middle_right"
         app:layout_constraintTop_toTopOf="@+id/placeholder_view_middle_right"
-        app:srcCompat="@drawable/ic_repeat"
-        app:tint="?attr/colorOnSurface" />
+        app:srcCompat="@drawable/ic_repeat" />
 
     <ToggleButton
         android:id="@+id/player_skip_silence_toggle_button"

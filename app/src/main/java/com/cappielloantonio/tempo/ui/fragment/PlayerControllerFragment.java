@@ -1,6 +1,7 @@
 package com.cappielloantonio.tempo.ui.fragment;
 
 import android.content.ComponentName;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,6 +38,7 @@ import com.cappielloantonio.tempo.util.MusicUtil;
 import com.cappielloantonio.tempo.util.Preferences;
 import com.cappielloantonio.tempo.viewmodel.PlayerBottomSheetViewModel;
 import com.google.android.material.chip.Chip;
+import com.google.android.material.color.MaterialColors;
 import com.google.android.material.elevation.SurfaceColors;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
@@ -176,6 +178,7 @@ public class PlayerControllerFragment extends Fragment {
         setMediaControllerUI(mediaBrowser);
         setMetadata(mediaBrowser.getMediaMetadata());
         setMediaInfo(mediaBrowser.getMediaMetadata());
+        updateControlAccents(mediaBrowser);
 
         mediaBrowser.addListener(new Player.Listener() {
             @Override
@@ -183,8 +186,46 @@ public class PlayerControllerFragment extends Fragment {
                 setMediaControllerUI(mediaBrowser);
                 setMetadata(mediaMetadata);
                 setMediaInfo(mediaMetadata);
+                updateControlAccents(mediaBrowser);
+            }
+
+            @Override
+            public void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {
+                updateControlAccents(mediaBrowser);
+            }
+
+            @Override
+            public void onRepeatModeChanged(int repeatMode) {
+                updateControlAccents(mediaBrowser);
             }
         });
+    }
+
+    // cassette: media3's PlayerControlView shows shuffle/repeat state only by
+    // baked opacity on its own drawables. We override those with flat Lucide
+    // vectors, so the engaged state would be invisible. Reflect it the iOS way
+    // instead: accent (colorPrimary) when the toggle is on, cream
+    // (colorOnSurface) when off — resolved from the theme so it follows
+    // whichever of the 7 skins the account is on. media3 swaps the drawable on
+    // state changes, but ImageView re-applies its colour filter last (in
+    // updateDrawable), so a setColorFilter survives the swap where a tint list
+    // gets clobbered by AppCompat's app:tint. The app:tint on these two buttons
+    // is removed in XML so nothing competes.
+    private void updateControlAccents(Player player) {
+        if (bind == null) return;
+        View root = bind.getRoot();
+        int active = MaterialColors.getColor(root, com.google.android.material.R.attr.colorPrimary);
+        int inactive = MaterialColors.getColor(root, com.google.android.material.R.attr.colorOnSurface);
+
+        ImageButton shuffle = root.findViewById(R.id.exo_shuffle);
+        if (shuffle != null) {
+            shuffle.setColorFilter(player.getShuffleModeEnabled() ? active : inactive, PorterDuff.Mode.SRC_IN);
+        }
+
+        ImageButton repeat = root.findViewById(R.id.exo_repeat_toggle);
+        if (repeat != null) {
+            repeat.setColorFilter(player.getRepeatMode() != Player.REPEAT_MODE_OFF ? active : inactive, PorterDuff.Mode.SRC_IN);
+        }
     }
 
     private void setMetadata(MediaMetadata mediaMetadata) {
