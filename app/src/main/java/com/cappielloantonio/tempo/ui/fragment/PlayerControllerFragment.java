@@ -117,7 +117,10 @@ public class PlayerControllerFragment extends Fragment {
     }
 
     private void initQuickActionView() {
-        playerQuickActionView.setBackgroundColor(SurfaceColors.getColorForElevation(requireContext(), 8));
+        // cassette: flat de-saturated container (was SurfaceColors elevation-8,
+        // which washes orange-brown from the tonal tint). Matches the mini-player.
+        playerQuickActionView.setBackgroundColor(
+                requireContext().getColor(com.cappielloantonio.tempo.R.color.md_theme_dark_surfaceContainer));
 
         playerOpenQueueButton.setOnClickListener(view -> {
             PlayerBottomSheetFragment playerBottomSheetFragment = (PlayerBottomSheetFragment) requireActivity().getSupportFragmentManager().findFragmentByTag("PlayerBottomSheet");

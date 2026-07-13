@@ -31,11 +31,16 @@
     <color name="md_theme_dark_onPrimary">#2A160A</color>
     <color name="md_theme_dark_primaryContainer">#7A3D18</color>
     <color name="md_theme_dark_onPrimaryContainer">#FFD9B8</color>
-    <!-- cassette: warm-grey chassis secondaries from the real web ramp
-         (nav-pill = secondaryContainer = gray-5) -->
-    <color name="md_theme_dark_secondary">#C2B191</color>
+    <!-- cassette: warm-grey chassis secondaries. The web renders its base ramp
+         at full chroma (classic skin = identity), but the web keeps its chrome
+         on the low, near-neutral steps. Android's Material elevated surfaces
+         (bottom nav = surfaceContainer, nav pill = secondaryContainer) climb to
+         the mid steps, where the ramp's chroma widens and reads BROWN. So the
+         Android tonal ramp is de-saturated (~35% of the base warmth kept) to
+         match the warm-grey web/iOS chrome — accent still carries the colour. -->
+    <color name="md_theme_dark_secondary">#B7B1A6</color>
     <color name="md_theme_dark_onSecondary">#23201A</color>
-    <color name="md_theme_dark_secondaryContainer">#3B3427</color>
+    <color name="md_theme_dark_secondaryContainer">#36342F</color>
     <color name="md_theme_dark_onSecondaryContainer">#F2EDE4</color>
     <color name="md_theme_dark_tertiary">#D9A05B</color>
     <color name="md_theme_dark_onTertiary">#2A160A</color>
@@ -47,23 +52,24 @@
     <color name="md_theme_dark_onErrorContainer">#F9DEDC</color>
     <color name="md_theme_dark_background">#1C1913</color>
     <color name="md_theme_dark_onBackground">#F2EDE4</color>
-    <color name="md_theme_dark_surface">#23201A</color>
+    <color name="md_theme_dark_surface">#21201E</color>
     <color name="md_theme_dark_onSurface">#F2EDE4</color>
-    <!-- cassette: the M3 tonal-surface family. Components like filled cards and
-         the bottom nav resolve THESE (not colorSurface); when unset they fall
-         back to Material's baseline gray-violet palette. Values are the REAL web
-         chassis ramp (globals.css cs-gray-1..6-base) — hand-stepped browns
-         read too warm ("brown, not warm grey"). -->
+    <!-- cassette: the M3 tonal-surface family — filled cards and the bottom nav
+         resolve THESE. De-saturated from the web base ramp (cs-gray-1..6-base):
+         the ramp gains lightness WITHOUT gaining chroma, so elevated surfaces
+         read warm-grey instead of brown. Base gap R-B climbed 9->13->20->26 up
+         the ramp; de-saturated it stays ~3->5->7->9. bg/lowest kept at the base
+         (already near-neutral, looked right). -->
     <color name="md_theme_dark_surfaceDim">#1C1913</color>
-    <color name="md_theme_dark_surfaceBright">#453C2B</color>
+    <color name="md_theme_dark_surfaceBright">#3F3C36</color>
     <color name="md_theme_dark_surfaceContainerLowest">#1C1913</color>
-    <color name="md_theme_dark_surfaceContainerLow">#23201A</color>
-    <color name="md_theme_dark_surfaceContainer">#2D2820</color>
-    <color name="md_theme_dark_surfaceContainerHigh">#332E24</color>
-    <color name="md_theme_dark_surfaceContainerHighest">#3B3427</color>
-    <color name="md_theme_dark_surfaceVariant">#3B3427</color>
-    <color name="md_theme_dark_onSurfaceVariant">#C2B191</color>
-    <color name="md_theme_dark_outline">#534832</color>
+    <color name="md_theme_dark_surfaceContainerLow">#21201E</color>
+    <color name="md_theme_dark_surfaceContainer">#2A2825</color>
+    <color name="md_theme_dark_surfaceContainerHigh">#302E2B</color>
+    <color name="md_theme_dark_surfaceContainerHighest">#36342F</color>
+    <color name="md_theme_dark_surfaceVariant">#36342F</color>
+    <color name="md_theme_dark_onSurfaceVariant">#B7B1A6</color>
+    <color name="md_theme_dark_outline">#4C4840</color>
     <color name="md_theme_dark_inverseOnSurface">#1C1B1F</color>
     <color name="md_theme_dark_inverseSurface">#E6E1E5</color>
     <color name="md_theme_dark_primaryInverse">#6750A4</color>

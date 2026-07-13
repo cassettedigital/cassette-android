@@ -124,7 +124,11 @@ public class LibraryFragment extends Fragment implements ClickCallback {
 
     private void initCategorySwitcher() {
         bind.libraryCategoryTitle.setOnClickListener(v -> {
-            PopupMenu popup = new PopupMenu(requireContext(), v);
+            // cassette: wrap the context so Material tints the popup with a
+            // neutral (not the orange primary) — see Cassette.NeutralTintContext.
+            android.content.Context popupContext = new android.view.ContextThemeWrapper(
+                    requireContext(), R.style.Cassette_NeutralTintContext);
+            PopupMenu popup = new PopupMenu(popupContext, v);
             popup.getMenuInflater().inflate(R.menu.library_category_menu, popup.getMenu());
             popup.setOnMenuItemClickListener(item -> {
                 int id = item.getItemId();

@@ -10,7 +10,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?attr/colorSurface"
-        app:layout_scrollFlags="scroll|enterAlways|snap">
+        app:layout_scrollFlags="scroll|enterAlways|snap"
+        app:popupTheme="@style/Cassette.NeutralTintContext">
 
         <LinearLayout
             android:layout_width="match_parent"

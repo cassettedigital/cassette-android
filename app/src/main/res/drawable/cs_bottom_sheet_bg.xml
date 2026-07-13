@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- cassette: flat de-saturated bottom-sheet surface with the sheet's rounded
+     top. Replaces Material's primary-tinted sheet backdrop (which read brown)
+     while keeping the rounded-corner shape. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="@color/md_theme_dark_surfaceContainerHigh" />
+    <corners
+        android:topLeftRadius="16dp"
+        android:topRightRadius="16dp" />
+</shape>

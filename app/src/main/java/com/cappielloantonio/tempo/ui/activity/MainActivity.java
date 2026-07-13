@@ -431,14 +431,10 @@ public class MainActivity extends BaseActivity {
     }
 
     private void checkTempoUpdate() {
-        if (BuildConfig.FLAVOR.equals("tempo") && Preferences.showTempoUpdateDialog()) {
-            mainViewModel.checkTempoUpdate().observe(this, latestRelease -> {
-                if (latestRelease != null && UpdateUtil.showUpdateDialog(latestRelease)) {
-                    GithubTempoUpdateDialog dialog = new GithubTempoUpdateDialog(latestRelease);
-                    dialog.show(getSupportFragmentManager(), null);
-                }
-            });
-        }
+        // cassette: disabled. This is stock Tempo's GitHub release check — it
+        // pops a "new version on GitHub / Support me" dialog pointing at the
+        // upstream project, a branding leak. Cassette isn't distributed through
+        // Tempo's releases, so there's nothing to check.
     }
 
     private void checkConnectionType() {

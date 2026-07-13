@@ -46,7 +46,7 @@ public class CustomGlideRequest {
 
     public static RequestOptions createRequestOptions(Context context, String item, ResourceType type) {
         return new RequestOptions()
-                .placeholder(new ColorDrawable(SurfaceColors.SURFACE_5.getColor(context)))
+                .placeholder(new ColorDrawable(context.getColor(com.cappielloantonio.tempo.R.color.md_theme_dark_surfaceContainerHigh)))
                 .fallback(getPlaceholder(context, type))
                 .error(getPlaceholder(context, type))
                 .diskCacheStrategy(DEFAULT_DISK_CACHE_STRATEGY)
@@ -75,7 +75,7 @@ public class CustomGlideRequest {
                 return AppCompatResources.getDrawable(context, R.drawable.ic_placeholder_song);
             default:
             case Unknown:
-                return new ColorDrawable(SurfaceColors.SURFACE_5.getColor(context));
+                return new ColorDrawable(context.getColor(com.cappielloantonio.tempo.R.color.md_theme_dark_surfaceContainerHigh));
         }
     }
 

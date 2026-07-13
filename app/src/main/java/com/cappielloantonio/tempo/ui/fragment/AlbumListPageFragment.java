@@ -174,7 +174,7 @@ public class AlbumListPageFragment extends Fragment implements ClickCallback {
     }
 
     private void showPopupMenu(View view, int menuResource) {
-        PopupMenu popup = new PopupMenu(requireContext(), view);
+        PopupMenu popup = new PopupMenu(new android.view.ContextThemeWrapper(requireContext(), R.style.Cassette_NeutralTintContext), view);
         popup.getMenuInflater().inflate(menuResource, popup.getMenu());
 
         popup.setOnMenuItemClickListener(menuItem -> {

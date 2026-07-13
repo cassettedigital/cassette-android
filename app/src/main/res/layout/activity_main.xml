@@ -36,6 +36,8 @@
             android:paddingStart="24dp"
             android:paddingEnd="24dp"
             android:visibility="gone"
+            android:background="@color/md_theme_dark_surfaceContainer"
+            app:elevation="0dp"
             app:menu="@menu/bottom_nav_menu" />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>

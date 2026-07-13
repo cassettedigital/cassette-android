@@ -87,7 +87,12 @@ public class PlayerBottomSheetFragment extends Fragment {
     }
 
     private void customizeBottomSheetBackground() {
-        bind.playerHeaderLayout.getRoot().setBackgroundColor(SurfaceColors.getColorForElevation(requireContext(), 8));
+        // cassette: SurfaceColors.getColorForElevation blends colorSurface with
+        // the tonal-elevation tint (colorPrimary = orange) -> the mini-player
+        // washed BROWN and overrode the layout background. Use the flat
+        // de-saturated container colour so the peek matches the bottom nav.
+        bind.playerHeaderLayout.getRoot().setBackgroundColor(
+                requireContext().getColor(com.cappielloantonio.tempo.R.color.md_theme_dark_surfaceContainer));
     }
 
     private void customizeBottomSheetAction() {
