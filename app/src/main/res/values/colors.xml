@@ -93,6 +93,10 @@
     <color name="cs_skin_violet_accent">#A47FFF</color>
     <color name="cs_skin_rose_accent">#E869A4</color>
 
+    <!-- cassette: scrim over the blurred now-playing backdrop — dark enough that
+         cream text/controls stay readable over any cover, warm to match the chassis. -->
+    <color name="player_backdrop_scrim">#C2120F0C</color>
+
     <color name="lyricsTextColor">#252525</color>
     <color name="shadowsLyricsTextColor">#B4B4B4</color>
 

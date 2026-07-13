@@ -5,6 +5,29 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <!-- cassette: blurred album-cover backdrop (iOS-style). PlayerControllerFragment
+         loads the current cover here and applies a RenderEffect blur (API 31+);
+         the scrim keeps the text and controls readable over it. -->
+    <ImageView
+        android:id="@+id/player_blurred_background"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:scaleType="centerCrop"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <View
+        android:id="@+id/player_background_scrim"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@color/player_backdrop_scrim"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/player_media_quality_sector"
         android:layout_width="match_parent"
@@ -53,7 +76,7 @@
             app:layout_constraintTop_toTopOf="@id/player_media_extension"
             app:layout_constraintBottom_toBottomOf="@id/player_media_extension"
             app:srcCompat="@drawable/ic_info_stream"
-            app:tint="?attr/colorOnPrimaryContainer" />
+            app:tint="?attr/colorOnSurface" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -140,12 +163,12 @@
         android:layout_marginTop="20dp"
         android:layout_marginEnd="16dp"
         app:bar_height="2dp"
-        app:buffered_color="?attr/colorOnSecondaryContainer"
+        app:buffered_color="?attr/colorPrimaryContainer"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/player_artist_name_label"
-        app:played_color="?attr/colorOnPrimaryContainer"
-        app:scrubber_color="?attr/colorOnPrimaryContainer"
+        app:played_color="?attr/colorPrimary"
+        app:scrubber_color="?attr/colorPrimary"
         app:unplayed_color="?attr/colorPrimaryContainer" />
 
     <TextView
@@ -225,7 +248,7 @@
         app:layout_constraintEnd_toStartOf="@+id/placeholder_view_middle_left"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/placeholder_view_middle_left"
-        app:tint="?attr/colorOnPrimaryContainer" />
+        app:tint="?attr/colorOnSurface" />
 
     <ImageButton
         android:id="@+id/exo_shuffle"
@@ -238,8 +261,8 @@
         app:layout_constraintEnd_toStartOf="@+id/placeholder_view_middle_left"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/placeholder_view_middle_left"
-        app:srcCompat="@drawable/ic_shuffle"
-        app:tint="?attr/colorOnPrimaryContainer" />
+        app:srcCompat="@drawable/ic_lucide_shuffle"
+        app:tint="?attr/colorOnSurface" />
 
     <ImageButton
         android:id="@+id/exo_rew"
@@ -247,12 +270,12 @@
         android:layout_height="42dp"
         android:background="?attr/selectableItemBackgroundBorderless"
         android:scaleType="fitCenter"
-        android:src="@drawable/ic_replay"
+        android:src="@drawable/ic_lucide_rewind"
         app:layout_constraintBottom_toBottomOf="@+id/player_play_pause_placeholder_view"
         app:layout_constraintEnd_toStartOf="@+id/player_play_pause_placeholder_view"
         app:layout_constraintStart_toEndOf="@id/placeholder_view_left"
         app:layout_constraintTop_toTopOf="@+id/player_play_pause_placeholder_view"
-        app:tint="?attr/colorOnPrimaryContainer" />
+        app:tint="?attr/colorOnSurface" />
 
     <ImageButton
         android:id="@+id/exo_prev"
@@ -264,8 +287,8 @@
         app:layout_constraintEnd_toStartOf="@+id/player_play_pause_placeholder_view"
         app:layout_constraintStart_toEndOf="@id/placeholder_view_left"
         app:layout_constraintTop_toTopOf="@+id/player_play_pause_placeholder_view"
-        app:srcCompat="@drawable/ic_skip_previous"
-        app:tint="?attr/colorOnPrimaryContainer" />
+        app:srcCompat="@drawable/ic_lucide_skip_back"
+        app:tint="?attr/colorOnSurface" />
 
     <ImageButton
         android:id="@id/exo_play_pause"
@@ -278,7 +301,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/exo_progress"
         app:layout_constraintVertical_bias=".45"
-        app:tint="?attr/colorOnPrimaryContainer" />
+        app:tint="?attr/colorOnSurface" />
 
     <ImageButton
         android:id="@+id/exo_next"
@@ -290,8 +313,8 @@
         app:layout_constraintEnd_toStartOf="@id/placeholder_view_right"
         app:layout_constraintStart_toEndOf="@+id/player_play_pause_placeholder_view"
         app:layout_constraintTop_toTopOf="@+id/player_play_pause_placeholder_view"
-        app:srcCompat="@drawable/ic_skip_next"
-        app:tint="?attr/colorOnPrimaryContainer" />
+        app:srcCompat="@drawable/ic_lucide_skip_forward"
+        app:tint="?attr/colorOnSurface" />
 
     <ImageButton
         android:id="@+id/exo_ffwd"
@@ -303,8 +326,8 @@
         app:layout_constraintEnd_toStartOf="@id/placeholder_view_right"
         app:layout_constraintStart_toEndOf="@+id/player_play_pause_placeholder_view"
         app:layout_constraintTop_toTopOf="@+id/player_play_pause_placeholder_view"
-        app:srcCompat="@drawable/ic_forward"
-        app:tint="?attr/colorOnPrimaryContainer" />
+        app:srcCompat="@drawable/ic_lucide_fast_forward"
+        app:tint="?attr/colorOnSurface" />
 
     <ImageButton
         android:id="@+id/exo_repeat_toggle"
@@ -317,8 +340,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/placeholder_view_middle_right"
         app:layout_constraintTop_toTopOf="@+id/placeholder_view_middle_right"
-        app:srcCompat="@drawable/ic_repeat"
-        app:tint="?attr/colorOnPrimaryContainer" />
+        app:srcCompat="@drawable/ic_lucide_repeat"
+        app:tint="?attr/colorOnSurface" />
 
     <ToggleButton
         android:id="@+id/player_skip_silence_toggle_button"
@@ -333,7 +356,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/placeholder_view_middle_right"
         app:layout_constraintTop_toTopOf="@+id/placeholder_view_middle_right"
-        app:tint="?attr/colorOnPrimaryContainer" />
+        app:tint="?attr/colorOnSurface" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/player_quick_action_view"

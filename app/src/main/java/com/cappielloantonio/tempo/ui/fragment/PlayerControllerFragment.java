@@ -49,6 +49,7 @@ public class PlayerControllerFragment extends Fragment {
 
     private InnerFragmentPlayerControllerBinding bind;
     private ViewPager2 playerMediaCoverViewPager;
+    private android.widget.ImageView playerBlurredBackground;
     private ImageButton buttonFavorite;
     private TextView playerMediaTitleLabel;
     private TextView playerArtistNameLabel;
@@ -104,6 +105,19 @@ public class PlayerControllerFragment extends Fragment {
 
     private void init() {
         playerMediaCoverViewPager = bind.getRoot().findViewById(R.id.player_media_cover_view_pager);
+        playerBlurredBackground = bind.getRoot().findViewById(R.id.player_blurred_background);
+        // cassette: iOS-style blurred backdrop of the cover. RenderEffect is a
+        // GPU blur (API 31+); below that, hide it and keep the flat surface.
+        if (playerBlurredBackground != null) {
+            if (android.os.Build.VERSION.SDK_INT >= 31) {
+                playerBlurredBackground.setRenderEffect(
+                        android.graphics.RenderEffect.createBlurEffect(
+                                50f, 50f, android.graphics.Shader.TileMode.CLAMP));
+            } else {
+                playerBlurredBackground.setVisibility(android.view.View.GONE);
+                bind.getRoot().findViewById(R.id.player_background_scrim).setVisibility(android.view.View.GONE);
+            }
+        }
         buttonFavorite = bind.getRoot().findViewById(R.id.button_favorite);
         playerMediaTitleLabel = bind.getRoot().findViewById(R.id.player_media_title_label);
         playerArtistNameLabel = bind.getRoot().findViewById(R.id.player_artist_name_label);
@@ -170,6 +184,19 @@ public class PlayerControllerFragment extends Fragment {
     private void setMetadata(MediaMetadata mediaMetadata) {
         playerMediaTitleLabel.setText(String.valueOf(mediaMetadata.title));
         playerArtistNameLabel.setText(String.valueOf(mediaMetadata.artist));
+
+        // cassette: feed the current cover into the blurred backdrop.
+        if (playerBlurredBackground != null && playerBlurredBackground.getVisibility() == android.view.View.VISIBLE
+                && mediaMetadata.extras != null) {
+            String coverArtId = mediaMetadata.extras.getString("coverArtId");
+            if (coverArtId != null) {
+                com.cappielloantonio.tempo.glide.CustomGlideRequest.Builder
+                        .from(requireContext(), coverArtId,
+                                com.cappielloantonio.tempo.glide.CustomGlideRequest.ResourceType.Album)
+                        .build()
+                        .into(playerBlurredBackground);
+            }
+        }
 
         playerMediaTitleLabel.setSelected(true);
         playerArtistNameLabel.setSelected(true);
