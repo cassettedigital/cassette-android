@@ -369,6 +369,18 @@ object Preferences {
     }
 
     @JvmStatic
+    fun getCassetteCloudPlayReadHighwater(): Long {
+        // cassette play spine (Phase B): the max played_at (epoch ms) already
+        // pulled from /api/sync/plays. The next pull asks for plays newer than this.
+        return App.getInstance().preferences.getLong("cassette_cloud_play_read_highwater", 0L)
+    }
+
+    @JvmStatic
+    fun setCassetteCloudPlayReadHighwater(value: Long) {
+        App.getInstance().preferences.edit().putLong("cassette_cloud_play_read_highwater", value).apply()
+    }
+
+    @JvmStatic
     fun getCassetteThemeId(): String {
         // cassette: the account's cross-device skin (users.theme_id).
         return App.getInstance().preferences.getString("cassette_theme_id", "classic")!!

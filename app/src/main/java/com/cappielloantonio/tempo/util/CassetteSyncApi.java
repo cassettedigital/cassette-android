@@ -12,6 +12,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -319,5 +320,48 @@ public final class CassetteSyncApi {
         execute(request("/api/sync/plays", bearerToken)
                 .post(RequestBody.create(body.toString(), JSON))
                 .build());
+    }
+
+    /** One play row from GET /api/sync/plays (ids only — no title/artist). */
+    public static final class RemotePlayData {
+        @Nullable public final String cassetteLocalId;
+        @Nullable public final String mbid;
+        @Nullable public final String playedAtIso;
+        @Nullable public final String sourceDevice;
+
+        RemotePlayData(@Nullable String cassetteLocalId, @Nullable String mbid,
+                       @Nullable String playedAtIso, @Nullable String sourceDevice) {
+            this.cassetteLocalId = cassetteLocalId;
+            this.mbid = mbid;
+            this.playedAtIso = playedAtIso;
+            this.sourceDevice = sourceDevice;
+        }
+    }
+
+    /**
+     * GET /api/sync/plays — the account's play history across ALL devices,
+     * newest first. `sinceIso` (optional, UTC ISO-8601) returns only plays after
+     * that instant; `limit` caps the batch (server max 1000). Used by
+     * CassettePlayPull for the cross-surface "recently played" read.
+     */
+    public static List<RemotePlayData> listPlaysSince(String bearerToken, @Nullable String sinceIso, int limit) throws IOException {
+        StringBuilder path = new StringBuilder("/api/sync/plays?limit=").append(limit);
+        if (sinceIso != null) path.append("&since=").append(URLEncoder.encode(sinceIso, "UTF-8"));
+        JsonObject json = execute(request(path.toString(), bearerToken).get().build());
+        List<RemotePlayData> out = new ArrayList<>();
+        JsonArray plays = json.getAsJsonArray("plays");
+        if (plays != null) {
+            for (JsonElement el : plays) {
+                if (!el.isJsonObject()) continue;
+                JsonObject row = el.getAsJsonObject();
+                out.add(new RemotePlayData(
+                        optString(row, "cassette_local_id"),
+                        optString(row, "mbid"),
+                        optString(row, "played_at"),
+                        optString(row, "source_device")
+                ));
+            }
+        }
+        return out;
     }
 }

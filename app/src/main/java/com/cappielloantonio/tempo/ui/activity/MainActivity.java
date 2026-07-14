@@ -109,6 +109,9 @@ public class MainActivity extends BaseActivity {
         super.onResume();
         pingServer();
         cassetteSyncHandler.post(cassetteSyncTick);
+        // cassette play spine (Phase B): pull other-surface plays once per
+        // foreground so "recently played" reflects the whole account.
+        com.cappielloantonio.tempo.util.CassettePlayPull.pullAsync();
     }
 
     @Override
