@@ -67,6 +67,11 @@ public class HomeViewModel extends AndroidViewModel {
     private final MutableLiveData<List<Playlist>> pinnedPlaylists = new MutableLiveData<>(null);
     private final MutableLiveData<List<Share>> shares = new MutableLiveData<>(null);
 
+    // cassette play spine (Phase B): most-recent resolvable remote play → Resume card.
+    private final MutableLiveData<RemoteResume> remoteResume = new MutableLiveData<>(null);
+    private final java.util.concurrent.ExecutorService remoteResumeExecutor =
+            java.util.concurrent.Executors.newSingleThreadExecutor();
+
     private List<HomeSector> sectors;
 
     public HomeViewModel(@NonNull Application application) {
@@ -100,6 +105,49 @@ public class HomeViewModel extends AndroidViewModel {
     /** cassette: the single most recent play — feeds the home Resume card. */
     public LiveData<List<Chronology>> getLastPlayedSong() {
         return chronologyRepository.getLastPlayed(Preferences.getServerId(), 1);
+    }
+
+    /**
+     * cassette play spine (Phase B): the most recent play from ANOTHER surface
+     * (iOS / web / desktop), pulled into cassette_remote_play, resolved to a
+     * locally-owned track so it can feed the cross-device Resume card. The
+     * endpoint carries ids only, so we resolve via the download table and skip
+     * remote plays of tracks this device doesn't own. Null when none resolve.
+     */
+    public LiveData<RemoteResume> getRemoteResume() {
+        remoteResumeExecutor.execute(() -> {
+            RemoteResume result = null;
+            try {
+                com.cappielloantonio.tempo.database.AppDatabase db =
+                        com.cappielloantonio.tempo.database.AppDatabase.getInstance();
+                List<com.cappielloantonio.tempo.model.RemotePlay> recent = db.remotePlayDao().getRecent(25);
+                if (recent != null) {
+                    for (com.cappielloantonio.tempo.model.RemotePlay rp : recent) {
+                        com.cappielloantonio.tempo.model.Download owned =
+                                db.downloadDao().getByCassetteLocalId(rp.getCassetteLocalId());
+                        if (owned != null) {
+                            result = new RemoteResume(owned, rp.getPlayedAt());
+                            break;
+                        }
+                    }
+                }
+            } catch (Exception ignored) {
+                // best-effort — the local Resume card still works without it
+            }
+            remoteResume.postValue(result);
+        });
+        return remoteResume;
+    }
+
+    /** A remote play resolved to a locally-owned, displayable track. */
+    public static class RemoteResume {
+        public final Child track;
+        public final long playedAt;
+
+        public RemoteResume(Child track, long playedAt) {
+            this.track = track;
+            this.playedAt = playedAt;
+        }
     }
 
     public LiveData<List<Chronology>> getChronologySample(LifecycleOwner owner) {

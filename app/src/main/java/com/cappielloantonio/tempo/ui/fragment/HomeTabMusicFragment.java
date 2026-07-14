@@ -147,11 +147,30 @@ public class HomeTabMusicFragment extends Fragment implements ClickCallback {
      * item — the song you were actually in the middle of.
      */
     private com.cappielloantonio.tempo.subsonic.models.Child resumeFromHistory;
+    private long resumeFromHistoryTs;
     private com.cappielloantonio.tempo.subsonic.models.Child resumeFromQueue;
+    private long resumeFromQueueTs;
+    // cassette play spine (Phase B): a play made on another surface, resolved local.
+    private com.cappielloantonio.tempo.subsonic.models.Child resumeFromRemote;
+    private long resumeFromRemoteTs;
 
     private void initResumeCard() {
         homeViewModel.getLastPlayedSong().observe(getViewLifecycleOwner(), items -> {
-            resumeFromHistory = (items == null || items.isEmpty()) ? null : items.get(0);
+            if (items == null || items.isEmpty()) {
+                resumeFromHistory = null;
+                resumeFromHistoryTs = 0;
+            } else {
+                resumeFromHistory = items.get(0);
+                resumeFromHistoryTs = items.get(0).getTimestamp();
+            }
+            applyResumeCard();
+        });
+
+        // cassette play spine (Phase B): fold in the most recent play from another
+        // surface (iOS/web/desktop), resolved to a locally-owned track.
+        homeViewModel.getRemoteResume().observe(getViewLifecycleOwner(), remote -> {
+            resumeFromRemote = remote != null ? remote.track : null;
+            resumeFromRemoteTs = remote != null ? remote.playedAt : 0;
             applyResumeCard();
         });
 
@@ -163,6 +182,7 @@ public class HomeTabMusicFragment extends Fragment implements ClickCallback {
                 }
             }
             resumeFromQueue = latest;
+            resumeFromQueueTs = latest != null ? latest.getLastPlay() : 0;
             applyResumeCard();
         });
     }
@@ -170,8 +190,20 @@ public class HomeTabMusicFragment extends Fragment implements ClickCallback {
     private void applyResumeCard() {
         if (bind == null) return;
 
-        com.cappielloantonio.tempo.subsonic.models.Child track =
-                resumeFromHistory != null ? resumeFromHistory : resumeFromQueue;
+        // Pick the newest actual play across this device (history) and other
+        // surfaces (remote); the persisted queue is only a fallback when there is
+        // no play history at all (fresh pairing / mid-first-listen).
+        com.cappielloantonio.tempo.subsonic.models.Child track = null;
+        long best = Long.MIN_VALUE;
+        if (resumeFromHistory != null) {
+            track = resumeFromHistory;
+            best = resumeFromHistoryTs;
+        }
+        if (resumeFromRemote != null && resumeFromRemoteTs > best) {
+            track = resumeFromRemote;
+            best = resumeFromRemoteTs;
+        }
+        if (track == null) track = resumeFromQueue;
 
         if (track == null) {
             bind.homeResumeCard.setVisibility(View.GONE);
