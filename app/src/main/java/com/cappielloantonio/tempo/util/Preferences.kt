@@ -357,6 +357,18 @@ object Preferences {
     }
 
     @JvmStatic
+    fun getCassetteCloudPlayHighwater(): Long {
+        // cassette play spine: the max chronology.timestamp already POSTed to
+        // /api/sync/plays. Rows newer than this are sent on the next flush.
+        return App.getInstance().preferences.getLong("cassette_cloud_play_highwater", 0L)
+    }
+
+    @JvmStatic
+    fun setCassetteCloudPlayHighwater(value: Long) {
+        App.getInstance().preferences.edit().putLong("cassette_cloud_play_highwater", value).apply()
+    }
+
+    @JvmStatic
     fun getCassetteThemeId(): String {
         // cassette: the account's cross-device skin (users.theme_id).
         return App.getInstance().preferences.getString("cassette_theme_id", "classic")!!

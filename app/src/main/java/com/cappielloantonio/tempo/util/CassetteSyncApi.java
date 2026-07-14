@@ -278,4 +278,46 @@ public final class CassetteSyncApi {
                 .build());
         Log.d(TAG, "reportFullInventory: " + items.size() + " items");
     }
+
+    // ------------------------------------------------------------------
+    // Play spine (cross-surface listening history)
+
+    /** One completed play. `playedAtIso` is a UTC ISO-8601 timestamp. */
+    public static final class PlayItem {
+        public final String cassetteLocalId;
+        @Nullable public final String mbid;
+        public final String playedAtIso;
+
+        public PlayItem(String cassetteLocalId, @Nullable String mbid, String playedAtIso) {
+            this.cassetteLocalId = cassetteLocalId;
+            this.mbid = mbid;
+            this.playedAtIso = playedAtIso;
+        }
+    }
+
+    /**
+     * POST /api/sync/plays — batch-report completed plays to the cross-surface
+     * play spine. Append-only + no server-side dedup, so the caller must only
+     * send plays it hasn't sent (CassettePlaySync advances a high-water mark on
+     * success). Identity is cassette_local_id, computed on-device via
+     * CassetteLocalId so it keys on the same id as the web-computed library
+     * index. Send at most 500 per call (the endpoint's cap).
+     */
+    public static void recordPlays(String bearerToken, List<PlayItem> plays) throws IOException {
+        if (plays.isEmpty()) return;
+        JsonArray array = new JsonArray();
+        for (PlayItem play : plays) {
+            JsonObject row = new JsonObject();
+            row.addProperty("cassette_local_id", play.cassetteLocalId);
+            row.addProperty("played_at", play.playedAtIso);
+            row.addProperty("source_device", "android");
+            if (play.mbid != null) row.addProperty("mbid", play.mbid);
+            array.add(row);
+        }
+        JsonObject body = new JsonObject();
+        body.add("plays", array);
+        execute(request("/api/sync/plays", bearerToken)
+                .post(RequestBody.create(body.toString(), JSON))
+                .build());
+    }
 }

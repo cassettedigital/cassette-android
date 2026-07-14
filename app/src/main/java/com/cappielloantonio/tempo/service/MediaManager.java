@@ -19,6 +19,7 @@ import com.cappielloantonio.tempo.repository.SongRepository;
 import com.cappielloantonio.tempo.subsonic.models.Child;
 import com.cappielloantonio.tempo.subsonic.models.InternetRadioStation;
 import com.cappielloantonio.tempo.subsonic.models.PodcastEpisode;
+import com.cappielloantonio.tempo.util.CassettePlaySync;
 import com.cappielloantonio.tempo.util.MappingUtil;
 import com.cappielloantonio.tempo.util.Preferences;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -349,6 +350,9 @@ public class MediaManager {
     public static void saveChronology(MediaItem mediaItem) {
         if (mediaItem != null) {
             getChronologyRepository().insert(new Chronology(mediaItem));
+            // cassette play spine: a completed play was just logged — flush it
+            // (and any backlog) to /api/sync/plays on a background thread.
+            CassettePlaySync.flushAsync();
         }
     }
 

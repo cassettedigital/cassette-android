@@ -20,4 +20,10 @@ public interface ChronologyDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(Chronology chronologyObject);
+
+    // cassette play spine: completed plays newer than the cloud high-water mark,
+    // oldest-first and capped, for the /api/sync/plays batch flush. Synchronous
+    // (List, not LiveData) — called only off the main thread.
+    @Query("SELECT * FROM chronology WHERE server == :server AND timestamp > :since ORDER BY timestamp ASC LIMIT :limit")
+    List<Chronology> getPlayedSince(String server, long since, int limit);
 }
