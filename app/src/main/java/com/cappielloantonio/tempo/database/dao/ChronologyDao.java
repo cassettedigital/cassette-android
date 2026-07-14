@@ -26,4 +26,9 @@ public interface ChronologyDao {
     // (List, not LiveData) — called only off the main thread.
     @Query("SELECT * FROM chronology WHERE server == :server AND timestamp > :since ORDER BY timestamp ASC LIMIT :limit")
     List<Chronology> getPlayedSince(String server, long since, int limit);
+
+    // cassette play spine: latest local play per track, newest-first, for the
+    // cross-device "recently played" union. Synchronous — called off the main thread.
+    @Query("SELECT * FROM chronology WHERE server == :server GROUP BY id ORDER BY timestamp DESC LIMIT :limit")
+    List<Chronology> getRecentSync(String server, int limit);
 }

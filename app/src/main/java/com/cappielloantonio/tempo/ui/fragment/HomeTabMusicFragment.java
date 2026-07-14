@@ -82,6 +82,7 @@ public class HomeTabMusicFragment extends Fragment implements ClickCallback {
     private ArtistAdapter bestOfArtistAdapter;
     private SongHorizontalAdapter starredSongAdapter;
     private SongHorizontalAdapter topSongAdapter;
+    private SongHorizontalAdapter recentlyPlayedTracksAdapter;
     private AlbumHorizontalAdapter starredAlbumAdapter;
     private ArtistHorizontalAdapter starredArtistAdapter;
     private AlbumAdapter recentlyAddedAlbumAdapter;
@@ -120,6 +121,7 @@ public class HomeTabMusicFragment extends Fragment implements ClickCallback {
         // sectors default to gone in the layout. Re-enable = re-add a call.
         initGreeting();
         initResumeCard();
+        initRecentlyPlayedTracksView();
         initRecentPlayedAlbumView();
         initRecentAddedAlbumView();
         initPinnedPlaylistsView();
@@ -223,6 +225,29 @@ public class HomeTabMusicFragment extends Fragment implements ClickCallback {
         View.OnClickListener resume = v -> MediaManager.startQueue(mediaBrowserListenableFuture, target);
         bind.homeResumeCard.setOnClickListener(resume);
         bind.homeResumePlay.setOnClickListener(resume);
+    }
+
+    /**
+     * cassette play spine (Phase B): "Recently played" tracks unioned across this
+     * device and other surfaces (iOS/web/desktop, resolved to owned tracks). A
+     * horizontal shelf that fills in when there's cross-device history to show.
+     */
+    private void initRecentlyPlayedTracksView() {
+        bind.recentlyPlayedTracksRecyclerView.setHasFixedSize(true);
+        bind.recentlyPlayedTracksRecyclerView.setLayoutManager(
+                new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
+        recentlyPlayedTracksAdapter = new SongHorizontalAdapter(this, true, true, null);
+        bind.recentlyPlayedTracksRecyclerView.setAdapter(recentlyPlayedTracksAdapter);
+
+        homeViewModel.getRecentlyPlayedTracks().observe(getViewLifecycleOwner(), songs -> {
+            if (bind == null) return;
+            if (songs == null || songs.isEmpty()) {
+                bind.homeRecentlyPlayedTracksSector.setVisibility(View.GONE);
+            } else {
+                bind.homeRecentlyPlayedTracksSector.setVisibility(View.VISIBLE);
+                recentlyPlayedTracksAdapter.setItems(songs);
+            }
+        });
     }
 
     @Override

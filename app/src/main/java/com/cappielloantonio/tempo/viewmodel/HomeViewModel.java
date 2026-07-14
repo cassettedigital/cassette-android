@@ -150,6 +150,66 @@ public class HomeViewModel extends AndroidViewModel {
         }
     }
 
+    private final MutableLiveData<List<Child>> recentlyPlayedTracks = new MutableLiveData<>(null);
+
+    /**
+     * cassette play spine (Phase B): "recently played" tracks unioned across THIS
+     * device (chronology) and other surfaces (cassette_remote_play, resolved to
+     * owned tracks). Deduped by Subsonic track id keeping the newer play, sorted
+     * newest-first, capped. Computed off the main thread. Tracks played elsewhere
+     * that this device doesn't own can't be shown (endpoint carries ids only).
+     */
+    public LiveData<List<Child>> getRecentlyPlayedTracks() {
+        remoteResumeExecutor.execute(() -> {
+            List<Child> result = new ArrayList<>();
+            try {
+                com.cappielloantonio.tempo.database.AppDatabase db =
+                        com.cappielloantonio.tempo.database.AppDatabase.getInstance();
+                String server = Preferences.getServerId();
+
+                java.util.Map<String, Child> childById = new HashMap<>();
+                java.util.Map<String, Long> tsById = new HashMap<>();
+
+                List<Chronology> local = db.chronologyDao().getRecentSync(server, 40);
+                if (local != null) {
+                    for (Chronology c : local) mergeRecent(childById, tsById, c.getId(), c, c.getTimestamp());
+                }
+
+                List<com.cappielloantonio.tempo.model.RemotePlay> remote = db.remotePlayDao().getRecent(40);
+                if (remote != null) {
+                    for (com.cappielloantonio.tempo.model.RemotePlay rp : remote) {
+                        com.cappielloantonio.tempo.model.Download owned =
+                                db.downloadDao().getByCassetteLocalId(rp.getCassetteLocalId());
+                        if (owned != null) mergeRecent(childById, tsById, owned.getId(), owned, rp.getPlayedAt());
+                    }
+                }
+
+                List<java.util.Map.Entry<String, Long>> entries = new ArrayList<>(tsById.entrySet());
+                entries.sort((a, b) -> Long.compare(b.getValue(), a.getValue()));
+                for (java.util.Map.Entry<String, Long> e : entries) {
+                    Child c = childById.get(e.getKey());
+                    if (c != null) result.add(c);
+                    if (result.size() >= 20) break;
+                }
+            } catch (Exception ignored) {
+                // best-effort — the shelf just stays hidden if it can't build
+            }
+            recentlyPlayedTracks.postValue(result);
+        });
+        return recentlyPlayedTracks;
+    }
+
+    private static void mergeRecent(java.util.Map<String, Child> childById,
+                                    java.util.Map<String, Long> tsById,
+                                    String id, Child child, long ts) {
+        if (id == null) return;
+        Long existing = tsById.get(id);
+        if (existing == null || ts > existing) {
+            tsById.put(id, ts);
+            childById.put(id, child);
+        }
+    }
+
     public LiveData<List<Chronology>> getChronologySample(LifecycleOwner owner) {
         Calendar cal = Calendar.getInstance();
         String server = Preferences.getServerId();

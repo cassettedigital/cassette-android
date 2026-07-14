@@ -116,6 +116,37 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
+        <!-- cassette play spine (Phase B): Recently played across all your devices -->
+        <LinearLayout
+            android:id="@+id/home_recently_played_tracks_sector"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <TextView
+                android:id="@+id/recently_played_tracks_text_view"
+                style="@style/TitleLarge"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="16dp"
+                android:paddingTop="16dp"
+                android:paddingEnd="16dp"
+                android:text="@string/home_title_recently_played" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recently_played_tracks_recycler_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                android:clipToPadding="false"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp" />
+
+        </LinearLayout>
+
         <!--  Download/Sync starred  -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/home_sync_starred_card"
