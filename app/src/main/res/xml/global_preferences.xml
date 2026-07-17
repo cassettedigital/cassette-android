@@ -350,13 +350,14 @@
             app:summary="@string/settings_version_summary"
             app:title="@string/settings_version_title" />
 
+        <!-- cassette: Report a problem opens a mailto to Cassette support
+             (user_feedback stays email for v1). The upstream Tempo "Github /
+             follow development" link was removed — it pointed users at the
+             upstream project's releases, a branding + wrong-APK leak. -->
         <Preference
-            app:summary="@string/settings_github_summary"
-            app:title="@string/settings_github_title">
-            <intent
-                android:action="android.intent.action.VIEW"
-                android:data="@string/settings_github_link" />
-        </Preference>
+            android:key="report_problem"
+            app:summary="@string/settings_report_problem_summary"
+            app:title="@string/settings_report_problem_title" />
 
         <Preference
             app:summary="@string/undraw_thanks"

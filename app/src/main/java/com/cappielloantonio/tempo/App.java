@@ -11,6 +11,7 @@ import com.cappielloantonio.tempo.github.Github;
 import com.cappielloantonio.tempo.helper.ThemeHelper;
 import com.cappielloantonio.tempo.subsonic.Subsonic;
 import com.cappielloantonio.tempo.subsonic.SubsonicPreferences;
+import com.cappielloantonio.tempo.util.CassetteDiagnostics;
 import com.cappielloantonio.tempo.util.Preferences;
 
 public class App extends Application {
@@ -24,15 +25,22 @@ public class App extends Application {
     public void onCreate() {
         super.onCreate();
 
+        instance = new App();
+        context = getApplicationContext();
+        preferences = PreferenceManager.getDefaultSharedPreferences(context);
+
+        // cassette: arm the crash handler first thing, so a fault during the rest
+        // of startup is still captured, then flush any reports persisted by a
+        // previous session (off the main thread). Crashes upload opt-out
+        // (consent.user_consented=false); see CassetteDiagnostics.
+        CassetteDiagnostics.install(context);
+        CassetteDiagnostics.flushPendingAsync(context);
+
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         // cassette: dark-first, like the web dashboard and iOS app. "default"
         // (follow-system) and light stay available in Settings.
         String themePref = sharedPreferences.getString(Preferences.THEME, ThemeHelper.DARK_MODE);
         ThemeHelper.applyTheme(themePref);
-
-        instance = new App();
-        context = getApplicationContext();
-        preferences = PreferenceManager.getDefaultSharedPreferences(context);
     }
 
     public static App getInstance() {

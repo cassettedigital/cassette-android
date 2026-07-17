@@ -9,6 +9,7 @@ import androidx.media3.cast.SessionAvailabilityListener
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
+import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
 import androidx.media3.common.Tracks
 import androidx.media3.common.util.UnstableApi
@@ -19,6 +20,7 @@ import androidx.media3.session.MediaLibraryService
 import androidx.media3.session.MediaSession.ControllerInfo
 import com.cappielloantonio.tempo.repository.AutomotiveRepository
 import com.cappielloantonio.tempo.ui.activity.MainActivity
+import com.cappielloantonio.tempo.util.CassetteDiagnostics
 import com.cappielloantonio.tempo.util.Constants
 import com.cappielloantonio.tempo.util.DownloadUtil
 import com.cappielloantonio.tempo.util.Preferences
@@ -146,6 +148,22 @@ class MediaService : MediaLibraryService(), SessionAvailabilityListener {
                     MediaManager.scrobble(player.currentMediaItem, true)
                     MediaManager.saveChronology(player.currentMediaItem)
                 }
+            }
+
+            override fun onPlayerError(error: PlaybackException) {
+                // cassette: do NOT auto-POST — a hub going briefly unreachable on
+                // the LAN throws a torrent of transient errors. Record a breadcrumb
+                // that enriches a later crash report instead (the diagnostics spine
+                // has no 'player' component, so a standalone report would be wrong).
+                CassetteDiagnostics.breadcrumb(
+                        "player_error " + error.errorCodeName + "(" + error.errorCode + "): " + error.message
+                )
+            }
+
+            override fun onPlayerErrorChanged(error: PlaybackException?) {
+                // Recovery signal only: the error state cleared (e.g. a retry
+                // succeeded). The set transition is already logged by onPlayerError.
+                if (error == null) CassetteDiagnostics.breadcrumb("player_error_cleared")
             }
 
             override fun onPositionDiscontinuity(

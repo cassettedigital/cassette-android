@@ -437,6 +437,34 @@ object Preferences {
     }
 
     @JvmStatic
+    fun getCassetteInstallId(): String {
+        // cassette diagnostics: an anonymous, install-scoped UUID that correlates
+        // crash/feedback reports for THIS install (and is the server's rate-limit
+        // key). Minted once, never re-keyed. Distinct from cassette_device_id (the
+        // account registry identity): install_id is correlation only, NOT identity,
+        // and survives independently of pairing.
+        var id = App.getInstance().preferences.getString("cassette_install_id", null)
+        if (id == null) {
+            id = java.util.UUID.randomUUID().toString()
+            App.getInstance().preferences.edit().putString("cassette_install_id", id).apply()
+        }
+        return id
+    }
+
+    @JvmStatic
+    fun getCassetteDiagnosticsExitHighwater(): Long {
+        // cassette diagnostics: the newest ApplicationExitInfo timestamp (epoch ms)
+        // already harvested into a report. Exits at or before this are skipped, so
+        // the same native crash / ANR is never reported twice.
+        return App.getInstance().preferences.getLong("cassette_diagnostics_exit_highwater", 0L)
+    }
+
+    @JvmStatic
+    fun setCassetteDiagnosticsExitHighwater(value: Long) {
+        App.getInstance().preferences.edit().putLong("cassette_diagnostics_exit_highwater", value).apply()
+    }
+
+    @JvmStatic
     fun getLibraryLastCategory(): String {
         // cassette: Library reopens on the last category viewed (iOS pattern).
         return App.getInstance().preferences.getString("library_last_category", "albums")!!

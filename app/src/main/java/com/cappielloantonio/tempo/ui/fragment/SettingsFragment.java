@@ -2,6 +2,8 @@ package com.cappielloantonio.tempo.ui.fragment;
 
 import android.content.Intent;
 import android.media.audiofx.AudioEffect;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.LayoutInflater;
@@ -99,6 +101,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         actionChangeDownloadStorage();
         actionDeleteDownloadStorage();
         actionKeepScreenOn();
+        actionReportProblem();
     }
 
     @Override
@@ -309,6 +312,33 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 findPreference("scan_library").setSummary("Scanning: counting " + count + " tracks");
                 if (isScanning) getScanStatus();
             }
+        });
+    }
+
+    private void actionReportProblem() {
+        Preference report = findPreference("report_problem");
+        if (report == null) return;
+
+        report.setOnPreferenceClickListener(preference -> {
+            // cassette: v1 feedback channel is email (user_feedback stays email,
+            // not the diagnostics spine). ACTION_SENDTO keeps it to mail apps only.
+            String address = getString(R.string.cassette_support_email);
+            Intent intent = new Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:" + address));
+            intent.putExtra(Intent.EXTRA_EMAIL, new String[]{address});
+            intent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.report_problem_email_subject, BuildConfig.VERSION_NAME));
+            intent.putExtra(Intent.EXTRA_TEXT, getString(
+                    R.string.report_problem_email_body,
+                    BuildConfig.VERSION_NAME,
+                    String.valueOf(BuildConfig.VERSION_CODE),
+                    Build.MODEL,
+                    Build.VERSION.RELEASE));
+
+            if (intent.resolveActivity(requireActivity().getPackageManager()) != null) {
+                startActivity(intent);
+            } else {
+                report.setSummary(getString(R.string.cassette_support_email));
+            }
+            return true;
         });
     }
 

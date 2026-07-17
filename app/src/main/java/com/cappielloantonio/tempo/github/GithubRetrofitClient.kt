@@ -1,5 +1,6 @@
 package com.cappielloantonio.tempo.github
 
+import com.cappielloantonio.tempo.BuildConfig
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -24,7 +25,11 @@ class GithubRetrofitClient(github: Github) {
 
     private fun getHttpLoggingInterceptor(): HttpLoggingInterceptor {
         val loggingInterceptor = HttpLoggingInterceptor()
-        loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY)
+        // cassette: debug-only BODY logging, matching the Subsonic client — keep
+        // request/response bodies out of release logcat.
+        loggingInterceptor.setLevel(
+                if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BODY else HttpLoggingInterceptor.Level.NONE
+        )
         return loggingInterceptor
     }
 }

@@ -1,6 +1,7 @@
 package com.cappielloantonio.tempo.subsonic
 
 import com.cappielloantonio.tempo.App
+import com.cappielloantonio.tempo.BuildConfig
 import com.cappielloantonio.tempo.subsonic.utils.CacheUtil
 import com.google.gson.GsonBuilder
 import okhttp3.Cache
@@ -49,7 +50,11 @@ class RetrofitClient(subsonic: Subsonic) {
 
     private fun getHttpLoggingInterceptor(): HttpLoggingInterceptor {
         val loggingInterceptor = HttpLoggingInterceptor()
-        loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY)
+        // cassette: BODY logs the Subsonic auth token + salt into logcat. Only in
+        // debug builds — release stays silent so credentials never hit device logs.
+        loggingInterceptor.setLevel(
+            if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BODY else HttpLoggingInterceptor.Level.NONE
+        )
         return loggingInterceptor
     }
 
