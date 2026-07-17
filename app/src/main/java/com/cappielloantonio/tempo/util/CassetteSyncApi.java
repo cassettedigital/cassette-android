@@ -86,20 +86,34 @@ public final class CassetteSyncApi {
         @Nullable public final String downloadQuality;
         @Nullable public final String themeId;
         public final boolean serverMode;
+        /** OPT-OUT gate for auto crash/hang reports. Default true when absent. */
+        public final boolean diagnosticsConsent;
 
-        Account(@Nullable String downloadQuality, @Nullable String themeId, boolean serverMode) {
+        Account(@Nullable String downloadQuality, @Nullable String themeId, boolean serverMode,
+                boolean diagnosticsConsent) {
             this.downloadQuality = downloadQuality;
             this.themeId = themeId;
             this.serverMode = serverMode;
+            this.diagnosticsConsent = diagnosticsConsent;
         }
     }
 
-    /** GET /api/sync/account — account-level settings (download tier, skin). */
+    /** Read a wire boolean, defaulting when the key is absent or JSON null. */
+    private static boolean optBool(JsonObject json, String key, boolean fallback) {
+        return json.has(key) && !json.get(key).isJsonNull()
+                ? json.get(key).getAsBoolean()
+                : fallback;
+    }
+
+    /** GET /api/sync/account — account-level settings (download tier, skin,
+     *  diagnostics opt-out). diagnosticsConsent is camelCase on the wire and
+     *  defaults true (opt-out) whenever the field is missing. */
     public static Account getAccount(String bearerToken) throws IOException {
         JsonObject json = execute(request("/api/sync/account", bearerToken).get().build());
-        boolean serverMode = json.has("serverMode") && !json.get("serverMode").isJsonNull()
-                && json.get("serverMode").getAsBoolean();
-        return new Account(optString(json, "downloadQuality"), optString(json, "themeId"), serverMode);
+        boolean serverMode = optBool(json, "serverMode", false);
+        boolean diagnosticsConsent = optBool(json, "diagnosticsConsent", true);
+        return new Account(optString(json, "downloadQuality"), optString(json, "themeId"),
+                serverMode, diagnosticsConsent);
     }
 
     // ------------------------------------------------------------------

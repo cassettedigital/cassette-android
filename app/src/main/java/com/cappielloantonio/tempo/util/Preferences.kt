@@ -465,6 +465,24 @@ object Preferences {
     }
 
     @JvmStatic
+    fun getCassetteDiagnosticsConsent(): Boolean {
+        // cassette diagnostics: account-sourced opt-out for AUTO reports
+        // (crash / hang / native crash). Rides the same cross-device account
+        // rails as themeId / downloadQuality — read-only on the phone, the web
+        // dashboard owns the write. Default true (opt-out, not opt-in), and true
+        // whenever absent/offline so a fresh install still self-reports crashes.
+        // Manual "Report a problem" feedback is user-initiated and ignores this
+        // flag entirely; only signed-in clients are governed (anonymous is
+        // always-on — see CassetteDiagnostics.isAutoUploadEnabled).
+        return App.getInstance().preferences.getBoolean("cassette_diagnostics_consent", true)
+    }
+
+    @JvmStatic
+    fun setCassetteDiagnosticsConsent(consent: Boolean) {
+        App.getInstance().preferences.edit().putBoolean("cassette_diagnostics_consent", consent).apply()
+    }
+
+    @JvmStatic
     fun getLibraryLastCategory(): String {
         // cassette: Library reopens on the last category viewed (iOS pattern).
         return App.getInstance().preferences.getString("library_last_category", "albums")!!

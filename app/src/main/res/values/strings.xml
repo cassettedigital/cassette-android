@@ -273,9 +273,12 @@
     <string name="settings_about_summary">Cassette is your record collection, everywhere. This is the Android player for your paired library.</string>
     <string name="settings_about_title">About</string>
     <string name="settings_report_problem_title">Report a problem</string>
-    <string name="settings_report_problem_summary">Email us about a bug or crash</string>
-    <string name="report_problem_email_subject">Cassette Android feedback (v%1$s)</string>
-    <string name="report_problem_email_body">Describe the problem here.\n\n\n---\nApp: %1$s (%2$s)\nDevice: %3$s\nAndroid: %4$s</string>
+    <string name="settings_report_problem_summary">Tell us about a bug or send feedback</string>
+    <string name="report_problem_dialog_message">A snapshot of this screen and recent app activity is attached to help us find the problem.</string>
+    <string name="report_problem_hint">What went wrong?</string>
+    <string name="report_problem_send">Send</string>
+    <string name="report_problem_sent">Thanks. Your report was sent.</string>
+    <string name="report_problem_empty">Please describe the problem first.</string>
     <string name="settings_always_on_display">Always on display</string>
     <string name="settings_audio_transcode_download_format">Transcode format</string>
     <string name="settings_audio_transcode_download_priority_summary">If enabled, Tempo will not force download the track with the transcode settings below.</string>

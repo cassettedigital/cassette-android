@@ -1,15 +1,23 @@
 package com.cappielloantonio.tempo.ui.fragment;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.media.audiofx.AudioEffect;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
+import android.text.InputType;
 import android.view.LayoutInflater;
+import android.view.PixelCopy;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.EditText;
+import android.widget.FrameLayout;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -34,11 +42,14 @@ import com.cappielloantonio.tempo.ui.dialog.DeleteDownloadStorageDialog;
 import com.cappielloantonio.tempo.ui.dialog.DownloadStorageDialog;
 import com.cappielloantonio.tempo.ui.dialog.StarredSyncDialog;
 import com.cappielloantonio.tempo.ui.dialog.StreamingCacheStorageDialog;
+import com.cappielloantonio.tempo.util.CassetteDiagnostics;
 import com.cappielloantonio.tempo.util.DownloadUtil;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.cappielloantonio.tempo.util.Preferences;
 import com.cappielloantonio.tempo.util.UIUtil;
 import com.cappielloantonio.tempo.viewmodel.SettingViewModel;
 
+import java.io.ByteArrayOutputStream;
 import java.util.Locale;
 import java.util.Map;
 
@@ -320,26 +331,111 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         if (report == null) return;
 
         report.setOnPreferenceClickListener(preference -> {
-            // cassette: v1 feedback channel is email (user_feedback stays email,
-            // not the diagnostics spine). ACTION_SENDTO keeps it to mail apps only.
-            String address = getString(R.string.cassette_support_email);
-            Intent intent = new Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:" + address));
-            intent.putExtra(Intent.EXTRA_EMAIL, new String[]{address});
-            intent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.report_problem_email_subject, BuildConfig.VERSION_NAME));
-            intent.putExtra(Intent.EXTRA_TEXT, getString(
-                    R.string.report_problem_email_body,
-                    BuildConfig.VERSION_NAME,
-                    String.valueOf(BuildConfig.VERSION_CODE),
-                    Build.MODEL,
-                    Build.VERSION.RELEASE));
-
-            if (intent.resolveActivity(requireActivity().getPackageManager()) != null) {
-                startActivity(intent);
-            } else {
-                report.setSummary(getString(R.string.cassette_support_email));
-            }
+            // cassette: feedback now rides the diagnostics spine as
+            // report_type=user_feedback (not email). Snapshot the current screen
+            // first (so the dialog doesn't cover it), then prompt for the message.
+            captureScreenshot(screenshotPng -> promptReportProblem(screenshotPng));
             return true;
         });
+    }
+
+    /**
+     * Show the free-text "Report a problem" dialog and POST it to the diagnostics
+     * spine as user_feedback (always allowed — the opt-out only gates auto crash
+     * reports). The optional PNG snapshot rides along as a screenshot attachment.
+     */
+    private void promptReportProblem(@Nullable byte[] screenshotPng) {
+        if (!isAdded()) return;
+
+        EditText input = new EditText(requireActivity());
+        input.setInputType(InputType.TYPE_CLASS_TEXT
+                | InputType.TYPE_TEXT_FLAG_MULTI_LINE
+                | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
+        input.setHint(R.string.report_problem_hint);
+        input.setMinLines(3);
+        input.setGravity(android.view.Gravity.TOP | android.view.Gravity.START);
+
+        int pad = (int) (16 * getResources().getDisplayMetrics().density);
+        FrameLayout wrapper = new FrameLayout(requireActivity());
+        wrapper.setPadding(pad, pad / 2, pad, 0);
+        wrapper.addView(input);
+
+        new MaterialAlertDialogBuilder(requireActivity())
+                .setTitle(R.string.settings_report_problem_title)
+                .setMessage(R.string.report_problem_dialog_message)
+                .setView(wrapper)
+                .setNegativeButton(android.R.string.cancel, null)
+                .setPositiveButton(R.string.report_problem_send, (dialog, which) -> {
+                    String message = input.getText() != null ? input.getText().toString().trim() : "";
+                    if (message.isEmpty()) {
+                        Toast.makeText(requireActivity(), R.string.report_problem_empty, Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    CassetteDiagnostics.submitUserFeedback(requireActivity().getApplicationContext(), message, screenshotPng);
+                    Toast.makeText(requireActivity(), R.string.report_problem_sent, Toast.LENGTH_SHORT).show();
+                })
+                .show();
+    }
+
+    /**
+     * Snapshot the current window into PNG bytes for a screenshot attachment.
+     * PixelCopy (API 26+) is the correct path — it captures hardware-accelerated
+     * and Surface content the software {@code View.draw} path misses. On API 24-25
+     * (and on any failure) we fall back to drawing the decor view, and ultimately
+     * to no screenshot (the feedback message still ships on its own).
+     */
+    private void captureScreenshot(@NonNull java.util.function.Consumer<byte[]> onResult) {
+        Activity act = getActivity();
+        if (act == null || act.getWindow() == null) {
+            onResult.accept(null);
+            return;
+        }
+        View decor = act.getWindow().getDecorView();
+        int width = decor.getWidth();
+        int height = decor.getHeight();
+        if (width <= 0 || height <= 0) {
+            onResult.accept(null);
+            return;
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            try {
+                Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+                PixelCopy.request(act.getWindow(), bitmap, copyResult -> {
+                    if (copyResult == PixelCopy.SUCCESS) {
+                        onResult.accept(toPng(bitmap));
+                    } else {
+                        onResult.accept(drawToPng(decor));
+                    }
+                }, new Handler(Looper.getMainLooper()));
+                return;
+            } catch (Throwable t) {
+                // IllegalArgumentException if the window isn't ready — fall through.
+            }
+        }
+        onResult.accept(drawToPng(decor));
+    }
+
+    /** Software fallback: render the view hierarchy to a bitmap (no Surface content). */
+    @Nullable
+    private static byte[] drawToPng(View view) {
+        try {
+            Bitmap bitmap = Bitmap.createBitmap(view.getWidth(), view.getHeight(), Bitmap.Config.ARGB_8888);
+            view.draw(new Canvas(bitmap));
+            return toPng(bitmap);
+        } catch (Throwable t) {
+            return null;
+        }
+    }
+
+    @Nullable
+    private static byte[] toPng(Bitmap bitmap) {
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
+            return out.toByteArray();
+        } catch (Throwable t) {
+            return null;
+        }
     }
 
     private void actionKeepScreenOn() {

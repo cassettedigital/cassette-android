@@ -118,6 +118,9 @@ public final class CassetteSyncEngine {
             // cassette: Server Mode is account-sourced (mirrors iOS). The phone
             // only reads it; the desktop writes it. Default/offline-first is off.
             Preferences.setServerMode(account.serverMode);
+            // cassette diagnostics: opt-out consent rides the same account rails.
+            // Gates AUTO crash/hang uploads only — manual feedback ignores it.
+            Preferences.setCassetteDiagnosticsConsent(account.diagnosticsConsent);
         } catch (Exception e) {
             Log.d(TAG, "account refresh skipped: " + e.getMessage());
         }
