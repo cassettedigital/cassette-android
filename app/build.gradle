@@ -6,6 +6,14 @@ android {
     compileSdk 35
     buildToolsVersion = '35.0.0'
 
+    lint {
+        // Cassette adds user-facing strings faster than this fork maintains the
+        // 7 upstream locale files, so new strings fall back to the English
+        // default. Don't fail a release build (lintVitalRelease) on that — real
+        // lint issues still abort; only MissingTranslation is downgraded.
+        disable 'MissingTranslation'
+    }
+
     defaultConfig {
         minSdkVersion 24
         targetSdk 35
