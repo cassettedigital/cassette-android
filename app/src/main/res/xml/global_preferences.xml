@@ -42,11 +42,12 @@
             android:summary="@string/settings_rounded_corner_summary"
             android:key="rounded_corner" />
 
-        <!-- cassette: 12 matches the code default in Preferences.kt. They
-             disagreed (6 here, 12 there), so the radius changed the first time
-             anyone opened this screen. -->
+        <!-- cassette: dp, and 5 matches both the code default in Preferences.kt
+             and iOS's 5pt row cover. These two used to disagree (6 here, 12
+             there), so the radius jumped the first time anyone opened this
+             screen, and the number was being applied as raw pixels. -->
         <ListPreference
-            app:defaultValue="12"
+            app:defaultValue="5"
             app:dialogTitle="@string/settings_rounded_corner_size"
             app:entries="@array/rounded_corner_size_titles"
             app:entryValues="@array/rounded_corner_size_values"

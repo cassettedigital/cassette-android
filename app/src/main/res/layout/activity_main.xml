@@ -31,13 +31,17 @@
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/bottom_navigation"
             android:layout_width="match_parent"
-            android:layout_height="80dp"
+            android:layout_height="64dp"
             android:layout_gravity="bottom"
             android:paddingStart="24dp"
             android:paddingEnd="24dp"
             android:visibility="gone"
             android:background="@color/md_theme_dark_surfaceContainer"
             app:elevation="0dp"
+            app:itemActiveIndicatorStyle="@style/Cassette.NavIndicator"
+            app:itemIconTint="@color/cs_nav_item_tint"
+            app:itemTextColor="@color/cs_nav_item_tint"
+            app:labelVisibilityMode="labeled"
             app:menu="@menu/bottom_nav_menu" />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>

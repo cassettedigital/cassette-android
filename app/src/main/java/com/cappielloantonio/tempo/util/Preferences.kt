@@ -322,7 +322,7 @@ object Preferences {
 
     @JvmStatic
     fun getRoundedCornerSize(): Int {
-        return App.getInstance().preferences.getString(ROUNDED_CORNER_SIZE, "12")!!.toInt()
+        return App.getInstance().preferences.getString(ROUNDED_CORNER_SIZE, "5")!!.toInt()
     }
 
     @JvmStatic

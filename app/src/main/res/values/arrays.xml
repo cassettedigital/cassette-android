@@ -195,10 +195,13 @@
         <item>Medium</item>
         <item>Low</item>
     </string-array>
+    <!-- cassette: these are dp now, not raw pixels (see CustomGlideRequest).
+         Centred on iOS's 5pt row cover, with one step either side. The old
+         18/12/6 were pixel counts and read as roughly 6/4/2dp on this phone. -->
     <string-array name="rounded_corner_size_values">
-        <item>18</item>
-        <item>12</item>
-        <item>6</item>
+        <item>8</item>
+        <item>5</item>
+        <item>3</item>
     </string-array>
 
     <string-array name="replay_gain_titles">

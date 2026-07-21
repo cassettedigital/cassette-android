@@ -5,13 +5,13 @@
     android:background="?attr/selectableItemBackground"
     android:clipChildren="false"
     android:orientation="horizontal"
-    android:paddingTop="2dp"
-    android:paddingBottom="2dp">
+    android:paddingTop="9dp"
+    android:paddingBottom="9dp">
 
     <ImageView
         android:id="@+id/album_cover_image_view"
-        android:layout_width="52dp"
-        android:layout_height="52dp"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         android:layout_gravity="center"
         android:layout_marginStart="16dp"
         app:layout_constraintBottom_toBottomOf="parent"

@@ -98,4 +98,47 @@
         <item name="background">?attr/colorErrorContainer</item>
         <item name="android:textColor">?attr/colorOnErrorContainer</item>
     </style>
+
+    <!-- cassette: no active-indicator pill in the tab bar. Material draws a
+         colorSecondaryContainer capsule behind the selected icon; iOS marks the
+         selected tab with ink alone. Zero-size and transparent removes it
+         without fighting the component's own layout. -->
+    <style name="Cassette.NavIndicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
+        <item name="android:width">0dp</item>
+        <item name="android:height">0dp</item>
+        <item name="android:color">@android:color/transparent</item>
+        <item name="marginHorizontal">0dp</item>
+    </style>
+
+    <!-- cassette: buttons are a soft rectangle (iOS BasicButton, 10pt), not
+         Material's fully-rounded pill. The pill is the single most "stock
+         Android" shape in the app and appears wherever a filled button does. -->
+    <style name="Cassette.Button" parent="Widget.Material3.Button">
+        <item name="shapeAppearanceOverlay">@style/Cassette.Shape.Button</item>
+    </style>
+
+    <style name="Cassette.Button.Tonal" parent="Widget.Material3.Button.TonalButton">
+        <item name="shapeAppearanceOverlay">@style/Cassette.Shape.Button</item>
+    </style>
+
+    <style name="Cassette.Button.Text" parent="Widget.Material3.Button.TextButton">
+        <item name="shapeAppearanceOverlay">@style/Cassette.Shape.Button</item>
+    </style>
+
+    <!-- parent="" is required: a dotted name otherwise implies a Cassette.Shape
+         parent that does not exist, and AAPT fails linking. -->
+    <style name="Cassette.Shape.Button" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">10dp</item>
+    </style>
+
+    <!-- cassette: sheet corners at iOS's 15pt, down from Material's 28dp. -->
+    <style name="Cassette.Shape.BottomSheet" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSizeTopLeft">15dp</item>
+        <item name="cornerSizeTopRight">15dp</item>
+        <item name="cornerSizeBottomLeft">0dp</item>
+        <item name="cornerSizeBottomRight">0dp</item>
+    </style>
 </resources>
+

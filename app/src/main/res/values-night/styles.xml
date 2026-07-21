@@ -83,6 +83,7 @@
         <item name="actionOverflowMenuStyle">@style/Cassette.PopupMenu.Overflow</item>
         <item name="materialAlertDialogTheme">@style/Cassette.Dialog</item>
         <item name="bottomSheetDialogTheme">@style/Cassette.BottomSheet</item>
+        <item name="materialButtonStyle">@style/Cassette.Button</item>
     </style>
 
     <!-- cassette: the ⋯ bottom sheets tint their surface with the primary too.
@@ -93,6 +94,7 @@
         <item name="colorPrimary">@color/md_theme_dark_surfaceContainerHighest</item>
         <item name="elevationOverlayColor">@color/md_theme_dark_surfaceContainerHighest</item>
         <item name="elevationOverlayEnabled">false</item>
+        <item name="shapeAppearanceOverlay">@style/Cassette.Shape.BottomSheet</item>
     </style>
 
     <style name="Cassette.PopupMenu" parent="Widget.Material3.PopupMenu">

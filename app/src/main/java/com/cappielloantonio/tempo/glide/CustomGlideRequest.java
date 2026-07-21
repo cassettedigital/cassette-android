@@ -28,7 +28,22 @@ import java.util.Map;
 public class CustomGlideRequest {
     private static final String TAG = "CustomGlideRequest";
 
-    public static final int CORNER_RADIUS = Preferences.isCornerRoundingEnabled() ? Preferences.getRoundedCornerSize() : 1;
+    /**
+     * cassette: cover corner radius, in PIXELS, converted from a dp value.
+     *
+     * Glide's RoundedCorners takes pixels, and the preference was being handed
+     * to it raw. A stored "12" meant 12 physical pixels, so the same album
+     * cover was noticeably rounder on a low-density screen than on a Pixel and
+     * matched no design value on any of them. iOS asks for 5pt on a row cover
+     * (RoundedImage.swift), which is what the default here now resolves to.
+     */
+    public static final int CORNER_RADIUS = dpToPx(
+            Preferences.isCornerRoundingEnabled() ? Preferences.getRoundedCornerSize() : 0);
+
+    private static int dpToPx(int dp) {
+        if (dp <= 0) return 0;
+        return Math.round(dp * android.content.res.Resources.getSystem().getDisplayMetrics().density);
+    }
 
     public static final DiskCacheStrategy DEFAULT_DISK_CACHE_STRATEGY = DiskCacheStrategy.ALL;
 

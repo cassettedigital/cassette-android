@@ -47,13 +47,19 @@
                     android:padding="7dp"
                     android:src="@drawable/ic_lucide_user" />
 
-                <TextView
-                    android:id="@+id/toolbar_title"
-                    style="@style/HeadlineSmall"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    tools:text="Home" />
             </LinearLayout>
+
+            <!-- cassette: the screen name is centred, like iOS's nav bar. It
+                 shares the centre slot with the picker, so Home reads as a
+                 title and Library as a title you can tap. Left-aligned beside
+                 the avatar was Material's default, not our design. -->
+            <TextView
+                android:id="@+id/toolbar_title"
+                style="@style/HeadlineSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                tools:text="Home" />
 
             <TextView
                 android:id="@+id/toolbar_picker"

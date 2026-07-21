@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- cassette: the tab bar says which tab you are on with ink, not with a
+     coloured pill behind the icon. iOS swaps an outline glyph for a filled one
+     and lifts the ink from ink3 to cream; the pill was Material's idea, not
+     ours, and it was the loudest non-Cassette thing on the screen. -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:color="@color/md_theme_dark_onSurface" android:state_checked="true" />
+    <item android:color="@color/subtitleTextColor" />
+</selector>

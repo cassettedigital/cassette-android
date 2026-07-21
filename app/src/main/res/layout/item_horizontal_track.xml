@@ -6,8 +6,8 @@
     android:background="?attr/selectableItemBackground"
     android:clipChildren="false"
     android:orientation="horizontal"
-    android:paddingTop="2dp"
-    android:paddingBottom="2dp">
+    android:paddingTop="9dp"
+    android:paddingBottom="9dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/different_disk_divider_sector"
@@ -47,8 +47,8 @@
 
     <ImageView
         android:id="@+id/song_cover_image_view"
-        android:layout_width="52dp"
-        android:layout_height="52dp"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         android:layout_gravity="center"
         android:layout_marginStart="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -60,10 +60,11 @@
     <TextView
         android:id="@+id/track_number_text_view"
         style="@style/TitleMedium"
-        android:layout_width="52dp"
-        android:layout_height="52dp"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         android:layout_marginStart="16dp"
-        android:gravity="center"
+        android:gravity="center_vertical|end"
+        android:paddingEnd="6dp"
         android:text="@string/label_placeholder"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -74,8 +75,8 @@
          this row is the track currently sounding. -->
     <ImageView
         android:id="@+id/now_playing_indicator"
-        android:layout_width="52dp"
-        android:layout_height="52dp"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         android:layout_marginStart="16dp"
         android:contentDescription="@string/now_playing_indicator_description"
         android:padding="18dp"
@@ -90,7 +91,7 @@
     <View
         android:id="@+id/cover_image_separator"
         android:layout_width="12dp"
-        android:layout_height="52dp"
+        android:layout_height="48dp"
         app:layout_constraintBottom_toBottomOf="@+id/song_cover_image_view"
         app:layout_constraintEnd_toStartOf="@+id/search_result_song_title_text_view"
         app:layout_constraintStart_toEndOf="@+id/song_cover_image_view"
@@ -105,8 +106,6 @@
         android:ellipsize="end"
         android:paddingEnd="12dp"
         android:singleLine="true"
-        android:textSize="16sp"
-        android:textFontWeight="600"
         android:text="@string/label_placeholder"
         app:layout_constraintBottom_toTopOf="@+id/search_result_song_subtitle_text_view"
         app:layout_constraintEnd_toStartOf="@+id/rating_indicator_image_view"
