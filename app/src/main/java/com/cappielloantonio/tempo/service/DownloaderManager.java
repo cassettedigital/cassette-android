@@ -33,7 +33,10 @@ public class DownloaderManager {
     private final DataSource.Factory dataSourceFactory;
     private final DownloadIndex downloadIndex;
 
-    private static HashMap<String, Download> downloads;
+    // cassette: concurrent — the download service writes state changes on its
+    // own thread while the UI/notification read the tally. A plain HashMap
+    // threw ConcurrentModificationException the moment anything iterated it.
+    private static java.util.concurrent.ConcurrentHashMap<String, Download> downloads;
 
     // cassette: ids handed to sendAddDownload whose state change hasn't come
     // back yet. The `downloads` map alone only learns about a download when
@@ -48,7 +51,7 @@ public class DownloaderManager {
         this.context = context.getApplicationContext();
         this.dataSourceFactory = dataSourceFactory;
 
-        downloads = new HashMap<>();
+        downloads = new java.util.concurrent.ConcurrentHashMap<>();
         downloadIndex = downloadManager.getDownloadIndex();
 
         loadDownloads();
@@ -132,6 +135,21 @@ public class DownloaderManager {
     public static void noteState(Download download) {
         downloads.put(download.request.id, download);
         pendingIds.remove(download.request.id);
+    }
+
+    /**
+     * cassette: track tally for the sync banner + notification — [done, total].
+     * Total counts everything this process knows about (indexed downloads plus
+     * ids handed to the service that haven't reported back yet), so a bulk
+     * enqueue shows its real size immediately instead of climbing from zero.
+     */
+    public static int[] trackTally() {
+        if (downloads == null) return new int[]{0, 0};
+        int done = 0;
+        for (Download download : downloads.values()) {
+            if (download.state == Download.STATE_COMPLETED) done++;
+        }
+        return new int[]{done, downloads.size() + pendingIds.size()};
     }
 
     public void removeAll() {

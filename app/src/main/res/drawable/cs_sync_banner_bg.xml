@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- cassette: sync banner surface. Flat de-saturated container (no Material
+     tonal tint, which reads brown against the warm palette) with an accent
+     edge so the banner registers as live status rather than a card. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/md_theme_dark_surfaceContainerHigh" />
+            <corners android:radius="12dp" />
+        </shape>
+    </item>
+    <item
+        android:width="3dp"
+        android:gravity="start">
+        <shape android:shape="rectangle">
+            <solid android:color="?attr/colorPrimary" />
+            <corners
+                android:bottomLeftRadius="12dp"
+                android:topLeftRadius="12dp" />
+        </shape>
+    </item>
+</layer-list>

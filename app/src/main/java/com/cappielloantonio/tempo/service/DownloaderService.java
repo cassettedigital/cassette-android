@@ -15,6 +15,7 @@ import androidx.media3.exoplayer.scheduler.Requirements;
 import androidx.media3.exoplayer.scheduler.Scheduler;
 
 import com.cappielloantonio.tempo.R;
+import com.cappielloantonio.tempo.util.CassetteSyncStatus;
 import com.cappielloantonio.tempo.util.DownloadUtil;
 
 import java.util.List;
@@ -47,7 +48,32 @@ public class DownloaderService extends androidx.media3.exoplayer.offline.Downloa
     @NonNull
     @Override
     protected Notification getForegroundNotification(@NonNull List<Download> downloads, @Requirements.RequirementFlags int notMetRequirements) {
-        return DownloadUtil.getDownloadNotificationHelper(this).buildProgressNotification(this, R.drawable.ic_download, null, null, downloads, notMetRequirements);
+        // cassette: media3's stock notification reads "Downloading" with an
+        // indeterminate bar — no album, no count, no end. That was the only
+        // outward sign a freshly paired phone was doing anything at all, which
+        // read as "nothing is happening". Say what is actually going on.
+        CassetteSyncStatus.publish();
+        CassetteSyncStatus.Snapshot status = CassetteSyncStatus.current();
+
+        String message = status.detail();
+        if (message.isEmpty()) {
+            message = downloads.size() == 1 ? "1 track" : downloads.size() + " tracks";
+        }
+
+        Notification stock = DownloadUtil.getDownloadNotificationHelper(this)
+                .buildProgressNotification(this, R.drawable.ic_download, null, message, downloads, notMetRequirements);
+
+        // Recover the builder so the title and a determinate bar can be set
+        // without hand-rolling a notification media3 would otherwise own.
+        Notification.Builder builder = Notification.Builder.recoverBuilder(this, stock)
+                .setContentTitle(status.headline())
+                .setContentText(message);
+
+        if (status.tracksTotal > 0 && notMetRequirements == 0) {
+            builder.setProgress(status.tracksTotal, status.tracksDone, false);
+        }
+
+        return builder.build();
     }
 
     private static final class TerminalStateNotificationHelper implements DownloadManager.Listener {
@@ -93,6 +119,8 @@ public class DownloaderService extends androidx.media3.exoplayer.offline.Downloa
             // enqueuers can tell queued from missing (completed-only updates
             // left parked downloads invisible → endless re-enqueue).
             DownloaderManager.noteState(download);
+            // Keep the in-app banner's counts moving with the queue.
+            CassetteSyncStatus.publish();
 
             Notification notification;
 

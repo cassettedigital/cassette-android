@@ -17,6 +17,7 @@ import com.cappielloantonio.tempo.subsonic.base.ApiResponse;
 import com.cappielloantonio.tempo.subsonic.models.Child;
 import com.cappielloantonio.tempo.util.CassetteArtistArt;
 import com.cappielloantonio.tempo.util.CassetteSyncApi;
+import com.cappielloantonio.tempo.util.CassetteSyncStatus;
 import com.cappielloantonio.tempo.util.DownloadUtil;
 import com.cappielloantonio.tempo.util.MappingUtil;
 import com.cappielloantonio.tempo.util.Preferences;
@@ -142,12 +143,24 @@ public final class CassetteSyncEngine {
             return;
         }
 
+        // The banner and the notification read from here: how many albums this
+        // pass still has to move, before any of the work starts.
+        int outstanding = 0;
+        for (CassetteSyncApi.Intent intent : intents) {
+            if (!"remove".equals(intent.intentKind)) outstanding++;
+        }
+        CassetteSyncStatus.notePass(outstanding);
+
         // The floor must also govern the ACTIVE queue: already-enqueued
         // downloads would otherwise keep writing straight past it (the
         // enqueue-time check alone can't help a queue that outsizes the
         // disk). Paused work resumes automatically once space frees up.
         try {
-            if (hasFreeSpaceForDownloads(context)) {
+            boolean roomToWork = hasFreeSpaceForDownloads(context);
+            CassetteSyncStatus.noteBlocked(
+                    DownloadUtil.getDownloadManager(context).getNotMetRequirements() != 0,
+                    !roomToWork);
+            if (roomToWork) {
                 androidx.media3.exoplayer.offline.DownloadService.sendResumeDownloads(
                         context, DownloaderService.class, false);
             } else {
@@ -207,6 +220,7 @@ public final class CassetteSyncEngine {
 
         if (allComplete) {
             CassetteSyncApi.updateIntent(token, intent.id, "complete", null);
+            CassetteSyncStatus.noteAlbumComplete();
             List<CassetteSyncApi.InventoryItem> added = new ArrayList<>();
             for (CassetteSyncApi.SyncTrack track : tracks) {
                 added.add(new CassetteSyncApi.InventoryItem(track.cassetteLocalId, track.mbid));

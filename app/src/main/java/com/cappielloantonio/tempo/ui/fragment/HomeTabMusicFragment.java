@@ -120,6 +120,7 @@ public class HomeTabMusicFragment extends Fragment implements ClickCallback {
         // most played, new releases) are simply never initialized; their
         // sectors default to gone in the layout. Re-enable = re-add a call.
         initGreeting();
+        initSyncBanner();
         initResumeCard();
         initRecentlyPlayedTracksView();
         initRecentPlayedAlbumView();
@@ -139,6 +140,29 @@ public class HomeTabMusicFragment extends Fragment implements ClickCallback {
                 ? R.string.home_greeting_afternoon
                 : R.string.home_greeting_evening;
         bind.homeGreetingEyebrow.setText(greeting);
+    }
+
+    /**
+     * cassette: sync banner — the in-app half of "something is happening".
+     * Sits under the greeting while an account sync is moving and disappears
+     * on its own when the wave finishes. A person who just paired a phone
+     * should never have to guess whether their library is on the way.
+     */
+    private void initSyncBanner() {
+        com.cappielloantonio.tempo.util.CassetteSyncStatus.live().observe(getViewLifecycleOwner(), status -> {
+            if (status == null || !status.active) {
+                bind.homeSyncBanner.setVisibility(View.GONE);
+                return;
+            }
+            bind.homeSyncBanner.setVisibility(View.VISIBLE);
+            bind.homeSyncTitle.setText(status.headline());
+            bind.homeSyncDetail.setText(status.detail());
+            bind.homeSyncProgress.setProgress(status.percent());
+            // A parked queue is not "in progress" — stop the spinner so the
+            // banner reads as waiting rather than working.
+            boolean moving = !status.waitingForWifi && !status.lowOnSpace;
+            bind.homeSyncSpinner.setVisibility(moving ? View.VISIBLE : View.GONE);
+        });
     }
 
     /**
