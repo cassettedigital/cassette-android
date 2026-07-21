@@ -258,8 +258,13 @@ public class HomeTabMusicFragment extends Fragment implements ClickCallback {
      */
     private void initRecentlyPlayedTracksView() {
         bind.recentlyPlayedTracksRecyclerView.setHasFixedSize(true);
+        // cassette: vertical. This shelf was a HORIZONTAL list fed rows built
+        // for a vertical tracklist — each one match_parent, so it rendered as a
+        // sideways carousel of full-screen-width rows carrying track numbers,
+        // star ratings and an overflow button. That is the "rough" on the home
+        // screen: right content, wrong axis.
         bind.recentlyPlayedTracksRecyclerView.setLayoutManager(
-                new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
+                new LinearLayoutManager(requireContext()));
         recentlyPlayedTracksAdapter = new SongHorizontalAdapter(this, true, true, null);
         bind.recentlyPlayedTracksRecyclerView.setAdapter(recentlyPlayedTracksAdapter);
 
@@ -269,7 +274,18 @@ public class HomeTabMusicFragment extends Fragment implements ClickCallback {
                 bind.homeRecentlyPlayedTracksSector.setVisibility(View.GONE);
             } else {
                 bind.homeRecentlyPlayedTracksSector.setVisibility(View.VISIBLE);
-                recentlyPlayedTracksAdapter.setItems(songs);
+                // cassette: a home shelf, not the whole history — five rows,
+                // the way iOS keeps Recent short.
+                recentlyPlayedTracksAdapter.setItems(
+                        songs.size() > 5 ? new java.util.ArrayList<>(songs.subList(0, 5)) : songs);
+            }
+        });
+
+        // cassette: home rows follow the player too, so the track sounding is
+        // marked wherever it appears.
+        com.cappielloantonio.tempo.util.CassetteNowPlaying.live().observe(getViewLifecycleOwner(), state -> {
+            if (state != null && recentlyPlayedTracksAdapter != null) {
+                recentlyPlayedTracksAdapter.setNowPlaying(state.mediaId, state.isPlaying);
             }
         });
     }

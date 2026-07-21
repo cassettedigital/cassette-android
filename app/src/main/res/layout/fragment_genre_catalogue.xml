@@ -22,10 +22,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
+            <!-- cassette: this header was a hard 172dp box with its title pinned to the
+                 bottom edge, leaving about 120dp of empty surface above every list
+                 page. Sized to its content now. -->
+
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/genre_info_sector"
                 android:layout_width="match_parent"
-                android:layout_height="172dp"
+                android:layout_height="wrap_content"
                 android:background="?attr/colorSurface"
                 android:clipChildren="false"
                 app:layout_scrollFlags="scroll|exitUntilCollapsed|snap">

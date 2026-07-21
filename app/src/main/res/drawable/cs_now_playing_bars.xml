@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- cassette: the now-playing bars on a track row. Cycles three vector frames
+     so the row that is actually sounding says so, the way iOS does. Started
+     and stopped by the adapter, never left running on a recycled row. -->
+<animation-list xmlns:android="http://schemas.android.com/apk/res/android"
+    android:oneshot="false">
+    <item android:drawable="@drawable/ic_eq_bars_1" android:duration="260" />
+    <item android:drawable="@drawable/ic_eq_bars_2" android:duration="260" />
+    <item android:drawable="@drawable/ic_eq_bars_3" android:duration="260" />
+</animation-list>

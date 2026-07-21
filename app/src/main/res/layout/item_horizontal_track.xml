@@ -26,7 +26,7 @@
             style="@style/LabelSmall"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:ellipsize="marquee"
+            android:ellipsize="end"
             android:paddingEnd="12dp"
             android:singleLine="true"
             tools:text="@string/label_placeholder"
@@ -69,6 +69,24 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/different_disk_divider_sector" />
 
+    <!-- cassette: now-playing bars, sitting exactly where the track number is
+         so the row swaps one for the other rather than shifting. Hidden unless
+         this row is the track currently sounding. -->
+    <ImageView
+        android:id="@+id/now_playing_indicator"
+        android:layout_width="52dp"
+        android:layout_height="52dp"
+        android:layout_marginStart="16dp"
+        android:contentDescription="@string/now_playing_indicator_description"
+        android:padding="18dp"
+        android:src="@drawable/cs_now_playing_bars"
+        android:visibility="gone"
+        app:tint="?attr/colorPrimary"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/different_disk_divider_sector"
+        tools:visibility="visible" />
+
     <View
         android:id="@+id/cover_image_separator"
         android:layout_width="12dp"
@@ -84,7 +102,7 @@
         style="@style/LabelMedium"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:ellipsize="marquee"
+        android:ellipsize="end"
         android:paddingEnd="12dp"
         android:singleLine="true"
         android:textSize="16sp"
@@ -101,7 +119,7 @@
         style="@style/TitleSmall"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:ellipsize="marquee"
+        android:ellipsize="end"
         android:paddingEnd="12dp"
         android:singleLine="true"
         android:text="@string/label_placeholder"

@@ -122,8 +122,24 @@ public class LibraryFragment extends Fragment implements ClickCallback {
         });
     }
 
+    /**
+     * cassette: the category picker now lives centred in the top bar, iOS's
+     * nav-bar pattern, instead of being a 30sp heading in the content. Same
+     * menu, same behaviour, one row of vertical space back.
+     */
+    private void pushPickerToToolbar(int labelRes) {
+        Fragment toolbar = getChildFragmentManager().findFragmentById(R.id.toolbar_fragment);
+        if (toolbar instanceof ToolbarFragment) {
+            ((ToolbarFragment) toolbar).setPicker(getString(labelRes), this::showCategoryMenu);
+        }
+    }
+
     private void initCategorySwitcher() {
-        bind.libraryCategoryTitle.setOnClickListener(v -> {
+        bind.libraryCategoryTitle.setOnClickListener(this::showCategoryMenu);
+    }
+
+    private void showCategoryMenu(View v) {
+        {
             // cassette: wrap the context so Material tints the popup with a
             // neutral (not the orange primary) — see Cassette.NeutralTintContext.
             android.content.Context popupContext = new android.view.ContextThemeWrapper(
@@ -146,7 +162,7 @@ public class LibraryFragment extends Fragment implements ClickCallback {
                 return true;
             });
             popup.show();
-        });
+        }
     }
 
     private void applyCategory(String category) {
@@ -154,19 +170,19 @@ public class LibraryFragment extends Fragment implements ClickCallback {
 
         switch (category) {
             case CATEGORY_ARTISTS:
-                bind.libraryCategoryTitle.setText(R.string.library_title_artist);
+                pushPickerToToolbar(R.string.library_title_artist);
                 bind.libraryCatalogueRecyclerView.setLayoutManager(new GridLayoutManager(requireContext(), 2));
                 bind.libraryCatalogueRecyclerView.setAdapter(artistAdapter);
                 break;
             case CATEGORY_PLAYLISTS:
-                bind.libraryCategoryTitle.setText(R.string.library_title_playlist);
+                pushPickerToToolbar(R.string.library_title_playlist);
                 bind.libraryCatalogueRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
                 bind.libraryCatalogueRecyclerView.setAdapter(playlistAdapter);
                 break;
             case CATEGORY_ALBUMS:
             default:
                 category = CATEGORY_ALBUMS;
-                bind.libraryCategoryTitle.setText(R.string.library_title_album);
+                pushPickerToToolbar(R.string.library_title_album);
                 bind.libraryCatalogueRecyclerView.setLayoutManager(new GridLayoutManager(requireContext(), 2));
                 bind.libraryCatalogueRecyclerView.setAdapter(albumAdapter);
                 break;

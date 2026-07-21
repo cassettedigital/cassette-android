@@ -311,9 +311,13 @@ object Preferences {
         return App.getInstance().preferences.getString(QUEUE_SYNCING_COUNTDOWN, "5")!!.toInt()
     }
 
+    // cassette: rounded by default. The settings screen declared true and this
+    // read false, and a declared default is only written once someone opens
+    // that screen — so every cover in the app rendered at a 1px radius, square,
+    // while the preference claimed to be on.
     @JvmStatic
     fun isCornerRoundingEnabled(): Boolean {
-        return App.getInstance().preferences.getBoolean(ROUNDED_CORNER, false)
+        return App.getInstance().preferences.getBoolean(ROUNDED_CORNER, true)
     }
 
     @JvmStatic

@@ -67,8 +67,6 @@ public class PlaylistDialogSongHorizontalAdapter extends RecyclerView.Adapter<Pl
             super(item.getRoot());
 
             this.item = item;
-
-            item.playlistDialogSongTitleTextView.setSelected(true);
         }
     }
 }

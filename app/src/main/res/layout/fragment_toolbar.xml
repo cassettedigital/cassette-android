@@ -1,9 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- cassette: top bar on the iOS pattern - account chip on the left, the
-     screen's own name beside it. The Cassette wordmark used to sit here, set
-     in Inter because the brand face is not bundled on Android, so it read as
-     the wrong font on every screen. The app does not need to announce its own
-     name each time; it needs to say where you are. -->
+     screen's own name beside it, and a centred picker for screens that switch
+     between collections. The Cassette wordmark used to sit here, set in Inter
+     because the brand face is not bundled on Android, so it read as the wrong
+     font on every screen. The app does not need to announce its own name each
+     time; it needs to say where you are.
+
+     The single FrameLayout matters: a Toolbar lays its direct children out in
+     a row, so a centred child added beside a match_parent row got pushed onto
+     a second line and doubled the bar's height. Overlaying needs a frame. -->
 <com.google.android.material.appbar.AppBarLayout xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
@@ -20,30 +25,52 @@
         app:layout_scrollFlags="scroll|enterAlways|snap"
         app:popupTheme="@style/Cassette.NeutralTintContext">
 
-        <LinearLayout
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
+            android:layout_height="wrap_content">
 
-            <ImageView
-                android:id="@+id/toolbar_avatar"
-                android:layout_width="34dp"
-                android:layout_height="34dp"
-                android:layout_marginEnd="12dp"
-                android:background="@drawable/cs_avatar_circle"
-                android:clickable="true"
-                android:contentDescription="@string/menu_settings_button"
-                android:focusable="true"
-                android:padding="7dp"
-                android:src="@drawable/ic_lucide_user" />
-
-            <TextView
-                android:id="@+id/toolbar_title"
-                style="@style/HeadlineSmall"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                tools:text="Home" />
-        </LinearLayout>
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/toolbar_avatar"
+                    android:layout_width="34dp"
+                    android:layout_height="34dp"
+                    android:layout_marginEnd="12dp"
+                    android:background="@drawable/cs_avatar_circle"
+                    android:clickable="true"
+                    android:contentDescription="@string/menu_settings_button"
+                    android:focusable="true"
+                    android:padding="7dp"
+                    android:src="@drawable/ic_lucide_user" />
+
+                <TextView
+                    android:id="@+id/toolbar_title"
+                    style="@style/HeadlineSmall"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    tools:text="Home" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/toolbar_picker"
+                style="@style/HeadlineSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:drawablePadding="6dp"
+                android:focusable="true"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="4dp"
+                android:visibility="gone"
+                app:drawableEndCompat="@drawable/ic_arrow_down"
+                tools:text="Albums"
+                tools:visibility="visible" />
+        </FrameLayout>
     </com.google.android.material.appbar.MaterialToolbar>
 </com.google.android.material.appbar.AppBarLayout>

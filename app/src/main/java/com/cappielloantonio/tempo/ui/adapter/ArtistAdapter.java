@@ -84,8 +84,6 @@ public class ArtistAdapter extends RecyclerView.Adapter<ArtistAdapter.ViewHolder
 
             this.item = item;
 
-            item.artistNameLabel.setSelected(true);
-
             itemView.setOnClickListener(v -> onClick());
             itemView.setOnLongClickListener(v -> onLongClick());
         }

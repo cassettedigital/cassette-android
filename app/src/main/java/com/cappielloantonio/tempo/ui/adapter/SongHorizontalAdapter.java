@@ -42,6 +42,11 @@ public class SongHorizontalAdapter extends RecyclerView.Adapter<SongHorizontalAd
     private List<Child> songs;
     private String currentFilter;
 
+    // cassette: which row is sounding, and whether it is moving (paused rows
+    // keep the marker but freeze the bars).
+    private String nowPlayingId;
+    private boolean nowPlayingIsPlaying;
+
     private final Filter filtering = new Filter() {
         @Override
         protected FilterResults performFiltering(CharSequence constraint) {
@@ -122,6 +127,13 @@ public class SongHorizontalAdapter extends RecyclerView.Adapter<SongHorizontalAd
         holder.item.trackNumberTextView.setVisibility(showCoverArt ? View.INVISIBLE : View.VISIBLE);
         holder.item.songCoverImageView.setVisibility(showCoverArt ? View.VISIBLE : View.INVISIBLE);
 
+        // cassette: mark the row that is actually sounding — accent title plus
+        // the animated bars standing in for the track number, so the list
+        // answers "where am I" without opening the player. The animation is
+        // explicitly stopped on every other row: a recycled ImageView keeps its
+        // AnimationDrawable running otherwise, and stray rows twitch.
+        bindNowPlaying(holder, song);
+
         // cassette: a disc heading is only information when there is more than
         // one disc. Upstream showed it above the first track of every album, so
         // single-disc records read "Disc 1" for no reason, and records with no
@@ -189,6 +201,44 @@ public class SongHorizontalAdapter extends RecyclerView.Adapter<SongHorizontalAd
     }
 
     /**
+     * cassette: the id of the track currently sounding, pushed in by the host
+     * fragment from the app-wide now-playing signal. Null clears the marker.
+     */
+    public void setNowPlaying(String mediaId, boolean isPlaying) {
+        if (Objects.equals(this.nowPlayingId, mediaId) && this.nowPlayingIsPlaying == isPlaying) return;
+        this.nowPlayingId = mediaId;
+        this.nowPlayingIsPlaying = isPlaying;
+        notifyDataSetChanged();
+    }
+
+    private void bindNowPlaying(ViewHolder holder, Child song) {
+        boolean isCurrent = nowPlayingId != null && nowPlayingId.equals(song.getId());
+        android.graphics.drawable.Drawable indicator = holder.item.nowPlayingIndicator.getDrawable();
+
+        if (isCurrent) {
+            holder.item.searchResultSongTitleTextView.setTextColor(
+                    com.google.android.material.color.MaterialColors.getColor(
+                            holder.itemView, com.google.android.material.R.attr.colorPrimary));
+            if (!showCoverArt) {
+                holder.item.trackNumberTextView.setVisibility(View.INVISIBLE);
+                holder.item.nowPlayingIndicator.setVisibility(View.VISIBLE);
+            }
+            if (indicator instanceof android.graphics.drawable.AnimationDrawable) {
+                android.graphics.drawable.AnimationDrawable bars = (android.graphics.drawable.AnimationDrawable) indicator;
+                if (nowPlayingIsPlaying) bars.start(); else bars.stop();
+            }
+        } else {
+            holder.item.searchResultSongTitleTextView.setTextColor(
+                    androidx.core.content.ContextCompat.getColor(
+                            holder.itemView.getContext(), R.color.titleTextColor));
+            holder.item.nowPlayingIndicator.setVisibility(View.GONE);
+            if (indicator instanceof android.graphics.drawable.AnimationDrawable) {
+                ((android.graphics.drawable.AnimationDrawable) indicator).stop();
+            }
+        }
+    }
+
+    /**
      * cassette: true only when the tracklist really spans more than one disc.
      * Tracks with no disc number are treated as one disc, which is the common
      * case for a rip that never carried DISCNUMBER at all.
@@ -232,9 +282,6 @@ public class SongHorizontalAdapter extends RecyclerView.Adapter<SongHorizontalAd
             super(item.getRoot());
 
             this.item = item;
-
-            item.searchResultSongTitleTextView.setSelected(true);
-            item.searchResultSongSubtitleTextView.setSelected(true);
 
             itemView.setOnClickListener(v -> onClick());
             itemView.setOnLongClickListener(v -> onLongClick());

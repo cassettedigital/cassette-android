@@ -297,18 +297,41 @@ public class MainActivity extends BaseActivity {
 
         getMediaBrowserListenableFuture().addListener(() -> {
             try {
-                getMediaBrowserListenableFuture().get().addListener(new Player.Listener() {
+                androidx.media3.session.MediaBrowser browser = getMediaBrowserListenableFuture().get();
+                browser.addListener(new Player.Listener() {
                     @Override
                     public void onIsPlayingChanged(boolean isPlaying) {
                         if (isPlaying && bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_HIDDEN) {
                             setBottomSheetInPeek(true);
                         }
+                        publishNowPlaying();
+                    }
+
+                    // cassette: the album page and every track row read from
+                    // here, so the app can show what is sounding rather than
+                    // leaving that knowledge inside the player screen.
+                    @Override
+                    public void onMediaItemTransition(@androidx.annotation.Nullable androidx.media3.common.MediaItem item, int reason) {
+                        publishNowPlaying();
                     }
                 });
+                publishNowPlaying();
             } catch (ExecutionException | InterruptedException e) {
                 e.printStackTrace();
             }
         }, MoreExecutors.directExecutor());
+    }
+
+    /** cassette: mirror the player's current track into the app-wide signal. */
+    private void publishNowPlaying() {
+        try {
+            androidx.media3.session.MediaBrowser browser = getMediaBrowserListenableFuture().get();
+            androidx.media3.common.MediaItem item = browser.getCurrentMediaItem();
+            com.cappielloantonio.tempo.util.CassetteNowPlaying.publish(
+                    item != null ? item.mediaId : null, browser.isPlaying());
+        } catch (Exception e) {
+            // Browser not ready or already released — the next callback re-publishes.
+        }
     }
 
     private void goToLogin() {

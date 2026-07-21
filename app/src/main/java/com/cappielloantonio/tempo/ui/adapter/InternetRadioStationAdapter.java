@@ -70,9 +70,6 @@ public class InternetRadioStationAdapter extends RecyclerView.Adapter<InternetRa
 
             this.item = item;
 
-            item.internetRadioStationTitleTextView.setSelected(true);
-            item.internetRadioStationSubtitleTextView.setSelected(true);
-
             itemView.setOnClickListener(v -> onClick());
             itemView.setOnLongClickListener(v -> onLongClick());
 

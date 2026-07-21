@@ -123,6 +123,26 @@ public class MediaManager {
     }
 
     /** cassette: set the player repeat mode (album-page repeat button). */
+    /**
+     * cassette: pause if sounding, resume if not. Lets a play control that is
+     * pointed at the record already playing behave like a pause instead of
+     * restarting the queue from the top.
+     */
+    public static void togglePlayPause(ListenableFuture<MediaBrowser> mediaBrowserListenableFuture) {
+        if (mediaBrowserListenableFuture != null) {
+            mediaBrowserListenableFuture.addListener(() -> {
+                try {
+                    if (mediaBrowserListenableFuture.isDone()) {
+                        MediaBrowser browser = mediaBrowserListenableFuture.get();
+                        if (browser.isPlaying()) browser.pause(); else browser.play();
+                    }
+                } catch (ExecutionException | InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }, MoreExecutors.directExecutor());
+        }
+    }
+
     public static void setRepeatMode(ListenableFuture<MediaBrowser> mediaBrowserListenableFuture, int repeatMode) {
         if (mediaBrowserListenableFuture != null) {
             mediaBrowserListenableFuture.addListener(() -> {

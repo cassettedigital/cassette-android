@@ -49,14 +49,11 @@ public class PlayerSongQueueAdapter extends RecyclerView.Adapter<PlayerSongQueue
         Child song = songs.get(position);
 
         holder.item.queueSongTitleTextView.setText(song.getTitle());
-        holder.item.queueSongSubtitleTextView.setText(
-                holder.itemView.getContext().getString(
-                        R.string.song_subtitle_formatter,
-                        song.getArtist(),
-                        MusicUtil.getReadableDurationString(song.getDuration(), false),
-                        MusicUtil.getReadableAudioQualityString(song)
-                )
-        );
+
+        // cassette: just the artist. The queue row used to read
+        // "Artist · 3:41 · FLAC 1411" — the same duration/quality clutter the
+        // album rows already dropped, on the screen with the least room for it.
+        holder.item.queueSongSubtitleTextView.setText(song.getArtist());
 
         CustomGlideRequest.Builder
                 .from(holder.itemView.getContext(), song.getCoverArtId(), CustomGlideRequest.ResourceType.Song)
@@ -66,14 +63,28 @@ public class PlayerSongQueueAdapter extends RecyclerView.Adapter<PlayerSongQueue
         MediaManager.getCurrentIndex(mediaBrowserListenableFuture, new MediaIndexCallback() {
             @Override
             public void onRecovery(int index) {
-                if (position < index) {
-                    holder.item.queueSongTitleTextView.setAlpha(0.2f);
-                    holder.item.queueSongSubtitleTextView.setAlpha(0.2f);
-                    holder.item.ratingIndicatorImageView.setAlpha(0.2f);
-                } else {
-                    holder.item.queueSongTitleTextView.setAlpha(1.0f);
-                    holder.item.queueSongSubtitleTextView.setAlpha(1.0f);
-                    holder.item.ratingIndicatorImageView.setAlpha(1.0f);
+                // cassette: three states, not two. Played rows recede, the row
+                // that is sounding gets the accent and the bars, everything
+                // ahead of it sits at full strength. Before this the current
+                // track looked exactly like the rest of the queue.
+                boolean isCurrent = position == index;
+                float alpha = position < index ? 0.35f : 1.0f;
+
+                holder.item.queueSongTitleTextView.setAlpha(alpha);
+                holder.item.queueSongSubtitleTextView.setAlpha(alpha);
+                holder.item.ratingIndicatorImageView.setAlpha(alpha);
+
+                holder.item.queueSongTitleTextView.setTextColor(isCurrent
+                        ? com.google.android.material.color.MaterialColors.getColor(
+                                holder.itemView, com.google.android.material.R.attr.colorPrimary)
+                        : androidx.core.content.ContextCompat.getColor(
+                                holder.itemView.getContext(), R.color.titleTextColor));
+
+                holder.item.queueNowPlayingIndicator.setVisibility(isCurrent ? View.VISIBLE : View.GONE);
+                android.graphics.drawable.Drawable bars = holder.item.queueNowPlayingIndicator.getDrawable();
+                if (bars instanceof android.graphics.drawable.AnimationDrawable) {
+                    if (isCurrent) ((android.graphics.drawable.AnimationDrawable) bars).start();
+                    else ((android.graphics.drawable.AnimationDrawable) bars).stop();
                 }
             }
         });
@@ -135,9 +146,6 @@ public class PlayerSongQueueAdapter extends RecyclerView.Adapter<PlayerSongQueue
             super(item.getRoot());
 
             this.item = item;
-
-            item.queueSongTitleTextView.setSelected(true);
-            item.queueSongSubtitleTextView.setSelected(true);
 
             itemView.setOnClickListener(v -> onClick());
         }

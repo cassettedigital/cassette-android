@@ -61,8 +61,6 @@ public class ServerAdapter extends RecyclerView.Adapter<ServerAdapter.ViewHolder
 
             this.item = item;
 
-            item.serverNameTextView.setSelected(true);
-
             itemView.setOnClickListener(v -> onClick());
             itemView.setOnLongClickListener(v -> onLongClick());
         }

@@ -74,8 +74,6 @@ public class MusicDirectoryAdapter extends RecyclerView.Adapter<MusicDirectoryAd
 
             this.item = item;
 
-            item.musicDirectoryTitleTextView.setSelected(true);
-
             itemView.setOnClickListener(v -> onClick());
             itemView.setOnLongClickListener(v -> onLongClick());
 

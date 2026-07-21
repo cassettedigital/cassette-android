@@ -58,15 +58,27 @@ public class ToolbarFragment extends Fragment {
     }
 
     /**
-     * cassette: the bar names the screen you are on. Library and Downloads
-     * carry their own headings in content (Library's is a dropdown), so they
-     * get the chip and no duplicate title.
+     * cassette: the bar names the screen you are on. Library replaces the name
+     * with a centred picker (see setPicker), so it gets no left-hand title.
      */
     private String titleForHost() {
         Fragment host = getParentFragment();
         if (host instanceof HomeFragment) return getString(R.string.home_screen_title);
         if (host instanceof DownloadFragment) return getString(R.string.download_screen_title);
         return "";
+    }
+
+    /**
+     * cassette: put a centred picker in the bar, iOS-style. Library uses it for
+     * Albums / Artists / Playlists / Downloads, which used to be a 30sp heading
+     * sitting in the content below the bar.
+     */
+    public void setPicker(CharSequence label, View.OnClickListener onClick) {
+        if (bind == null) return;
+        bind.toolbarPicker.setText(label);
+        bind.toolbarPicker.setOnClickListener(onClick);
+        bind.toolbarPicker.setVisibility(label == null ? View.GONE : View.VISIBLE);
+        bind.toolbarTitle.setVisibility(label == null ? View.VISIBLE : View.INVISIBLE);
     }
 
     @Override

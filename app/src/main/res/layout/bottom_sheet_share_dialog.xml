@@ -29,7 +29,7 @@
             style="@style/LabelMedium"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:ellipsize="marquee"
+            android:ellipsize="end"
             android:paddingStart="12dp"
             android:paddingEnd="12dp"
             android:singleLine="true"

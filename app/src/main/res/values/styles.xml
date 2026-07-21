@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <style name="AppTheme.SplashScreen" parent="Theme.SplashScreen">
-        <item name="windowSplashScreenBackground">#000000</item>
+        <!-- cassette: open on our own dark, not a flat black that belongs to
+             nothing. Matches the app background the splash hands off to. -->
+        <item name="windowSplashScreenBackground">@color/md_theme_dark_background</item>
         <item name="windowSplashScreenAnimatedIcon">@drawable/ui_splash_screen</item>
         <item name="postSplashScreenTheme">@style/AppTheme</item>
         <item name="windowSplashScreenAnimationDuration">100</item>
@@ -39,6 +41,10 @@
         <item name="android:statusBarColor">?attr/colorSurface</item>
         <item name="android:navigationBarColor">?attr/colorSurface</item>
         <item name="android:scrollbars">none</item>
+
+        <!-- cassette: see the note in values-night/styles.xml - declared here
+             rather than in a values-v35 fork of the entire theme. -->
+        <item name="android:windowOptOutEdgeToEdgeEnforcement">true</item>
     </style>
 
     <!-- cassette: perfect circle for the big album-page play button -->

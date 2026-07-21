@@ -282,9 +282,6 @@ public class DownloadHorizontalAdapter extends RecyclerView.Adapter<DownloadHori
 
             this.item = item;
 
-            item.downloadedItemTitleTextView.setSelected(true);
-            item.downloadedItemSubtitleTextView.setSelected(true);
-
             itemView.setOnClickListener(v -> onClick());
             itemView.setOnLongClickListener(v -> onLongClick());
 

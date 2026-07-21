@@ -32,6 +32,8 @@ import com.cappielloantonio.tempo.service.MediaManager;
 import com.cappielloantonio.tempo.service.MediaService;
 import com.cappielloantonio.tempo.ui.activity.MainActivity;
 import com.cappielloantonio.tempo.ui.adapter.SongHorizontalAdapter;
+import com.cappielloantonio.tempo.subsonic.models.Child;
+import com.cappielloantonio.tempo.util.CassetteNowPlaying;
 import com.cappielloantonio.tempo.util.Constants;
 import com.cappielloantonio.tempo.util.DownloadUtil;
 import com.cappielloantonio.tempo.util.MappingUtil;
@@ -40,6 +42,7 @@ import com.cappielloantonio.tempo.viewmodel.AlbumPageViewModel;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -49,6 +52,10 @@ public class AlbumPageFragment extends Fragment implements ClickCallback {
     private MainActivity activity;
     private AlbumPageViewModel albumPageViewModel;
     private SongHorizontalAdapter songHorizontalAdapter;
+
+    // cassette: this album's tracks, held so the play control can tell whether
+    // the record in front of you is the one sounding.
+    private List<Child> albumSongs = Collections.emptyList();
     private ListenableFuture<MediaBrowser> mediaBrowserListenableFuture;
 
     @Override
@@ -199,6 +206,14 @@ public class AlbumPageFragment extends Fragment implements ClickCallback {
         albumPageViewModel.getAlbumSongLiveList().observe(getViewLifecycleOwner(), songs -> {
             if (bind != null && !songs.isEmpty()) {
                 bind.albumPagePlayButton.setOnClickListener(v -> {
+                    // cassette: if this album is the one sounding, the button is
+                    // a pause, not a restart. Tapping play on a record that is
+                    // already playing used to throw you back to track one.
+                    if (isThisAlbumCurrent(songs)) {
+                        MediaManager.togglePlayPause(mediaBrowserListenableFuture);
+                        activity.setBottomSheetInPeek(true);
+                        return;
+                    }
                     MediaManager.startQueue(mediaBrowserListenableFuture, songs, 0);
                     activity.setBottomSheetInPeek(true);
                 });
@@ -241,9 +256,43 @@ public class AlbumPageFragment extends Fragment implements ClickCallback {
                 songHorizontalAdapter = new SongHorizontalAdapter(this, false, false, album);
                 bind.songRecyclerView.setAdapter(songHorizontalAdapter);
 
-                albumPageViewModel.getAlbumSongLiveList().observe(getViewLifecycleOwner(), songs -> songHorizontalAdapter.setItems(songs));
+                albumPageViewModel.getAlbumSongLiveList().observe(getViewLifecycleOwner(), songs -> {
+                    // cassette: hold the list. getAlbumSongLiveList() hands back
+                    // a fresh LiveData each call, so its getValue() is null and
+                    // anything asking "is this album playing" got a no.
+                    albumSongs = songs != null ? songs : Collections.emptyList();
+                    songHorizontalAdapter.setItems(songs);
+                    refreshPlayButtonState();
+                });
             }
         });
+
+        // cassette: keep the tracklist and the big button honest about what is
+        // sounding — the marker on the row, play/pause on the button.
+        CassetteNowPlaying.live().observe(getViewLifecycleOwner(), state -> {
+            if (bind == null || state == null) return;
+            if (songHorizontalAdapter != null) {
+                songHorizontalAdapter.setNowPlaying(state.mediaId, state.isPlaying);
+            }
+            refreshPlayButtonState();
+        });
+    }
+
+    private void refreshPlayButtonState() {
+        if (bind == null) return;
+        boolean playingThisAlbum = CassetteNowPlaying.current().isPlaying && isThisAlbumCurrent(albumSongs);
+        bind.albumPagePlayButton.setImageResource(
+                playingThisAlbum ? R.drawable.ic_pause : R.drawable.ic_play);
+    }
+
+    /** cassette: is the track currently loaded one of this album's? */
+    private boolean isThisAlbumCurrent(List<Child> songs) {
+        String mediaId = CassetteNowPlaying.current().mediaId;
+        if (mediaId == null || songs == null) return false;
+        for (Child song : songs) {
+            if (mediaId.equals(song.getId())) return true;
+        }
+        return false;
     }
 
     private void initializeMediaBrowser() {

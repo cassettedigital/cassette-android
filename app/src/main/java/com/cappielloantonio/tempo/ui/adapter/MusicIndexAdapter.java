@@ -72,8 +72,6 @@ public class MusicIndexAdapter extends RecyclerView.Adapter<MusicIndexAdapter.Vi
 
             this.item = item;
 
-            item.musicIndexTitleTextView.setSelected(true);
-
             itemView.setOnClickListener(v -> onClick());
             item.musicIndexMoreButton.setOnClickListener(v -> onClick());
         }

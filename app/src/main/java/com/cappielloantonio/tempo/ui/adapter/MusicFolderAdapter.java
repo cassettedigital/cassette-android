@@ -69,8 +69,6 @@ public class MusicFolderAdapter extends RecyclerView.Adapter<MusicFolderAdapter.
 
             this.item = item;
 
-            item.musicFolderTitleTextView.setSelected(true);
-
             itemView.setOnClickListener(v -> onClick());
 
             item.musicFolderMoreButton.setOnClickListener(v -> onClick());

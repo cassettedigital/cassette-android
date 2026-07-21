@@ -117,8 +117,6 @@ public class AlbumHorizontalAdapter extends RecyclerView.Adapter<AlbumHorizontal
 
             this.item = item;
 
-            item.albumTitleTextView.setSelected(true);
-
             itemView.setOnClickListener(v -> onClick());
             itemView.setOnLongClickListener(v -> onLongClick());
 

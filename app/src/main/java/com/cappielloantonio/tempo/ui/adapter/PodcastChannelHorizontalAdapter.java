@@ -69,9 +69,6 @@ public class PodcastChannelHorizontalAdapter extends RecyclerView.Adapter<Podcas
 
             this.item = item;
 
-            item.podcastChannelTitleTextView.setSelected(true);
-            item.podcastChannelDescriptionTextView.setSelected(true);
-
             itemView.setOnClickListener(v -> onClick());
             itemView.setOnLongClickListener(v -> onLongClick());
 

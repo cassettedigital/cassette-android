@@ -112,15 +112,27 @@
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
+    <!-- cassette: the search surfaces are pinned flat. SearchBar and SearchView
+         are the two Material widgets that never resolve a surfaceContainer
+         token - they take colorSurface and composite 6dp of elevation on top,
+         which on this palette means 11% of the orange primary and a page that
+         reads brown. Naming the container colour and zeroing the elevation is
+         the only lever these two expose. -->
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="@color/md_theme_dark_surface"
+        app:elevation="0dp"
+        app:liftOnScroll="false">
 
         <com.google.android.material.search.SearchBar
             android:id="@+id/search_bar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/search_hint">
+            android:elevation="0dp"
+            android:hint="@string/search_hint"
+            app:backgroundTint="@color/md_theme_dark_surfaceContainerHigh"
+            app:elevation="0dp">
 
         </com.google.android.material.search.SearchBar>
     </com.google.android.material.appbar.AppBarLayout>
@@ -129,7 +141,9 @@
         android:id="@+id/search_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:elevation="0dp"
         android:hint="@string/search_hint"
+        app:backgroundTint="@color/md_theme_dark_surface"
         app:layout_anchor="@id/search_bar">
 
         <!-- Content goes here (ScrollView, RecyclerView, etc.). -->

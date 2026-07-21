@@ -64,8 +64,6 @@ public class PlaylistDialogHorizontalAdapter extends RecyclerView.Adapter<Playli
 
             this.item = item;
 
-            item.playlistDialogTitleTextView.setSelected(true);
-
             itemView.setOnClickListener(v -> onClick());
         }
 

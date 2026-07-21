@@ -42,8 +42,11 @@
             android:summary="@string/settings_rounded_corner_summary"
             android:key="rounded_corner" />
 
+        <!-- cassette: 12 matches the code default in Preferences.kt. They
+             disagreed (6 here, 12 there), so the radius changed the first time
+             anyone opened this screen. -->
         <ListPreference
-            app:defaultValue="6"
+            app:defaultValue="12"
             app:dialogTitle="@string/settings_rounded_corner_size"
             app:entries="@array/rounded_corner_size_titles"
             app:entryValues="@array/rounded_corner_size_values"

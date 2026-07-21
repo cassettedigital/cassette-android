@@ -111,7 +111,6 @@ public class PlaylistHorizontalAdapter extends RecyclerView.Adapter<PlaylistHori
             super(item.getRoot());
 
             this.item = item;
-            item.playlistTitleTextView.setSelected(true);
 
             itemView.setOnClickListener(v -> onClick());
             itemView.setOnLongClickListener(v -> onLongClick());

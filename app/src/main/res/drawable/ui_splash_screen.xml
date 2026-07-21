@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8" ?>
+<!-- cassette: the app opened on Tempo's wordmark in Tempo pink (#f24b6a), the
+     one asset the fork never replaced, and the first thing anyone saw. This is
+     the Cassette launcher mark, the same cream reel the icon generator emits
+     from the web palette. The background colour comes from the splash theme. -->
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:width="288dp"
@@ -7,8 +11,8 @@
         android:gravity="center" />
 
     <item
-        android:width="220dp"
-        android:height="220dp"
-        android:drawable="@drawable/ic_splash_logo"
+        android:width="200dp"
+        android:height="200dp"
+        android:drawable="@mipmap/ic_launcher_foreground"
         android:gravity="center" />
 </layer-list>

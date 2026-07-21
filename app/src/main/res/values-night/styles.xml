@@ -50,6 +50,15 @@
         <item name="android:navigationBarColor">?attr/colorSurface</item>
         <item name="android:scrollbars">none</item>
 
+        <!-- cassette: keep the window out of Android 15's forced edge-to-edge.
+             This used to live in a values-night-v35 copy of the WHOLE theme,
+             which meant every Android 15+ device silently got a fork of the
+             theme frozen before the tonal-tint sweep - the brown came back on
+             exactly the newest phones and nowhere else, which is why it kept
+             looking fixed. One attribute is not worth a second copy of the
+             theme; it is declared here and the -v35 files are gone. -->
+        <item name="android:windowOptOutEdgeToEdgeEnforcement">true</item>
+
         <!-- cassette: neutralize the remaining tint channels — popup menus, the
              overflow menu, and dialogs all paint a colorPrimary-tinted surface
              that reads brown. Point them at a flat de-saturated background. -->

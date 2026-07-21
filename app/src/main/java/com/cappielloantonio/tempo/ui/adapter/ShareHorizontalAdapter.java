@@ -71,9 +71,6 @@ public class ShareHorizontalAdapter extends RecyclerView.Adapter<ShareHorizontal
 
             this.item = item;
 
-            item.shareTitleTextView.setSelected(true);
-            item.shareSubtitleTextView.setSelected(true);
-
             itemView.setOnClickListener(v -> onClick());
             itemView.setOnLongClickListener(v -> onLongClick());
 

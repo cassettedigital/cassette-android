@@ -14,6 +14,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
+    <!-- cassette: the category picker moved into the centre of the top bar
+         (iOS's nav-bar pattern), so this 30sp in-content heading is gone from
+         view. The view itself stays, hidden, because it is still the fallback
+         click target and keeps the binding stable. -->
     <TextView
         android:id="@+id/library_category_title"
         style="@style/HeadlineLarge"
@@ -29,6 +33,7 @@
         android:paddingEnd="16dp"
         android:paddingBottom="12dp"
         android:textSize="30sp"
+        android:visibility="gone"
         app:drawableEndCompat="@drawable/ic_arrow_down"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         tools:text="Albums" />

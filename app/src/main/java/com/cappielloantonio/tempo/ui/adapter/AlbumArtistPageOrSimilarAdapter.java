@@ -69,9 +69,6 @@ public class AlbumArtistPageOrSimilarAdapter extends RecyclerView.Adapter<AlbumA
 
             this.item = item;
 
-            item.albumNameLabel.setSelected(true);
-            item.artistNameLabel.setSelected(true);
-
             itemView.setOnClickListener(v -> onClick());
             itemView.setOnLongClickListener(v -> onLongClick());
         }
