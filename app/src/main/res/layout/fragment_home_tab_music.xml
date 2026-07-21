@@ -30,7 +30,7 @@
 
             <TextView
                 android:id="@+id/home_greeting_eyebrow"
-                style="@style/TitleSmall"
+                style="@style/Greeting"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:letterSpacing="0.1"
@@ -828,9 +828,8 @@
                 <TextView
                     android:id="@+id/recently_played_albums_text_view_refreshable"
                     style="@style/TitleLarge"
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
                     android:paddingStart="8dp"
                     android:paddingEnd="8dp"
                     android:text="@string/home_title_last_played" />
@@ -843,7 +842,9 @@
                     android:layout_height="wrap_content"
                     android:paddingStart="8dp"
                     android:paddingEnd="8dp"
-                    android:text="@string/home_title_last_played_see_all_button" />
+                    android:layout_gravity="center_vertical"
+                    android:contentDescription="@string/home_title_last_played_see_all_button"
+                    app:drawableStartCompat="@drawable/ic_lucide_chevron_right" />
 
             </LinearLayout>
 
@@ -882,9 +883,8 @@
                 <TextView
                     android:id="@+id/recently_added_albums_text_view_refreshable"
                     style="@style/TitleLarge"
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
                     android:paddingStart="8dp"
                     android:paddingEnd="8dp"
                     android:text="@string/home_title_recently_added" />
@@ -897,7 +897,9 @@
                     android:layout_height="wrap_content"
                     android:paddingStart="8dp"
                     android:paddingEnd="8dp"
-                    android:text="@string/home_title_recently_added_see_all_button" />
+                    android:layout_gravity="center_vertical"
+                    android:contentDescription="@string/home_title_last_played_see_all_button"
+                    app:drawableStartCompat="@drawable/ic_lucide_chevron_right" />
 
             </LinearLayout>
 

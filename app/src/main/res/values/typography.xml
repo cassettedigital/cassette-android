@@ -163,5 +163,22 @@
         <item name="fontFamily">@font/barlow_condensed</item>
         <item name="android:fontFamily">@font/barlow_condensed</item>
     </style>
+
+    <!-- cassette: the time-of-day greeting (iOS .greeting, 20pt Semibold, ink).
+         It was 13sp muted mono, which read as a caption rather than the
+         welcome iOS opens with. -->
+    <style name="Greeting" parent="CassetteDisplay">
+        <item name="android:textSize">20sp</item>
+        <item name="android:textFontWeight">600</item>
+        <item name="android:textColor">@color/titleTextColor</item>
+    </style>
+
+    <!-- cassette: iOS large title (34pt Bold) for collection screens. -->
+    <style name="LargeTitle" parent="CassetteDisplay">
+        <item name="android:textSize">34sp</item>
+        <item name="android:textFontWeight">700</item>
+        <item name="android:textColor">@color/titleTextColor</item>
+    </style>
 </resources>
+
 

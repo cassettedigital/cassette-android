@@ -45,6 +45,13 @@ public class LibraryFragment extends Fragment implements ClickCallback {
     public static final String CATEGORY_ARTISTS = "artists";
     public static final String CATEGORY_PLAYLISTS = "playlists";
 
+    /**
+     * cassette: iOS shows three columns on a phone (Settings.albumsGridSizeSetting,
+     * default 3, user-adjustable 2 to 5). Android was hard-coded to two. Snapped
+     * to iOS's default; the slider is not built here yet - see the parity ledger.
+     */
+    private static final int GRID_COLUMNS = 3;
+
     private FragmentLibraryBinding bind;
     private MainActivity activity;
 
@@ -189,8 +196,8 @@ public class LibraryFragment extends Fragment implements ClickCallback {
         switch (category) {
             case CATEGORY_ARTISTS:
                 pushPickerToToolbar(R.string.library_title_artist);
-                bind.libraryCatalogueRecyclerView.setLayoutManager(new GridLayoutManager(requireContext(), 2));
-                applyGridSpacing(2);
+                bind.libraryCatalogueRecyclerView.setLayoutManager(new GridLayoutManager(requireContext(), GRID_COLUMNS));
+                applyGridSpacing(GRID_COLUMNS);
                 bind.libraryCatalogueRecyclerView.setAdapter(artistAdapter);
                 break;
             case CATEGORY_PLAYLISTS:
@@ -203,8 +210,8 @@ public class LibraryFragment extends Fragment implements ClickCallback {
             default:
                 category = CATEGORY_ALBUMS;
                 pushPickerToToolbar(R.string.library_title_album);
-                bind.libraryCatalogueRecyclerView.setLayoutManager(new GridLayoutManager(requireContext(), 2));
-                applyGridSpacing(2);
+                bind.libraryCatalogueRecyclerView.setLayoutManager(new GridLayoutManager(requireContext(), GRID_COLUMNS));
+                applyGridSpacing(GRID_COLUMNS);
                 bind.libraryCatalogueRecyclerView.setAdapter(albumAdapter);
                 break;
         }
