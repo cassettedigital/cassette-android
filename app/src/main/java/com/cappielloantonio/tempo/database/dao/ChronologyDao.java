@@ -18,6 +18,18 @@ public interface ChronologyDao {
     @Query("SELECT * FROM chronology WHERE timestamp >= :endDate AND timestamp < :startDate AND server == :server GROUP BY id ORDER BY COUNT(id) DESC LIMIT 20")
     LiveData<List<Chronology>> getAllFrom(long startDate, long endDate, String server);
 
+    /**
+     * cassette: album ids in order of most recently played, derived from the
+     * track play log. This is how the "Recent" shelf gets filled offline-first,
+     * where the server-side "recent" album list is unreachable and the shelf
+     * was posting an empty list instead.
+     *
+     * MAX(timestamp) per album, newest first. Synchronous - called off the
+     * main thread.
+     */
+    @Query("SELECT album_id FROM chronology WHERE server == :server AND album_id IS NOT NULL GROUP BY album_id ORDER BY MAX(timestamp) DESC LIMIT :limit")
+    List<String> getRecentlyPlayedAlbumIds(String server, int limit);
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(Chronology chronologyObject);
 

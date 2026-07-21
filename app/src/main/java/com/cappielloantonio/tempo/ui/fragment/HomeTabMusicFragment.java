@@ -90,7 +90,7 @@ public class HomeTabMusicFragment extends Fragment implements ClickCallback {
     private AlbumAdapter mostPlayedAlbumAdapter;
     private AlbumHorizontalAdapter newReleasesAlbumAdapter;
     private YearAdapter yearAdapter;
-    private PlaylistHorizontalAdapter playlistHorizontalAdapter;
+    private com.cappielloantonio.tempo.ui.adapter.PlaylistTileAdapter playlistTileAdapter;
     private ShareHorizontalAdapter shareHorizontalAdapter;
 
     private ListenableFuture<MediaBrowser> mediaBrowserListenableFuture;
@@ -174,7 +174,9 @@ public class HomeTabMusicFragment extends Fragment implements ClickCallback {
      */
     private com.cappielloantonio.tempo.subsonic.models.Child resumeFromHistory;
     private long resumeFromHistoryTs;
-    private com.cappielloantonio.tempo.subsonic.models.Child resumeFromQueue;
+    // cassette: held as the Queue row, not as a bare Child, because the saved
+    // paused position lives on the queue row (playingChanged).
+    private com.cappielloantonio.tempo.model.Queue resumeFromQueue;
     private long resumeFromQueueTs;
     // cassette play spine (Phase B): a play made on another surface, resolved local.
     private com.cappielloantonio.tempo.subsonic.models.Child resumeFromRemote;
@@ -246,9 +248,52 @@ public class HomeTabMusicFragment extends Fragment implements ClickCallback {
                 .into(bind.homeResumeCover);
 
         final com.cappielloantonio.tempo.subsonic.models.Child target = track;
-        View.OnClickListener resume = v -> MediaManager.startQueue(mediaBrowserListenableFuture, target);
-        bind.homeResumeCard.setOnClickListener(resume);
-        bind.homeResumePlay.setOnClickListener(resume);
+        final long savedPositionMs = resumeFromQueue != null
+                && target.getId() != null
+                && target.getId().equals(resumeFromQueue.getId())
+                ? resumeFromQueue.getPlayingChanged()
+                : 0L;
+
+        // cassette: iOS splits these two. Tapping the card OPENS the record;
+        // only the play button makes sound. Ours played on any tap, so an
+        // exploratory press on the biggest thing on the screen started audio.
+        bind.homeResumeCard.setOnClickListener(v -> openResumeContainer(target));
+        bind.homeResumePlay.setOnClickListener(v -> {
+            MediaManager.startQueue(mediaBrowserListenableFuture, target);
+            // ...and it resumes rather than restarting: the flavour's
+            // MediaService has been writing the paused position to
+            // Queue.playingChanged all along, and nothing ever read it back.
+            if (savedPositionMs > 0) {
+                MediaManager.seekTo(mediaBrowserListenableFuture, savedPositionMs);
+            }
+            activity.setBottomSheetInPeek(true);
+        });
+    }
+
+    /**
+     * cassette: the resume card's subject is a container on iOS, so tapping it
+     * lands on the album rather than on a single track. We carry the track's
+     * album id, which the album page resolves on its own.
+     */
+    private void openResumeContainer(com.cappielloantonio.tempo.subsonic.models.Child track) {
+        if (track.getAlbumId() == null) {
+            // No container to open (a stray file): fall back to playing it.
+            MediaManager.startQueue(mediaBrowserListenableFuture, track);
+            activity.setBottomSheetInPeek(true);
+            return;
+        }
+
+        com.cappielloantonio.tempo.subsonic.models.AlbumID3 album =
+                new com.cappielloantonio.tempo.subsonic.models.AlbumID3();
+        album.setId(track.getAlbumId());
+        album.setName(track.getAlbum());
+        album.setArtist(track.getArtist());
+        album.setArtistId(track.getArtistId());
+        album.setCoverArtId(track.getCoverArtId());
+
+        Bundle bundle = new Bundle();
+        bundle.putParcelable(Constants.ALBUM_OBJECT, album);
+        Navigation.findNavController(requireView()).navigate(R.id.albumPageFragment, bundle);
     }
 
     /**
@@ -837,11 +882,15 @@ public class HomeTabMusicFragment extends Fragment implements ClickCallback {
     private void initPinnedPlaylistsView() {
         if (homeViewModel.checkHomeSectorVisibility(Constants.HOME_SECTOR_PINNED_PLAYLISTS)) return;
 
-        bind.pinnedPlaylistsRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+        // cassette: iOS shows playlists on Home as 160pt square tiles in a
+        // horizontal shelf. Ours were vertical list rows with kebab menus - the
+        // one shelf that should read as artwork read as admin instead.
+        bind.pinnedPlaylistsRecyclerView.setLayoutManager(
+                new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
         bind.pinnedPlaylistsRecyclerView.setHasFixedSize(true);
 
-        playlistHorizontalAdapter = new PlaylistHorizontalAdapter(this);
-        bind.pinnedPlaylistsRecyclerView.setAdapter(playlistHorizontalAdapter);
+        playlistTileAdapter = new com.cappielloantonio.tempo.ui.adapter.PlaylistTileAdapter(this);
+        bind.pinnedPlaylistsRecyclerView.setAdapter(playlistTileAdapter);
         homeViewModel.getPinnedPlaylists(getViewLifecycleOwner()).observe(getViewLifecycleOwner(), playlists -> {
             if (playlists == null) {
                 if (bind != null) bind.pinnedPlaylistsSector.setVisibility(View.GONE);
@@ -849,7 +898,7 @@ public class HomeTabMusicFragment extends Fragment implements ClickCallback {
                 if (bind != null)
                     bind.pinnedPlaylistsSector.setVisibility(!playlists.isEmpty() ? View.VISIBLE : View.GONE);
 
-                playlistHorizontalAdapter.setItems(playlists);
+                playlistTileAdapter.setItems(playlists);
             }
         });
     }

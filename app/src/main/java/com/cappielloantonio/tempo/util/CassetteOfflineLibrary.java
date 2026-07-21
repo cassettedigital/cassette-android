@@ -45,12 +45,47 @@ public final class CassetteOfflineLibrary {
         }).start();
     }
 
+    /** Owned albums ordered by when they were last played on this device. */
+    public static void recentAlbums(int limit, AlbumsCallback callback) {
+        new Thread(() -> {
+            List<AlbumID3> result = recentlyPlayedAlbums(limit);
+            new Handler(Looper.getMainLooper()).post(() -> callback.onResult(result));
+        }).start();
+    }
+
     /** Downloaded tracks grouped into artists (by artistId), sorted by name. */
     public static void artists(ArtistsCallback callback) {
         new Thread(() -> {
             List<ArtistID3> result = buildArtists();
             new Handler(Looper.getMainLooper()).post(() -> callback.onResult(result));
         }).start();
+    }
+
+    /**
+     * cassette: the owned albums a person has actually played, most recent
+     * first, derived from the local play log (chronology.album_id). Offline
+     * first, the server's own "recent" album list is unreachable, and the Home
+     * shelf was posting an empty list rather than answering the question from
+     * data we already hold.
+     *
+     * Synchronous - call off the main thread.
+     */
+    public static List<AlbumID3> recentlyPlayedAlbums(int limit) {
+        List<String> recentIds = AppDatabase.getInstance().chronologyDao()
+                .getRecentlyPlayedAlbumIds(com.cappielloantonio.tempo.util.Preferences.getServerId(), limit);
+        if (recentIds == null || recentIds.isEmpty()) return new ArrayList<>();
+
+        java.util.Map<String, AlbumID3> owned = new java.util.HashMap<>();
+        for (AlbumID3 album : buildAlbums()) owned.put(album.getId(), album);
+
+        List<AlbumID3> result = new ArrayList<>();
+        for (String albumId : recentIds) {
+            AlbumID3 album = owned.get(albumId);
+            // Skip plays of things no longer on the device: a shelf that opens
+            // onto missing music is worse than a shorter shelf.
+            if (album != null) result.add(album);
+        }
+        return result;
     }
 
     private static List<AlbumID3> buildAlbums() {

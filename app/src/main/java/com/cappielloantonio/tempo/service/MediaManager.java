@@ -124,6 +124,26 @@ public class MediaManager {
 
     /** cassette: set the player repeat mode (album-page repeat button). */
     /**
+     * cassette: jump to a saved position. The queue table has carried a
+     * paused-at timestamp since the fork (Queue.playingChanged, written by the
+     * flavour's MediaService), but nothing ever read it, so every resume
+     * started the track from zero.
+     */
+    public static void seekTo(ListenableFuture<MediaBrowser> mediaBrowserListenableFuture, long positionMs) {
+        if (mediaBrowserListenableFuture != null) {
+            mediaBrowserListenableFuture.addListener(() -> {
+                try {
+                    if (mediaBrowserListenableFuture.isDone()) {
+                        mediaBrowserListenableFuture.get().seekTo(positionMs);
+                    }
+                } catch (ExecutionException | InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }, MoreExecutors.directExecutor());
+        }
+    }
+
+    /**
      * cassette: pause if sounding, resume if not. Lets a play control that is
      * pointed at the record already playing behave like a pause instead of
      * restarting the queue from the top.

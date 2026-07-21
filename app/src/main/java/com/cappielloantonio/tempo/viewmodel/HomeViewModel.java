@@ -321,10 +321,11 @@ public class HomeViewModel extends AndroidViewModel {
     public LiveData<List<AlbumID3>> getRecentlyPlayedAlbumList(LifecycleOwner owner) {
         if (recentlyPlayedAlbumSample.getValue() == null) {
             if (com.cappielloantonio.tempo.util.Preferences.isOfflineFirst()) {
-                // cassette: offline-first Home is Resume + one "Albums" shelf.
-                // Hide the recently-played shelf (empty) so it isn't a duplicate
-                // of the downloaded-albums shelf below it.
-                recentlyPlayedAlbumSample.postValue(new java.util.ArrayList<>());
+                // cassette: derive the shelf from the local play log rather than
+                // giving up. This used to post an empty list, so offline-first -
+                // which is the default - never had a Recent shelf at all.
+                com.cappielloantonio.tempo.util.CassetteOfflineLibrary.recentAlbums(
+                        20, recentlyPlayedAlbumSample::postValue);
             } else {
                 albumRepository.getAlbums("recent", 20, null, null).observe(owner, recentlyPlayedAlbumSample::postValue);
             }

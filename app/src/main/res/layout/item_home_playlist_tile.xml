@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- cassette: playlists on Home are square tiles in a horizontal shelf, the way
+     iOS shows them (160pt). Ours were 52dp vertical list rows carrying kebab
+     menus, which made the one shelf that should read as artwork read as
+     admin. Mirrors item_library_album so the two shelves agree. -->
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="?attr/selectableItemBackground"
+    android:paddingEnd="12dp">
+
+    <ImageView
+        android:id="@+id/playlist_cover_image_view"
+        android:layout_width="160dp"
+        android:layout_height="160dp"
+        android:scaleType="centerCrop"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/playlist_title_label"
+        style="@style/LabelMedium"
+        android:layout_width="160dp"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:paddingTop="8dp"
+        android:singleLine="true"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/playlist_cover_image_view"
+        tools:text="Chillax" />
+
+    <TextView
+        android:id="@+id/playlist_subtitle_label"
+        style="@style/LabelSmall"
+        android:layout_width="160dp"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:singleLine="true"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/playlist_title_label"
+        tools:text="24 tracks" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
