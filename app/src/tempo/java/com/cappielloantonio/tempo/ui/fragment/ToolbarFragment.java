@@ -49,7 +49,24 @@ public class ToolbarFragment extends Fragment {
         bind = FragmentToolbarBinding.inflate(inflater, container, false);
         View view = bind.getRoot();
 
+        // cassette: the account chip is the left-hand anchor on every screen
+        // that carries this bar, the way the iOS app opens with the profile.
+        bind.toolbarAvatar.setOnClickListener(v -> activity.navController.navigate(R.id.settingsFragment));
+        bind.toolbarTitle.setText(titleForHost());
+
         return view;
+    }
+
+    /**
+     * cassette: the bar names the screen you are on. Library and Downloads
+     * carry their own headings in content (Library's is a dropdown), so they
+     * get the chip and no duplicate title.
+     */
+    private String titleForHost() {
+        Fragment host = getParentFragment();
+        if (host instanceof HomeFragment) return getString(R.string.home_screen_title);
+        if (host instanceof DownloadFragment) return getString(R.string.download_screen_title);
+        return "";
     }
 
     @Override

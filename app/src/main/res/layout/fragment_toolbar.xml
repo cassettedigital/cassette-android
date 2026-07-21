@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- cassette: top bar on the iOS pattern - account chip on the left, the
+     screen's own name beside it. The Cassette wordmark used to sit here, set
+     in Inter because the brand face is not bundled on Android, so it read as
+     the wrong font on every screen. The app does not need to announce its own
+     name each time; it needs to say where you are. -->
 <com.google.android.material.appbar.AppBarLayout xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/appbar"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
@@ -10,28 +16,34 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?attr/colorSurface"
+        app:contentInsetStartWithNavigation="0dp"
         app:layout_scrollFlags="scroll|enterAlways|snap"
         app:popupTheme="@style/Cassette.NeutralTintContext">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center_vertical"
             android:orientation="horizontal">
 
             <ImageView
-                android:layout_width="28dp"
-                android:layout_height="28dp"
-                android:layout_gravity="center_vertical"
-                android:layout_marginEnd="8dp"
-                android:background="@drawable/ic_toolbar_cassette" />
+                android:id="@+id/toolbar_avatar"
+                android:layout_width="34dp"
+                android:layout_height="34dp"
+                android:layout_marginEnd="12dp"
+                android:background="@drawable/cs_avatar_circle"
+                android:clickable="true"
+                android:contentDescription="@string/menu_settings_button"
+                android:focusable="true"
+                android:padding="7dp"
+                android:src="@drawable/ic_lucide_user" />
 
             <TextView
-                style="@style/HeadlineMedium"
+                android:id="@+id/toolbar_title"
+                style="@style/HeadlineSmall"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingStart="8dp"
-                android:paddingEnd="8dp"
-                android:text="@string/app_name" />
+                tools:text="Home" />
         </LinearLayout>
     </com.google.android.material.appbar.MaterialToolbar>
 </com.google.android.material.appbar.AppBarLayout>

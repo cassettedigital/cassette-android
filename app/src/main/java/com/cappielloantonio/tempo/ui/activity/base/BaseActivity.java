@@ -36,7 +36,6 @@ public class BaseActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         Flavors.initializeCastContext(this);
         initializeDownloader();
-        checkBatteryOptimization();
         checkPermission();
         checkAlwaysOnDisplay();
     }
@@ -54,7 +53,15 @@ public class BaseActivity extends AppCompatActivity {
         super.onStop();
     }
 
-    private void checkBatteryOptimization() {
+    /**
+     * cassette: the battery-optimization nag is not shown on launch any more.
+     * Upstream greeted every cold start with a dialog linking to
+     * dontkillmyapp.com, which is a developer's problem stated in a user's
+     * face — and it reappeared until dismissed in exactly the right way.
+     * The setting still exists for anyone who goes looking; it just no longer
+     * interrupts. Kept (unused from onCreate) so a Settings entry can call it.
+     */
+    protected void checkBatteryOptimization() {
         if (detectBatteryOptimization() && Preferences.askForOptimization()) {
             showBatteryOptimizationDialog();
         }

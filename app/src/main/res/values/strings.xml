@@ -63,6 +63,7 @@
     <string name="description_empty_title">No description available</string>
     <string name="disc_titlefull">Disc %1$s - %2$s</string>
     <string name="disc_titleless">Disc %1$s</string>
+    <string name="download_screen_title">Downloads</string>
     <string name="download_directory_dialog_negative_button">Cancel</string>
     <string name="download_directory_dialog_positive_button">Download</string>
     <string name="download_directory_dialog_summary">All tracks in this folder will be downloaded. Tracks present in subfolders will not be downloaded.</string>

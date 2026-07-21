@@ -14,16 +14,19 @@
         android:orientation="vertical"
         android:paddingBottom="@dimen/global_padding_bottom">
 
-        <!-- cassette: iOS-style header — time-of-day eyebrow + big Home title -->
+        <!-- cassette: the time-of-day line is an eyebrow over the Resume card,
+             not a heading of its own. "Home" lives in the top bar now (iOS
+             pattern), so the big in-content title that used to sit here was
+             saying the same word twice and pushing the music down the page. -->
         <LinearLayout
             android:id="@+id/home_greeting_sector"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:paddingStart="16dp"
-            android:paddingTop="20dp"
+            android:paddingTop="12dp"
             android:paddingEnd="16dp"
-            android:paddingBottom="4dp">
+            android:paddingBottom="0dp">
 
             <TextView
                 android:id="@+id/home_greeting_eyebrow"
@@ -33,14 +36,6 @@
                 android:letterSpacing="0.1"
                 android:textAllCaps="true"
                 tools:text="Good afternoon" />
-
-            <TextView
-                style="@style/HeadlineLarge"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingTop="2dp"
-                android:textSize="32sp"
-                android:text="@string/home_screen_title" />
         </LinearLayout>
 
         <!-- cassette: sync banner. Visible only while an account sync is moving,

@@ -80,7 +80,15 @@ android {
 }
 
 dependencies {
-    implementation files('../libs/lib-decoder-ffmpeg-release.aar')
+    // cassette: the ffmpeg decoder extension is NOT bundled. Its prebuilt
+    // libffmpegJNI.so is not 16 KB page aligned, which makes Android 15+
+    // devices (the Pixel 8 among them) greet every launch with a compatibility
+    // warning, and blocks Play distribution outright. It only adds formats
+    // ExoPlayer cannot decode itself - ALAC, WMA, AC3 and friends - and the
+    // library is FLAC and MP3, both native. The renderer factory asks for
+    // extension renderers reflectively, so their absence is a silent no-op.
+    // Restore this line (with an aligned rebuild) if exotic formats ever land.
+    // implementation files('../libs/lib-decoder-ffmpeg-release.aar')
 
     // AndroidX
     implementation 'androidx.constraintlayout:constraintlayout:2.2.0'

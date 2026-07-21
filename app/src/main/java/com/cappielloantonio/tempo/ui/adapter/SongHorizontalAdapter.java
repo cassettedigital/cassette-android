@@ -122,28 +122,39 @@ public class SongHorizontalAdapter extends RecyclerView.Adapter<SongHorizontalAd
         holder.item.trackNumberTextView.setVisibility(showCoverArt ? View.INVISIBLE : View.VISIBLE);
         holder.item.songCoverImageView.setVisibility(showCoverArt ? View.VISIBLE : View.INVISIBLE);
 
-        if (!showCoverArt &&
-                (position == 0 ||
-                        (position > 0 && songs.get(position - 1) != null &&
+        // cassette: a disc heading is only information when there is more than
+        // one disc. Upstream showed it above the first track of every album, so
+        // single-disc records read "Disc 1" for no reason, and records with no
+        // disc numbers at all got the divider with an empty label — two stray
+        // rules above the tracklist. The heading now appears only at a real
+        // disc change on a genuinely multi-disc album, and the else branch
+        // clears it: without one, recycled rows carried the divider down the
+        // list.
+        boolean discBreak = !showCoverArt && hasMultipleDiscs() && (
+                position == 0 ||
+                        (songs.get(position - 1) != null &&
                                 songs.get(position - 1).getDiscNumber() != null &&
                                 songs.get(position).getDiscNumber() != null &&
                                 songs.get(position - 1).getDiscNumber() < songs.get(position).getDiscNumber()
                         )
-                )
-        ) {
+        );
+
+        if (discBreak) {
             holder.item.differentDiskDividerSector.setVisibility(View.VISIBLE);
 
             if (songs.get(position).getDiscNumber() != null && !Objects.requireNonNull(songs.get(position).getDiscNumber()).toString().isBlank()) {
                 holder.item.discTitleTextView.setText(holder.itemView.getContext().getString(R.string.disc_titleless, songs.get(position).getDiscNumber().toString()));
             }
 
-            if (album.getDiscTitles() != null) {
+            if (album != null && album.getDiscTitles() != null) {
                 Optional<DiscTitle> discTitle = album.getDiscTitles().stream().filter(title -> Objects.equals(title.getDisc(), songs.get(position).getDiscNumber())).findFirst();
 
                 if (discTitle.isPresent() && discTitle.get().getDisc() != null && discTitle.get().getTitle() != null && !discTitle.get().getTitle().isEmpty()) {
                     holder.item.discTitleTextView.setText(holder.itemView.getContext().getString(R.string.disc_titlefull, discTitle.get().getDisc().toString() , discTitle.get().getTitle()));
                 }
             }
+        } else {
+            holder.item.differentDiskDividerSector.setVisibility(View.GONE);
         }
 
         if (Preferences.showItemRating()) {
@@ -175,6 +186,24 @@ public class SongHorizontalAdapter extends RecyclerView.Adapter<SongHorizontalAd
         this.songsFull = songs != null ? songs : Collections.emptyList();
         filtering.filter(currentFilter);
         notifyDataSetChanged();
+    }
+
+    /**
+     * cassette: true only when the tracklist really spans more than one disc.
+     * Tracks with no disc number are treated as one disc, which is the common
+     * case for a rip that never carried DISCNUMBER at all.
+     */
+    private boolean hasMultipleDiscs() {
+        Integer seen = null;
+        for (Child song : songs) {
+            if (song == null || song.getDiscNumber() == null) continue;
+            if (seen == null) {
+                seen = song.getDiscNumber();
+            } else if (!seen.equals(song.getDiscNumber())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

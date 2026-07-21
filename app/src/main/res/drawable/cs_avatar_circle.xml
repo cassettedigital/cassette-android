@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- cassette: the account chip's circle. Flat de-saturated surface, no
+     Material tonal tint (which reads brown against the warm palette). -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+    <solid android:color="@color/md_theme_dark_surfaceContainerHigh" />
+</shape>

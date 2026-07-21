@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+    <!-- cassette: no search icon in the bar. Search is a tab of its own, so
+         the icon was a second door to the same room, and iOS does not carry
+         one here either. The action id is kept below in the overflow so the
+         handler and any deep link still resolve. -->
     <item
         android:id="@+id/action_search"
         android:icon="@drawable/ic_search"
         android:title="@string/menu_search_button"
-        app:showAsAction="always" />
+        app:showAsAction="never" />
 
     <item
         android:id="@+id/media_route_menu_item"
