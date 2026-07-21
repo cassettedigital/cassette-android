@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- cassette: the metadata voice. Replaces the generic `monospace` alias,
+     which resolved to Droid Sans Mono and matched nothing else we ship. -->
+<font-family xmlns:android="http://schemas.android.com/apk/res/android">
+    <font
+        android:font="@font/dm_mono_regular"
+        android:fontStyle="normal"
+        android:fontWeight="400" />
+    <font
+        android:font="@font/dm_mono_medium"
+        android:fontStyle="normal"
+        android:fontWeight="500" />
+</font-family>

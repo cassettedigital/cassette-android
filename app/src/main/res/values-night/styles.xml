@@ -50,6 +50,22 @@
         <item name="android:navigationBarColor">?attr/colorSurface</item>
         <item name="android:scrollbars">none</item>
 
+        <!-- cassette: the brand faces reach Material's own components too.
+             Without these, tab labels, buttons, dialogs, menus and chips all
+             fell through to Roboto while our own views were in Barlow, so the
+             app mixed two typefaces on nearly every screen. The textAppearance
+             overrides are what Material components actually resolve; the bare
+             fontFamily catches AppCompat views that do not. -->
+        <item name="android:fontFamily">@font/barlow_condensed</item>
+        <item name="fontFamily">@font/barlow_condensed</item>
+        <item name="textAppearanceTitleLarge">@style/Cassette.Text.TitleLarge</item>
+        <item name="textAppearanceTitleMedium">@style/Cassette.Text.TitleMedium</item>
+        <item name="textAppearanceBodyLarge">@style/Cassette.Text.BodyLarge</item>
+        <item name="textAppearanceBodyMedium">@style/Cassette.Text.BodyMedium</item>
+        <item name="textAppearanceLabelLarge">@style/Cassette.Text.LabelLarge</item>
+        <item name="textAppearanceLabelMedium">@style/Cassette.Text.LabelMedium</item>
+        <item name="textAppearanceLabelSmall">@style/Cassette.Text.LabelSmall</item>
+
         <!-- cassette: keep the window out of Android 15's forced edge-to-edge.
              This used to live in a values-night-v35 copy of the WHOLE theme,
              which meant every Android 15+ device silently got a fork of the

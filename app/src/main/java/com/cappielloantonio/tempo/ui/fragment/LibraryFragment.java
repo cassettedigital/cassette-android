@@ -101,6 +101,24 @@ public class LibraryFragment extends Fragment implements ClickCallback {
         Objects.requireNonNull(materialToolbar.getOverflowIcon()).setTint(requireContext().getResources().getColor(R.color.titleTextColor, null));
     }
 
+    /**
+     * cassette: the reachable library grid had NO item decoration, so covers
+     * physically touched each other. iOS uses a 16pt gutter and a 16pt edge
+     * inset (AlbumsCollectionVC). Added once here rather than per category, and
+     * guarded so switching categories does not stack decorations.
+     */
+    private void applyGridSpacing(int spanCount) {
+        if (bind == null) return;
+        while (bind.libraryCatalogueRecyclerView.getItemDecorationCount() > 0) {
+            bind.libraryCatalogueRecyclerView.removeItemDecorationAt(0);
+        }
+        if (spanCount > 1) {
+            int gutter = Math.round(16 * getResources().getDisplayMetrics().density);
+            bind.libraryCatalogueRecyclerView.addItemDecoration(
+                    new com.cappielloantonio.tempo.helper.recyclerview.GridItemDecoration(spanCount, gutter, false));
+        }
+    }
+
     private void initAdapters() {
         albumAdapter = new AlbumCatalogueAdapter(this, true);
         artistAdapter = new ArtistCatalogueAdapter(this);
@@ -172,11 +190,13 @@ public class LibraryFragment extends Fragment implements ClickCallback {
             case CATEGORY_ARTISTS:
                 pushPickerToToolbar(R.string.library_title_artist);
                 bind.libraryCatalogueRecyclerView.setLayoutManager(new GridLayoutManager(requireContext(), 2));
+                applyGridSpacing(2);
                 bind.libraryCatalogueRecyclerView.setAdapter(artistAdapter);
                 break;
             case CATEGORY_PLAYLISTS:
                 pushPickerToToolbar(R.string.library_title_playlist);
                 bind.libraryCatalogueRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+                applyGridSpacing(1);
                 bind.libraryCatalogueRecyclerView.setAdapter(playlistAdapter);
                 break;
             case CATEGORY_ALBUMS:
@@ -184,6 +204,7 @@ public class LibraryFragment extends Fragment implements ClickCallback {
                 category = CATEGORY_ALBUMS;
                 pushPickerToToolbar(R.string.library_title_album);
                 bind.libraryCatalogueRecyclerView.setLayoutManager(new GridLayoutManager(requireContext(), 2));
+                applyGridSpacing(2);
                 bind.libraryCatalogueRecyclerView.setAdapter(albumAdapter);
                 break;
         }

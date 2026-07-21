@@ -1,98 +1,167 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- cassette type system.
+
+     Two voices, matching iOS exactly: Barlow Condensed carries anything a
+     person reads as a name or a heading, DM Mono carries metadata (artists,
+     counts, durations, eyebrows). Android previously rendered Inter and the
+     generic `monospace` alias, so every screen was in the wrong face at the
+     wrong width - the single most visible difference between the two apps.
+
+     Sizes are the iOS point values from AmperfyKit/CassetteFont.swift. Barlow
+     Condensed is narrower than Inter, so the larger sizes cost no more width
+     than what they replace. -->
 <resources>
-    <style name="InterFontFamily">
-        <item name="android:fontFamily">@font/inter</item>
+    <style name="CassetteDisplay">
+        <item name="android:fontFamily">@font/barlow_condensed</item>
     </style>
 
+    <style name="CassetteMono">
+        <item name="android:fontFamily">@font/dm_mono</item>
+    </style>
 
-    <style name="HeadlineLarge" parent="InterFontFamily">
-        <item name="android:textSize">26sp</item>
+    <!-- Kept so any lingering reference still resolves; it now points at the
+         display face rather than Inter. -->
+    <style name="InterFontFamily" parent="CassetteDisplay" />
+
+
+    <!-- Large title (iOS 34 Bold). -->
+    <style name="HeadlineLarge" parent="CassetteDisplay">
+        <item name="android:textSize">34sp</item>
         <item name="android:textFontWeight">700</item>
         <item name="android:textColor">@color/titleTextColor</item>
     </style>
 
-    <style name="HeadlineMedium" parent="InterFontFamily">
-        <item name="android:textSize">24sp</item>
+    <!-- Now-playing title (iOS heroTitle 30 Bold). -->
+    <style name="HeadlineMedium" parent="CassetteDisplay">
+        <item name="android:textSize">30sp</item>
         <item name="android:textFontWeight">700</item>
         <item name="android:textColor">@color/titleTextColor</item>
     </style>
 
-    <style name="HeadlineSmall" parent="InterFontFamily">
+    <!-- Screen title in the bar (iOS 22 Bold). -->
+    <style name="HeadlineSmall" parent="CassetteDisplay">
         <item name="android:textSize">22sp</item>
         <item name="android:textFontWeight">700</item>
         <item name="android:textColor">@color/titleTextColor</item>
     </style>
 
 
-    <style name="TitleLarge" parent="InterFontFamily">
+    <!-- Section header over a shelf (iOS sectionTitle 22 Bold). -->
+    <style name="TitleLarge" parent="CassetteDisplay">
         <item name="android:textSize">22sp</item>
         <item name="android:textFontWeight">700</item>
         <item name="android:textColor">@color/titleTextColor</item>
     </style>
 
-    <!-- cassette: metadata/subtitle roles carry the mono voice (artist names,
-         captions), matching the web cs-font-mono token and iOS. -->
-    <style name="TitleMedium" parent="InterFontFamily">
-        <item name="android:textSize">14sp</item>
-        <item name="android:textFontWeight">400</item>
-        <item name="android:fontFamily">monospace</item>
+    <!-- Metadata (iOS 13 Medium mono): artist lines under a title. -->
+    <style name="TitleMedium" parent="CassetteMono">
+        <item name="android:textSize">13sp</item>
+        <item name="android:textFontWeight">500</item>
         <item name="android:textColor">@color/subtitleTextColor</item>
     </style>
 
-    <style name="TitleSmall" parent="InterFontFamily">
-        <item name="android:textSize">12sp</item>
+    <!-- Caption (iOS 13 Regular mono): eyebrows, counts, durations. -->
+    <style name="TitleSmall" parent="CassetteMono">
+        <item name="android:textSize">13sp</item>
         <item name="android:textFontWeight">400</item>
-        <item name="android:fontFamily">monospace</item>
         <item name="android:textColor">@color/subtitleTextColor</item>
     </style>
 
 
-    <style name="LabelExtraLarge" parent="InterFontFamily">
-        <item name="android:textSize">22sp</item>
+    <!-- Detail-page hero title (iOS heroTitle 30 Bold). -->
+    <style name="LabelExtraLarge" parent="CassetteDisplay">
+        <item name="android:textSize">30sp</item>
         <item name="android:textFontWeight">700</item>
         <item name="android:textColor">@color/titleTextColor</item>
     </style>
 
-    <style name="LabelLarge" parent="InterFontFamily">
+    <!-- Row title, larger contexts (iOS rowTitle 18 Semibold). -->
+    <style name="LabelLarge" parent="CassetteDisplay">
         <item name="android:textSize">18sp</item>
-        <item name="android:textFontWeight">700</item>
+        <item name="android:textFontWeight">600</item>
         <item name="android:textColor">@color/titleTextColor</item>
     </style>
 
-    <style name="LabelMedium" parent="InterFontFamily">
-        <item name="android:textSize">14sp</item>
-        <item name="android:textFontWeight">500</item>
+    <!-- THE row title: list rows and grid cards (iOS rowTitle 18 Semibold).
+         Was 14sp/500, which is why every list read a size smaller than iOS. -->
+    <style name="LabelMedium" parent="CassetteDisplay">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textFontWeight">600</item>
         <item name="android:textColor">@color/titleTextColor</item>
     </style>
 
-    <style name="LabelSmall" parent="InterFontFamily">
-        <item name="android:textSize">12sp</item>
+    <!-- Row/card subtitle. Now the mono caption voice, matching the track-row
+         subtitle it used to disagree with for the same semantic role. -->
+    <style name="LabelSmall" parent="CassetteMono">
+        <item name="android:textSize">13sp</item>
         <item name="android:textFontWeight">400</item>
         <item name="android:textColor">@color/subtitleTextColor</item>
     </style>
 
-    <style name="LabelExtraSmall" parent="InterFontFamily">
-        <item name="android:textSize">10sp</item>
-        <item name="android:textFontWeight">300</item>
+    <!-- Uppercase section label (iOS 13 Bold display). -->
+    <style name="LabelExtraSmall" parent="CassetteDisplay">
+        <item name="android:textSize">13sp</item>
+        <item name="android:textFontWeight">700</item>
         <item name="android:textColor">@color/subtitleTextColor</item>
     </style>
 
 
-    <style name="BodyLarge" parent="InterFontFamily">
+    <style name="BodyLarge" parent="CassetteDisplay">
         <item name="android:textSize">24sp</item>
         <item name="android:textFontWeight">700</item>
         <item name="android:textColor">@color/titleTextColor</item>
     </style>
 
-    <style name="BodyMedium" parent="InterFontFamily">
-        <item name="android:textSize">14sp</item>
+    <style name="BodyMedium" parent="CassetteDisplay">
+        <item name="android:textSize">16sp</item>
         <item name="android:textFontWeight">500</item>
         <item name="android:textColor">@color/titleTextColor</item>
     </style>
 
-    <style name="BodySmall" parent="InterFontFamily">
-        <item name="android:textSize">12sp</item>
+    <style name="BodySmall" parent="CassetteMono">
+        <item name="android:textSize">13sp</item>
         <item name="android:textFontWeight">400</item>
         <item name="android:textColor">@color/titleTextColor</item>
+    </style>
+
+    <!-- cassette: Material component text appearances. These are what the
+         framework resolves for tab labels, buttons, menu items, dialog titles
+         and chips - setting fontFamily on the theme alone does not reach them.
+         Parented off Material's own so metrics (letter spacing, line height)
+         stay correct and only the face changes. -->
+    <style name="Cassette.Text.TitleLarge" parent="TextAppearance.Material3.TitleLarge">
+        <item name="fontFamily">@font/barlow_condensed</item>
+        <item name="android:fontFamily">@font/barlow_condensed</item>
+    </style>
+
+    <style name="Cassette.Text.TitleMedium" parent="TextAppearance.Material3.TitleMedium">
+        <item name="fontFamily">@font/barlow_condensed</item>
+        <item name="android:fontFamily">@font/barlow_condensed</item>
+    </style>
+
+    <style name="Cassette.Text.BodyLarge" parent="TextAppearance.Material3.BodyLarge">
+        <item name="fontFamily">@font/barlow_condensed</item>
+        <item name="android:fontFamily">@font/barlow_condensed</item>
+    </style>
+
+    <style name="Cassette.Text.BodyMedium" parent="TextAppearance.Material3.BodyMedium">
+        <item name="fontFamily">@font/barlow_condensed</item>
+        <item name="android:fontFamily">@font/barlow_condensed</item>
+    </style>
+
+    <style name="Cassette.Text.LabelLarge" parent="TextAppearance.Material3.LabelLarge">
+        <item name="fontFamily">@font/barlow_condensed</item>
+        <item name="android:fontFamily">@font/barlow_condensed</item>
+    </style>
+
+    <style name="Cassette.Text.LabelMedium" parent="TextAppearance.Material3.LabelMedium">
+        <item name="fontFamily">@font/barlow_condensed</item>
+        <item name="android:fontFamily">@font/barlow_condensed</item>
+    </style>
+
+    <style name="Cassette.Text.LabelSmall" parent="TextAppearance.Material3.LabelSmall">
+        <item name="fontFamily">@font/barlow_condensed</item>
+        <item name="android:fontFamily">@font/barlow_condensed</item>
     </style>
 </resources>
+
