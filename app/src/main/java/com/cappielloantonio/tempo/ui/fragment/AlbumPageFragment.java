@@ -144,23 +144,13 @@ public class AlbumPageFragment extends Fragment implements ClickCallback {
 
                 bind.albumNameLabel.setText(album.getName());
                 bind.albumArtistLabel.setText(album.getArtist());
-                // cassette: iOS shows type, year, song count and duration together
-                // on the always-visible info line (AlbumDetailVC). Ours hid count
-                // and duration inside a collapsible that a person had to open, so
-                // the two facts most worth seeing were the two that were hidden.
-                StringBuilder info = new StringBuilder(
-                        album.getYear() != 0
-                                ? getString(R.string.album_page_type_and_year, album.getYear())
-                                : getString(R.string.album_page_type));
-                if (album.getSongCount() != null && album.getSongCount() > 0) {
-                    info.append("  ·  ").append(getResources().getQuantityString(
-                            R.plurals.album_page_song_count, album.getSongCount(), album.getSongCount()));
-                }
-                if (album.getDuration() != null && album.getDuration() > 0) {
-                    info.append("  ·  ").append(getString(
-                            R.string.album_page_duration_minutes, album.getDuration() / 60));
-                }
-                bind.albumReleaseYearLabel.setText(info.toString());
+                // cassette: no metadata line on the album header. iOS goes cover
+                // -> album name -> artist -> controls, full stop; AlbumDetailVC
+                // never feeds the header an info line. An earlier read of the iOS
+                // header's CAPABILITY (it can render one) was mistaken for what
+                // the album screen SHOWS (nothing), and this is the correction.
+                // The count/duration string is still set for the collapsible
+                // detail pane, which stays hidden.
                 bind.albumSongCountDurationTextview.setText(getString(R.string.album_page_tracks_count_and_duration, album.getSongCount(), album.getDuration() != null ? album.getDuration() / 60 : 0));
                 bind.albumGenresTextview.setText(album.getGenre());
 
