@@ -57,6 +57,7 @@ public class HomeViewModel extends AndroidViewModel {
     private final MutableLiveData<List<ArtistID3>> starredArtists = new MutableLiveData<>(null);
     private final MutableLiveData<List<AlbumID3>> mostPlayedAlbumSample = new MutableLiveData<>(null);
     private final MutableLiveData<List<AlbumID3>> recentlyPlayedAlbumSample = new MutableLiveData<>(null);
+    private final MutableLiveData<List<com.cappielloantonio.tempo.subsonic.models.ArtistID3>> recentlyPlayedArtistsSample = new MutableLiveData<>(null);
     private final MutableLiveData<List<Integer>> years = new MutableLiveData<>(null);
     private final MutableLiveData<List<AlbumID3>> recentlyAddedAlbumSample = new MutableLiveData<>(null);
 
@@ -238,6 +239,36 @@ public class HomeViewModel extends AndroidViewModel {
             if (byAlbum.size() >= cap) break;
         }
         return new ArrayList<>(byAlbum.values());
+    }
+
+    /**
+     * cassette: recent ARTISTS from the play spine, newest-first, distinct by
+     * artist id. iOS's Artists shelf (the slot below Albums). The artist image
+     * resolves from the artist id via CustomGlideRequest, so coverArtId is set
+     * to the artist id.
+     */
+    private List<com.cappielloantonio.tempo.subsonic.models.ArtistID3> recentPlayedArtists(int cap) {
+        List<Child> plays = recentPlayedUnion(1000);
+        java.util.LinkedHashMap<String, com.cappielloantonio.tempo.subsonic.models.ArtistID3> byArtist =
+                new java.util.LinkedHashMap<>();
+        for (Child c : plays) {
+            String artistId = c.getArtistId();
+            if (artistId == null || byArtist.containsKey(artistId)) continue;
+            com.cappielloantonio.tempo.subsonic.models.ArtistID3 artist =
+                    new com.cappielloantonio.tempo.subsonic.models.ArtistID3();
+            artist.setId(artistId);
+            artist.setName(c.getArtist());
+            artist.setCoverArtId(artistId);
+            byArtist.put(artistId, artist);
+            if (byArtist.size() >= cap) break;
+        }
+        return new ArrayList<>(byArtist.values());
+    }
+
+    public LiveData<List<com.cappielloantonio.tempo.subsonic.models.ArtistID3>> getRecentlyPlayedArtists() {
+        remoteResumeExecutor.execute(() ->
+                recentlyPlayedArtistsSample.postValue(recentPlayedArtists(20)));
+        return recentlyPlayedArtistsSample;
     }
 
     private static void mergeRecent(java.util.Map<String, Child> childById,

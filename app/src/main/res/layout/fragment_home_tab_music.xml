@@ -421,6 +421,37 @@
                 android:paddingBottom="8dp" />
         </LinearLayout>
 
+        <!-- cassette: Artists shelf (iOS slot below Albums) - recently played
+             artists as circles, derived from the play spine. -->
+        <LinearLayout
+            android:id="@+id/home_recently_played_artists_sector"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <TextView
+                android:id="@+id/recently_played_artists_text_view"
+                style="@style/TitleLarge"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="16dp"
+                android:paddingTop="16dp"
+                android:paddingEnd="16dp"
+                android:text="@string/library_title_artist" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recently_played_artists_recycler_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="24dp"
+                android:clipToPadding="false"
+                android:paddingStart="16dp"
+                android:paddingEnd="8dp" />
+        </LinearLayout>
+
         <!-- Playlists -->
         <LinearLayout
             android:id="@+id/pinned_playlists_sector"

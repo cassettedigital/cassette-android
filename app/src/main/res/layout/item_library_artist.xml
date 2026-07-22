@@ -5,11 +5,15 @@
     android:layout_height="wrap_content"
     android:paddingEnd="8dp">
 
-    <ImageView
+    <!-- cassette: artists are circles (iOS). Was a square ImageView; the artist
+         image is a circular crop now, shared with the Search artists carousel. -->
+    <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/artist_cover_image_view"
-        android:layout_width="172dp"
-        android:layout_height="172dp"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
         android:layout_gravity="center"
+        android:scaleType="centerCrop"
+        app:shapeAppearanceOverlay="@style/CassetteCircleFab"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

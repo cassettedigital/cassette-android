@@ -82,6 +82,7 @@ public class HomeTabMusicFragment extends Fragment implements ClickCallback {
     // pocketed in HomeViewModel and catalogued in docs/CASSETTE_ANDROID_FUTURE_SHELVES.md.
     private AlbumAdapter recentlyAddedAlbumAdapter;
     private AlbumAdapter recentlyPlayedAlbumAdapter;
+    private ArtistAdapter recentlyPlayedArtistsAdapter;
     private com.cappielloantonio.tempo.ui.adapter.PlaylistTileAdapter playlistTileAdapter;
 
     private ListenableFuture<MediaBrowser> mediaBrowserListenableFuture;
@@ -118,6 +119,7 @@ public class HomeTabMusicFragment extends Fragment implements ClickCallback {
         // this Cassette-only track list was the module that read as wrong.
         initRecentPlayedAlbumView();
         initRecentAddedAlbumView();
+        initRecentlyPlayedArtistsView();
         initPinnedPlaylistsView();
 
         // cassette: no Reorganize, and no reorder(). The Home order is fixed
@@ -396,6 +398,32 @@ public class HomeTabMusicFragment extends Fragment implements ClickCallback {
 
         CustomLinearSnapHelper recentAddedAlbumSnapHelper = new CustomLinearSnapHelper();
         recentAddedAlbumSnapHelper.attachToRecyclerView(bind.recentlyAddedAlbumsRecyclerView);
+    }
+
+    /**
+     * cassette: the Artists shelf (iOS slot below Albums) - recently played
+     * artists as circles, from the same play spine as Recent. Hidden when the
+     * play history has no resolvable artists yet.
+     */
+    private void initRecentlyPlayedArtistsView() {
+        bind.recentlyPlayedArtistsRecyclerView.setLayoutManager(
+                new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
+        bind.recentlyPlayedArtistsRecyclerView.setHasFixedSize(true);
+
+        recentlyPlayedArtistsAdapter = new ArtistAdapter(this, false, false);
+        bind.recentlyPlayedArtistsRecyclerView.setAdapter(recentlyPlayedArtistsAdapter);
+        homeViewModel.getRecentlyPlayedArtists().observe(getViewLifecycleOwner(), artists -> {
+            if (bind == null) return;
+            if (artists == null || artists.isEmpty()) {
+                bind.homeRecentlyPlayedArtistsSector.setVisibility(View.GONE);
+            } else {
+                bind.homeRecentlyPlayedArtistsSector.setVisibility(View.VISIBLE);
+                recentlyPlayedArtistsAdapter.setItems(artists);
+            }
+        });
+
+        CustomLinearSnapHelper artistSnapHelper = new CustomLinearSnapHelper();
+        artistSnapHelper.attachToRecyclerView(bind.recentlyPlayedArtistsRecyclerView);
     }
 
     private void initPinnedPlaylistsView() {
