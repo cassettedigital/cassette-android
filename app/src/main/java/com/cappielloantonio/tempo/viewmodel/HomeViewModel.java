@@ -160,43 +160,84 @@ public class HomeViewModel extends AndroidViewModel {
      * that this device doesn't own can't be shown (endpoint carries ids only).
      */
     public LiveData<List<Child>> getRecentlyPlayedTracks() {
-        remoteResumeExecutor.execute(() -> {
-            List<Child> result = new ArrayList<>();
-            try {
-                com.cappielloantonio.tempo.database.AppDatabase db =
-                        com.cappielloantonio.tempo.database.AppDatabase.getInstance();
-                String server = Preferences.getServerId();
-
-                java.util.Map<String, Child> childById = new HashMap<>();
-                java.util.Map<String, Long> tsById = new HashMap<>();
-
-                List<Chronology> local = db.chronologyDao().getRecentSync(server, 40);
-                if (local != null) {
-                    for (Chronology c : local) mergeRecent(childById, tsById, c.getId(), c, c.getTimestamp());
-                }
-
-                List<com.cappielloantonio.tempo.model.RemotePlay> remote = db.remotePlayDao().getRecent(40);
-                if (remote != null) {
-                    for (com.cappielloantonio.tempo.model.RemotePlay rp : remote) {
-                        com.cappielloantonio.tempo.model.Download owned =
-                                db.downloadDao().getByCassetteLocalId(rp.getCassetteLocalId());
-                        if (owned != null) mergeRecent(childById, tsById, owned.getId(), owned, rp.getPlayedAt());
-                    }
-                }
-
-                List<java.util.Map.Entry<String, Long>> entries = new ArrayList<>(tsById.entrySet());
-                entries.sort((a, b) -> Long.compare(b.getValue(), a.getValue()));
-                for (java.util.Map.Entry<String, Long> e : entries) {
-                    Child c = childById.get(e.getKey());
-                    if (c != null) result.add(c);
-                    if (result.size() >= 20) break;
-                }
-            } catch (Exception ignored) {
-                // best-effort — the shelf just stays hidden if it can't build
-            }
-            recentlyPlayedTracks.postValue(result);
-        });
+        remoteResumeExecutor.execute(() ->
+                recentlyPlayedTracks.postValue(recentPlayedUnion(20)));
         return recentlyPlayedTracks;
+    }
+
+    /**
+     * cassette: the real "recently played" spine, newest-first. Unions THIS
+     * device's chronology with cloud plays from other surfaces (remote_play,
+     * resolved to owned tracks) and dedupes by track id keeping the newer play.
+     * This is the same source the Resume card reads, which is why Resume knows
+     * the song you are on right now - and why the album shelf that ignored it
+     * looked empty. Runs on a background thread; call from an executor.
+     */
+    private List<Child> recentPlayedUnion(int cap) {
+        List<Child> result = new ArrayList<>();
+        try {
+            com.cappielloantonio.tempo.database.AppDatabase db =
+                    com.cappielloantonio.tempo.database.AppDatabase.getInstance();
+            String server = Preferences.getServerId();
+
+            java.util.Map<String, Child> childById = new HashMap<>();
+            java.util.Map<String, Long> tsById = new HashMap<>();
+
+            // Pull deeper than the cap: album de-dup downstream needs many
+            // plays to surface enough distinct albums.
+            int scan = Math.max(cap, 200);
+
+            List<Chronology> local = db.chronologyDao().getRecentSync(server, scan);
+            if (local != null) {
+                for (Chronology c : local) mergeRecent(childById, tsById, c.getId(), c, c.getTimestamp());
+            }
+
+            List<com.cappielloantonio.tempo.model.RemotePlay> remote = db.remotePlayDao().getRecent(scan);
+            if (remote != null) {
+                for (com.cappielloantonio.tempo.model.RemotePlay rp : remote) {
+                    com.cappielloantonio.tempo.model.Download owned =
+                            db.downloadDao().getByCassetteLocalId(rp.getCassetteLocalId());
+                    if (owned != null) mergeRecent(childById, tsById, owned.getId(), owned, rp.getPlayedAt());
+                }
+            }
+
+            List<java.util.Map.Entry<String, Long>> entries = new ArrayList<>(tsById.entrySet());
+            entries.sort((a, b) -> Long.compare(b.getValue(), a.getValue()));
+            for (java.util.Map.Entry<String, Long> e : entries) {
+                Child c = childById.get(e.getKey());
+                if (c != null) result.add(c);
+                if (result.size() >= cap) break;
+            }
+        } catch (Exception ignored) {
+            // best-effort — the shelf just stays hidden if it can't build
+        }
+        return result;
+    }
+
+    /**
+     * cassette: recent ALBUMS derived from the play spine, not from the
+     * downloaded-library scan. Walks the unioned recent plays newest-first and
+     * keeps the first appearance of each album. This is "Recent" the way it is
+     * meant to work: your actual recent listening, cloud plays included.
+     */
+    private List<AlbumID3> recentPlayedAlbums(int cap) {
+        List<Child> plays = recentPlayedUnion(1000);
+        java.util.LinkedHashMap<String, AlbumID3> byAlbum = new java.util.LinkedHashMap<>();
+        for (Child c : plays) {
+            String albumId = c.getAlbumId();
+            if (albumId == null || byAlbum.containsKey(albumId)) continue;
+            AlbumID3 album = new AlbumID3();
+            album.setId(albumId);
+            album.setName(c.getAlbum());
+            album.setArtist(c.getArtist());
+            album.setArtistId(c.getArtistId());
+            album.setCoverArtId(c.getCoverArtId());
+            if (c.getYear() != null) album.setYear(c.getYear());
+            album.setGenre(c.getGenre());
+            byAlbum.put(albumId, album);
+            if (byAlbum.size() >= cap) break;
+        }
+        return new ArrayList<>(byAlbum.values());
     }
 
     private static void mergeRecent(java.util.Map<String, Child> childById,
@@ -321,11 +362,13 @@ public class HomeViewModel extends AndroidViewModel {
     public LiveData<List<AlbumID3>> getRecentlyPlayedAlbumList(LifecycleOwner owner) {
         if (recentlyPlayedAlbumSample.getValue() == null) {
             if (com.cappielloantonio.tempo.util.Preferences.isOfflineFirst()) {
-                // cassette: derive the shelf from the local play log rather than
-                // giving up. This used to post an empty list, so offline-first -
-                // which is the default - never had a Recent shelf at all.
-                com.cappielloantonio.tempo.util.CassetteOfflineLibrary.recentAlbums(
-                        20, recentlyPlayedAlbumSample::postValue);
+                // cassette: Recent from the PLAY SPINE (chronology + cloud plays),
+                // not the downloaded-library scan. The old path read local-only
+                // recent album ids and then filtered to downloads, so it showed a
+                // single album while Resume - reading the same spine - knew the
+                // exact current song. Same source now.
+                remoteResumeExecutor.execute(() ->
+                        recentlyPlayedAlbumSample.postValue(recentPlayedAlbums(20)));
             } else {
                 albumRepository.getAlbums("recent", 20, null, null).observe(owner, recentlyPlayedAlbumSample::postValue);
             }
@@ -458,9 +501,10 @@ public class HomeViewModel extends AndroidViewModel {
 
     public void refreshRecentlyPlayedAlbumList(LifecycleOwner owner) {
         if (com.cappielloantonio.tempo.util.Preferences.isOfflineFirst()) {
-            // cassette: keep the recently-played shelf hidden offline (Resume +
-            // the Albums shelf cover it) — consistent with the getter.
-            recentlyPlayedAlbumSample.postValue(new java.util.ArrayList<>());
+            // cassette: re-derive from the play spine (chronology + cloud plays),
+            // same as the getter.
+            remoteResumeExecutor.execute(() ->
+                    recentlyPlayedAlbumSample.postValue(recentPlayedAlbums(20)));
             return;
         }
         albumRepository.getAlbums("recent", 20, null, null).observe(owner, recentlyPlayedAlbumSample::postValue);
