@@ -62,6 +62,13 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
     private ActivityResultLauncher<Intent> someActivityResultLauncher;
 
+    // cassette: the lean settings are nested PreferenceScreens (Account /
+    // Playback / Storage / About), iOS-style drill-in. androidx does not
+    // navigate nested screens on its own, so we swap the shown screen in place
+    // and keep a back callback to return to the root.
+    private androidx.preference.PreferenceScreen rootScreen;
+    private androidx.activity.OnBackPressedCallback backToRoot;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -97,6 +104,16 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     public void onResume() {
         super.onResume();
 
+        // cassette: resume at the root screen so the setup below (which uses
+        // findPreference against the shown screen) always resolves every kept
+        // control, and back is disarmed.
+        if (rootScreen != null && getPreferenceScreen() != rootScreen) {
+            setPreferenceScreen(rootScreen);
+        }
+        if (backToRoot != null) backToRoot.setEnabled(false);
+
+        // cassette: only the kept settings are wired now. Scan, sync-starred,
+        // keep-screen-on and the theme handler went with the pruned controls.
         checkEqualizer();
         checkCacheStorage();
         checkStorage();
@@ -106,12 +123,9 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         setVersion();
 
         actionLogout();
-        actionScan();
-        actionSyncStarredTracks();
         actionChangeStreamingCacheStorage();
         actionChangeDownloadStorage();
         actionDeleteDownloadStorage();
-        actionKeepScreenOn();
         actionReportProblem();
     }
 
@@ -124,15 +138,39 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setPreferencesFromResource(R.xml.global_preferences, rootKey);
-        ListPreference themePreference = findPreference(Preferences.THEME);
-        if (themePreference != null) {
-            themePreference.setOnPreferenceChangeListener(
-                    (preference, newValue) -> {
-                        String themeOption = (String) newValue;
-                        ThemeHelper.applyTheme(themeOption);
-                        return true;
-                    });
+        rootScreen = getPreferenceScreen();
+    }
+
+    @Override
+    public boolean onPreferenceTreeClick(@NonNull Preference preference) {
+        // cassette: drill into a nested screen in place, and arm the back
+        // callback so the system back returns to the root instead of leaving
+        // Settings. findPreference (used to wire the sub-screen controls)
+        // searches the whole tree, so listeners survive the swap.
+        if (preference instanceof androidx.preference.PreferenceScreen) {
+            setPreferenceScreen((androidx.preference.PreferenceScreen) preference);
+            if (backToRoot != null) backToRoot.setEnabled(true);
+            return true;
         }
+        return super.onPreferenceTreeClick(preference);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        backToRoot = new androidx.activity.OnBackPressedCallback(false) {
+            @Override
+            public void handleOnBackPressed() {
+                if (rootScreen != null && getPreferenceScreen() != rootScreen) {
+                    setPreferenceScreen(rootScreen);
+                    setEnabled(false);
+                } else {
+                    setEnabled(false);
+                    requireActivity().getOnBackPressedDispatcher().onBackPressed();
+                }
+            }
+        };
+        requireActivity().getOnBackPressedDispatcher().addCallback(getViewLifecycleOwner(), backToRoot);
     }
 
     private void checkEqualizer() {
@@ -236,37 +274,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         });
     }
 
-    private void actionScan() {
-        findPreference("scan_library").setOnPreferenceClickListener(preference -> {
-            settingViewModel.launchScan(new ScanCallback() {
-                @Override
-                public void onError(Exception exception) {
-                    findPreference("scan_library").setSummary(exception.getMessage());
-                }
-
-                @Override
-                public void onSuccess(boolean isScanning, long count) {
-                    findPreference("scan_library").setSummary("Scanning: counting " + count + " tracks");
-                    if (isScanning) getScanStatus();
-                }
-            });
-
-            return true;
-        });
-    }
-
-    private void actionSyncStarredTracks() {
-        findPreference("sync_starred_tracks_for_offline_use").setOnPreferenceChangeListener((preference, newValue) -> {
-            if (newValue instanceof Boolean) {
-                if ((Boolean) newValue) {
-                    StarredSyncDialog dialog = new StarredSyncDialog();
-                    dialog.show(activity.getSupportFragmentManager(), null);
-                }
-            }
-            return true;
-        });
-    }
-
     private void actionChangeStreamingCacheStorage() {
         findPreference("streaming_cache_storage").setOnPreferenceClickListener(preference -> {
             StreamingCacheStorageDialog dialog = new StreamingCacheStorageDialog(new DialogClickCallback() {
@@ -308,21 +315,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             DeleteDownloadStorageDialog dialog = new DeleteDownloadStorageDialog();
             dialog.show(activity.getSupportFragmentManager(), null);
             return true;
-        });
-    }
-
-    private void getScanStatus() {
-        settingViewModel.getScanStatus(new ScanCallback() {
-            @Override
-            public void onError(Exception exception) {
-                findPreference("scan_library").setSummary(exception.getMessage());
-            }
-
-            @Override
-            public void onSuccess(boolean isScanning, long count) {
-                findPreference("scan_library").setSummary("Scanning: counting " + count + " tracks");
-                if (isScanning) getScanStatus();
-            }
         });
     }
 
@@ -438,16 +430,4 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         }
     }
 
-    private void actionKeepScreenOn() {
-        findPreference("always_on_display").setOnPreferenceChangeListener((preference, newValue) -> {
-            if (newValue instanceof Boolean) {
-                if ((Boolean) newValue) {
-                    activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-                } else {
-                    activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-                }
-            }
-            return true;
-        });
-    }
 }

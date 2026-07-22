@@ -443,4 +443,7 @@
     <string name="undraw_page">unDraw</string>
     <string name="undraw_thanks">A special thanks goes to unDraw without whose illustrations we could not have made this application more beautiful.</string>
     <string name="undraw_url">https://undraw.co/</string>
+    <string name="settings_screen_account">Account</string>
+    <string name="settings_screen_playback">Playback</string>
+    <string name="settings_screen_storage">Storage</string>
 </resources>
