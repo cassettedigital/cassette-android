@@ -195,13 +195,10 @@ public class AlbumPageFragment extends Fragment implements ClickCallback {
                 if (bind != null)
                     bind.albumNotesTextview.setText(MusicUtil.forceReadableString(albumInfo.getNotes()));
 
-                if (bind != null && albumInfo.getLastFmUrl() != null && !albumInfo.getLastFmUrl().isEmpty()) {
-                    bind.albumNotesTextview.setOnClickListener(v -> {
-                        Intent intent = new Intent(Intent.ACTION_VIEW);
-                        intent.setData(Uri.parse(albumInfo.getLastFmUrl()));
-                        startActivity(intent);
-                    });
-                }
+                // cassette: no Last.fm link. Tempo turned the notes into a
+                // tap-through to last.fm; that provider is prohibited here (not
+                // as a source, not as a citation, not as a link). The notes text
+                // itself is empty on our agents-off hub, so nothing is lost.
             } else {
                 if (bind != null) bind.albumNotesTextview.setVisibility(View.GONE);
             }

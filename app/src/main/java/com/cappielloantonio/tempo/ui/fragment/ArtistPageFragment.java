@@ -122,10 +122,15 @@ public class ArtistPageFragment extends Fragment implements ClickCallback {
             } else {
                 String normalizedBio = MusicUtil.forceReadableString(artistInfo.getBiography());
 
+                // cassette: no Last.fm "More" link, ever. Tempo showed a "More"
+                // affordance that opened last.fm; the provider is prohibited. The
+                // link is gone and the biography sector shows only when there is
+                // actual bio text (Tempo forced it visible unconditionally below,
+                // so an empty bio still drew an empty section).
                 if (bind != null)
                     bind.artistPageBioSector.setVisibility(!normalizedBio.trim().isEmpty() ? View.VISIBLE : View.GONE);
                 if (bind != null)
-                    bind.bioMoreTextViewClickable.setVisibility(artistInfo.getLastFmUrl() != null ? View.VISIBLE : View.GONE);
+                    bind.bioMoreTextViewClickable.setVisibility(View.GONE);
 
                 if (getContext() != null && bind != null) CustomGlideRequest.Builder
                         .from(requireContext(), artistPageViewModel.getArtist().getId(), CustomGlideRequest.ResourceType.Artist)
@@ -133,14 +138,6 @@ public class ArtistPageFragment extends Fragment implements ClickCallback {
                         .into(bind.artistBackdropImageView);
 
                 if (bind != null) bind.bioTextView.setText(normalizedBio);
-
-                if (bind != null) bind.bioMoreTextViewClickable.setOnClickListener(v -> {
-                    Intent intent = new Intent(Intent.ACTION_VIEW);
-                    intent.setData(Uri.parse(artistInfo.getLastFmUrl()));
-                    startActivity(intent);
-                });
-
-                if (bind != null) bind.artistPageBioSector.setVisibility(View.VISIBLE);
             }
         });
     }
