@@ -126,9 +126,14 @@ public class HomeTabMusicFragment extends Fragment implements ClickCallback {
         initRecentPlayedAlbumView();
         initRecentAddedAlbumView();
         initPinnedPlaylistsView();
-        initHomeReorganizer();
 
-        reorder();
+        // cassette: no Reorganize, and no reorder(). The Home order is fixed
+        // (moving toward iOS's fixed shelf set), so the user-rearrangement
+        // button is gone and reorder() is not called. reorder() wiped the
+        // whole container and re-added only the stock sectors, dropping the
+        // greeting, sync banner and resume card - BUG-080. Not calling it means
+        // the layout's own order stands, which is what fresh installs already
+        // used (reorder returned early with no saved order).
     }
 
     /** iOS-style header: time-of-day eyebrow above the Home title. */

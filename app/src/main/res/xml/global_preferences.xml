@@ -61,10 +61,13 @@
             android:summary="@string/settings_audio_quality_summary"
             android:key="audio_quality_per_item" />
 
+        <!-- cassette: ratings removed (founder directive). The row indicator is
+             always hidden in the adapters; this toggle is hidden too. -->
         <SwitchPreference
             android:title="@string/settings_item_rating"
             android:defaultValue="false"
             android:summary="@string/settings_item_rating_summary"
+            app:isPreferenceVisible="false"
             android:key="rating_per_item" />
 
         <!-- cassette: podcast/radio/directory are not Cassette surfaces — the
