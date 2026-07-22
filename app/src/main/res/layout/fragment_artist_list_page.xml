@@ -9,9 +9,12 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
+        style="@style/Widget.Material3.Toolbar"
         android:background="?attr/colorSurface"
         app:layout_collapseMode="pin"
-        app:navigationIcon="@drawable/ic_arrow_back" />
+        app:navigationIcon="@drawable/ic_arrow_back"
+        app:titleCentered="true"
+        app:titleTextAppearance="@style/Cassette.Text.TitleLarge" />
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
@@ -38,7 +41,8 @@
                     android:id="@+id/page_title_label"
                     style="@style/TitleLarge"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="0dp"
+                    android:visibility="gone"
                     android:paddingStart="16dp"
                     android:paddingTop="16dp"
                     android:paddingEnd="4dp"
@@ -51,7 +55,8 @@
                     android:id="@+id/page_subtitle_label"
                     style="@style/TitleMedium"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="0dp"
+                    android:visibility="gone"
                     android:paddingStart="4dp"
                     android:paddingTop="16dp"
                     android:paddingEnd="16dp"

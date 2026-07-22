@@ -89,6 +89,9 @@ public class ArtistListPageFragment extends Fragment implements ClickCallback {
             activity.getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
 
+        // cassette: title centered in the bar (in-content label hidden).
+        bind.toolbar.setTitle(bind.pageTitleLabel.getText());
+
         bind.toolbar.setNavigationOnClickListener(v -> {
             hideKeyboard(v);
             activity.navController.navigateUp();

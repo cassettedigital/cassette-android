@@ -154,6 +154,9 @@ public class SongListPageFragment extends Fragment implements ClickCallback {
             activity.getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
 
+        // cassette: title centered in the bar (in-content label hidden).
+        bind.toolbar.setTitle(bind.pageTitleLabel.getText());
+
         if (bind != null)
             bind.toolbar.setNavigationOnClickListener(v -> {
                 hideKeyboard(v);

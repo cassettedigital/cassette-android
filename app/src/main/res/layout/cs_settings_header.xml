@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- cassette: the Settings header - centered title + back arrow, matching Home
+     and the list pages. Wrapped around the preference list in code; the title
+     tracks the drilled-in sub-screen. -->
+<com.google.android.material.appbar.MaterialToolbar xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/settings_toolbar"
+    android:layout_width="match_parent"
+    android:layout_height="?attr/actionBarSize"
+    android:background="?attr/colorSurface"
+    app:navigationIcon="@drawable/ic_arrow_back"
+    app:popupTheme="@style/Cassette.NeutralTintContext"
+    app:title="@string/menu_settings_button"
+    app:titleCentered="true"
+    app:titleTextAppearance="@style/Cassette.Text.TitleLarge" />

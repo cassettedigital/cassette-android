@@ -446,4 +446,9 @@
     <string name="settings_screen_account">Account</string>
     <string name="settings_screen_playback">Playback</string>
     <string name="settings_screen_storage">Storage</string>
+    <string name="settings_download_quality_title">Download quality</string>
+    <string name="settings_download_quality_lossless">Lossless (FLAC)</string>
+    <string name="settings_download_quality_high">High (MP3)</string>
+    <string name="settings_download_quality_efficient">Efficient (MP3)</string>
+    <string name="settings_download_quality_account_note">Set on your account, synced to this phone</string>
 </resources>

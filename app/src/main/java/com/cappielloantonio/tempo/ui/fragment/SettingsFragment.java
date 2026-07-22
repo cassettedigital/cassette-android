@@ -68,6 +68,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     // and keep a back callback to return to the root.
     private androidx.preference.PreferenceScreen rootScreen;
     private androidx.activity.OnBackPressedCallback backToRoot;
+    private com.google.android.material.appbar.MaterialToolbar settingsToolbar;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -83,14 +84,28 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         activity = (MainActivity) getActivity();
 
-        View view = super.onCreateView(inflater, container, savedInstanceState);
+        View prefView = super.onCreateView(inflater, container, savedInstanceState);
         settingViewModel = new ViewModelProvider(requireActivity()).get(SettingViewModel.class);
 
-        if (view != null) {
+        if (prefView != null) {
             getListView().setPadding(0, 0, 0, (int) getResources().getDimension(R.dimen.global_padding_bottom));
         }
 
-        return view;
+        // cassette: wrap the preference list with a centered-title header so
+        // Settings reads like the rest of the app (Home / list pages). The back
+        // arrow returns to a sub-screen's parent or leaves Settings.
+        android.widget.LinearLayout root = new android.widget.LinearLayout(requireContext());
+        root.setOrientation(android.widget.LinearLayout.VERTICAL);
+        settingsToolbar = (com.google.android.material.appbar.MaterialToolbar)
+                inflater.inflate(R.layout.cs_settings_header, root, false);
+        settingsToolbar.setNavigationOnClickListener(v ->
+                requireActivity().getOnBackPressedDispatcher().onBackPressed());
+        root.addView(settingsToolbar);
+        if (prefView != null) {
+            root.addView(prefView, new android.widget.LinearLayout.LayoutParams(
+                    android.widget.LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f));
+        }
+        return root;
     }
 
     @Override
@@ -110,6 +125,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         if (rootScreen != null && getPreferenceScreen() != rootScreen) {
             setPreferenceScreen(rootScreen);
         }
+        if (settingsToolbar != null) settingsToolbar.setTitle(R.string.menu_settings_button);
         if (backToRoot != null) backToRoot.setEnabled(false);
 
         // cassette: only the kept settings are wired now. Scan, sync-starred,
@@ -121,6 +137,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         setStreamingCacheSize();
         setAppLanguage();
         setVersion();
+        setDownloadQualityInfo();
 
         actionLogout();
         actionChangeStreamingCacheStorage();
@@ -148,7 +165,9 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         // Settings. findPreference (used to wire the sub-screen controls)
         // searches the whole tree, so listeners survive the swap.
         if (preference instanceof androidx.preference.PreferenceScreen) {
-            setPreferenceScreen((androidx.preference.PreferenceScreen) preference);
+            androidx.preference.PreferenceScreen sub = (androidx.preference.PreferenceScreen) preference;
+            setPreferenceScreen(sub);
+            if (settingsToolbar != null) settingsToolbar.setTitle(sub.getTitle());
             if (backToRoot != null) backToRoot.setEnabled(true);
             return true;
         }
@@ -163,6 +182,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             public void handleOnBackPressed() {
                 if (rootScreen != null && getPreferenceScreen() != rootScreen) {
                     setPreferenceScreen(rootScreen);
+                    if (settingsToolbar != null) settingsToolbar.setTitle(R.string.menu_settings_button);
                     setEnabled(false);
                 } else {
                     setEnabled(false);
@@ -265,6 +285,21 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
     private void setVersion() {
         findPreference("version").setSummary(BuildConfig.VERSION_NAME);
+    }
+
+    // cassette: the download tier is account-sourced; show it read-only under
+    // Playback so the screen reflects the account rather than fighting it.
+    private void setDownloadQualityInfo() {
+        Preference pref = findPreference("download_quality_info");
+        if (pref == null) return;
+        String tier = Preferences.getCassetteDownloadQuality();
+        int label;
+        switch (tier) {
+            case "lossless": label = R.string.settings_download_quality_lossless; break;
+            case "efficient": label = R.string.settings_download_quality_efficient; break;
+            default: label = R.string.settings_download_quality_high; break;
+        }
+        pref.setSummary(getString(label) + " · " + getString(R.string.settings_download_quality_account_note));
     }
 
     private void actionLogout() {

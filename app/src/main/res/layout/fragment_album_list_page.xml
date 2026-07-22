@@ -5,13 +5,18 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+    <!-- cassette: centered title in the bar (iOS nav bar / Home parity), back
+         arrow on the left. The in-content title label below is hidden. -->
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
+        style="@style/Widget.Material3.Toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="?attr/colorSurface"
         app:layout_collapseMode="pin"
-        app:navigationIcon="@drawable/ic_arrow_back" />
+        app:navigationIcon="@drawable/ic_arrow_back"
+        app:titleCentered="true"
+        app:titleTextAppearance="@style/Cassette.Text.TitleLarge" />
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
@@ -34,28 +39,30 @@
                 android:clipChildren="false"
                 app:layout_scrollFlags="scroll|exitUntilCollapsed|snap">
 
+                <!-- cassette: hidden - the title lives centered in the toolbar
+                     now. Kept (zero size) so the sort button keeps its anchor. -->
                 <TextView
                     android:id="@+id/page_title_label"
                     style="@style/TitleLarge"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="0dp"
                     android:paddingStart="16dp"
-                    android:paddingTop="16dp"
                     android:paddingEnd="4dp"
-                    android:paddingBottom="24dp"
                     android:text="@string/label_placeholder"
+                    android:visibility="gone"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent" />
 
+                <!-- cassette: hidden with the title; the count is not shown in
+                     the centered bar. -->
                 <TextView
                     android:id="@+id/page_subtitle_label"
                     style="@style/TitleMedium"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="0dp"
                     android:paddingStart="4dp"
-                    android:paddingTop="16dp"
                     android:paddingEnd="16dp"
-                    android:paddingBottom="24dp"
+                    android:visibility="gone"
                     app:layout_constraintTop_toTopOf="@id/page_title_label"
                     app:layout_constraintBottom_toBottomOf="@id/page_title_label"
                     app:layout_constraintStart_toEndOf="@id/page_title_label" />

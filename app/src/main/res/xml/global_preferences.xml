@@ -31,6 +31,14 @@
         app:key="screen_playback"
         app:title="@string/settings_screen_playback">
 
+        <!-- Read-only: the download tier is set by your account (web / desktop);
+             the phone reads it. Shown here so Playback reflects it, not to edit
+             it, which would fight the account-sourced model. -->
+        <Preference
+            android:key="download_quality_info"
+            app:selectable="false"
+            app:title="@string/settings_download_quality_title" />
+
         <Preference
             android:key="equalizer"
             android:summary="@string/settings_equalizer_summary"

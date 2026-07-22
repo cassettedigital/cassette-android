@@ -104,6 +104,9 @@ public class AlbumListPageFragment extends Fragment implements ClickCallback {
             activity.getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
 
+        // cassette: title centered in the bar (the in-content label is hidden).
+        bind.toolbar.setTitle(bind.pageTitleLabel.getText());
+
         bind.toolbar.setNavigationOnClickListener(v -> {
             hideKeyboard(v);
             activity.navController.navigateUp();
