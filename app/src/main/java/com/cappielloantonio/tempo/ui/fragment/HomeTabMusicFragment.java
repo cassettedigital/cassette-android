@@ -80,7 +80,6 @@ public class HomeTabMusicFragment extends Fragment implements ClickCallback {
     // (discover, similar, best-of, radio, top-songs, starred x3, new-releases,
     // flashback/year, most-played, shares) are removed - their queries are
     // pocketed in HomeViewModel and catalogued in docs/CASSETTE_ANDROID_FUTURE_SHELVES.md.
-    private SongHorizontalAdapter recentlyPlayedTracksAdapter;
     private AlbumAdapter recentlyAddedAlbumAdapter;
     private AlbumAdapter recentlyPlayedAlbumAdapter;
     private com.cappielloantonio.tempo.ui.adapter.PlaylistTileAdapter playlistTileAdapter;
@@ -114,7 +113,9 @@ public class HomeTabMusicFragment extends Fragment implements ClickCallback {
         initGreeting();
         initSyncBanner();
         initResumeCard();
-        initRecentlyPlayedTracksView();
+        // cassette: no recently-played-TRACKS shelf. iOS Home is all album
+        // cards (Resume -> Recent -> Albums), never a list of individual songs;
+        // this Cassette-only track list was the module that read as wrong.
         initRecentPlayedAlbumView();
         initRecentAddedAlbumView();
         initPinnedPlaylistsView();
@@ -298,39 +299,6 @@ public class HomeTabMusicFragment extends Fragment implements ClickCallback {
      * device and other surfaces (iOS/web/desktop, resolved to owned tracks). A
      * horizontal shelf that fills in when there's cross-device history to show.
      */
-    private void initRecentlyPlayedTracksView() {
-        bind.recentlyPlayedTracksRecyclerView.setHasFixedSize(true);
-        // cassette: vertical. This shelf was a HORIZONTAL list fed rows built
-        // for a vertical tracklist — each one match_parent, so it rendered as a
-        // sideways carousel of full-screen-width rows carrying track numbers,
-        // star ratings and an overflow button. That is the "rough" on the home
-        // screen: right content, wrong axis.
-        bind.recentlyPlayedTracksRecyclerView.setLayoutManager(
-                new LinearLayoutManager(requireContext()));
-        recentlyPlayedTracksAdapter = new SongHorizontalAdapter(this, true, true, null);
-        bind.recentlyPlayedTracksRecyclerView.setAdapter(recentlyPlayedTracksAdapter);
-
-        homeViewModel.getRecentlyPlayedTracks().observe(getViewLifecycleOwner(), songs -> {
-            if (bind == null) return;
-            if (songs == null || songs.isEmpty()) {
-                bind.homeRecentlyPlayedTracksSector.setVisibility(View.GONE);
-            } else {
-                bind.homeRecentlyPlayedTracksSector.setVisibility(View.VISIBLE);
-                // cassette: a home shelf, not the whole history — five rows,
-                // the way iOS keeps Recent short.
-                recentlyPlayedTracksAdapter.setItems(
-                        songs.size() > 5 ? new java.util.ArrayList<>(songs.subList(0, 5)) : songs);
-            }
-        });
-
-        // cassette: home rows follow the player too, so the track sounding is
-        // marked wherever it appears.
-        com.cappielloantonio.tempo.util.CassetteNowPlaying.live().observe(getViewLifecycleOwner(), state -> {
-            if (state != null && recentlyPlayedTracksAdapter != null) {
-                recentlyPlayedTracksAdapter.setNowPlaying(state.mediaId, state.isPlaying);
-            }
-        });
-    }
 
     @Override
     public void onStart() {
