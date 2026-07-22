@@ -156,29 +156,40 @@ public class AlbumBottomSheetDialog extends BottomSheetDialogFragment implements
             dismissBottomSheet();
         }));
 
+        // cassette: manual download is a STREAMING-mode affordance only. In
+        // offline-first (the default), everything you own is already on the
+        // phone via account sync, so "download all" / "remove all" mean nothing
+        // and are hidden. When the account is in Server Mode (streaming), the
+        // phone does not auto-mirror, so manual download becomes real again.
         TextView downloadAll = view.findViewById(R.id.download_all_text_view);
-        albumBottomSheetViewModel.getAlbumTracks().observe(getViewLifecycleOwner(), songs -> {
-            List<MediaItem> mediaItems = MappingUtil.mapDownloads(songs);
-            List<Download> downloads = songs.stream().map(Download::new).collect(Collectors.toList());
-
-            downloadAll.setOnClickListener(v -> {
-                DownloadUtil.getDownloadTracker(requireContext()).download(mediaItems, downloads);
-                dismissBottomSheet();
-            });
-        });
-
         TextView removeAll = view.findViewById(R.id.remove_all_text_view);
-        albumBottomSheetViewModel.getAlbumTracks().observe(getViewLifecycleOwner(), songs -> {
-            List<MediaItem> mediaItems = MappingUtil.mapDownloads(songs);
-            List<Download> downloads = songs.stream().map(Download::new).collect(Collectors.toList());
+        boolean streaming = com.cappielloantonio.tempo.util.Preferences.isServerMode();
+        if (!streaming) {
+            downloadAll.setVisibility(View.GONE);
+            removeAll.setVisibility(View.GONE);
+        } else {
+            albumBottomSheetViewModel.getAlbumTracks().observe(getViewLifecycleOwner(), songs -> {
+                List<MediaItem> mediaItems = MappingUtil.mapDownloads(songs);
+                List<Download> downloads = songs.stream().map(Download::new).collect(Collectors.toList());
 
-            removeAll.setOnClickListener(v -> {
-                DownloadUtil.getDownloadTracker(requireContext()).remove(mediaItems, downloads);
-                dismissBottomSheet();
+                downloadAll.setOnClickListener(v -> {
+                    DownloadUtil.getDownloadTracker(requireContext()).download(mediaItems, downloads);
+                    dismissBottomSheet();
+                });
             });
-        });
 
-        initDownloadUI(removeAll);
+            albumBottomSheetViewModel.getAlbumTracks().observe(getViewLifecycleOwner(), songs -> {
+                List<MediaItem> mediaItems = MappingUtil.mapDownloads(songs);
+                List<Download> downloads = songs.stream().map(Download::new).collect(Collectors.toList());
+
+                removeAll.setOnClickListener(v -> {
+                    DownloadUtil.getDownloadTracker(requireContext()).remove(mediaItems, downloads);
+                    dismissBottomSheet();
+                });
+            });
+
+            initDownloadUI(removeAll);
+        }
 
         TextView goToArtist = view.findViewById(R.id.go_to_artist_text_view);
         goToArtist.setOnClickListener(v -> albumBottomSheetViewModel.getArtist().observe(getViewLifecycleOwner(), artist -> {

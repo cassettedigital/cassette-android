@@ -64,6 +64,13 @@ public class PlaylistPageFragment extends Fragment implements ClickCallback {
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         inflater.inflate(R.menu.playlist_page_menu, menu);
 
+        // cassette: manual "download all" is streaming-mode only, like the album
+        // page - kept consistent even though playlists are not album-scope synced.
+        MenuItem downloadItem = menu.findItem(R.id.action_download_playlist);
+        if (downloadItem != null) {
+            downloadItem.setVisible(com.cappielloantonio.tempo.util.Preferences.isServerMode());
+        }
+
         MenuItem searchItem = menu.findItem(R.id.action_search);
 
         SearchView searchView = (SearchView) searchItem.getActionView();

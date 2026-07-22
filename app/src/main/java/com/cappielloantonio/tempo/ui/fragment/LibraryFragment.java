@@ -171,6 +171,13 @@ public class LibraryFragment extends Fragment implements ClickCallback {
                     requireContext(), R.style.Cassette_NeutralTintContext);
             PopupMenu popup = new PopupMenu(popupContext, v);
             popup.getMenuInflater().inflate(R.menu.library_category_menu, popup.getMenu());
+            // cassette: "Downloads" is a manual-download concept, shown only in
+            // streaming mode. In offline-first the library IS what is on the
+            // phone, so a separate Downloads category is noise.
+            if (popup.getMenu().findItem(R.id.library_menu_downloads) != null) {
+                popup.getMenu().findItem(R.id.library_menu_downloads)
+                        .setVisible(Preferences.isServerMode());
+            }
             popup.setOnMenuItemClickListener(item -> {
                 int id = item.getItemId();
                 if (id == R.id.library_menu_albums) {

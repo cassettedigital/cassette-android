@@ -154,25 +154,32 @@ public class SongBottomSheetDialog extends BottomSheetDialogFragment implements 
             dismissBottomSheet();
         });
 
+        // cassette: manual download is streaming-mode only (see the album
+        // sheet). Hidden in offline-first, where sync already owns the file.
         TextView download = view.findViewById(R.id.download_text_view);
-        download.setOnClickListener(v -> {
-            DownloadUtil.getDownloadTracker(requireContext()).download(
-                    MappingUtil.mapDownload(song),
-                    new Download(song)
-            );
-            dismissBottomSheet();
-        });
-
         TextView remove = view.findViewById(R.id.remove_text_view);
-        remove.setOnClickListener(v -> {
-            DownloadUtil.getDownloadTracker(requireContext()).remove(
-                    MappingUtil.mapDownload(song),
-                    new Download(song)
-            );
-            dismissBottomSheet();
-        });
+        if (!com.cappielloantonio.tempo.util.Preferences.isServerMode()) {
+            download.setVisibility(View.GONE);
+            remove.setVisibility(View.GONE);
+        } else {
+            download.setOnClickListener(v -> {
+                DownloadUtil.getDownloadTracker(requireContext()).download(
+                        MappingUtil.mapDownload(song),
+                        new Download(song)
+                );
+                dismissBottomSheet();
+            });
 
-        initDownloadUI(download, remove);
+            remove.setOnClickListener(v -> {
+                DownloadUtil.getDownloadTracker(requireContext()).remove(
+                        MappingUtil.mapDownload(song),
+                        new Download(song)
+                );
+                dismissBottomSheet();
+            });
+
+            initDownloadUI(download, remove);
+        }
 
         TextView addToPlaylist = view.findViewById(R.id.add_to_playlist_text_view);
         addToPlaylist.setOnClickListener(v -> {

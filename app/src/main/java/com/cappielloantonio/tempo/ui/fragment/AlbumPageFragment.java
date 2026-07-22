@@ -68,6 +68,12 @@ public class AlbumPageFragment extends Fragment implements ClickCallback {
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.album_page_menu, menu);
+        // cassette: "Download all" only in streaming mode; offline-first already
+        // holds the whole album via sync.
+        MenuItem downloadItem = menu.findItem(R.id.action_download_album);
+        if (downloadItem != null) {
+            downloadItem.setVisible(com.cappielloantonio.tempo.util.Preferences.isServerMode());
+        }
     }
 
     @Override
