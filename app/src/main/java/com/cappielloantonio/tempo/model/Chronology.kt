@@ -20,6 +20,9 @@ class Chronology(@PrimaryKey override val id: String) : Child(id) {
     @ColumnInfo(name = "server")
     var server: String? = null
 
+    @ColumnInfo(name = "mbid")
+    var mbid: String? = null
+
     constructor(mediaItem: MediaItem) : this(mediaItem.mediaMetadata.extras!!.getString("id")!!) {
         parentId = mediaItem.mediaMetadata.extras!!.getString("parentId")
         isDir = mediaItem.mediaMetadata.extras!!.getBoolean("isDir")
@@ -51,6 +54,7 @@ class Chronology(@PrimaryKey override val id: String) : Child(id) {
         bookmarkPosition = mediaItem.mediaMetadata.extras!!.getLong("bookmarkPosition")
         originalWidth = mediaItem.mediaMetadata.extras!!.getInt("originalWidth")
         originalHeight = mediaItem.mediaMetadata.extras!!.getInt("originalHeight")
+        mbid = mediaItem.mediaMetadata.extras!!.getString("musicBrainzId")
         server = Preferences.getServerId()
         timestamp = Date().time
     }

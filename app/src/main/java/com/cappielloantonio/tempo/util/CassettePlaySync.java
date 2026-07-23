@@ -73,7 +73,10 @@ public final class CassettePlaySync {
             int duration = c.getDuration() != null ? c.getDuration() : 0;
             // Same-input, same-id as the Go sidecar / Swift port / web library index.
             String localId = CassetteLocalId.compute(artist, title, duration);
-            plays.add(new CassetteSyncApi.PlayItem(localId, null, iso.format(new Date(c.getTimestamp()))));
+            // Send the stable MusicBrainz id alongside the fingerprint so other
+            // devices can resolve this play even when their computed fingerprint
+            // differs (the phones feed a slightly different duration than the hub).
+            plays.add(new CassetteSyncApi.PlayItem(localId, c.getMbid(), iso.format(new Date(c.getTimestamp()))));
             if (c.getTimestamp() > maxTimestamp) maxTimestamp = c.getTimestamp();
         }
 

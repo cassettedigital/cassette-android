@@ -26,6 +26,11 @@ public interface DownloadDao {
     @Query("SELECT * FROM download WHERE cassette_local_id = :cassetteLocalId LIMIT 1")
     Download getByCassetteLocalId(String cassetteLocalId);
 
+    // Resolve by the stable MusicBrainz id — the cross-device key that survives
+    // the fingerprint drift between phones and the hub.
+    @Query("SELECT * FROM download WHERE mbid = :mbid LIMIT 1")
+    Download getByMbid(String mbid);
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(Download download);
 

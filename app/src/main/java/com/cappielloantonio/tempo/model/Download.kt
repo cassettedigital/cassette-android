@@ -64,6 +64,10 @@ class Download(@PrimaryKey override val id: String) : Child(id) {
         bookmarkPosition = child.bookmarkPosition
         originalWidth = child.originalWidth
         originalHeight = child.originalHeight
+        // Carry the stable MusicBrainz id when the source Child has one (Subsonic
+        // getSong). Intent-delivered downloads set mbid from the transfer instead;
+        // this covers the Subsonic-sourced path so cross-device plays resolve here.
+        mbid = child.musicBrainzId
     }
 }
 

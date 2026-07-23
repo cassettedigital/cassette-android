@@ -124,8 +124,11 @@ public class HomeViewModel extends AndroidViewModel {
                 List<com.cappielloantonio.tempo.model.RemotePlay> recent = db.remotePlayDao().getRecent(25);
                 if (recent != null) {
                     for (com.cappielloantonio.tempo.model.RemotePlay rp : recent) {
+                        // mbid first (the stable cross-device key), fingerprint fallback.
                         com.cappielloantonio.tempo.model.Download owned =
-                                db.downloadDao().getByCassetteLocalId(rp.getCassetteLocalId());
+                                rp.getMbid() != null ? db.downloadDao().getByMbid(rp.getMbid()) : null;
+                        if (owned == null)
+                            owned = db.downloadDao().getByCassetteLocalId(rp.getCassetteLocalId());
                         if (owned != null) {
                             result = new RemoteResume(owned, rp.getPlayedAt());
                             break;
@@ -196,8 +199,11 @@ public class HomeViewModel extends AndroidViewModel {
             List<com.cappielloantonio.tempo.model.RemotePlay> remote = db.remotePlayDao().getRecent(scan);
             if (remote != null) {
                 for (com.cappielloantonio.tempo.model.RemotePlay rp : remote) {
+                    // mbid first (the stable cross-device key), fingerprint fallback.
                     com.cappielloantonio.tempo.model.Download owned =
-                            db.downloadDao().getByCassetteLocalId(rp.getCassetteLocalId());
+                            rp.getMbid() != null ? db.downloadDao().getByMbid(rp.getMbid()) : null;
+                    if (owned == null)
+                        owned = db.downloadDao().getByCassetteLocalId(rp.getCassetteLocalId());
                     if (owned != null) mergeRecent(childById, tsById, owned.getId(), owned, rp.getPlayedAt());
                 }
             }

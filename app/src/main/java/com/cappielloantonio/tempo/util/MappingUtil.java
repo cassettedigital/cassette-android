@@ -78,6 +78,7 @@ public class MappingUtil {
         bundle.putInt("originalWidth", media.getOriginalWidth() != null ? media.getOriginalWidth() : 0);
         bundle.putInt("originalHeight", media.getOriginalHeight() != null ? media.getOriginalHeight() : 0);
         bundle.putString("uri", uri.toString());
+        bundle.putString("musicBrainzId", media.getMusicBrainzId());
 
         return new MediaItem.Builder()
                 .setMediaId(media.getId())

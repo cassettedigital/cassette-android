@@ -3,8 +3,10 @@ package com.cappielloantonio.tempo.subsonic.models
 import android.os.Parcelable
 import androidx.annotation.Keep
 import androidx.room.ColumnInfo
+import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
+import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
 import java.util.*
 
@@ -79,4 +81,13 @@ open class Child(
     var originalWidth: Int? = null,
     @ColumnInfo(name = "original_height")
     var originalHeight: Int? = null
-) : Parcelable
+) : Parcelable {
+    // cassette: MusicBrainz recording id from Subsonic getSong (musicBrainzId).
+    // In-memory only — Gson populates it by name; @Ignore keeps it off the Room
+    // tables (Download and Chronology own their persisted `mbid` column), and
+    // @IgnoredOnParcel keeps @Parcelize from serializing this non-ctor property.
+    // It carries the stable cross-device play identity the fingerprint can't.
+    @IgnoredOnParcel
+    @Ignore
+    var musicBrainzId: String? = null
+}
