@@ -106,16 +106,19 @@
         app:layout_constraintTop_toBottomOf="@+id/player_media_title_label"
         app:layout_constraintBottom_toTopOf="@id/exo_progress"/>
 
-    <ToggleButton
+    <!-- cassette: favorites removed (iOS parity) — this slot is add-to-playlist.
+         Must stay an ImageButton to match portrait + the ImageButton field it
+         binds to; a ToggleButton here crashed the app on rotate to landscape. -->
+    <ImageButton
         android:id="@+id/button_favorite"
         android:layout_width="26dp"
         android:layout_height="26dp"
         android:layout_marginEnd="24dp"
-        android:background="@drawable/button_favorite_selector"
-        android:checked="false"
-        android:text=""
-        android:textOff=""
-        android:textOn=""
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/player_add_to_playlist"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_playlist_add"
+        android:tint="?attr/colorOnSurfaceVariant"
         app:layout_constraintBottom_toBottomOf="@+id/player_media_title_label"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/player_media_title_label" />
