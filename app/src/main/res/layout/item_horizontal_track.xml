@@ -6,8 +6,8 @@
     android:background="?attr/selectableItemBackground"
     android:clipChildren="false"
     android:orientation="horizontal"
-    android:paddingTop="9dp"
-    android:paddingBottom="9dp">
+    android:paddingTop="13dp"
+    android:paddingBottom="13dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/different_disk_divider_sector"
@@ -47,8 +47,8 @@
 
     <ImageView
         android:id="@+id/song_cover_image_view"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+        android:layout_width="@dimen/track_row_art"
+        android:layout_height="@dimen/track_row_art"
         android:layout_gravity="center"
         android:layout_marginStart="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -56,12 +56,12 @@
         app:layout_constraintTop_toBottomOf="@+id/different_disk_divider_sector" />
 
     <!-- cassette: track number in the muted mono metadata voice (iOS), so the
-         title carries the row — was LabelLarge (bold cream), which out-shouted it. -->
+         title carries the row  -  was LabelLarge (bold cream), which out-shouted it. -->
     <TextView
         android:id="@+id/track_number_text_view"
         style="@style/TitleMedium"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+        android:layout_width="@dimen/track_row_number"
+        android:layout_height="@dimen/track_row_art"
         android:layout_marginStart="16dp"
         android:gravity="center_vertical|end"
         android:paddingEnd="6dp"
@@ -75,11 +75,12 @@
          this row is the track currently sounding. -->
     <ImageView
         android:id="@+id/now_playing_indicator"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+        android:layout_width="@dimen/track_row_number"
+        android:layout_height="@dimen/track_row_art"
         android:layout_marginStart="16dp"
         android:contentDescription="@string/now_playing_indicator_description"
-        android:padding="18dp"
+        android:paddingHorizontal="7dp"
+        android:paddingVertical="18dp"
         android:src="@drawable/cs_now_playing_bars"
         android:visibility="gone"
         app:tint="?attr/colorPrimary"
@@ -97,7 +98,7 @@
         app:layout_constraintStart_toEndOf="@+id/song_cover_image_view"
         app:layout_constraintTop_toTopOf="@+id/song_cover_image_view" />
 
-    <!-- cassette: the title is the row's lead — bumped to 16sp/600 (iOS flare). -->
+    <!-- cassette: the title is the row's lead  -  bumped to 16sp/600 (iOS flare). -->
     <TextView
         android:id="@+id/search_result_song_title_text_view"
         style="@style/LabelMedium"
@@ -133,7 +134,7 @@
         android:layout_height="wrap_content"
         android:paddingVertical="8dp"
         app:layout_constraintBottom_toBottomOf="@+id/song_cover_image_view"
-        app:layout_constraintEnd_toStartOf="@+id/search_result_song_more_button"
+        app:layout_constraintEnd_toStartOf="@+id/search_result_song_duration_text_view"
         app:layout_constraintStart_toEndOf="@+id/search_result_song_title_text_view"
         app:layout_constraintTop_toTopOf="@+id/song_cover_image_view">
 
@@ -191,20 +192,30 @@
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <FrameLayout
-        android:id="@+id/search_result_song_more_button"
+    <!-- cassette: duration stands in the trailing slot (web parity). Overflow
+         is long-press on the row  -  the more icon is kept gone for binding
+         compatibility with hosts that still wire a click listener. -->
+    <TextView
+        android:id="@+id/search_result_song_duration_text_view"
+        style="@style/TitleSmall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="12dp"
+        android:layout_marginEnd="16dp"
+        android:minWidth="36dp"
+        android:gravity="end"
+        android:singleLine="true"
+        android:text="@string/label_placeholder"
         app:layout_constraintBottom_toBottomOf="@+id/song_cover_image_view"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/rating_indicator_image_view"
-        app:layout_constraintTop_toTopOf="@+id/song_cover_image_view">
+        app:layout_constraintTop_toTopOf="@+id/song_cover_image_view" />
 
-        <ImageView
-            android:layout_width="18dp"
-            android:layout_height="18dp"
-            android:background="@drawable/ic_more_vert"
-            android:foreground="?android:attr/selectableItemBackgroundBorderless" />
-    </FrameLayout>
+    <FrameLayout
+        android:id="@+id/search_result_song_more_button"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/song_cover_image_view"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/song_cover_image_view" />
 </androidx.constraintlayout.widget.ConstraintLayout>

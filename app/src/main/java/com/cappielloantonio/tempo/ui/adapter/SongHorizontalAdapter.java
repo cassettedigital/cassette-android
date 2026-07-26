@@ -135,6 +135,16 @@ public class SongHorizontalAdapter extends RecyclerView.Adapter<SongHorizontalAd
 
         holder.item.trackNumberTextView.setText(MusicUtil.getReadableTrackNumber(holder.itemView.getContext(), song.getTrack()));
 
+        // cassette: duration in the trailing slot; overflow is long-press.
+        if (song.getDuration() != null && song.getDuration() > 0) {
+            holder.item.searchResultSongDurationTextView.setVisibility(View.VISIBLE);
+            holder.item.searchResultSongDurationTextView.setText(
+                    MusicUtil.getReadableDurationString(song.getDuration(), false));
+        } else {
+            holder.item.searchResultSongDurationTextView.setVisibility(View.GONE);
+            holder.item.searchResultSongDurationTextView.setText("");
+        }
+
         if (showCoverArt) CustomGlideRequest.Builder
                 .from(holder.itemView.getContext(), song.getCoverArtId(), CustomGlideRequest.ResourceType.Song)
                 .build()
@@ -299,9 +309,8 @@ public class SongHorizontalAdapter extends RecyclerView.Adapter<SongHorizontalAd
             this.item = item;
 
             itemView.setOnClickListener(v -> onClick());
+            // Overflow via long-press (web parity: duration owns the trailing slot).
             itemView.setOnLongClickListener(v -> onLongClick());
-
-            item.searchResultSongMoreButton.setOnClickListener(v -> onLongClick());
         }
 
         public void onClick() {

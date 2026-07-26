@@ -150,11 +150,15 @@ public class AlbumPageFragment extends Fragment implements ClickCallback {
 
                 bind.albumNameLabel.setText(album.getName());
                 bind.albumArtistLabel.setText(album.getArtist());
-                // cassette: no metadata line on the album header. iOS goes cover
-                // -> album name -> artist -> controls, full stop; AlbumDetailVC
-                // never feeds the header an info line. An earlier read of the iOS
-                // header's CAPABILITY (it can render one) was mistaken for what
-                // the album screen SHOWS (nothing), and this is the correction.
+                // cassette: year under the artist (web/iOS parity). Genre stays
+                // out of this quiet header line.
+                if (album.getYear() > 0) {
+                    bind.albumReleaseYearLabel.setVisibility(View.VISIBLE);
+                    bind.albumReleaseYearLabel.setText(String.valueOf(album.getYear()));
+                } else {
+                    bind.albumReleaseYearLabel.setVisibility(View.GONE);
+                    bind.albumReleaseYearLabel.setText("");
+                }
                 // The count/duration string is still set for the collapsible
                 // detail pane, which stays hidden.
                 bind.albumSongCountDurationTextview.setText(getString(R.string.album_page_tracks_count_and_duration, album.getSongCount(), album.getDuration() != null ? album.getDuration() / 60 : 0));

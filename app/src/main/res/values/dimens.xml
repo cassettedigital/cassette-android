@@ -9,6 +9,12 @@
     <dimen name="bottom_sheet_peek_height">52dp</dimen>
     <dimen name="now_playing_bottom_peek_height">64dp</dimen>
     <dimen name="global_padding_bottom">140dp</dimen>
+    <!-- cassette: a track row leads with either 48dp of cover art (search,
+         lists) or just a track number (album page). The number needs a fraction
+         of that width, so on the album page the lead slot collapses to
+         track_row_number and the title sits that much further left. -->
+    <dimen name="track_row_art">48dp</dimen>
+    <dimen name="track_row_number">26dp</dimen>
     <dimen name="radius">2dp</dimen>
     <dimen name="dots_height">2dp</dimen>
     <dimen name="downloaded_item_padding">12dp</dimen>
