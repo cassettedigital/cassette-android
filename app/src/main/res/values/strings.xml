@@ -22,6 +22,7 @@
     <string name="album_list_page_starred">Starred albums</string>
     <string name="album_list_page_title">Albums</string>
     <string name="album_page_extra_info_button">More like this</string>
+    <string name="album_page_options_button">More options</string>
     <string name="album_page_play_button">Play</string>
     <string name="album_page_release_date_label">Released on %1$s</string>
     <string name="album_page_release_dates_label">Released on %1$s, originally %2$s</string>
@@ -40,6 +41,9 @@
     <string name="artist_list_page_title">Artists</string>
     <string name="artist_page_radio_button">Radio</string>
     <string name="artist_page_shuffle_button">Shuffle</string>
+    <string name="artist_page_play_button">Play</string>
+    <string name="artist_page_repeat_button">Repeat</string>
+    <string name="artist_page_options_button">More options</string>
     <string name="artist_page_switch_layout_button">Switch layout</string>
     <string name="artist_page_title_album_more_like_this_button">More like this</string>
     <string name="artist_page_title_album_section">Albums</string>
@@ -47,6 +51,14 @@
     <string name="artist_page_title_biography_section">Biography</string>
     <string name="artist_page_title_most_streamed_song_section">Most Streamed Songs</string>
     <string name="artist_page_title_most_streamed_song_see_all_button">See all</string>
+    <!-- cassette: iOS artist-page section / metadata (music-first, no biography). -->
+    <string name="artist_page_title_popular_section">Popular</string>
+    <string name="artist_page_show_more">Show more</string>
+    <string name="artist_page_album_count_one">%d album</string>
+    <string name="artist_page_album_count_other">%d albums</string>
+    <string name="artist_page_song_count_one">%d song</string>
+    <string name="artist_page_song_count_other">%d songs</string>
+    <string name="artist_page_metadata_joiner">%1$s • %2$s</string>
     <string name="battery_optimization_negative_button">Ignore</string>
     <string name="battery_optimization_neutral_button">Don\'t ask again</string>
     <string name="battery_optimization_positive_button">Disable</string>

@@ -60,6 +60,9 @@
             android:id="@+id/action_homeFragment_to_artistListPageFragment"
             app:destination="@id/artistListPageFragment" />
         <action
+            android:id="@+id/action_homeFragment_to_artistCatalogueFragment"
+            app:destination="@id/artistCatalogueFragment" />
+        <action
             android:id="@+id/action_homeFragment_to_searchFragment"
             app:destination="@id/searchFragment" />
         <action

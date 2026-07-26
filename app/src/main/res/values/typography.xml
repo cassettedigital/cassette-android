@@ -1,21 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- cassette type system.
 
-     Two voices, matching iOS exactly: Barlow Condensed carries anything a
-     person reads as a name or a heading, DM Mono carries metadata (artists,
-     counts, durations, eyebrows). Android previously rendered Inter and the
-     generic `monospace` alias, so every screen was in the wrong face at the
-     wrong width - the single most visible difference between the two apps.
+     Two voices, matching iOS exactly: Barlow Condensed carries titles and
+     headings; DM Mono carries quiet secondary lines (artist under a card,
+     counts, durations, eyebrows) where it stays more legible at small sizes.
+     Android previously rendered Inter and the generic `monospace` alias, so
+     every screen was in the wrong face at the wrong width - the single most
+     visible difference between the two apps.
 
      Sizes are the iOS point values from AmperfyKit/CassetteFont.swift. Barlow
      Condensed is narrower than Inter, so the larger sizes cost no more width
      than what they replace. -->
 <resources>
     <style name="CassetteDisplay">
+        <!-- Both attrs: Material/AppCompat often resolves `fontFamily` and
+             ignores `android:fontFamily` alone, which is how Barlow leaked
+             onto mono captions (artist metadata, now-playing artist). -->
+        <item name="fontFamily">@font/barlow_condensed</item>
         <item name="android:fontFamily">@font/barlow_condensed</item>
     </style>
 
     <style name="CassetteMono">
+        <item name="fontFamily">@font/dm_mono</item>
         <item name="android:fontFamily">@font/dm_mono</item>
     </style>
 
@@ -90,9 +96,17 @@
         <item name="android:textColor">@color/titleTextColor</item>
     </style>
 
-    <!-- Row/card subtitle. Now the mono caption voice, matching the track-row
-         subtitle it used to disagree with for the same semantic role. -->
+    <!-- Quiet facts under a row (durations, counts, feat. lines that stay
+         mono). Artist names under album cards use LabelCardSubtitle instead. -->
     <style name="LabelSmall" parent="CassetteMono">
+        <item name="android:textSize">13sp</item>
+        <item name="android:textFontWeight">400</item>
+        <item name="android:textColor">@color/subtitleTextColor</item>
+    </style>
+
+    <!-- Artist under an album/card title. DM Mono at 13sp - iOS
+         `.cardSubtitle` parity; more legible at this size than condensed Barlow. -->
+    <style name="LabelCardSubtitle" parent="CassetteMono">
         <item name="android:textSize">13sp</item>
         <item name="android:textFontWeight">400</item>
         <item name="android:textColor">@color/subtitleTextColor</item>

@@ -59,13 +59,13 @@ public class CustomGlideRequest {
         Song,
     }
 
-    public static RequestOptions createRequestOptions(Context context, String item, ResourceType type) {
+    public static RequestOptions createRequestOptions(Context context, Object signature, ResourceType type) {
         return new RequestOptions()
                 .placeholder(new ColorDrawable(context.getColor(com.cappielloantonio.tempo.R.color.md_theme_dark_surfaceContainerHigh)))
                 .fallback(getPlaceholder(context, type))
                 .error(getPlaceholder(context, type))
                 .diskCacheStrategy(DEFAULT_DISK_CACHE_STRATEGY)
-                .signature(new ObjectKey(item != null ? item : 0))
+                .signature(new ObjectKey(signature != null ? signature : 0))
                 .transform(new CenterCrop(), new RoundedCorners(CustomGlideRequest.CORNER_RADIUS));
     }
 
@@ -94,7 +94,21 @@ public class CustomGlideRequest {
         }
     }
 
+    /**
+     * cassette: cloud playlist covers (and any future absolute art) arrive as
+     * https URLs, not Subsonic coverArt ids. Pass those through unchanged so
+     * Glide / MediaItem artwork loaders don't wrap them in getCoverArt?id=.
+     */
+    public static boolean isRemoteCoverUrl(@Nullable String item) {
+        if (item == null || item.isEmpty()) return false;
+        return item.startsWith("http://") || item.startsWith("https://");
+    }
+
     public static String createUrl(String item, int size) {
+        if (isRemoteCoverUrl(item)) {
+            return item;
+        }
+
         Map<String, String> params = App.getSubsonicClientInstance(false).getParams();
 
         StringBuilder uri = new StringBuilder();
@@ -132,18 +146,71 @@ public class CustomGlideRequest {
             this.requestManager = Glide.with(context);
 
             if (item != null && !Preferences.isDataSavingMode()) {
-                this.item = createUrl(item, Preferences.getImageSize());
+                // Remote https covers (cloud playlists) load as-is; Subsonic
+                // coverArt ids still go through getCoverArt.
+                this.item = isRemoteCoverUrl(item)
+                        ? item
+                        : createUrl(item, Preferences.getImageSize());
             }
 
-            // cassette: artist photos are synced to the device from the
-            // account's attributed catalog (the hub serves no artist art) —
-            // a local file beats the remote URL and works offline.
-            if (type == ResourceType.Artist && item != null) {
-                java.io.File local = com.cappielloantonio.tempo.util.CassetteArtistArt.localFile(context, item);
-                if (local != null) this.item = local;
+            // cassette: local-file art wins over the remote URL — instant,
+            // offline, and (for covers) stable. Artist photos and album/song
+            // covers are synced to the device (CassetteArtistArt /
+            // CassetteAlbumArt); when a local file exists we load it directly.
+            Object signature = item;
+            java.io.File local = null;
+            if (item != null) {
+                if (type == ResourceType.Artist) {
+                    local = com.cappielloantonio.tempo.util.CassetteArtistArt.localFile(context, item);
+                } else if (type == ResourceType.Album || type == ResourceType.Song) {
+                    local = com.cappielloantonio.tempo.util.CassetteAlbumArt.localFile(context, item);
+                }
+            }
+            if (local != null) {
+                this.item = local;
+                // Bust Glide's own cache when the file is overwritten (a
+                // re-pulled cover keeps the same path): fold the mtime into the
+                // signature so a changed cover actually re-renders.
+                signature = local.getPath() + ":" + local.lastModified();
             }
 
-            requestManager.applyDefaultRequestOptions(createRequestOptions(context, item, type));
+            // Curated playlist presets ship as SVG on the web; phones use a
+            // bundled PNG twin (production doesn't serve the PNGs yet).
+            String assetPath = bundledPlaylistCoverAsset(item);
+            if (assetPath != null) {
+                byte[] bytes = readAssetBytes(context, assetPath);
+                if (bytes != null) {
+                    this.item = bytes;
+                    signature = assetPath;
+                }
+            }
+
+            requestManager.applyDefaultRequestOptions(createRequestOptions(context, signature, type));
+        }
+
+        /** e.g. playlist-covers/preset-07.png for …/preset-07.svg|.png URLs */
+        @Nullable
+        private static String bundledPlaylistCoverAsset(@Nullable String coverUrl) {
+            if (coverUrl == null) return null;
+            java.util.regex.Matcher m = java.util.regex.Pattern
+                    .compile("playlist-covers/(preset-\\d+)\\.(?:svg|png)", java.util.regex.Pattern.CASE_INSENSITIVE)
+                    .matcher(coverUrl);
+            if (!m.find()) return null;
+            return "playlist-covers/" + m.group(1).toLowerCase(java.util.Locale.US) + ".png";
+        }
+
+        @Nullable
+        private static byte[] readAssetBytes(Context context, String assetPath) {
+            try (java.io.InputStream in = context.getAssets().open(assetPath);
+                 java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream()) {
+                byte[] buf = new byte[8192];
+                int n;
+                while ((n = in.read(buf)) >= 0) out.write(buf, 0, n);
+                return out.toByteArray();
+            } catch (Exception e) {
+                Log.w(TAG, "bundled playlist cover missing: " + assetPath, e);
+                return null;
+            }
         }
 
         public static Builder from(Context context, String item, ResourceType type) {

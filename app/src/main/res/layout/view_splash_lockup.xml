@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- cassette: the launch lockup overlay. Opens as the mark centered (handing off
+     from the system splash), then the mark scales down and slides left while the
+     "CASSETTE" wordmark emerges from underneath it, settling into the horizontal
+     lockup — the same end state as iOS. On brand near-black; fades out to the app. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/splash_lockup_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/md_theme_dark_background"
+    android:clickable="true"
+    android:focusable="true">
+
+    <LinearLayout
+        android:id="@+id/splash_lockup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/splash_lockup_mark"
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_cassette_mark" />
+
+        <TextView
+            android:id="@+id/splash_lockup_word"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="9dp"
+            android:fontFamily="@font/barlow_condensed"
+            android:includeFontPadding="false"
+            android:letterSpacing="0.015"
+            android:text="@string/app_name"
+            android:textAllCaps="true"
+            android:textColor="#F2EDE4"
+            android:textFontWeight="800"
+            android:textStyle="bold"
+            android:textSize="46sp" />
+    </LinearLayout>
+</FrameLayout>

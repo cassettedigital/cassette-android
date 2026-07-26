@@ -1,0 +1,45 @@
+<!-- cassette: adaptive-icon foreground. A crisp vector of the cassette mark (cream
+     on the orange background layer), scaled to ~59% of the 108 canvas and centered
+     so it sits well inside the adaptive safe zone instead of crowding the corners
+     the way the old full-bleed raster foreground did. Referenced by
+     mipmap-anydpi-v26/ic_launcher.xml. The web icon generator still emits the
+     legacy raster mipmaps for pre-26 devices; this vector owns the modern icon. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <group
+        android:scaleX="2.0"
+        android:scaleY="2.0"
+        android:translateX="22"
+        android:translateY="22">
+        <path
+            android:pathData="M29,11.5L29,20.5C29,22.432 27.432,24 25.5,24L6.5,24C4.568,24 3,22.432 3,20.5L3,11.5C3,9.568 4.568,8 6.5,8L25.5,8C27.432,8 29,9.568 29,11.5Z"
+            android:fillColor="#00000000"
+            android:strokeColor="#F2EDE4"
+            android:strokeWidth="2.2"
+            android:strokeLineJoin="round"
+            android:strokeLineCap="round" />
+        <path
+            android:pathData="M8.5,16 a3,3 0 1,1 6,0 a3,3 0 1,1 -6,0 Z"
+            android:fillColor="#00000000"
+            android:strokeColor="#F2EDE4"
+            android:strokeWidth="2.2"
+            android:strokeLineJoin="round"
+            android:strokeLineCap="round" />
+        <path
+            android:pathData="M17.5,16 a3,3 0 1,1 6,0 a3,3 0 1,1 -6,0 Z"
+            android:fillColor="#00000000"
+            android:strokeColor="#F2EDE4"
+            android:strokeWidth="2.2"
+            android:strokeLineJoin="round"
+            android:strokeLineCap="round" />
+        <path
+            android:pathData="M11.798,13.012 L20.213,13.012"
+            android:fillColor="#00000000"
+            android:strokeColor="#F2EDE4"
+            android:strokeWidth="2.2"
+            android:strokeLineCap="round" />
+    </group>
+</vector>

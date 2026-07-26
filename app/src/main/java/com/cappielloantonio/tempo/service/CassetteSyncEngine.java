@@ -1,8 +1,6 @@
 package com.cappielloantonio.tempo.service;
 
 import android.content.Context;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 
 import androidx.media3.common.util.UnstableApi;
@@ -15,6 +13,8 @@ import com.cappielloantonio.tempo.glide.CustomGlideRequest;
 import com.cappielloantonio.tempo.model.Download;
 import com.cappielloantonio.tempo.subsonic.base.ApiResponse;
 import com.cappielloantonio.tempo.subsonic.models.Child;
+import com.cappielloantonio.tempo.util.CassetteAlbumArt;
+import com.cappielloantonio.tempo.util.CassetteAlbumGroupKey;
 import com.cappielloantonio.tempo.util.CassetteArtistArt;
 import com.cappielloantonio.tempo.util.CassetteSyncApi;
 import com.cappielloantonio.tempo.util.CassetteSyncStatus;
@@ -23,7 +23,10 @@ import com.cappielloantonio.tempo.util.MappingUtil;
 import com.cappielloantonio.tempo.util.Preferences;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import retrofit2.Response;
@@ -51,6 +54,14 @@ public final class CassetteSyncEngine {
     /** Full inventory snapshots stamp server-side freshness; keep them cheap. */
     private static final long FULL_INVENTORY_MIN_INTERVAL_MS = 120_000;
 
+    /** Cover freshness sweep: throttle the pass and the (larger) manifest fetch,
+     *  and cap how many covers can be (re)pulled per pass, so a big library
+     *  backfills over several passes instead of one burst and a broken hub never
+     *  loops. */
+    private static final long COVER_SWEEP_MIN_INTERVAL_MS = 120_000;
+    private static final long COVER_MANIFEST_TTL_MS = 300_000;
+    private static final int MAX_COVER_PULLS_PER_PASS = 40;
+
     /**
      * Stop enqueuing new downloads below this much free space. A library
      * mirror can be bigger than the device; parking the remaining intents
@@ -65,6 +76,9 @@ public final class CassetteSyncEngine {
     private static final AtomicBoolean LISTENER_ATTACHED = new AtomicBoolean(false);
     private static volatile boolean deviceRegisteredThisProcess = false;
     private static volatile long lastFullInventoryAt = 0;
+    private static volatile long lastCoverSweepAt = 0;
+    private static volatile long coverManifestFetchedAt = 0;
+    private static volatile List<CassetteSyncApi.ArtworkAlbum> cachedCoverManifest = null;
 
     private CassetteSyncEngine() {
     }
@@ -192,6 +206,7 @@ public final class CassetteSyncEngine {
         }
 
         reportFullInventoryIfDue(token);
+        syncAlbumCoversIfDue(context, token);
     }
 
     // ------------------------------------------------------------------
@@ -335,14 +350,115 @@ public final class CassetteSyncEngine {
 
         String coverArtId = sample.getCoverArtId();
         if (coverArtId != null) {
-            new Handler(Looper.getMainLooper()).post(() ->
-                    CustomGlideRequest.Builder.from(context, coverArtId, CustomGlideRequest.ResourceType.Album)
-                            .build()
-                            .preload());
+            // Sync the cover to a local file so it's instant, offline, and stable
+            // — the same treatment artist art gets, and what makes covers behave
+            // like an iPod's. The freshness sweep (syncAlbumCovers) stamps the
+            // folder fingerprint later; here we just get the album its cover the
+            // moment it lands.
+            CassetteAlbumArt.materialize(context, coverArtId,
+                    CustomGlideRequest.createUrl(coverArtId, Preferences.getImageSize()));
         }
 
         if (resolved.artistImageUrl != null && sample.getArtistId() != null) {
             CassetteArtistArt.materialize(context, sample.getArtistId(), resolved.artistImageUrl);
+        }
+    }
+
+    /**
+     * Bring every downloaded album's cover to a fresh local file — the freshness
+     * half of cover sync. Reads the artwork manifest (one entry per owned album,
+     * carrying the folder-cover fingerprint), matches each downloaded album to it
+     * by group key, and re-pulls a cover only when its fingerprint has moved — or
+     * when no local file exists yet, which backfills a library synced before
+     * covers went local. Bounded three ways so it can't run away: the pass is
+     * throttled, the manifest is cached, and at most MAX_COVER_PULLS_PER_PASS
+     * covers are (re)pulled per pass; failures back off for ten minutes.
+     */
+    private static void syncAlbumCoversIfDue(Context context, String token) {
+        long now = System.currentTimeMillis();
+        if (now - lastCoverSweepAt < COVER_SWEEP_MIN_INTERVAL_MS) return;
+        lastCoverSweepAt = now;
+
+        try {
+            if (cachedCoverManifest == null || now - coverManifestFetchedAt > COVER_MANIFEST_TTL_MS) {
+                cachedCoverManifest = CassetteSyncApi.getDeviceArtworkManifest(token);
+                coverManifestFetchedAt = now;
+            }
+            List<CassetteSyncApi.ArtworkAlbum> manifest = cachedCoverManifest;
+            if (manifest == null) return;
+
+            // Fingerprint by album group key — artist_name + album_name is the
+            // only join the manifest offers.
+            Map<String, String> fingerprintByKey = new HashMap<>();
+            for (CassetteSyncApi.ArtworkAlbum a : manifest) {
+                if (a.artistName == null || a.albumName == null || a.localCoverVersion == null) continue;
+                fingerprintByKey.put(
+                        CassetteAlbumGroupKey.keyFromEffective(a.artistName, a.albumName),
+                        a.localCoverVersion);
+            }
+
+            // Owned albums, grouped by album id (fall back to the cover id for a
+            // row with no album id).
+            List<Download> rows = AppDatabase.getInstance().downloadDao().getAllDownloadedSync();
+            Map<String, List<Download>> byAlbum = new LinkedHashMap<>();
+            for (Download row : rows) {
+                String albumId = row.getAlbumId() != null ? row.getAlbumId() : ("cover:" + row.getCoverArtId());
+                byAlbum.computeIfAbsent(albumId, k -> new ArrayList<>()).add(row);
+            }
+
+            int pulls = 0;
+            int matched = 0;
+            for (Map.Entry<String, List<Download>> entry : byAlbum.entrySet()) {
+                if (pulls >= MAX_COVER_PULLS_PER_PASS) break;
+
+                List<Download> group = entry.getValue();
+                Download sample = group.get(0);
+                String coverArtId = sample.getCoverArtId();
+                if (coverArtId == null) continue;
+
+                List<String> artists = new ArrayList<>();
+                for (Download row : group) if (row.getArtist() != null) artists.add(row.getArtist());
+                String albumName = sample.getAlbum() != null ? sample.getAlbum() : "";
+                String groupKey = CassetteAlbumGroupKey.keyFromTracks(artists, albumName);
+
+                String fingerprint = fingerprintByKey.get(groupKey); // may be null
+                if (fingerprint != null) matched++;
+                String coverKey = CassetteAlbumArt.keyFor(coverArtId);
+                String applied = CassetteAlbumArt.getAppliedFingerprint(context, coverKey);
+                boolean localExists = CassetteAlbumArt.localFile(context, coverArtId) != null;
+                boolean changed = fingerprint != null && !fingerprint.equals(applied);
+
+                if (localExists && !changed) {
+                    // Current. If we've only just learned the fingerprint for a
+                    // cover we already hold, stamp it — no redundant re-pull.
+                    if (fingerprint != null && applied == null) {
+                        CassetteAlbumArt.setAppliedFingerprint(context, coverKey, fingerprint);
+                    }
+                    continue;
+                }
+
+                if (!CassetteAlbumArt.mayAttempt(coverKey)) continue; // backing off
+
+                // Cache-bust the (static-suffixed) getCoverArt URL with the
+                // fingerprint so no intermediary can hand back stale bytes.
+                String url = CustomGlideRequest.createUrl(coverArtId, Preferences.getImageSize())
+                        + "&_cv=" + (fingerprint != null ? fingerprint : "0");
+                boolean ok = CassetteAlbumArt.materialize(context, coverArtId, url);
+                if (ok) {
+                    if (fingerprint != null) CassetteAlbumArt.setAppliedFingerprint(context, coverKey, fingerprint);
+                    pulls++;
+                } else {
+                    CassetteAlbumArt.noteFailure(coverKey);
+                }
+            }
+
+            Log.d(TAG, "cover sweep: " + byAlbum.size() + " albums, " + matched
+                    + " matched a fingerprint, " + pulls + " (re)pulled this pass");
+        } catch (Throwable e) {
+            // Best-effort artwork pass: a bad cover, a manifest hiccup, or any
+            // static-init surprise must never crash the sync thread (which would
+            // take the app down). Swallow and retry next pass.
+            Log.w(TAG, "cover sweep skipped: " + e);
         }
     }
 

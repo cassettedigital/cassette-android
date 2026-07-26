@@ -15,6 +15,7 @@ import android.widget.SearchView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.media3.common.util.UnstableApi;
@@ -24,6 +25,7 @@ import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.bumptech.glide.load.resource.bitmap.GranularRoundedCorners;
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.cappielloantonio.tempo.R;
 import com.cappielloantonio.tempo.databinding.FragmentPlaylistPageBinding;
 import com.cappielloantonio.tempo.glide.CustomGlideRequest;
@@ -214,6 +216,16 @@ public class PlaylistPageFragment extends Fragment implements ClickCallback {
     }
 
     private void initBackCover() {
+        // cassette: web-chosen cloud cover is a single absolute URL. Show it
+        // full-bleed instead of the song-art mosaic.
+        String cloudCover = playlistPageViewModel.getPlaylist() != null
+                ? playlistPageViewModel.getPlaylist().getCoverArtId()
+                : null;
+        if (CustomGlideRequest.isRemoteCoverUrl(cloudCover)) {
+            showCloudPlaylistCover(cloudCover);
+            return;
+        }
+
         playlistPageViewModel.getPlaylistSongLiveList().observe(requireActivity(), songs -> {
             if (bind != null && songs != null && !songs.isEmpty()) {
                 Collections.shuffle(songs);
@@ -247,6 +259,38 @@ public class PlaylistPageFragment extends Fragment implements ClickCallback {
                         .into(bind.playlistCoverImageViewBottomRight);
             }
         });
+    }
+
+    private void showCloudPlaylistCover(String coverUrl) {
+        if (bind == null) return;
+
+        bind.playlistCoverImageViewTopRight.setVisibility(View.GONE);
+        bind.playlistCoverImageViewBottomLeft.setVisibility(View.GONE);
+        bind.playlistCoverImageViewBottomRight.setVisibility(View.GONE);
+
+        ConstraintSet cs = new ConstraintSet();
+        cs.clone(bind.playlistInfoSector);
+        cs.clear(R.id.playlist_cover_image_view_top_left, ConstraintSet.END);
+        cs.connect(
+                R.id.playlist_cover_image_view_top_left,
+                ConstraintSet.END,
+                ConstraintSet.PARENT_ID,
+                ConstraintSet.END,
+                (int) (64 * getResources().getDisplayMetrics().density)
+        );
+        cs.connect(
+                R.id.playlist_name_label,
+                ConstraintSet.TOP,
+                R.id.playlist_cover_image_view_top_left,
+                ConstraintSet.BOTTOM
+        );
+        cs.applyTo(bind.playlistInfoSector);
+
+        CustomGlideRequest.Builder
+                .from(requireContext(), coverUrl, CustomGlideRequest.ResourceType.Playlist)
+                .build()
+                .transform(new RoundedCorners(CustomGlideRequest.CORNER_RADIUS))
+                .into(bind.playlistCoverImageViewTopLeft);
     }
 
     private void initSongsView() {

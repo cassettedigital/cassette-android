@@ -1,18 +1,46 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<!-- cassette: the app opened on Tempo's wordmark in Tempo pink (#f24b6a), the
-     one asset the fork never replaced, and the first thing anyone saw. This is
-     the Cassette launcher mark, the same cream reel the icon generator emits
-     from the web palette. The background colour comes from the splash theme. -->
-<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item
-        android:width="288dp"
-        android:height="288dp"
-        android:drawable="@android:color/transparent"
-        android:gravity="center" />
-
-    <item
-        android:width="200dp"
-        android:height="200dp"
-        android:drawable="@mipmap/ic_launcher_foreground"
-        android:gravity="center" />
-</layer-list>
+<!-- cassette: the system splash icon. The Android 12 splash MASKS this to a
+     circle, and a layer-list let the wide cassette mark fill the window and get
+     its sides clipped by that circle. This is a single vector with the mark
+     padded to ~52% of a 108 canvas (like an adaptive foreground), so the circle
+     mask never reaches it. Orange on the theme's #1C1913. MainActivity then plays
+     the lockup reveal. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <group
+        android:scaleX="1.755"
+        android:scaleY="1.755"
+        android:translateX="25.9"
+        android:translateY="25.9">
+        <path
+            android:pathData="M29,11.5L29,20.5C29,22.432 27.432,24 25.5,24L6.5,24C4.568,24 3,22.432 3,20.5L3,11.5C3,9.568 4.568,8 6.5,8L25.5,8C27.432,8 29,9.568 29,11.5Z"
+            android:fillColor="#00000000"
+            android:strokeColor="#E87830"
+            android:strokeWidth="2.2"
+            android:strokeLineJoin="round"
+            android:strokeLineCap="round" />
+        <path
+            android:pathData="M8.5,16 a3,3 0 1,1 6,0 a3,3 0 1,1 -6,0 Z"
+            android:fillColor="#00000000"
+            android:strokeColor="#E87830"
+            android:strokeWidth="2.2"
+            android:strokeLineJoin="round"
+            android:strokeLineCap="round" />
+        <path
+            android:pathData="M17.5,16 a3,3 0 1,1 6,0 a3,3 0 1,1 -6,0 Z"
+            android:fillColor="#00000000"
+            android:strokeColor="#E87830"
+            android:strokeWidth="2.2"
+            android:strokeLineJoin="round"
+            android:strokeLineCap="round" />
+        <path
+            android:pathData="M11.798,13.012 L20.213,13.012"
+            android:fillColor="#00000000"
+            android:strokeColor="#E87830"
+            android:strokeWidth="2.2"
+            android:strokeLineCap="round" />
+    </group>
+</vector>

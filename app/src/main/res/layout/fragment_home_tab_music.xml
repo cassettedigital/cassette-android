@@ -322,8 +322,9 @@
             android:visibility="gone"
             tools:visibility="visible">
 
-            <!--  Label and button  -->
+            <!--  Label and button - same chrome as Albums / Artists (16/16/8). -->
             <LinearLayout
+                android:id="@+id/recently_played_albums_header"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
@@ -354,6 +355,9 @@
 
             </LinearLayout>
 
+            <!-- cassette: shelf rhythm matches iOS SectionHeaderView - 16 leading
+                 (8+8), 16 top, 8 below title, then 8 to the first card. No extra
+                 recycler paddingTop (that used to double the gap vs iOS). -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recently_played_albums_recycler_view"
                 android:layout_width="match_parent"
@@ -362,9 +366,7 @@
                 android:layout_marginBottom="24dp"
                 android:clipToPadding="false"
                 android:paddingStart="16dp"
-                android:paddingTop="8dp"
-                android:paddingEnd="8dp"
-                android:paddingBottom="8dp" />
+                android:paddingEnd="8dp" />
         </LinearLayout>
 
         <!--  Recently added albums -->
@@ -378,6 +380,7 @@
 
             <!--  Label and button  -->
             <LinearLayout
+                android:id="@+id/recently_added_albums_header"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
@@ -403,7 +406,7 @@
                     android:paddingStart="8dp"
                     android:paddingEnd="8dp"
                     android:layout_gravity="center_vertical"
-                    android:contentDescription="@string/home_title_last_played_see_all_button"
+                    android:contentDescription="@string/home_title_recently_added_see_all_button"
                     app:drawableStartCompat="@drawable/ic_lucide_chevron_right" />
 
             </LinearLayout>
@@ -416,13 +419,11 @@
                 android:layout_marginBottom="24dp"
                 android:clipToPadding="false"
                 android:paddingStart="16dp"
-                android:paddingTop="8dp"
-                android:paddingEnd="8dp"
-                android:paddingBottom="8dp" />
+                android:paddingEnd="8dp" />
         </LinearLayout>
 
-        <!-- cassette: Artists shelf (iOS slot below Albums) - recently played
-             artists as circles, derived from the play spine. -->
+        <!-- cassette: Artists shelf (iOS slot below Albums) - same header chrome
+             as Recent / Albums (title + chevron, same 16/16/8 padding). -->
         <LinearLayout
             android:id="@+id/home_recently_played_artists_sector"
             android:layout_width="match_parent"
@@ -431,15 +432,37 @@
             android:visibility="gone"
             tools:visibility="visible">
 
-            <TextView
-                android:id="@+id/recently_played_artists_text_view"
-                style="@style/TitleLarge"
+            <LinearLayout
+                android:id="@+id/recently_played_artists_header"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingStart="16dp"
+                android:orientation="horizontal"
+                android:paddingStart="8dp"
                 android:paddingTop="16dp"
-                android:paddingEnd="16dp"
-                android:text="@string/library_title_artist" />
+                android:paddingEnd="8dp"
+                android:paddingBottom="8dp">
+
+                <TextView
+                    android:id="@+id/recently_played_artists_text_view"
+                    style="@style/TitleLarge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+                    android:text="@string/library_title_artist" />
+
+                <TextView
+                    android:id="@+id/recently_played_artists_text_view_clickable"
+                    style="@style/TitleMedium"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+                    android:layout_gravity="center_vertical"
+                    android:contentDescription="@string/library_title_artist_see_all_button"
+                    app:drawableStartCompat="@drawable/ic_lucide_chevron_right" />
+
+            </LinearLayout>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recently_played_artists_recycler_view"

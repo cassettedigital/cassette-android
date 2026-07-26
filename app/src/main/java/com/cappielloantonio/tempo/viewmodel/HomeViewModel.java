@@ -441,16 +441,13 @@ public class HomeViewModel extends AndroidViewModel {
     public LiveData<List<Playlist>> getPinnedPlaylists(LifecycleOwner owner) {
         pinnedPlaylists.setValue(Collections.emptyList());
 
+        // cassette: Home Playlists shelf shows the cloud playlist list (same
+        // store as web). Pin intersection with the local Room table is no
+        // longer required for a playlist to appear.
         playlistRepository.getPlaylists(false, -1).observe(owner, remotes -> {
-            playlistRepository.getPinnedPlaylists().observe(owner, locals -> {
-                if (remotes != null && locals != null) {
-                    List<Playlist> toReturn = remotes.stream()
-                            .filter(remote -> locals.stream().anyMatch(local -> local.getId().equals(remote.getId())))
-                            .collect(Collectors.toList());
-
-                    pinnedPlaylists.setValue(toReturn);
-                }
-            });
+            if (remotes != null) {
+                pinnedPlaylists.setValue(remotes);
+            }
         });
 
         return pinnedPlaylists;

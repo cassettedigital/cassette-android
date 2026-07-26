@@ -33,7 +33,7 @@
 
     <TextView
         android:id="@+id/player_header_media_artist_label"
-        style="@style/LabelSmall"
+        style="@style/LabelCardSubtitle"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:ellipsize="end"

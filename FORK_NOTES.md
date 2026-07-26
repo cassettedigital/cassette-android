@@ -57,6 +57,18 @@ rebrand without a mass package rename.
    never stream, like iOS); Downloads-screen re-diff perf under churn; tier
    changes don't re-transcode existing files.
 
+### 2026-07-26 — Cloud playlist cutover + Saved mirror
+
+**Type:** Java/Kotlin patch
+**Files:** `util/CassetteSyncApi.java`, `repository/PlaylistRepository.java`, `repository/FavoriteRepository.java`, `repository/SearchingRepository.java`, `viewmodel/HomeViewModel.java`, `database/dao/PlaylistDao.java`
+
+Playlists for the Cassette UX now read and write `user_playlists` via
+`/api/sync/playlists` (same cloud store as the web and Mac card).
+`PlaylistRepository` no longer lists Subsonic hub playlists except for a
+one-shot import. Home Playlists shelf shows the full cloud list (pin
+intersection dropped). Track stars also mirror into cloud Saved. Search
+suggestions include cached cloud playlist names.
+
 ## Build
 
 ```

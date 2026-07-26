@@ -27,7 +27,6 @@ import com.cappielloantonio.tempo.R;
 import com.cappielloantonio.tempo.databinding.FragmentAlbumPageBinding;
 import com.cappielloantonio.tempo.glide.CustomGlideRequest;
 import com.cappielloantonio.tempo.interfaces.ClickCallback;
-import com.cappielloantonio.tempo.model.Download;
 import com.cappielloantonio.tempo.service.MediaManager;
 import com.cappielloantonio.tempo.service.MediaService;
 import com.cappielloantonio.tempo.ui.activity.MainActivity;
@@ -35,8 +34,6 @@ import com.cappielloantonio.tempo.ui.adapter.SongHorizontalAdapter;
 import com.cappielloantonio.tempo.subsonic.models.Child;
 import com.cappielloantonio.tempo.util.CassetteNowPlaying;
 import com.cappielloantonio.tempo.util.Constants;
-import com.cappielloantonio.tempo.util.DownloadUtil;
-import com.cappielloantonio.tempo.util.MappingUtil;
 import com.cappielloantonio.tempo.util.MusicUtil;
 import com.cappielloantonio.tempo.viewmodel.AlbumPageViewModel;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -44,7 +41,6 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @UnstableApi
 public class AlbumPageFragment extends Fragment implements ClickCallback {
@@ -68,11 +64,12 @@ public class AlbumPageFragment extends Fragment implements ClickCallback {
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.album_page_menu, menu);
-        // cassette: "Download all" only in streaming mode; offline-first already
-        // holds the whole album via sync.
-        MenuItem downloadItem = menu.findItem(R.id.action_download_album);
-        if (downloadItem != null) {
-            downloadItem.setVisible(com.cappielloantonio.tempo.util.Preferences.isServerMode());
+        // cassette: keep the "..." glyph in the title colour so it matches the
+        // back arrow across the transparent toolbar, rather than the toolbar's
+        // default menu-icon tint.
+        MenuItem options = menu.findItem(R.id.action_album_options);
+        if (options != null && options.getIcon() != null) {
+            options.getIcon().setTint(requireContext().getResources().getColor(R.color.titleTextColor, null));
         }
     }
 
@@ -116,10 +113,13 @@ public class AlbumPageFragment extends Fragment implements ClickCallback {
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.action_download_album) {
-            albumPageViewModel.getAlbumSongLiveList().observe(getViewLifecycleOwner(), songs -> {
-                DownloadUtil.getDownloadTracker(requireContext()).download(MappingUtil.mapDownloads(songs), songs.stream().map(Download::new).collect(Collectors.toList()));
-            });
+        if (item.getItemId() == R.id.action_album_options) {
+            // cassette: open the shared album action sheet (mix, shuffle, play
+            // next, queue, download, go to artist) — the same one a long-press
+            // opens elsewhere. Reuse the album this page was launched with.
+            Bundle bundle = new Bundle();
+            bundle.putParcelable(Constants.ALBUM_OBJECT, requireArguments().getParcelable(Constants.ALBUM_OBJECT));
+            Navigation.findNavController(requireView()).navigate(R.id.albumBottomSheetDialog, bundle);
             return true;
         }
 
@@ -183,8 +183,6 @@ public class AlbumPageFragment extends Fragment implements ClickCallback {
         });
 
         bind.animToolbar.setNavigationOnClickListener(v -> activity.navController.navigateUp());
-
-        Objects.requireNonNull(bind.animToolbar.getOverflowIcon()).setTint(requireContext().getResources().getColor(R.color.titleTextColor, null));
     }
 
     private void initAlbumInfoTextButton() {

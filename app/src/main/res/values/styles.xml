@@ -59,6 +59,12 @@
         <item name="cornerSize">7dp</item>
     </style>
 
+    <!-- cassette: circular artist face on the artist page (iOS GenericDetail header). -->
+    <style name="CassetteCircleCover">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
+
     <!-- cassette: cross-device skin overlays — applied at activity creation from
          the account's theme_id (Cassette dynamic color; wallpaper gets no vote).
          Classic is a no-op (the base theme IS classic orange). -->

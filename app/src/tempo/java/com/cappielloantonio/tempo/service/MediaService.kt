@@ -16,8 +16,10 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.DefaultLoadControl
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
+import androidx.media3.session.DefaultMediaNotificationProvider
 import androidx.media3.session.MediaLibraryService
 import androidx.media3.session.MediaSession.ControllerInfo
+import com.cappielloantonio.tempo.R
 import com.cappielloantonio.tempo.repository.AutomotiveRepository
 import com.cappielloantonio.tempo.ui.activity.MainActivity
 import com.cappielloantonio.tempo.util.CassetteDiagnostics
@@ -38,6 +40,14 @@ class MediaService : MediaLibraryService(), SessionAvailabilityListener {
 
     override fun onCreate() {
         super.onCreate()
+
+        // cassette: the now-playing notification showed Media3's default small
+        // icon (read as a generic/Tempo mark). Use our cassette outline instead.
+        setMediaNotificationProvider(
+                DefaultMediaNotificationProvider.Builder(this).build().apply {
+                    setSmallIcon(R.drawable.ic_notification_cassette)
+                }
+        )
 
         initializeRepository()
         initializePlayer()

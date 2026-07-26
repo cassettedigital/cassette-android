@@ -16,6 +16,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -147,6 +148,93 @@ public class AlbumRepository {
                 });
 
         return artistsAlbum;
+    }
+
+    /**
+     * cassette: every track across the artist's albums, album order preserved
+     * (newest year first). Powers play / shuffle / repeat of the whole library
+     * on the artist page — not top-songs sampling.
+     */
+    public MutableLiveData<List<Child>> getArtistLibrarySongs(String artistId) {
+        MutableLiveData<List<Child>> librarySongs = new MutableLiveData<>(new ArrayList<>());
+
+        App.getSubsonicClientInstance(false)
+                .getBrowsingClient()
+                .getArtist(artistId)
+                .enqueue(new Callback<ApiResponse>() {
+                    @Override
+                    public void onResponse(@NonNull Call<ApiResponse> call, @NonNull Response<ApiResponse> response) {
+                        if (!response.isSuccessful() || response.body() == null
+                                || response.body().getSubsonicResponse().getArtist() == null
+                                || response.body().getSubsonicResponse().getArtist().getAlbums() == null
+                                || response.body().getSubsonicResponse().getArtist().getAlbums().isEmpty()) {
+                            librarySongs.postValue(new ArrayList<>());
+                            return;
+                        }
+
+                        List<AlbumID3> albums = new ArrayList<>(response.body().getSubsonicResponse().getArtist().getAlbums());
+                        albums.sort(Comparator.comparing(AlbumID3::getYear));
+                        Collections.reverse(albums);
+
+                        @SuppressWarnings("unchecked")
+                        List<Child>[] buckets = (List<Child>[]) new List<?>[albums.size()];
+                        AtomicInteger pending = new AtomicInteger(albums.size());
+
+                        for (int i = 0; i < albums.size(); i++) {
+                            final int index = i;
+                            AlbumID3 album = albums.get(i);
+                            if (album.getId() == null) {
+                                buckets[index] = new ArrayList<>();
+                                if (pending.decrementAndGet() == 0) {
+                                    librarySongs.postValue(flattenBuckets(buckets));
+                                }
+                                continue;
+                            }
+
+                            App.getSubsonicClientInstance(false)
+                                    .getBrowsingClient()
+                                    .getAlbum(album.getId())
+                                    .enqueue(new Callback<ApiResponse>() {
+                                        @Override
+                                        public void onResponse(@NonNull Call<ApiResponse> call, @NonNull Response<ApiResponse> albumResponse) {
+                                            List<Child> tracks = new ArrayList<>();
+                                            if (albumResponse.isSuccessful() && albumResponse.body() != null
+                                                    && albumResponse.body().getSubsonicResponse().getAlbum() != null
+                                                    && albumResponse.body().getSubsonicResponse().getAlbum().getSongs() != null) {
+                                                tracks.addAll(albumResponse.body().getSubsonicResponse().getAlbum().getSongs());
+                                            }
+                                            buckets[index] = tracks;
+                                            if (pending.decrementAndGet() == 0) {
+                                                librarySongs.postValue(flattenBuckets(buckets));
+                                            }
+                                        }
+
+                                        @Override
+                                        public void onFailure(@NonNull Call<ApiResponse> call, @NonNull Throwable t) {
+                                            buckets[index] = new ArrayList<>();
+                                            if (pending.decrementAndGet() == 0) {
+                                                librarySongs.postValue(flattenBuckets(buckets));
+                                            }
+                                        }
+                                    });
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull Call<ApiResponse> call, @NonNull Throwable t) {
+                        librarySongs.postValue(new ArrayList<>());
+                    }
+                });
+
+        return librarySongs;
+    }
+
+    private static List<Child> flattenBuckets(List<Child>[] buckets) {
+        List<Child> flat = new ArrayList<>();
+        for (List<Child> bucket : buckets) {
+            if (bucket != null) flat.addAll(bucket);
+        }
+        return flat;
     }
 
     public MutableLiveData<AlbumID3> getAlbum(String id) {

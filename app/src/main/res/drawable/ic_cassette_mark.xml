@@ -1,0 +1,37 @@
+<!-- cassette: the reel-to-reel cassette mark, ported from the web single source
+     (public/logo-mark.svg / scripts/icon/generate.mjs markGroup) as a crisp
+     vector so the splash never rasterizes. Stroked outline, orange, on a 32 grid.
+     Tint it at the use site for cream (icon) or white (notification). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="120dp"
+    android:height="120dp"
+    android:viewportWidth="32"
+    android:viewportHeight="32">
+    <path
+        android:pathData="M29,11.5L29,20.5C29,22.432 27.432,24 25.5,24L6.5,24C4.568,24 3,22.432 3,20.5L3,11.5C3,9.568 4.568,8 6.5,8L25.5,8C27.432,8 29,9.568 29,11.5Z"
+        android:fillColor="#00000000"
+        android:strokeColor="#E87830"
+        android:strokeWidth="2.2"
+        android:strokeLineJoin="round"
+        android:strokeLineCap="round" />
+    <path
+        android:pathData="M8.5,16 a3,3 0 1,1 6,0 a3,3 0 1,1 -6,0 Z"
+        android:fillColor="#00000000"
+        android:strokeColor="#E87830"
+        android:strokeWidth="2.2"
+        android:strokeLineJoin="round"
+        android:strokeLineCap="round" />
+    <path
+        android:pathData="M17.5,16 a3,3 0 1,1 6,0 a3,3 0 1,1 -6,0 Z"
+        android:fillColor="#00000000"
+        android:strokeColor="#E87830"
+        android:strokeWidth="2.2"
+        android:strokeLineJoin="round"
+        android:strokeLineCap="round" />
+    <path
+        android:pathData="M11.798,13.012 L20.213,13.012"
+        android:fillColor="#00000000"
+        android:strokeColor="#E87830"
+        android:strokeWidth="2.2"
+        android:strokeLineCap="round" />
+</vector>

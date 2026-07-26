@@ -10,7 +10,6 @@ import android.util.Log;
 import android.view.View;
 
 import androidx.annotation.NonNull;
-import androidx.core.splashscreen.SplashScreen;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.media3.common.Player;
@@ -70,7 +69,6 @@ public class MainActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        SplashScreen.installSplashScreen(this);
         // cassette: NO Material You dynamic color — it re-themes the whole app
         // from the device wallpaper at runtime, stomping the brand palette
         // (the "washed out" gray-blue cards/buttons). Cassette IS the theme:

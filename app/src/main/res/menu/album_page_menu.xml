@@ -1,9 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+    <!-- cassette: a single "..." at the top-right, opposite the back button,
+         opening the album action sheet (mix, shuffle, play next, queue,
+         download, go to artist) — the same sheet a long-press gives elsewhere,
+         and the iOS album-page reference. Always shown so the chrome is
+         symmetric even in offline mode. -->
     <item
-        android:id="@+id/action_download_album"
-        android:icon="@drawable/ic_file_download"
-        android:title="@string/menu_download_all_button"
-        app:showAsAction="never" />
+        android:id="@+id/action_album_options"
+        android:icon="@drawable/ic_more_vert"
+        android:title="@string/album_page_options_button"
+        app:showAsAction="always" />
 </menu>

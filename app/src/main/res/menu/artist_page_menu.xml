@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <!-- cassette: "..." opposite back, same sheet a long-press gives (iOS overflow). -->
+    <item
+        android:id="@+id/action_artist_options"
+        android:icon="@drawable/ic_more_vert"
+        android:title="@string/artist_page_options_button"
+        app:showAsAction="always" />
+</menu>

@@ -5,12 +5,14 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.cappielloantonio.tempo.App;
 import com.cappielloantonio.tempo.database.AppDatabase;
+import com.cappielloantonio.tempo.database.dao.PlaylistDao;
 import com.cappielloantonio.tempo.database.dao.RecentSearchDao;
 import com.cappielloantonio.tempo.model.RecentSearch;
 import com.cappielloantonio.tempo.subsonic.base.ApiResponse;
 import com.cappielloantonio.tempo.subsonic.models.AlbumID3;
 import com.cappielloantonio.tempo.subsonic.models.ArtistID3;
 import com.cappielloantonio.tempo.subsonic.models.Child;
+import com.cappielloantonio.tempo.subsonic.models.Playlist;
 import com.cappielloantonio.tempo.subsonic.models.SearchResult2;
 import com.cappielloantonio.tempo.subsonic.models.SearchResult3;
 
@@ -24,6 +26,7 @@ import retrofit2.Response;
 
 public class SearchingRepository {
     private final RecentSearchDao recentSearchDao = AppDatabase.getInstance().recentSearchDao();
+    private final PlaylistDao playlistDao = AppDatabase.getInstance().playlistDao();
 
     public MutableLiveData<SearchResult2> search2(String query) {
         MutableLiveData<SearchResult2> result = new MutableLiveData<>();
@@ -99,6 +102,18 @@ public class SearchingRepository {
                                 for (Child song : response.body().getSubsonicResponse().getSearchResult3().getSongs()) {
                                     newSuggestions.add(song.getTitle());
                                 }
+                            }
+
+                            // cassette: cloud playlist names from the local cache
+                            String q = query != null ? query.toLowerCase() : "";
+                            try {
+                                for (Playlist pl : playlistDao.getAllSync()) {
+                                    if (pl.getName() != null
+                                            && pl.getName().toLowerCase().contains(q)) {
+                                        newSuggestions.add(pl.getName());
+                                    }
+                                }
+                            } catch (Exception ignored) {
                             }
 
                             LinkedHashSet<String> hashSet = new LinkedHashSet<>(newSuggestions);

@@ -150,18 +150,21 @@ public class HomeTabMusicFragment extends Fragment implements ClickCallback {
      */
     private void initSyncBanner() {
         com.cappielloantonio.tempo.util.CassetteSyncStatus.live().observe(getViewLifecycleOwner(), status -> {
-            if (status == null || !status.active) {
-                bind.homeSyncBanner.setVisibility(View.GONE);
-                return;
+            boolean active = status != null && status.active;
+            bind.homeSyncBanner.setVisibility(active ? View.VISIBLE : View.GONE);
+            if (active) {
+                bind.homeSyncTitle.setText(status.headline());
+                bind.homeSyncDetail.setText(status.detail());
+                bind.homeSyncProgress.setProgress(status.percent());
+                // A parked queue is not "in progress" — stop the spinner so the
+                // banner reads as waiting rather than working.
+                boolean moving = !status.waitingForWifi && !status.lowOnSpace;
+                bind.homeSyncSpinner.setVisibility(moving ? View.VISIBLE : View.GONE);
             }
-            bind.homeSyncBanner.setVisibility(View.VISIBLE);
-            bind.homeSyncTitle.setText(status.headline());
-            bind.homeSyncDetail.setText(status.detail());
-            bind.homeSyncProgress.setProgress(status.percent());
-            // A parked queue is not "in progress" — stop the spinner so the
-            // banner reads as waiting rather than working.
-            boolean moving = !status.waitingForWifi && !status.lowOnSpace;
-            bind.homeSyncSpinner.setVisibility(moving ? View.VISIBLE : View.GONE);
+            // cassette: the banner and the resume card share the top slot. When the
+            // banner shows it covers the resume card (applyResumeCard hides it while
+            // a sync is active); the card returns the moment the wave finishes.
+            applyResumeCard();
         });
     }
 
@@ -217,6 +220,16 @@ public class HomeTabMusicFragment extends Fragment implements ClickCallback {
 
     private void applyResumeCard() {
         if (bind == null) return;
+
+        // cassette: the sync banner owns the top slot while a sync is moving, so
+        // the resume card steps aside and the banner covers it. Re-run when the
+        // sync status flips (see initSyncBanner) so the card returns when it ends.
+        com.cappielloantonio.tempo.util.CassetteSyncStatus.Snapshot sync =
+                com.cappielloantonio.tempo.util.CassetteSyncStatus.live().getValue();
+        if (sync != null && sync.active) {
+            bind.homeResumeCard.setVisibility(View.GONE);
+            return;
+        }
 
         // Pick the newest actual play across this device (history) and other
         // surfaces (remote); the persisted queue is only a fallback when there is
@@ -327,21 +340,33 @@ public class HomeTabMusicFragment extends Fragment implements ClickCallback {
     }
 
     private void init() {
-        // cassette: only the live shelves' headers are wired. The stock Tempo
-        // shelves (discover, similar, radio, best-of, starred x3, most-played,
-        // top-songs, shares) are removed; their tap/refresh handlers went with
-        // them. "See all" navigates, long-press refreshes.
-        bind.recentlyAddedAlbumsTextViewClickable.setOnClickListener(v -> {
-            Bundle bundle = new Bundle();
-            bundle.putString(Constants.ALBUM_RECENTLY_ADDED, Constants.ALBUM_RECENTLY_ADDED);
-            activity.navController.navigate(R.id.action_homeFragment_to_albumListPageFragment, bundle);
-        });
-
-        bind.recentlyPlayedAlbumsTextViewClickable.setOnClickListener(v -> {
+        // cassette: Recent / Albums / Artists headers share one chrome - title +
+        // chevron, whole header tappable (iOS SectionHeaderView parity). Long-
+        // press on the album titles still refreshes that shelf.
+        View.OnClickListener openRecentAlbums = v -> {
             Bundle bundle = new Bundle();
             bundle.putString(Constants.ALBUM_RECENTLY_PLAYED, Constants.ALBUM_RECENTLY_PLAYED);
             activity.navController.navigate(R.id.action_homeFragment_to_albumListPageFragment, bundle);
-        });
+        };
+        View.OnClickListener openAddedAlbums = v -> {
+            Bundle bundle = new Bundle();
+            bundle.putString(Constants.ALBUM_RECENTLY_ADDED, Constants.ALBUM_RECENTLY_ADDED);
+            activity.navController.navigate(R.id.action_homeFragment_to_albumListPageFragment, bundle);
+        };
+        View.OnClickListener openArtists = v ->
+                activity.navController.navigate(R.id.action_homeFragment_to_artistCatalogueFragment);
+
+        bind.recentlyPlayedAlbumsHeader.setOnClickListener(openRecentAlbums);
+        bind.recentlyPlayedAlbumsTextViewRefreshable.setOnClickListener(openRecentAlbums);
+        bind.recentlyPlayedAlbumsTextViewClickable.setOnClickListener(openRecentAlbums);
+
+        bind.recentlyAddedAlbumsHeader.setOnClickListener(openAddedAlbums);
+        bind.recentlyAddedAlbumsTextViewRefreshable.setOnClickListener(openAddedAlbums);
+        bind.recentlyAddedAlbumsTextViewClickable.setOnClickListener(openAddedAlbums);
+
+        bind.recentlyPlayedArtistsHeader.setOnClickListener(openArtists);
+        bind.recentlyPlayedArtistsTextView.setOnClickListener(openArtists);
+        bind.recentlyPlayedArtistsTextViewClickable.setOnClickListener(openArtists);
 
         bind.recentlyPlayedAlbumsTextViewRefreshable.setOnLongClickListener(v -> {
             homeViewModel.refreshRecentlyPlayedAlbumList(getViewLifecycleOwner());
