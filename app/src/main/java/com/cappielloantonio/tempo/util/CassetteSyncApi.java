@@ -240,6 +240,53 @@ public final class CassetteSyncApi {
     }
 
     // ------------------------------------------------------------------
+    // Artwork manifest (per-album cover freshness)
+
+    /** One owned album's artwork identity, from the artwork manifest. The phone
+     *  matches it to a downloaded album by group key (artist_name + album_name,
+     *  the only join the wire offers) and re-pulls a cover when
+     *  localCoverVersion — the fingerprint of the folder cover's bytes on the
+     *  user's Mac — moves. */
+    public static final class ArtworkAlbum {
+        @Nullable public final String artistName;
+        @Nullable public final String albumName;
+        @Nullable public final String localCoverVersion;
+        @Nullable public final String contentVersion;
+
+        ArtworkAlbum(@Nullable String artistName, @Nullable String albumName,
+                     @Nullable String localCoverVersion, @Nullable String contentVersion) {
+            this.artistName = artistName;
+            this.albumName = albumName;
+            this.localCoverVersion = localCoverVersion;
+            this.contentVersion = contentVersion;
+        }
+    }
+
+    /**
+     * GET /api/sync/devices/:id/artwork — every album this device owns, each with
+     * the folder-cover fingerprint (local_cover_version) and a content version.
+     * The same generic feed iOS reads; the phone uses it to detect a cover that
+     * changed on the Mac and re-materialize just that one.
+     */
+    public static List<ArtworkAlbum> getDeviceArtworkManifest(String bearerToken) throws IOException {
+        String deviceId = URLEncoder.encode(Preferences.getCassetteDeviceId(), "UTF-8");
+        JsonObject json = execute(request("/api/sync/devices/" + deviceId + "/artwork", bearerToken).get().build());
+        List<ArtworkAlbum> albums = new ArrayList<>();
+        if (json.has("albums") && json.get("albums").isJsonArray()) {
+            for (JsonElement element : json.getAsJsonArray("albums")) {
+                if (!element.isJsonObject()) continue;
+                JsonObject row = element.getAsJsonObject();
+                albums.add(new ArtworkAlbum(
+                        optString(row, "artist_name"),
+                        optString(row, "album_name"),
+                        optString(row, "local_cover_version"),
+                        optString(row, "content_version")));
+            }
+        }
+        return albums;
+    }
+
+    // ------------------------------------------------------------------
     // Device inventory (the ACTUAL set — what this phone holds on disk)
 
     public static final class InventoryItem {
@@ -377,5 +424,243 @@ public final class CassetteSyncApi {
             }
         }
         return out;
+    }
+
+    /** One ranked song from POST /api/sync/popular-rank. */
+    public static final class PopularRankItem {
+        public final String cassetteLocalId;
+        public final String title;
+        public final int playCount;
+
+        public PopularRankItem(String cassetteLocalId, String title, int playCount) {
+            this.cassetteLocalId = cassetteLocalId;
+            this.title = title;
+            this.playCount = playCount;
+        }
+    }
+
+    /**
+     * POST /api/sync/popular-rank — cloud play-count ranking for an artist's
+     * owned songs (same order as the web/desktop artist rail). Caller sends
+     * cassette_local_id + title; server returns play_count ↓, title A→Z,
+     * capped at 20. Offline clients should fall back to a local tally with
+     * the same comparator.
+     */
+    public static List<PopularRankItem> rankPopular(
+            String bearerToken,
+            List<PopularRankItem> items
+    ) throws IOException {
+        if (items.isEmpty()) return new ArrayList<>();
+        JsonArray array = new JsonArray();
+        for (PopularRankItem item : items) {
+            JsonObject row = new JsonObject();
+            row.addProperty("cassette_local_id", item.cassetteLocalId);
+            row.addProperty("title", item.title != null ? item.title : "");
+            array.add(row);
+        }
+        JsonObject body = new JsonObject();
+        body.add("items", array);
+        JsonObject json = execute(request("/api/sync/popular-rank", bearerToken)
+                .post(RequestBody.create(body.toString(), JSON))
+                .build());
+        List<PopularRankItem> out = new ArrayList<>();
+        JsonArray ranked = json.getAsJsonArray("items");
+        if (ranked != null) {
+            for (JsonElement el : ranked) {
+                if (!el.isJsonObject()) continue;
+                JsonObject row = el.getAsJsonObject();
+                String id = optString(row, "cassette_local_id");
+                if (id == null) continue;
+                String title = optString(row, "title");
+                int count = row.has("play_count") && !row.get("play_count").isJsonNull()
+                        ? row.get("play_count").getAsInt()
+                        : 0;
+                out.add(new PopularRankItem(id, title != null ? title : "", count));
+            }
+        }
+        return out;
+    }
+
+    // ------------------------------------------------------------------
+    // Cloud playlists (user_playlists)
+
+    public static final class CloudPlaylistItem {
+        public final String id;
+        public final String cassetteLocalId;
+        @Nullable public final String mbid;
+        public final double position;
+
+        CloudPlaylistItem(String id, String cassetteLocalId, @Nullable String mbid, double position) {
+            this.id = id;
+            this.cassetteLocalId = cassetteLocalId;
+            this.mbid = mbid;
+            this.position = position;
+        }
+    }
+
+    public static final class CloudPlaylist {
+        public final String id;
+        public final String name;
+        @Nullable public final String description;
+        @Nullable public final String coverImageUrl;
+        public final List<CloudPlaylistItem> items;
+
+        CloudPlaylist(String id, String name, @Nullable String description,
+                      @Nullable String coverImageUrl, List<CloudPlaylistItem> items) {
+            this.id = id;
+            this.name = name;
+            this.description = description;
+            this.coverImageUrl = coverImageUrl;
+            this.items = items;
+        }
+    }
+
+    private static CloudPlaylist parsePlaylist(JsonObject row) {
+        List<CloudPlaylistItem> items = new ArrayList<>();
+        JsonArray arr = row.getAsJsonArray("items");
+        if (arr != null) {
+            for (JsonElement el : arr) {
+                if (!el.isJsonObject()) continue;
+                JsonObject it = el.getAsJsonObject();
+                if (it.has("removed_at") && !it.get("removed_at").isJsonNull()) continue;
+                String id = optString(it, "id");
+                String lid = optString(it, "cassette_local_id");
+                if (id == null || lid == null) continue;
+                double pos = it.has("position") && !it.get("position").isJsonNull()
+                        ? it.get("position").getAsDouble() : 0;
+                items.add(new CloudPlaylistItem(id, lid, optString(it, "mbid"), pos));
+            }
+            items.sort((a, b) -> Double.compare(a.position, b.position));
+        }
+        String id = optString(row, "id");
+        String name = optString(row, "name");
+        if (id == null || name == null) {
+            throw new IllegalArgumentException("playlist missing id/name");
+        }
+        return new CloudPlaylist(id, name, optString(row, "description"),
+                optString(row, "cover_image_url"), items);
+    }
+
+    /** GET /api/sync/playlists?include=items */
+    public static List<CloudPlaylist> listPlaylists(String bearerToken, boolean includeItems) throws IOException {
+        String path = includeItems ? "/api/sync/playlists?include=items" : "/api/sync/playlists";
+        JsonObject json = execute(request(path, bearerToken).get().build());
+        List<CloudPlaylist> out = new ArrayList<>();
+        JsonArray arr = json.getAsJsonArray("playlists");
+        if (arr != null) {
+            for (JsonElement el : arr) {
+                if (!el.isJsonObject()) continue;
+                try {
+                    out.add(parsePlaylist(el.getAsJsonObject()));
+                } catch (IllegalArgumentException ignored) {
+                }
+            }
+        }
+        return out;
+    }
+
+    public static CloudPlaylist getPlaylist(String bearerToken, String id) throws IOException {
+        JsonObject json = execute(request("/api/sync/playlists/" + id, bearerToken).get().build());
+        return parsePlaylist(json.getAsJsonObject("playlist"));
+    }
+
+    public static CloudPlaylist createPlaylist(String bearerToken, String id, String name) throws IOException {
+        JsonObject body = new JsonObject();
+        body.addProperty("id", id);
+        body.addProperty("name", name);
+        JsonObject json = execute(request("/api/sync/playlists", bearerToken)
+                .post(RequestBody.create(body.toString(), JSON))
+                .build());
+        return parsePlaylist(json.getAsJsonObject("playlist"));
+    }
+
+    public static CloudPlaylist updatePlaylist(String bearerToken, String id, String name) throws IOException {
+        JsonObject body = new JsonObject();
+        body.addProperty("name", name);
+        JsonObject json = execute(request("/api/sync/playlists/" + id, bearerToken)
+                .put(RequestBody.create(body.toString(), JSON))
+                .build());
+        return parsePlaylist(json.getAsJsonObject("playlist"));
+    }
+
+    public static void deletePlaylist(String bearerToken, String id) throws IOException {
+        execute(request("/api/sync/playlists/" + id, bearerToken)
+                .delete()
+                .build());
+    }
+
+    public static CloudPlaylist applyPlaylistOps(String bearerToken, String playlistId, JsonArray ops)
+            throws IOException {
+        JsonObject body = new JsonObject();
+        body.add("ops", ops);
+        JsonObject json = execute(request("/api/sync/playlists/" + playlistId + "/ops", bearerToken)
+                .post(RequestBody.create(body.toString(), JSON))
+                .build());
+        return parsePlaylist(json.getAsJsonObject("playlist"));
+    }
+
+    // ------------------------------------------------------------------
+    // Cloud favorites / Saved
+
+    public static final class CloudFavorite {
+        public final String cassetteLocalId;
+        @Nullable public final String mbid;
+        @Nullable public final String trackTitle;
+        @Nullable public final String artistName;
+        @Nullable public final String albumName;
+
+        CloudFavorite(String cassetteLocalId, @Nullable String mbid,
+                      @Nullable String trackTitle, @Nullable String artistName,
+                      @Nullable String albumName) {
+            this.cassetteLocalId = cassetteLocalId;
+            this.mbid = mbid;
+            this.trackTitle = trackTitle;
+            this.artistName = artistName;
+            this.albumName = albumName;
+        }
+    }
+
+    public static List<CloudFavorite> listFavorites(String bearerToken) throws IOException {
+        JsonObject json = execute(request("/api/sync/favorites", bearerToken).get().build());
+        List<CloudFavorite> out = new ArrayList<>();
+        JsonArray arr = json.getAsJsonArray("favorites");
+        if (arr != null) {
+            for (JsonElement el : arr) {
+                if (!el.isJsonObject()) continue;
+                JsonObject row = el.getAsJsonObject();
+                String lid = optString(row, "cassette_local_id");
+                if (lid == null) continue;
+                out.add(new CloudFavorite(lid, optString(row, "mbid"),
+                        optString(row, "track_title"), optString(row, "artist_name"),
+                        optString(row, "album_name")));
+            }
+        }
+        return out;
+    }
+
+    public static void upsertFavorite(String bearerToken, String cassetteLocalId,
+                                      @Nullable String mbid, @Nullable String trackTitle,
+                                      @Nullable String artistName, @Nullable String albumName)
+            throws IOException {
+        JsonObject body = new JsonObject();
+        body.addProperty("cassette_local_id", cassetteLocalId);
+        body.addProperty("event_at", java.time.Instant.now().toString());
+        body.addProperty("source_device", "android");
+        if (mbid != null) body.addProperty("mbid", mbid);
+        if (trackTitle != null) body.addProperty("track_title", trackTitle);
+        if (artistName != null) body.addProperty("artist_name", artistName);
+        if (albumName != null) body.addProperty("album_name", albumName);
+        execute(request("/api/sync/favorites", bearerToken)
+                .post(RequestBody.create(body.toString(), JSON))
+                .build());
+    }
+
+    public static void removeFavorite(String bearerToken, String cassetteLocalId) throws IOException {
+        JsonObject body = new JsonObject();
+        body.addProperty("cassette_local_id", cassetteLocalId);
+        body.addProperty("event_at", java.time.Instant.now().toString());
+        execute(request("/api/sync/favorites", bearerToken)
+                .delete(RequestBody.create(body.toString(), JSON))
+                .build());
     }
 }
