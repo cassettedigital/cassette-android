@@ -19,6 +19,7 @@ import com.cappielloantonio.tempo.interfaces.ClickCallback;
 import com.cappielloantonio.tempo.subsonic.models.AlbumID3;
 import com.cappielloantonio.tempo.subsonic.models.Child;
 import com.cappielloantonio.tempo.subsonic.models.DiscTitle;
+import com.cappielloantonio.tempo.util.CassetteTrackSubtitle;
 import com.cappielloantonio.tempo.util.Constants;
 import com.cappielloantonio.tempo.util.DownloadUtil;
 import com.cappielloantonio.tempo.util.MusicUtil;
@@ -37,6 +38,8 @@ public class SongHorizontalAdapter extends RecyclerView.Adapter<SongHorizontalAd
     private final boolean showCoverArt;
     private final boolean showAlbum;
     private final AlbumID3 album;
+    /** When set (album/artist page), suppress a redundant primary and keep feat. guests. */
+    private final String contextArtist;
 
     private List<Child> songsFull;
     private List<Child> songs;
@@ -79,6 +82,16 @@ public class SongHorizontalAdapter extends RecyclerView.Adapter<SongHorizontalAd
     };
 
     public SongHorizontalAdapter(ClickCallback click, boolean showCoverArt, boolean showAlbum, AlbumID3 album) {
+        this(click, showCoverArt, showAlbum, album, album != null ? album.getArtist() : null);
+    }
+
+    public SongHorizontalAdapter(
+            ClickCallback click,
+            boolean showCoverArt,
+            boolean showAlbum,
+            AlbumID3 album,
+            String contextArtist
+    ) {
         this.click = click;
         this.showCoverArt = showCoverArt;
         this.showAlbum = showAlbum;
@@ -86,6 +99,7 @@ public class SongHorizontalAdapter extends RecyclerView.Adapter<SongHorizontalAd
         this.songsFull = Collections.emptyList();
         this.currentFilter = "";
         this.album = album;
+        this.contextArtist = contextArtist;
     }
 
     @NonNull
@@ -101,16 +115,18 @@ public class SongHorizontalAdapter extends RecyclerView.Adapter<SongHorizontalAd
 
         holder.item.searchResultSongTitleTextView.setText(song.getTitle());
 
-        // cassette: on an album page the artist line is noise when it's just the
-        // album artist — show it only when it differs (features, compilations).
-        String subtitlePrimary = this.showAlbum ? song.getAlbum() : song.getArtist();
-        boolean artistIsAlbumArtist = !this.showAlbum && this.album != null
-                && subtitlePrimary != null && subtitlePrimary.equals(this.album.getArtist());
+        // cassette: album/artist context — hide a redundant primary, keep "feat. X".
+        // showAlbum lists (legacy) still prefer the album name as the secondary line.
+        String subtitlePrimary;
+        if (this.showAlbum) {
+            subtitlePrimary = song.getAlbum();
+        } else if (this.contextArtist != null && !this.contextArtist.trim().isEmpty()) {
+            subtitlePrimary = CassetteTrackSubtitle.contextual(song.getArtist(), this.contextArtist);
+        } else {
+            subtitlePrimary = song.getArtist();
+        }
 
-        // cassette: iOS-clean rows — drop the duration/quality clutter. Show the
-        // secondary line only when it adds something: a featured/different artist
-        // on an album page, or the album name in other lists.
-        if (artistIsAlbumArtist || subtitlePrimary == null || subtitlePrimary.trim().isEmpty()) {
+        if (subtitlePrimary == null || subtitlePrimary.trim().isEmpty()) {
             holder.item.searchResultSongSubtitleTextView.setVisibility(View.GONE);
         } else {
             holder.item.searchResultSongSubtitleTextView.setVisibility(View.VISIBLE);
@@ -126,6 +142,19 @@ public class SongHorizontalAdapter extends RecyclerView.Adapter<SongHorizontalAd
 
         holder.item.trackNumberTextView.setVisibility(showCoverArt ? View.INVISIBLE : View.VISIBLE);
         holder.item.songCoverImageView.setVisibility(showCoverArt ? View.VISIBLE : View.INVISIBLE);
+
+        // cassette: the title is anchored to the end of the cover slot. On an
+        // album page the cover is hidden and only the track number leads, so
+        // collapse that slot to the number's width — otherwise the empty 48dp
+        // art column holds every title needlessly far to the right. Rows that
+        // show real art (search, lists) keep the full slot.
+        ViewGroup.LayoutParams leadParams = holder.item.songCoverImageView.getLayoutParams();
+        int leadWidth = holder.itemView.getResources().getDimensionPixelSize(
+                showCoverArt ? R.dimen.track_row_art : R.dimen.track_row_number);
+        if (leadParams.width != leadWidth) {
+            leadParams.width = leadWidth;
+            holder.item.songCoverImageView.setLayoutParams(leadParams);
+        }
 
         // cassette: mark the row that is actually sounding — accent title plus
         // the animated bars standing in for the track number, so the list

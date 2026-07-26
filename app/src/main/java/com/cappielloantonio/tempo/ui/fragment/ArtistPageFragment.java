@@ -169,7 +169,11 @@ public class ArtistPageFragment extends Fragment implements ClickCallback {
     private void initTopSongsView() {
         bind.mostStreamedSongRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
 
-        songHorizontalAdapter = new SongHorizontalAdapter(this, true, true, null);
+        // Cover art + feat-aware artist line (not album name): matches iOS Popular.
+        String artistName = artistPageViewModel.getArtist() != null
+                ? artistPageViewModel.getArtist().getName()
+                : null;
+        songHorizontalAdapter = new SongHorizontalAdapter(this, true, false, null, artistName);
         bind.mostStreamedSongRecyclerView.setAdapter(songHorizontalAdapter);
         artistPageViewModel.getArtistTopSongList().observe(getViewLifecycleOwner(), songs -> {
             if (songs == null) {

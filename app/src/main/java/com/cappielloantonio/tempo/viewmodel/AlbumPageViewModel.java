@@ -48,7 +48,16 @@ public class AlbumPageViewModel extends AndroidViewModel {
     }
 
     public LiveData<ArtistID3> getArtist() {
-        return artistRepository.getArtistInfo(albumId);
+        // cassette: getArtist(id) expects an *artist* id. Passing albumId made
+        // the header artist tap resolve nothing and toast every time.
+        AlbumID3 current = album.getValue();
+        String artistId = current != null ? current.getArtistId() : null;
+        if (artistId == null || artistId.isEmpty()) {
+            MutableLiveData<ArtistID3> empty = new MutableLiveData<>();
+            empty.setValue(null);
+            return empty;
+        }
+        return artistRepository.getArtistInfo(artistId);
     }
 
     public LiveData<AlbumInfo> getAlbumInfo() {
