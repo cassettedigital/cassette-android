@@ -136,6 +136,11 @@ public final class CassetteSyncEngine {
             // cassette diagnostics: opt-out consent rides the same account rails.
             // Gates AUTO crash/hang uploads only — manual feedback ignores it.
             Preferences.setCassetteDiagnosticsConsent(account.diagnosticsConsent);
+            // cassette: profile avatar (photo URL + default disc) for the toolbar chip.
+            Preferences.setCassetteAccountImage(account.image);
+            Preferences.setCassetteAvatarPreset(account.avatarPreset != null ? account.avatarPreset : "silhouette");
+            Preferences.setCassetteAccountName(account.name);
+            Preferences.setCassetteAccountEmail(account.email);
         } catch (Exception e) {
             Log.d(TAG, "account refresh skipped: " + e.getMessage());
         }

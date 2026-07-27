@@ -85,14 +85,24 @@ public final class CassetteSyncApi {
     public static final class Account {
         @Nullable public final String downloadQuality;
         @Nullable public final String themeId;
+        @Nullable public final String name;
+        @Nullable public final String email;
+        @Nullable public final String image;
+        @Nullable public final String avatarPreset;
         public final boolean serverMode;
         /** OPT-OUT gate for auto crash/hang reports. Default true when absent. */
         public final boolean diagnosticsConsent;
 
-        Account(@Nullable String downloadQuality, @Nullable String themeId, boolean serverMode,
-                boolean diagnosticsConsent) {
+        Account(@Nullable String downloadQuality, @Nullable String themeId,
+                @Nullable String name, @Nullable String email,
+                @Nullable String image, @Nullable String avatarPreset,
+                boolean serverMode, boolean diagnosticsConsent) {
             this.downloadQuality = downloadQuality;
             this.themeId = themeId;
+            this.name = name;
+            this.email = email;
+            this.image = image;
+            this.avatarPreset = avatarPreset;
             this.serverMode = serverMode;
             this.diagnosticsConsent = diagnosticsConsent;
         }
@@ -112,8 +122,15 @@ public final class CassetteSyncApi {
         JsonObject json = execute(request("/api/sync/account", bearerToken).get().build());
         boolean serverMode = optBool(json, "serverMode", false);
         boolean diagnosticsConsent = optBool(json, "diagnosticsConsent", true);
-        return new Account(optString(json, "downloadQuality"), optString(json, "themeId"),
-                serverMode, diagnosticsConsent);
+        return new Account(
+                optString(json, "downloadQuality"),
+                optString(json, "themeId"),
+                optString(json, "name"),
+                optString(json, "email"),
+                optString(json, "image"),
+                optString(json, "avatarPreset"),
+                serverMode,
+                diagnosticsConsent);
     }
 
     // ------------------------------------------------------------------

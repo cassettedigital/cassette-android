@@ -16,6 +16,7 @@ import androidx.media3.common.util.UnstableApi;
 import com.cappielloantonio.tempo.R;
 import com.cappielloantonio.tempo.databinding.FragmentToolbarBinding;
 import com.cappielloantonio.tempo.ui.activity.MainActivity;
+import com.cappielloantonio.tempo.util.CassetteAvatar;
 import com.google.android.gms.cast.framework.CastButtonFactory;
 
 @UnstableApi
@@ -52,9 +53,17 @@ public class ToolbarFragment extends Fragment {
         // cassette: the account chip is the left-hand anchor on every screen
         // that carries this bar, the way the iOS app opens with the profile.
         bind.toolbarAvatar.setOnClickListener(v -> activity.navController.navigate(R.id.settingsFragment));
+        CassetteAvatar.apply(bind.toolbarAvatar);
         bind.toolbarTitle.setText(titleForHost());
 
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        // Re-apply after a sync may have refreshed the account avatar.
+        if (bind != null) CassetteAvatar.apply(bind.toolbarAvatar);
     }
 
     /**

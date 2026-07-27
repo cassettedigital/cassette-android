@@ -396,6 +396,57 @@ object Preferences {
     }
 
     @JvmStatic
+    fun getCassetteAccountImage(): String? {
+        return App.getInstance().preferences.getString("cassette_account_image", null)
+    }
+
+    @JvmStatic
+    fun setCassetteAccountImage(image: String?) {
+        val ed = App.getInstance().preferences.edit()
+        if (image.isNullOrEmpty()) ed.remove("cassette_account_image")
+        else ed.putString("cassette_account_image", image)
+        ed.apply()
+    }
+
+    @JvmStatic
+    fun getCassetteAvatarPreset(): String {
+        return App.getInstance().preferences.getString("cassette_avatar_preset", "silhouette")!!
+    }
+
+    @JvmStatic
+    fun setCassetteAvatarPreset(preset: String?) {
+        App.getInstance().preferences.edit()
+            .putString("cassette_avatar_preset", preset ?: "silhouette")
+            .apply()
+    }
+
+    @JvmStatic
+    fun getCassetteAccountName(): String? {
+        return App.getInstance().preferences.getString("cassette_account_name", null)
+    }
+
+    @JvmStatic
+    fun setCassetteAccountName(name: String?) {
+        val ed = App.getInstance().preferences.edit()
+        if (name.isNullOrEmpty()) ed.remove("cassette_account_name")
+        else ed.putString("cassette_account_name", name)
+        ed.apply()
+    }
+
+    @JvmStatic
+    fun getCassetteAccountEmail(): String? {
+        return App.getInstance().preferences.getString("cassette_account_email", null)
+    }
+
+    @JvmStatic
+    fun setCassetteAccountEmail(email: String?) {
+        val ed = App.getInstance().preferences.edit()
+        if (email.isNullOrEmpty()) ed.remove("cassette_account_email")
+        else ed.putString("cassette_account_email", email)
+        ed.apply()
+    }
+
+    @JvmStatic
     fun getCassetteDownloadQuality(): String {
         // cassette: account download tier (users.download_quality_tier via
         // /api/sync/account). "high" mirrors the cloud's column default and
