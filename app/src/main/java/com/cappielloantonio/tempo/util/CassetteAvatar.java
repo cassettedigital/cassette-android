@@ -4,14 +4,14 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.LinearGradient;
 import android.graphics.Paint;
-import android.graphics.Shader;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.widget.ImageView;
 
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
+import androidx.core.graphics.drawable.DrawableCompat;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.CircleCrop;
@@ -19,11 +19,18 @@ import com.cappielloantonio.tempo.R;
 
 /**
  * cassette: apply the account avatar (photo URL or default disc) to the
- * toolbar chip. Photo wins; otherwise silhouette / initials / color disc
- * from {@link Preferences#getCassetteAvatarPreset()}.
+ * toolbar chip. Photo wins; otherwise silhouette / initials / emoji from
+ * {@link Preferences#getCassetteAvatarPreset()}.
+ *
+ * Silhouette matches iOS: cream person.circle.fill (circle with person cut out).
+ * Initials / emoji sit on a neutral grey disc.
  */
 public final class CassetteAvatar {
     private CassetteAvatar() {}
+
+    /** Neutral milled key — approximates web --cs-bg3. */
+    private static final int DISC_BG = Color.parseColor("#2D2820");
+    private static final int DISC_INK = Color.parseColor("#EDE4D0");
 
     public static void apply(ImageView view) {
         if (view == null) return;
@@ -35,7 +42,7 @@ public final class CassetteAvatar {
             Glide.with(context)
                     .load(image)
                     .transform(new CircleCrop())
-                    .placeholder(R.drawable.ic_lucide_user)
+                    .placeholder(R.drawable.ic_person_circle_fill)
                     .into(view);
             return;
         }
@@ -49,22 +56,7 @@ public final class CassetteAvatar {
 
     private static Bitmap renderPreset(Context context, String preset, int size) {
         if ("silhouette".equals(preset) || preset == null || preset.isEmpty()) {
-            Bitmap bmp = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
-            Canvas c = new Canvas(bmp);
-            Paint bg = new Paint(Paint.ANTI_ALIAS_FLAG);
-            bg.setShader(new LinearGradient(0, 0, size, size,
-                    Color.parseColor("#3A342C"), Color.parseColor("#231F18"),
-                    Shader.TileMode.CLAMP));
-            c.drawCircle(size / 2f, size / 2f, size / 2f, bg);
-            android.graphics.drawable.Drawable icon =
-                    ContextCompat.getDrawable(context, R.drawable.ic_lucide_user);
-            if (icon != null) {
-                int inset = size / 4;
-                icon.setBounds(inset, inset, size - inset, size - inset);
-                icon.setTint(Color.parseColor("#C8C0B4"));
-                icon.draw(c);
-            }
-            return bmp;
+            return silhouette(context, size);
         }
 
         if ("initials".equals(preset)) {
@@ -72,44 +64,46 @@ public final class CassetteAvatar {
             if (label == null || label.isEmpty()) label = Preferences.getCassetteAccountEmail();
             if (label == null || label.isEmpty()) label = "?";
             String initials = label.trim().substring(0, Math.min(2, label.trim().length())).toUpperCase();
-            return disc(size, Color.parseColor("#3A342C"), Color.parseColor("#231F18"), initials, null);
+            return disc(size, initials, 0.38f);
         }
 
-        int[] colors = colorsFor(preset);
-        return disc(size, colors[0], colors[1], null, "♪");
-    }
-
-    private static int[] colorsFor(String preset) {
-        switch (preset) {
-            case "moss":
-                return new int[]{Color.parseColor("#3D5A3A"), Color.parseColor("#1E2E1C")};
-            case "marine":
-                return new int[]{Color.parseColor("#2A6A6E"), Color.parseColor("#163438")};
-            case "violet":
-                return new int[]{Color.parseColor("#6B4A9A"), Color.parseColor("#2E1F45")};
-            case "rose":
-                return new int[]{Color.parseColor("#9A4A62"), Color.parseColor("#3D1F28")};
-            case "ember":
-            default:
-                return new int[]{Color.parseColor("#F27326"), Color.parseColor("#B24714")};
+        if (preset.startsWith("emoji:") && preset.length() > "emoji:".length()) {
+            return disc(size, preset.substring("emoji:".length()), 0.55f);
         }
+
+        // Legacy color-disc ids → silhouette.
+        return silhouette(context, size);
     }
 
-    private static Bitmap disc(int size, int c0, int c1, @Nullable String text, @Nullable String mark) {
+    private static Bitmap silhouette(Context context, int size) {
+        Bitmap bmp = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
+        Canvas c = new Canvas(bmp);
+        Drawable icon = ContextCompat.getDrawable(context, R.drawable.ic_person_circle_fill);
+        if (icon != null) {
+            Drawable tinted = DrawableCompat.wrap(icon.mutate());
+            DrawableCompat.setTint(tinted, DISC_INK);
+            // Match iOS optical size (~0.9 of the chip).
+            int inset = Math.round(size * 0.05f);
+            tinted.setBounds(inset, inset, size - inset, size - inset);
+            tinted.draw(c);
+        }
+        return bmp;
+    }
+
+    private static Bitmap disc(int size, @Nullable String text, float textScale) {
         Bitmap bmp = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
         Canvas c = new Canvas(bmp);
         Paint bg = new Paint(Paint.ANTI_ALIAS_FLAG);
-        bg.setShader(new LinearGradient(0, 0, size, size, c0, c1, Shader.TileMode.CLAMP));
+        bg.setColor(DISC_BG);
         c.drawCircle(size / 2f, size / 2f, size / 2f, bg);
-        Paint fg = new Paint(Paint.ANTI_ALIAS_FLAG);
-        fg.setColor(Color.WHITE);
-        fg.setTextAlign(Paint.Align.CENTER);
-        String draw = text != null ? text : mark;
-        if (draw != null) {
-            fg.setTextSize(size * (text != null ? 0.38f : 0.45f));
+        if (text != null) {
+            Paint fg = new Paint(Paint.ANTI_ALIAS_FLAG);
+            fg.setColor(DISC_INK);
+            fg.setTextAlign(Paint.Align.CENTER);
+            fg.setTextSize(size * textScale);
             Paint.FontMetrics fm = fg.getFontMetrics();
             float y = size / 2f - (fm.ascent + fm.descent) / 2f;
-            c.drawText(draw, size / 2f, y, fg);
+            c.drawText(text, size / 2f, y, fg);
         }
         return bmp;
     }
