@@ -397,6 +397,15 @@ public class HomeTabMusicFragment extends Fragment implements ClickCallback {
             homeViewModel.refreshMostRecentlyAddedAlbums(getViewLifecycleOwner());
             return true;
         });
+
+        // cassette: pull-to-refresh — pull plays made on other surfaces, then
+        // refresh the cross-device shelves in place and stop the spinner. Same
+        // pull+reload the foreground path (onResume) runs, on an explicit gesture.
+        bind.homeSwipeRefresh.setOnRefreshListener(() ->
+                com.cappielloantonio.tempo.util.CassettePlayPull.pullAsync(() -> {
+                    reloadCrossDeviceRecents();
+                    if (bind != null) bind.homeSwipeRefresh.setRefreshing(false);
+                }));
     }
 
     private void initRecentPlayedAlbumView() {
