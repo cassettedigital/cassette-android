@@ -34,12 +34,28 @@ public final class CassettePlayPull {
     private static final String THIS_DEVICE = "android";
     private static final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor();
 
+    private static final android.os.Handler MAIN =
+            new android.os.Handler(android.os.Looper.getMainLooper());
+
     private CassettePlayPull() {
     }
 
     /** Fire-and-forget pull on a background thread (call on app foreground). */
     public static void pullAsync() {
-        EXECUTOR.execute(CassettePlayPull::pull);
+        pullAsync(null);
+    }
+
+    /**
+     * Pull on a background thread, then run {@code onDone} on the main thread once
+     * it finishes — whether or not new rows landed — so a caller (the Home
+     * fragment) can re-query the cross-device shelves and show a play made on
+     * another surface without waiting for a process restart.
+     */
+    public static void pullAsync(Runnable onDone) {
+        EXECUTOR.execute(() -> {
+            pull();
+            if (onDone != null) MAIN.post(onDone);
+        });
     }
 
     private static void pull() {

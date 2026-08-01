@@ -325,6 +325,26 @@ public class HomeTabMusicFragment extends Fragment implements ClickCallback {
     @Override
     public void onResume() {
         super.onResume();
+        // cassette: pull plays made on other surfaces, then refresh the cross-device
+        // shelves, so returning to the app shows the latest without a force-quit.
+        // Before, onResume did nothing and the shelves only loaded on a fresh
+        // fragment create — so a play made on iOS while this app was backgrounded
+        // never appeared until the process was killed and relaunched.
+        com.cappielloantonio.tempo.util.CassettePlayPull.pullAsync(this::reloadCrossDeviceRecents);
+    }
+
+    /**
+     * cassette: re-query the cross-device shelves after a cloud-play pull. Each
+     * call re-posts to a LiveData the shelves already observe (registered in
+     * onViewCreated), so this refreshes the Resume card, the recently-played
+     * artists, and the recently-played albums in place. Guarded on the view still
+     * being alive — the pull completes on a background thread.
+     */
+    private void reloadCrossDeviceRecents() {
+        if (bind == null) return;
+        homeViewModel.getRemoteResume();
+        homeViewModel.getRecentlyPlayedArtists();
+        homeViewModel.refreshRecentlyPlayedAlbumList(getViewLifecycleOwner());
     }
 
     @Override
