@@ -520,14 +520,18 @@ public final class CassetteSyncApi {
         public final String name;
         @Nullable public final String description;
         @Nullable public final String coverImageUrl;
+        // cassette (cover unification): server-picked preset for a coverless playlist.
+        @Nullable public final String derivedCoverUrl;
         public final List<CloudPlaylistItem> items;
 
         CloudPlaylist(String id, String name, @Nullable String description,
-                      @Nullable String coverImageUrl, List<CloudPlaylistItem> items) {
+                      @Nullable String coverImageUrl, @Nullable String derivedCoverUrl,
+                      List<CloudPlaylistItem> items) {
             this.id = id;
             this.name = name;
             this.description = description;
             this.coverImageUrl = coverImageUrl;
+            this.derivedCoverUrl = derivedCoverUrl;
             this.items = items;
         }
     }
@@ -555,7 +559,7 @@ public final class CassetteSyncApi {
             throw new IllegalArgumentException("playlist missing id/name");
         }
         return new CloudPlaylist(id, name, optString(row, "description"),
-                optString(row, "cover_image_url"), items);
+                optString(row, "cover_image_url"), optString(row, "derived_cover_url"), items);
     }
 
     /** GET /api/sync/playlists?include=items */

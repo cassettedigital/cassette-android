@@ -280,8 +280,9 @@ public class PlaylistRepository {
         p.setComment(cp.description);
         p.setSongCount(cp.items != null ? cp.items.size() : 0);
         // Store an absolute loadable URL (CustomGlideRequest treats http(s) as
-        // remote art, not a Subsonic coverArt id).
-        p.setCoverArtId(normalizeCoverUrl(cp.coverImageUrl));
+        // remote art, not a Subsonic coverArt id). The user's pick wins; else the
+        // server-derived preset so a coverless playlist shows its own look, not a note.
+        p.setCoverArtId(normalizeCoverUrl(cp.coverImageUrl != null ? cp.coverImageUrl : cp.derivedCoverUrl));
         return p;
     }
 
