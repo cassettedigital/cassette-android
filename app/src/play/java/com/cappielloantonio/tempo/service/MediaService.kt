@@ -15,10 +15,12 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.DefaultLoadControl
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
+import androidx.media3.session.CacheBitmapLoader
 import androidx.media3.session.MediaLibraryService
 import androidx.media3.session.MediaSession.ControllerInfo
 import com.cappielloantonio.tempo.repository.AutomotiveRepository
 import com.cappielloantonio.tempo.ui.activity.MainActivity
+import com.cappielloantonio.tempo.util.CassetteBitmapLoader
 import com.cappielloantonio.tempo.util.Constants
 import com.cappielloantonio.tempo.util.DownloadUtil
 import com.cappielloantonio.tempo.util.Preferences
@@ -100,6 +102,8 @@ class MediaService : MediaLibraryService(), SessionAvailabilityListener {
         mediaLibrarySession =
                 MediaLibrarySession.Builder(this, player, createLibrarySessionCallback())
                         .setSessionActivity(sessionActivityPendingIntent)
+                        // cassette: local-first now-playing artwork (see the tempo flavor).
+                        .setBitmapLoader(CacheBitmapLoader(CassetteBitmapLoader(this)))
                         .build()
     }
 

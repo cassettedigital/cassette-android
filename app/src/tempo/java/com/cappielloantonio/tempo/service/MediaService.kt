@@ -16,12 +16,14 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.DefaultLoadControl
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
+import androidx.media3.session.CacheBitmapLoader
 import androidx.media3.session.DefaultMediaNotificationProvider
 import androidx.media3.session.MediaLibraryService
 import androidx.media3.session.MediaSession.ControllerInfo
 import com.cappielloantonio.tempo.R
 import com.cappielloantonio.tempo.repository.AutomotiveRepository
 import com.cappielloantonio.tempo.ui.activity.MainActivity
+import com.cappielloantonio.tempo.util.CassetteBitmapLoader
 import com.cappielloantonio.tempo.util.CassetteDiagnostics
 import com.cappielloantonio.tempo.util.Constants
 import com.cappielloantonio.tempo.util.DownloadUtil
@@ -112,6 +114,12 @@ class MediaService : MediaLibraryService(), SessionAvailabilityListener {
         mediaLibrarySession =
                 MediaLibrarySession.Builder(this, player, createLibrarySessionCallback())
                         .setSessionActivity(sessionActivityPendingIntent)
+                        // cassette: local-first now-playing artwork (notification /
+                        // lock screen / Android Auto). Resolves the on-disk cover
+                        // before the remote getCoverArt URL, so art shows instantly
+                        // and offline, matching iOS. Wrapped in CacheBitmapLoader so
+                        // same-album tracks reuse the decoded bitmap (no blink).
+                        .setBitmapLoader(CacheBitmapLoader(CassetteBitmapLoader(this)))
                         .build()
     }
 
