@@ -1,6 +1,8 @@
 package com.cappielloantonio.tempo.util;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.graphics.BitmapFactory;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
@@ -29,6 +31,7 @@ import okhttp3.Response;
 public final class CassetteArtistArt {
     private static final String TAG = "CassetteArtistArt";
     private static final String DIR_NAME = "cassette_artist_art";
+    private static final String PREFS_NAME = "cassette_artist_art_prefs";
 
     private CassetteArtistArt() {
     }
@@ -64,16 +67,65 @@ public final class CassetteArtistArt {
         return file.exists() && file.length() > 0 ? file : null;
     }
 
+    // --- freshness bookkeeping (the artist analogue of CassetteAlbumArt) ---
+
+    private static SharedPreferences prefs(Context context) {
+        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+    }
+
+    /** The artist_version last successfully materialized for this artist key. */
+    @Nullable
+    public static String getAppliedVersion(Context context, String artistKey) {
+        return prefs(context).getString("av:" + artistKey, null);
+    }
+
+    public static void setAppliedVersion(Context context, String artistKey, String version) {
+        prefs(context).edit().putString("av:" + artistKey, version).apply();
+    }
+
     /**
      * Download the catalog image for an artist if we don't hold one yet.
-     * Idempotent and best-effort; called from the sync engine's worker thread.
+     * Idempotent and best-effort; called from the sync engine's worker thread on
+     * album-add (the first-sync path — no version to compare against yet).
      */
     public static void materialize(Context context, String artistId, String imageUrl) {
         if (artistId == null || artistId.isEmpty() || imageUrl == null) return;
-
         File target = new File(dir(context), normalizeKey(artistId) + ".img");
-        if (target.exists() && target.length() > 0) return;
+        if (target.exists() && target.length() > 0) return; // fetch-once for first sync
+        fetchInto(context, imageUrl, target, normalizeKey(artistId));
+    }
 
+    /**
+     * Re-pull the artist image when the catalog's artist_version has moved since we
+     * last applied one — the freshness half, mirroring the album-cover sweep. Without
+     * this the store is fetch-once, so a CORRECTED or user-picked artist face (which
+     * changes the image URL, and thus artist_version) never reaches a phone that
+     * already synced an album by that artist. Overwrites in place and stamps the new
+     * version. A same version + a real file on disk is a no-op.
+     */
+    public static boolean materializeVersioned(Context context, String artistId, String imageUrl,
+                                               @Nullable String version) {
+        if (artistId == null || artistId.isEmpty() || imageUrl == null) return false;
+        String key = normalizeKey(artistId);
+        File target = new File(dir(context), key + ".img");
+        boolean current = version != null
+                && version.equals(getAppliedVersion(context, key))
+                && target.exists() && target.length() > 0;
+        if (current) return false;
+        boolean ok = fetchInto(context, imageUrl, target, key);
+        if (ok && version != null) {
+            setAppliedVersion(context, key, version);
+        }
+        return ok;
+    }
+
+    /**
+     * Fetch {@code imageUrl} into {@code target}, OVERWRITING any existing file.
+     * Decode-probes the body first so a non-image 200 (a CDN/interstitial error page)
+     * can never stick as a permanent broken placeholder. Returns true only when a real
+     * image landed. Best-effort; call from a worker thread.
+     */
+    private static boolean fetchInto(Context context, String imageUrl, File target, String key) {
         OkHttpClient client = new OkHttpClient.Builder()
                 .connectTimeout(15, TimeUnit.SECONDS)
                 .readTimeout(60, TimeUnit.SECONDS)
@@ -83,7 +135,7 @@ public final class CassetteArtistArt {
         try (Response response = client.newCall(new Request.Builder().url(imageUrl).get().build()).execute()) {
             if (!response.isSuccessful() || response.body() == null) {
                 Log.w(TAG, "artist image fetch failed: HTTP " + response.code());
-                return;
+                return false;
             }
             try (InputStream in = response.body().byteStream();
                  OutputStream out = new FileOutputStream(tmp)) {
@@ -93,16 +145,27 @@ public final class CassetteArtistArt {
                     out.write(buffer, 0, read);
                 }
             }
+
+            BitmapFactory.Options opts = new BitmapFactory.Options();
+            opts.inJustDecodeBounds = true;
+            BitmapFactory.decodeFile(tmp.getPath(), opts);
+            if (opts.outWidth <= 0 || opts.outHeight <= 0) {
+                Log.w(TAG, "artist image decoded to nothing for " + key);
+                return false;
+            }
+
             if (!tmp.renameTo(target)) {
                 Log.w(TAG, "could not move artist image into place");
-            } else {
-                Log.d(TAG, "materialized artist image for " + artistId);
+                return false;
             }
+            Log.d(TAG, "materialized artist image for " + key);
+            return true;
         } catch (IOException e) {
             Log.w(TAG, "artist image fetch failed: " + e.getMessage());
+            return false;
         } finally {
             if (tmp.exists() && !tmp.delete()) {
-                Log.d(TAG, "stale tmp left behind for " + artistId);
+                Log.d(TAG, "stale tmp left behind for " + key);
             }
         }
     }

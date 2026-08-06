@@ -269,13 +269,21 @@ public final class CassetteSyncApi {
         @Nullable public final String albumName;
         @Nullable public final String localCoverVersion;
         @Nullable public final String contentVersion;
+        /** The album artist's catalog image + a hash of just the artist image URLs,
+         *  so the phone can re-pull a CORRECTED or user-picked artist face on its own
+         *  signal — the artist analogue of localCoverVersion for covers. */
+        @Nullable public final String artistImageUrl;
+        @Nullable public final String artistVersion;
 
         ArtworkAlbum(@Nullable String artistName, @Nullable String albumName,
-                     @Nullable String localCoverVersion, @Nullable String contentVersion) {
+                     @Nullable String localCoverVersion, @Nullable String contentVersion,
+                     @Nullable String artistImageUrl, @Nullable String artistVersion) {
             this.artistName = artistName;
             this.albumName = albumName;
             this.localCoverVersion = localCoverVersion;
             this.contentVersion = contentVersion;
+            this.artistImageUrl = artistImageUrl;
+            this.artistVersion = artistVersion;
         }
     }
 
@@ -297,7 +305,9 @@ public final class CassetteSyncApi {
                         optString(row, "artist_name"),
                         optString(row, "album_name"),
                         optString(row, "local_cover_version"),
-                        optString(row, "content_version")));
+                        optString(row, "content_version"),
+                        optString(row, "artist_image_url"),
+                        optString(row, "artist_version")));
             }
         }
         return albums;

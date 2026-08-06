@@ -395,11 +395,14 @@ public final class CassetteSyncEngine {
             // Fingerprint by album group key — artist_name + album_name is the
             // only join the manifest offers.
             Map<String, String> fingerprintByKey = new HashMap<>();
+            // Full manifest row by the same key, so the artist face can re-pull off
+            // its own artist_version alongside the cover's local_cover_version.
+            Map<String, CassetteSyncApi.ArtworkAlbum> manifestByKey = new HashMap<>();
             for (CassetteSyncApi.ArtworkAlbum a : manifest) {
-                if (a.artistName == null || a.albumName == null || a.localCoverVersion == null) continue;
-                fingerprintByKey.put(
-                        CassetteAlbumGroupKey.keyFromEffective(a.artistName, a.albumName),
-                        a.localCoverVersion);
+                if (a.artistName == null || a.albumName == null) continue;
+                String key = CassetteAlbumGroupKey.keyFromEffective(a.artistName, a.albumName);
+                manifestByKey.put(key, a);
+                if (a.localCoverVersion != null) fingerprintByKey.put(key, a.localCoverVersion);
             }
 
             // Owned albums, grouped by album id (fall back to the cover id for a
@@ -425,6 +428,21 @@ public final class CassetteSyncEngine {
                 for (Download row : group) if (row.getArtist() != null) artists.add(row.getArtist());
                 String albumName = sample.getAlbum() != null ? sample.getAlbum() : "";
                 String groupKey = CassetteAlbumGroupKey.keyFromTracks(artists, albumName);
+
+                // Artist face freshness — run BEFORE the cover logic below, which
+                // `continue`s for a current cover and would otherwise skip an artist
+                // photo that changed while the cover didn't. Re-pull when the catalog's
+                // artist_version moved (a corrected or user-picked face); the per-artist
+                // applied-version store keeps it idempotent across the many albums an
+                // artist owns. Shares the per-pass pull budget so the sweep stays bounded.
+                CassetteSyncApi.ArtworkAlbum manifestRow = manifestByKey.get(groupKey);
+                String rowArtistId = sample.getArtistId();
+                if (pulls < MAX_COVER_PULLS_PER_PASS && manifestRow != null
+                        && manifestRow.artistImageUrl != null && rowArtistId != null) {
+                    boolean artistPulled = CassetteArtistArt.materializeVersioned(
+                            context, rowArtistId, manifestRow.artistImageUrl, manifestRow.artistVersion);
+                    if (artistPulled) pulls++;
+                }
 
                 String fingerprint = fingerprintByKey.get(groupKey); // may be null
                 if (fingerprint != null) matched++;
