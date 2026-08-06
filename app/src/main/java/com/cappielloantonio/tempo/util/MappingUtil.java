@@ -43,7 +43,25 @@ public class MappingUtil {
 
     public static MediaItem mapMediaItem(Child media) {
         Uri uri = getUri(media);
-        Uri artworkUri = Uri.parse(CustomGlideRequest.createUrl(media.getCoverArtId(), Preferences.getImageSize()));
+        // cassette: collapse an album-scoped cover id (al-/dc-, which Navidrome
+        // version- and disc-suffixes: al-<id>_<ver>, dc-<id>:<disc>_<ver>) to ONE
+        // stable per-album artwork URI, so media3's CacheBitmapLoader hits across the
+        // album's tracks and the lock-screen / Android Auto art stops re-decoding and
+        // blinking on a same-album next (most visible at a multi-disc boundary). Local
+        // resolution is unchanged: CassetteAlbumArt.keyFor("al-"+albumId) == the same
+        // album key the al-/dc- covers already materialized under, so it still reads
+        // the local file first (offline-safe). Per-file (mf-) ids are deliberately left
+        // ALONE — their cover is stored per file, so an album-key URI would miss it and
+        // blank the art offline. The raw per-song cover id stays in the bundle below
+        // for the in-app fragments.
+        String coverArtId = media.getCoverArtId();
+        String albumId = media.getAlbumId();
+        String artworkCoverId = coverArtId;
+        if (albumId != null && coverArtId != null
+                && (coverArtId.startsWith("al-") || coverArtId.startsWith("dc-"))) {
+            artworkCoverId = "al-" + albumId;
+        }
+        Uri artworkUri = Uri.parse(CustomGlideRequest.createUrl(artworkCoverId, Preferences.getImageSize()));
 
         Bundle bundle = new Bundle();
         bundle.putString("id", media.getId());
