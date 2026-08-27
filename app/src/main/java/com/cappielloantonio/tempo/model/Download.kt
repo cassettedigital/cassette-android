@@ -33,6 +33,15 @@ class Download(@PrimaryKey override val id: String) : Child(id) {
     @ColumnInfo(name = "mbid")
     var mbid: String? = null
 
+    // cassette: content fingerprint of this track's own file, as last applied
+    // from the server's track-freshness manifest. cassetteLocalId is
+    // deliberately content-blind (artist+title+duration), so a re-rip that
+    // fixes an audio-quality issue without changing title/duration is
+    // otherwise invisible — this is what lets the freshness sweep notice the
+    // bytes changed and re-fetch.
+    @ColumnInfo(name = "content_fingerprint")
+    var contentFingerprint: String? = null
+
     constructor(child: Child) : this(child.id) {
         parentId = child.parentId
         isDir = child.isDir

@@ -62,6 +62,17 @@ public final class CassetteSyncEngine {
     private static final long COVER_MANIFEST_TTL_MS = 300_000;
     private static final int MAX_COVER_PULLS_PER_PASS = 40;
 
+    /** Track content-freshness sweep: the audio sibling of the cover sweep above.
+     *  Same throttle shape — a re-rip that changes a track's bytes without
+     *  changing its title/duration (invisible to cassette_local_id by design)
+     *  is rare enough that checking every pass would be wasted chatter. No
+     *  per-pass pull cap needed here: this pass only marks a stale track for
+     *  removal, it never downloads — the removal converges through the SAME
+     *  add-intent machinery a normal sync already uses, which has its own
+     *  pacing. */
+    private static final long TRACK_FRESHNESS_SWEEP_MIN_INTERVAL_MS = 120_000;
+    private static volatile long lastTrackFreshnessSweepAt = 0;
+
     /**
      * Stop enqueuing new downloads below this much free space. A library
      * mirror can be bigger than the device; parking the remaining intents
@@ -212,6 +223,7 @@ public final class CassetteSyncEngine {
 
         reportFullInventoryIfDue(token);
         syncAlbumCoversIfDue(context, token);
+        sweepTrackFreshnessIfDue(context, token);
     }
 
     // ------------------------------------------------------------------
@@ -482,6 +494,76 @@ public final class CassetteSyncEngine {
             // static-init surprise must never crash the sync thread (which would
             // take the app down). Swallow and retry next pass.
             Log.w(TAG, "cover sweep skipped: " + e);
+        }
+    }
+
+    /**
+     * Content-freshness sweep: for every owned track, compare the hub's current
+     * content fingerprint (GET /devices/:id/track-freshness) against what this
+     * phone last applied (Download.contentFingerprint).
+     *
+     * cassette_local_id is deliberately content-blind (artist+title+duration),
+     * so a re-rip that fixes an audio-quality issue without changing the title
+     * or duration is invisible to every other sync signal — the phone already
+     * has "that identity" and never looks again. This is the periodic check-in
+     * that closes the gap, the audio sibling of syncAlbumCoversIfDue above.
+     *
+     * A track this phone has never stamped (contentFingerprint == null) ADOPTS
+     * the manifest's value silently — the file it already has IS current, and
+     * treating "never checked" as "changed" would force a one-time re-download
+     * of the entire library the moment this feature ships (exactly the same
+     * reasoning the cover sweep already applies above). A track whose STORED
+     * fingerprint differs from the manifest's is a real change: remove it via
+     * the same manager.removeById() path a normal remove-intent uses, and
+     * report the removal. The server's reconciler then sees the track is still
+     * DESIRED but no longer ACTUAL and queues a normal add intent, which a
+     * later pass executes through the already-proven download path — reusing
+     * that path, rather than hand-rolling a second one here, is the whole
+     * safety argument for this feature.
+     */
+    private static void sweepTrackFreshnessIfDue(Context context, String token) {
+        long now = System.currentTimeMillis();
+        if (now - lastTrackFreshnessSweepAt < TRACK_FRESHNESS_SWEEP_MIN_INTERVAL_MS) return;
+        lastTrackFreshnessSweepAt = now;
+
+        try {
+            List<CassetteSyncApi.TrackFreshness> manifest = CassetteSyncApi.getTrackFreshnessManifest(token);
+            if (manifest.isEmpty()) return;
+
+            DownloadDao dao = AppDatabase.getInstance().downloadDao();
+            DownloaderManager manager = DownloadUtil.getDownloadTracker(context);
+            int adopted = 0;
+            List<CassetteSyncApi.InventoryItem> staleRemoved = new ArrayList<>();
+
+            for (CassetteSyncApi.TrackFreshness entry : manifest) {
+                if (entry.audioVersion == null) continue; // UNKNOWN — no signal yet
+                Download row = dao.getByCassetteLocalId(entry.cassetteLocalId);
+                if (row == null) continue; // not actually on this device — nothing to check
+
+                String stored = row.getContentFingerprint();
+                if (stored == null) {
+                    row.setContentFingerprint(entry.audioVersion);
+                    dao.insert(row); // REPLACE — same upsert pattern used elsewhere in this file
+                    adopted++;
+                } else if (!stored.equals(entry.audioVersion)) {
+                    if (manager.isDownloaded(row.getId()) || dao.getOne(row.getId()) != null) {
+                        manager.removeById(row.getId());
+                    }
+                    staleRemoved.add(new CassetteSyncApi.InventoryItem(entry.cassetteLocalId, row.getMbid()));
+                }
+            }
+
+            if (!staleRemoved.isEmpty()) {
+                CassetteSyncApi.reportInventoryDiff(token, new ArrayList<>(), staleRemoved);
+            }
+            if (adopted > 0 || !staleRemoved.isEmpty()) {
+                Log.d(TAG, "track-freshness sweep: " + adopted + " adopted, " + staleRemoved.size()
+                        + " stale (queued for re-fetch)");
+            }
+        } catch (Throwable e) {
+            // Best-effort pass, same posture as the cover sweep: a manifest hiccup
+            // must never crash the sync thread. Swallow and retry next pass.
+            Log.w(TAG, "track-freshness sweep skipped: " + e);
         }
     }
 

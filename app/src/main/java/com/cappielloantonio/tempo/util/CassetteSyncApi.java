@@ -313,6 +313,54 @@ public final class CassetteSyncApi {
         return albums;
     }
 
+    /**
+     * One owned track's content-freshness entry, from the track-freshness manifest.
+     * cassetteLocalId is deliberately content-blind (artist+title+duration), so a
+     * re-rip that fixes an audio-quality issue without changing the title/duration
+     * is invisible to every other sync signal — audioVersion (a hash of the track's
+     * own file on the paired Mac) is what lets the phone notice and re-fetch. Null
+     * means UNKNOWN (the hub hasn't successfully hashed this file yet) — never treat
+     * null as "changed".
+     */
+    public static final class TrackFreshness {
+        public final String cassetteLocalId;
+        public final String subsonicTrackId;
+        @Nullable public final String audioVersion;
+
+        TrackFreshness(String cassetteLocalId, String subsonicTrackId, @Nullable String audioVersion) {
+            this.cassetteLocalId = cassetteLocalId;
+            this.subsonicTrackId = subsonicTrackId;
+            this.audioVersion = audioVersion;
+        }
+    }
+
+    /**
+     * GET /api/sync/devices/:id/track-freshness — every track this device owns,
+     * each with its current content fingerprint. The audio sibling of
+     * getDeviceArtworkManifest; the phone diffs this against what it last applied
+     * (Download.contentFingerprint) to notice a re-rip that changed bytes without
+     * changing identity.
+     */
+    public static List<TrackFreshness> getTrackFreshnessManifest(String bearerToken) throws IOException {
+        String deviceId = URLEncoder.encode(Preferences.getCassetteDeviceId(), "UTF-8");
+        JsonObject json = execute(request("/api/sync/devices/" + deviceId + "/track-freshness", bearerToken).get().build());
+        List<TrackFreshness> tracks = new ArrayList<>();
+        if (json.has("tracks") && json.get("tracks").isJsonArray()) {
+            for (JsonElement element : json.getAsJsonArray("tracks")) {
+                if (!element.isJsonObject()) continue;
+                JsonObject row = element.getAsJsonObject();
+                String cassetteLocalId = optString(row, "cassette_local_id");
+                String subsonicTrackId = optString(row, "subsonic_track_id");
+                if (cassetteLocalId == null) continue;
+                tracks.add(new TrackFreshness(
+                        cassetteLocalId,
+                        subsonicTrackId != null ? subsonicTrackId : "",
+                        optString(row, "audio_version")));
+            }
+        }
+        return tracks;
+    }
+
     // ------------------------------------------------------------------
     // Device inventory (the ACTUAL set — what this phone holds on disk)
 
