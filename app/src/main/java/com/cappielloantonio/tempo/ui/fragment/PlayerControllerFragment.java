@@ -12,6 +12,7 @@ import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
@@ -32,7 +33,9 @@ import com.cappielloantonio.tempo.ui.activity.MainActivity;
 import com.cappielloantonio.tempo.ui.dialog.PlaylistChooserDialog;
 import com.cappielloantonio.tempo.ui.dialog.RatingDialog;
 import com.cappielloantonio.tempo.ui.dialog.TrackInfoDialog;
+import com.cappielloantonio.tempo.ui.fragment.bottomsheetdialog.SongBottomSheetDialog;
 import com.cappielloantonio.tempo.ui.fragment.pager.PlayerControllerHorizontalPager;
+import com.cappielloantonio.tempo.util.CassetteShareSong;
 import com.cappielloantonio.tempo.util.Constants;
 import com.cappielloantonio.tempo.util.MusicUtil;
 import com.cappielloantonio.tempo.util.Preferences;
@@ -62,6 +65,8 @@ public class PlayerControllerFragment extends Fragment {
     private ConstraintLayout playerQuickActionView;
     private ImageButton playerOpenQueueButton;
     private ImageButton playerTrackInfo;
+    @Nullable
+    private ImageButton playerMoreButton;
 
     private MainActivity activity;
     private PlayerBottomSheetViewModel playerBottomSheetViewModel;
@@ -136,6 +141,8 @@ public class PlayerControllerFragment extends Fragment {
         playerQuickActionView = bind.getRoot().findViewById(R.id.player_quick_action_view);
         playerOpenQueueButton = bind.getRoot().findViewById(R.id.player_open_queue_button);
         playerTrackInfo = bind.getRoot().findViewById(R.id.player_info_track);
+        // portrait only: the landscape layout has no ⋮
+        playerMoreButton = bind.getRoot().findViewById(R.id.player_more_button);
     }
 
     private void initQuickActionView() {
@@ -296,6 +303,7 @@ public class PlayerControllerFragment extends Fragment {
                     bind.getRoot().findViewById(R.id.player_playback_speed_button).setVisibility(View.VISIBLE);
                     bind.getRoot().findViewById(R.id.player_skip_silence_toggle_button).setVisibility(View.VISIBLE);
                     bind.getRoot().findViewById(R.id.button_favorite).setVisibility(View.GONE);
+                    if (playerMoreButton != null) playerMoreButton.setVisibility(View.INVISIBLE);
                     setPlaybackParameters(mediaBrowser);
                     break;
                 case Constants.MEDIA_TYPE_RADIO:
@@ -308,6 +316,7 @@ public class PlayerControllerFragment extends Fragment {
                     bind.getRoot().findViewById(R.id.player_playback_speed_button).setVisibility(View.GONE);
                     bind.getRoot().findViewById(R.id.player_skip_silence_toggle_button).setVisibility(View.GONE);
                     bind.getRoot().findViewById(R.id.button_favorite).setVisibility(View.GONE);
+                    if (playerMoreButton != null) playerMoreButton.setVisibility(View.INVISIBLE);
                     setPlaybackParameters(mediaBrowser);
                     break;
                 case Constants.MEDIA_TYPE_MUSIC:
@@ -321,6 +330,7 @@ public class PlayerControllerFragment extends Fragment {
                     bind.getRoot().findViewById(R.id.player_playback_speed_button).setVisibility(View.GONE);
                     bind.getRoot().findViewById(R.id.player_skip_silence_toggle_button).setVisibility(View.GONE);
                     bind.getRoot().findViewById(R.id.button_favorite).setVisibility(View.VISIBLE);
+                    if (playerMoreButton != null) playerMoreButton.setVisibility(View.VISIBLE);
                     resetPlaybackParameters(mediaBrowser);
                     break;
             }
@@ -367,6 +377,18 @@ public class PlayerControllerFragment extends Fragment {
                     dialog.setArguments(bundle);
                     dialog.show(requireActivity().getSupportFragmentManager(), null);
                 });
+
+                // cassette: ⋮ opens the song's menu over the player, Share first. Whether the
+                // song can be shared is asked as it comes up, so the menu already knows.
+                if (playerMoreButton != null) {
+                    playerMoreButton.setOnClickListener(v -> {
+                        Bundle bundle = new Bundle();
+                        bundle.putParcelable(Constants.TRACK_OBJECT, media);
+                        bundle.putBoolean(SongBottomSheetDialog.ARG_FROM_NOW_PLAYING, true);
+                        NavHostFragment.findNavController(this).navigate(R.id.songBottomSheetDialog, bundle);
+                    });
+                }
+                if (CassetteShareSong.isOffered()) CassetteShareSong.Availability.check(media, null);
 
                 if (getActivity() != null) {
                     playerBottomSheetViewModel.refreshMediaInfo(requireActivity(), media);

@@ -742,4 +742,82 @@ public final class CassetteSyncApi {
                 .delete(RequestBody.create(body.toString(), JSON))
                 .build());
     }
+
+    // ------------------------------------------------------------------
+    // Song shares (CASSETTE_SHARING.md; the iPhone's checkSongShare / createSongShare)
+
+    /**
+     * GET /api/share/song: can this song be sent right now? Asked before Share is offered, so
+     * a song with no video that plays is greyed out instead of failing after a note is written.
+     * Pass every id on hand; the server finds the catalog song through this person's own copy
+     * first. Saves nothing.
+     */
+    public static boolean checkSongShare(String bearerToken, @Nullable String subsonicTrackId,
+                                         @Nullable String cassetteLocalId, @Nullable String mbid)
+            throws IOException {
+        StringBuilder query = new StringBuilder();
+        String[][] ids = {
+                {"subsonic_track_id", subsonicTrackId},
+                {"cassette_local_id", cassetteLocalId},
+                {"mbid", mbid},
+        };
+        for (String[] id : ids) {
+            if (id[1] == null || id[1].isEmpty()) continue;
+            query.append(query.length() == 0 ? '?' : '&')
+                    .append(id[0]).append('=').append(URLEncoder.encode(id[1], "UTF-8"));
+        }
+        JsonObject json = execute(request("/api/share/song" + query, bearerToken).get().build());
+        Log.d(TAG, "checkSongShare " + subsonicTrackId + ": " + json);
+        return json.has("shareable") && json.get("shareable").getAsBoolean();
+    }
+
+    /** The answer to createSongShare: saved, or why not. */
+    public static final class SongShareResult {
+        public final boolean ok;
+        /**
+         * "not_in_catalog", "no_video", "not_visible", "not_found" or "taken" from the server,
+         * or "signed_out" when it turned the token away.
+         */
+        @Nullable public final String reason;
+
+        SongShareResult(boolean ok, @Nullable String reason) {
+            this.ok = ok;
+            this.reason = reason;
+        }
+    }
+
+    /**
+     * POST /api/share/song: save a song share. {@code id} is the 8-character code this phone
+     * already put in the link it handed the share sheet; saving the same code again for the
+     * same song updates its note and start (Add a note). The server checks the song's video
+     * again first, so a link never goes out to nothing.
+     */
+    public static SongShareResult createSongShare(String bearerToken, String id,
+                                                  @Nullable String subsonicTrackId,
+                                                  @Nullable String cassetteLocalId,
+                                                  @Nullable String mbid, @Nullable String note,
+                                                  @Nullable Integer startSeconds)
+            throws IOException {
+        JsonObject body = new JsonObject();
+        body.addProperty("id", id);
+        if (subsonicTrackId != null) body.addProperty("subsonic_track_id", subsonicTrackId);
+        if (cassetteLocalId != null) body.addProperty("cassette_local_id", cassetteLocalId);
+        if (mbid != null) body.addProperty("mbid", mbid);
+        if (note != null) body.addProperty("note", note);
+        if (startSeconds != null) body.addProperty("start_seconds", startSeconds);
+        Request request = request("/api/share/song", bearerToken)
+                .post(RequestBody.create(body.toString(), JSON))
+                .build();
+        try (Response response = client().newCall(request).execute()) {
+            if (response.code() == 401 || response.code() == 403) {
+                return new SongShareResult(false, "signed_out");
+            }
+            if (!response.isSuccessful() || response.body() == null) {
+                throw new IOException("Cassette share: HTTP " + response.code());
+            }
+            JsonObject json = JsonParser.parseString(response.body().string()).getAsJsonObject();
+            return new SongShareResult(
+                    json.has("ok") && json.get("ok").getAsBoolean(), optString(json, "reason"));
+        }
+    }
 }

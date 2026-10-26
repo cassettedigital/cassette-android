@@ -72,6 +72,31 @@
             </intent-filter>
         </activity>
 
+        <!-- cassette: sending a song (CassetteShareSong). The receiver hears which app the
+             link went to and the share sheet's Add a note (Android 14+); the activity is Add a
+             note as the sheet's first target before that; the provider hands the sheet the
+             album cover for its preview. -->
+        <receiver
+            android:name=".util.CassetteShareSong$Receiver"
+            android:exported="false" />
+
+        <activity
+            android:name=".util.CassetteShareSong$AddNoteActivity"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:noHistory="true"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.share"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/share_paths" />
+        </provider>
+
         <service
             android:name=".service.MediaService"
             android:exported="true"

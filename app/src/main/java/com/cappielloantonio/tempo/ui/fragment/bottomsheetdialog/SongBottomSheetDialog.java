@@ -1,10 +1,11 @@
 package com.cappielloantonio.tempo.ui.fragment.bottomsheetdialog;
 
-import android.content.ClipData;
-import android.content.ClipboardManager;
 import android.content.ComponentName;
-import android.content.Context;
 import android.os.Bundle;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.RelativeSizeSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,7 +15,9 @@ import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import androidx.annotation.Nullable;
+import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.media3.common.MediaItem;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.session.MediaBrowser;
 import androidx.media3.session.SessionToken;
@@ -29,21 +32,23 @@ import com.cappielloantonio.tempo.subsonic.models.Child;
 import com.cappielloantonio.tempo.ui.activity.MainActivity;
 import com.cappielloantonio.tempo.ui.dialog.PlaylistChooserDialog;
 import com.cappielloantonio.tempo.ui.dialog.RatingDialog;
+import com.cappielloantonio.tempo.util.CassetteShareSong;
 import com.cappielloantonio.tempo.util.Constants;
 import com.cappielloantonio.tempo.util.DownloadUtil;
 import com.cappielloantonio.tempo.util.MappingUtil;
 import com.cappielloantonio.tempo.util.MusicUtil;
-import com.cappielloantonio.tempo.util.Preferences;
-import com.cappielloantonio.tempo.viewmodel.HomeViewModel;
 import com.cappielloantonio.tempo.viewmodel.SongBottomSheetViewModel;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.common.util.concurrent.ListenableFuture;
 
 @UnstableApi
 public class SongBottomSheetDialog extends BottomSheetDialogFragment implements View.OnClickListener {
-    private HomeViewModel homeViewModel;
+    /** cassette: opened from Now Playing's ⋮, over the expanded player. */
+    public static final String ARG_FROM_NOW_PLAYING = "cassette_from_now_playing";
+
     private SongBottomSheetViewModel songBottomSheetViewModel;
     private Child song;
+    private boolean fromNowPlaying;
 
     private ListenableFuture<MediaBrowser> mediaBrowserListenableFuture;
 
@@ -53,8 +58,8 @@ public class SongBottomSheetDialog extends BottomSheetDialogFragment implements 
         View view = inflater.inflate(R.layout.bottom_sheet_song_dialog, container, false);
 
         song = requireArguments().getParcelable(Constants.TRACK_OBJECT);
+        fromNowPlaying = requireArguments().getBoolean(ARG_FROM_NOW_PLAYING, false);
 
-        homeViewModel = new ViewModelProvider(requireActivity()).get(HomeViewModel.class);
         songBottomSheetViewModel = new ViewModelProvider(requireActivity()).get(SongBottomSheetViewModel.class);
         songBottomSheetViewModel.setSong(song);
 
@@ -111,7 +116,7 @@ public class SongBottomSheetDialog extends BottomSheetDialogFragment implements 
         TextView playRadio = view.findViewById(R.id.play_radio_text_view);
         playRadio.setOnClickListener(v -> {
             MediaManager.startQueue(mediaBrowserListenableFuture, song);
-            ((MainActivity) requireActivity()).setBottomSheetInPeek(true);
+            showMiniPlayer();
 
             songBottomSheetViewModel.getInstantMix(getViewLifecycleOwner(), song).observe(getViewLifecycleOwner(), songs -> {
                 MusicUtil.ratingFilter(songs);
@@ -131,14 +136,14 @@ public class SongBottomSheetDialog extends BottomSheetDialogFragment implements 
         TextView playNext = view.findViewById(R.id.play_next_text_view);
         playNext.setOnClickListener(v -> {
             MediaManager.enqueue(mediaBrowserListenableFuture, song, true);
-            ((MainActivity) requireActivity()).setBottomSheetInPeek(true);
+            showMiniPlayer();
             dismissBottomSheet();
         });
 
         TextView addToQueue = view.findViewById(R.id.add_to_queue_text_view);
         addToQueue.setOnClickListener(v -> {
             MediaManager.enqueue(mediaBrowserListenableFuture, song, false);
-            ((MainActivity) requireActivity()).setBottomSheetInPeek(true);
+            showMiniPlayer();
             dismissBottomSheet();
         });
 
@@ -199,6 +204,7 @@ public class SongBottomSheetDialog extends BottomSheetDialogFragment implements 
                 Bundle bundle = new Bundle();
                 bundle.putParcelable(Constants.ALBUM_OBJECT, album);
                 NavHostFragment.findNavController(this).navigate(R.id.albumPageFragment, bundle);
+                if (fromNowPlaying) ((MainActivity) requireActivity()).collapseBottomSheetDelayed();
             } else
                 Toast.makeText(requireContext(), getString(R.string.song_bottom_sheet_error_retrieving_album), Toast.LENGTH_SHORT).show();
 
@@ -213,6 +219,7 @@ public class SongBottomSheetDialog extends BottomSheetDialogFragment implements 
                 Bundle bundle = new Bundle();
                 bundle.putParcelable(Constants.ARTIST_OBJECT, artist);
                 NavHostFragment.findNavController(this).navigate(R.id.artistPageFragment, bundle);
+                if (fromNowPlaying) ((MainActivity) requireActivity()).collapseBottomSheetDelayed();
             } else
                 Toast.makeText(requireContext(), getString(R.string.song_bottom_sheet_error_retrieving_artist), Toast.LENGTH_SHORT).show();
 
@@ -221,21 +228,65 @@ public class SongBottomSheetDialog extends BottomSheetDialogFragment implements 
 
         goToArtist.setVisibility(songBottomSheetViewModel.getSong().getArtistId() != null ? View.VISIBLE : View.GONE);
 
+        // cassette: Share sends the song's Cassette link through Android's own share sheet
+        // (CassetteShareSong), in place of Tempo's hub share. Greyed out with the reason for a
+        // song with no video, known before anyone presses it.
         TextView share = view.findViewById(R.id.share_text_view);
-        share.setOnClickListener(v -> songBottomSheetViewModel.shareTrack().observe(getViewLifecycleOwner(), sharedTrack -> {
-            if (sharedTrack != null) {
-                ClipboardManager clipboardManager = (ClipboardManager) requireActivity().getSystemService(Context.CLIPBOARD_SERVICE);
-                ClipData clipData = ClipData.newPlainText(getString(R.string.app_name), sharedTrack.getUrl());
-                clipboardManager.setPrimaryClip(clipData);
-                refreshShares();
+        if (CassetteShareSong.isOffered()) {
+            share.setVisibility(View.VISIBLE);
+            share.setOnClickListener(v -> {
+                FragmentActivity activity = requireActivity();
+                Integer elapsed = elapsedIfPlaying();
                 dismissBottomSheet();
-            } else {
-                Toast.makeText(requireContext(), getString(R.string.share_unsupported_error), Toast.LENGTH_SHORT).show();
-                dismissBottomSheet();
+                CassetteShareSong.share(activity, song, elapsed);
+            });
+            Boolean known = CassetteShareSong.Availability.known(song.getId());
+            showShareRow(share, known == null || known);
+            if (known == null) {
+                CassetteShareSong.Availability.check(song, shareable -> {
+                    if (getView() != null) showShareRow(share, shareable == null || shareable);
+                });
             }
-        }));
+        } else {
+            share.setVisibility(View.GONE);
+        }
+    }
 
-        share.setVisibility(Preferences.isSharingEnabled() ? View.VISIBLE : View.GONE);
+    private void showShareRow(TextView share, boolean shareable) {
+        share.setEnabled(shareable);
+        share.setAlpha(shareable ? 1f : 0.45f);
+        if (shareable) {
+            share.setText(R.string.song_bottom_sheet_share);
+            return;
+        }
+        SpannableStringBuilder text = new SpannableStringBuilder(getString(R.string.song_bottom_sheet_share));
+        int start = text.length();
+        text.append('\n').append(getString(R.string.share_song_unavailable));
+        text.setSpan(new RelativeSizeSpan(0.72f), start, text.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        text.setSpan(new ForegroundColorSpan(requireContext().getColor(R.color.subtitleTextColor)),
+                start, text.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        share.setText(text);
+    }
+
+    /** Seconds into the song when it is the one playing and the moment is worth offering. */
+    @Nullable
+    private Integer elapsedIfPlaying() {
+        try {
+            if (mediaBrowserListenableFuture == null || !mediaBrowserListenableFuture.isDone()) return null;
+            MediaBrowser browser = mediaBrowserListenableFuture.get();
+            MediaItem playing = browser.getCurrentMediaItem();
+            if (playing == null || !song.getId().equals(playing.mediaId)) return null;
+            int at = (int) (browser.getCurrentPosition() / 1000);
+            int duration = song.getDuration() != null ? song.getDuration() : 0;
+            return at >= 3 && (duration == 0 || at <= duration - 5) ? at : null;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /** The mini player comes up after queueing, unless this menu sits over the open player. */
+    private void showMiniPlayer() {
+        if (!fromNowPlaying) ((MainActivity) requireActivity()).setBottomSheetInPeek(true);
     }
 
     @Override
@@ -262,9 +313,5 @@ public class SongBottomSheetDialog extends BottomSheetDialogFragment implements 
 
     private void releaseMediaBrowser() {
         MediaBrowser.releaseFuture(mediaBrowserListenableFuture);
-    }
-
-    private void refreshShares() {
-        homeViewModel.refreshShares(requireActivity());
     }
 }

@@ -57,6 +57,25 @@ rebrand without a mass package rename.
    never stream, like iOS); Downloads-screen re-diff perf under churn; tier
    changes don't re-transcode existing files.
 
+### 2026-10-26 — Song sharing
+
+**Type:** Java patch
+**Files:** `util/CassetteShareSong.java` (new), `ui/fragment/bottomsheetdialog/ShareSongNoteBottomSheetDialog.java` (new), `util/CassetteSyncApi.java`, `SongBottomSheetDialog`, `PlayerControllerFragment`, manifest, `bottom_sheet_song_dialog.xml`, `inner_fragment_player_controller_layout.xml`
+
+The iPhone's ShareSongSheet on Android, through `/api/share/song`. Share leads the
+song menu (greyed with "No video to share yet" from the GET check) and Now Playing
+gains a ⋮ that opens that menu. Share opens Android's own share sheet at once with a
+phone-made `/s/<code>` link, the album cover as its preview (FileProvider) and Add a
+note as a chooser action (Android 14+; the first target before that). The share saves
+as the sheet opens; Android hands the link over at once, so a save that fails before a
+pick closes the sheet, and one that fails after says the link won't open. Tempo's hub
+share in the song menu is replaced.
+
+**Build:** `app/build` is a real folder inside iCloud again (iCloud turns the symlink
+back into one), and iCloud locks files in it mid-build. Build with output outside it:
+`./gradlew -I outside-icloud.init.gradle assembleTempoDebug` (APK lands in
+`~/.cache/cassette-android/out/app/outputs/apk/tempo/debug/`).
+
 ### 2026-07-26 — Cloud playlist cutover + Saved mirror
 
 **Type:** Java/Kotlin patch

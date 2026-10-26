@@ -463,4 +463,21 @@
     <string name="settings_download_quality_high">High (MP3)</string>
     <string name="settings_download_quality_efficient">Efficient (MP3)</string>
     <string name="settings_download_quality_account_note">Set on your account, synced to this phone</string>
+    <!-- cassette: sending a song (CassetteShareSong, CASSETTE_SHARING.md) -->
+    <string name="share_song_link_title">Listen to %1$s by %2$s on Cassette</string>
+    <string name="share_song_unavailable">No video to share yet</string>
+    <string name="share_song_add_note">Add a note</string>
+    <string name="share_song_from_start">From the start</string>
+    <string name="share_song_from_here">From %1$s</string>
+    <string name="share_song_send">Send</string>
+    <string name="share_song_no_video_title">No video to share yet</string>
+    <string name="share_song_no_video">There\'s no video for this song yet, so a link to it wouldn\'t open.</string>
+    <string name="share_song_no_video_sent">There\'s no video for this song yet, so the link you sent won\'t open.</string>
+    <string name="share_song_signed_out_title">Sign in to share</string>
+    <string name="share_song_signed_out">Sign in to Cassette to send songs.</string>
+    <string name="share_song_failed_title">Couldn\'t share that song</string>
+    <string name="share_song_failed">Check your connection and try again.</string>
+    <string name="share_song_not_saved_title">That link didn\'t save</string>
+    <string name="share_song_not_saved">It won\'t open for them. Check your connection and share it again.</string>
+    <string name="player_more">More</string>
 </resources>
