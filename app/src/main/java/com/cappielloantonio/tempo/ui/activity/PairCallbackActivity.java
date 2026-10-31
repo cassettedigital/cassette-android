@@ -23,7 +23,7 @@ import java.util.UUID;
 
 /**
  * Lands the cassette://auth/callback?token=… redirect from the Cassette
- * sign-in flow. Exchanges the bearer token at /api/player/me for the hub's
+ * sign-in flow (or ?error=cancelled, the pairing page's Cancel). Exchanges the bearer token at /api/player/me for the hub's
  * LAN address + Subsonic credential, saves it as the active server (exactly
  * like tapping a saved server on the login screen), and enters the app.
  */
@@ -35,6 +35,15 @@ public class PairCallbackActivity extends AppCompatActivity {
         setContentView(R.layout.activity_pair_callback);
 
         Uri data = getIntent() != null ? getIntent().getData() : null;
+        // Cancel on the pairing page comes back as error=cancelled (BUG-642): back to the
+        // app where pairing started, without an error.
+        if (data != null && "cancelled".equals(data.getQueryParameter("error"))) {
+            Intent back = new Intent(this, MainActivity.class);
+            back.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(back);
+            finish();
+            return;
+        }
         String token = data != null ? data.getQueryParameter("token") : null;
 
         if (token == null || token.isEmpty()) {
