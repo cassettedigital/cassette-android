@@ -19,6 +19,7 @@ import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.signature.ObjectKey;
 import com.cappielloantonio.tempo.App;
 import com.cappielloantonio.tempo.R;
+import com.cappielloantonio.tempo.util.CassetteImageLadder;
 import com.cappielloantonio.tempo.util.Preferences;
 import com.cappielloantonio.tempo.util.Util;
 import com.google.android.material.elevation.SurfaceColors;
@@ -128,8 +129,9 @@ public class CustomGlideRequest {
             uri.append("&v=").append(params.get("v"));
         if (params.containsKey("c") && params.get("c") != null)
             uri.append("&c=").append(params.get("c"));
-        if (size != -1)
-            uri.append("&size=").append(size);
+        // cassette: always a ladder size (CassetteImageLadder): no size (-1, the default) is the top rung,
+        // never the full original, which could be a 3000px file for a 48dp row.
+        uri.append("&size=").append(CassetteImageLadder.ladderSize(size));
 
         uri.append("&id=").append(item);
 

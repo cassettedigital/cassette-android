@@ -213,12 +213,23 @@ public final class CassetteSyncApi {
 
     public static final class IntentTracks {
         public final List<SyncTrack> tracks;
+        /** The artist photo to keep: the image ladder's top rung when the cloud sent one, else the original. */
         @Nullable public final String artistImageUrl;
+        /** The original, to try when the ladder address fails; null when artistImageUrl already is it. */
+        @Nullable public final String artistImageFallbackUrl;
 
-        IntentTracks(List<SyncTrack> tracks, @Nullable String artistImageUrl) {
+        IntentTracks(List<SyncTrack> tracks, @Nullable String artistImageUrl, @Nullable String artistImageFallbackUrl) {
             this.tracks = tracks;
             this.artistImageUrl = artistImageUrl;
+            this.artistImageFallbackUrl = artistImageFallbackUrl;
         }
+    }
+
+    /** The top rung of an image reference ({ src: ".../i/{rung}/..." }) under {@code key}, or null. */
+    @Nullable
+    private static String ladderTop(JsonObject parent, String key) {
+        if (!parent.has(key) || !parent.get(key).isJsonObject()) return null;
+        return CassetteImageLadder.rungUrl(optString(parent.getAsJsonObject(key), "src"), CassetteImageLadder.top());
     }
 
     /** GET /api/sync/intents/:id/tracks — the concrete downloadable track list. */
@@ -240,10 +251,15 @@ public final class CassetteSyncApi {
         }
 
         String artistImageUrl = null;
+        String artistImageFallbackUrl = null;
         if (json.has("artist") && json.get("artist").isJsonObject()) {
-            artistImageUrl = optString(json.getAsJsonObject("artist"), "image_url");
+            JsonObject artist = json.getAsJsonObject("artist");
+            String original = optString(artist, "image_url");
+            String ladder = ladderTop(artist, "image");
+            artistImageUrl = ladder != null ? ladder : original;
+            artistImageFallbackUrl = ladder != null ? original : null;
         }
-        return new IntentTracks(tracks, artistImageUrl);
+        return new IntentTracks(tracks, artistImageUrl, artistImageFallbackUrl);
     }
 
     /** PUT /api/sync/intents/:id — report a state transition. */
@@ -273,16 +289,20 @@ public final class CassetteSyncApi {
          *  so the phone can re-pull a CORRECTED or user-picked artist face on its own
          *  signal — the artist analogue of localCoverVersion for covers. */
         @Nullable public final String artistImageUrl;
+        /** The original, to try when artistImageUrl (the image ladder's top rung) fails. */
+        @Nullable public final String artistImageFallbackUrl;
         @Nullable public final String artistVersion;
 
         ArtworkAlbum(@Nullable String artistName, @Nullable String albumName,
                      @Nullable String localCoverVersion, @Nullable String contentVersion,
-                     @Nullable String artistImageUrl, @Nullable String artistVersion) {
+                     @Nullable String artistImageUrl, @Nullable String artistImageFallbackUrl,
+                     @Nullable String artistVersion) {
             this.artistName = artistName;
             this.albumName = albumName;
             this.localCoverVersion = localCoverVersion;
             this.contentVersion = contentVersion;
             this.artistImageUrl = artistImageUrl;
+            this.artistImageFallbackUrl = artistImageFallbackUrl;
             this.artistVersion = artistVersion;
         }
     }
@@ -301,12 +321,15 @@ public final class CassetteSyncApi {
             for (JsonElement element : json.getAsJsonArray("albums")) {
                 if (!element.isJsonObject()) continue;
                 JsonObject row = element.getAsJsonObject();
+                String original = optString(row, "artist_image_url");
+                String ladder = ladderTop(row, "artist_image");
                 albums.add(new ArtworkAlbum(
                         optString(row, "artist_name"),
                         optString(row, "album_name"),
                         optString(row, "local_cover_version"),
                         optString(row, "content_version"),
-                        optString(row, "artist_image_url"),
+                        ladder != null ? ladder : original,
+                        ladder != null ? original : null,
                         optString(row, "artist_version")));
             }
         }

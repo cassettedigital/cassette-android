@@ -377,7 +377,8 @@ public final class CassetteSyncEngine {
         }
 
         if (resolved.artistImageUrl != null && sample.getArtistId() != null) {
-            CassetteArtistArt.materialize(context, sample.getArtistId(), resolved.artistImageUrl);
+            CassetteArtistArt.materialize(context, sample.getArtistId(), resolved.artistImageUrl,
+                    resolved.artistImageFallbackUrl);
         }
     }
 
@@ -452,7 +453,8 @@ public final class CassetteSyncEngine {
                 if (pulls < MAX_COVER_PULLS_PER_PASS && manifestRow != null
                         && manifestRow.artistImageUrl != null && rowArtistId != null) {
                     boolean artistPulled = CassetteArtistArt.materializeVersioned(
-                            context, rowArtistId, manifestRow.artistImageUrl, manifestRow.artistVersion);
+                            context, rowArtistId, manifestRow.artistImageUrl, manifestRow.artistImageFallbackUrl,
+                            manifestRow.artistVersion);
                     if (artistPulled) pulls++;
                 }
 

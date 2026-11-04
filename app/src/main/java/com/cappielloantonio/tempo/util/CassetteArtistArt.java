@@ -88,11 +88,12 @@ public final class CassetteArtistArt {
      * Idempotent and best-effort; called from the sync engine's worker thread on
      * album-add (the first-sync path — no version to compare against yet).
      */
-    public static void materialize(Context context, String artistId, String imageUrl) {
+    public static void materialize(Context context, String artistId, String imageUrl,
+                                   @Nullable String fallbackUrl) {
         if (artistId == null || artistId.isEmpty() || imageUrl == null) return;
         File target = new File(dir(context), normalizeKey(artistId) + ".img");
         if (target.exists() && target.length() > 0) return; // fetch-once for first sync
-        fetchInto(context, imageUrl, target, normalizeKey(artistId));
+        fetchEither(context, imageUrl, fallbackUrl, target, normalizeKey(artistId));
     }
 
     /**
@@ -104,7 +105,7 @@ public final class CassetteArtistArt {
      * version. A same version + a real file on disk is a no-op.
      */
     public static boolean materializeVersioned(Context context, String artistId, String imageUrl,
-                                               @Nullable String version) {
+                                               @Nullable String fallbackUrl, @Nullable String version) {
         if (artistId == null || artistId.isEmpty() || imageUrl == null) return false;
         String key = normalizeKey(artistId);
         File target = new File(dir(context), key + ".img");
@@ -112,7 +113,7 @@ public final class CassetteArtistArt {
                 && version.equals(getAppliedVersion(context, key))
                 && target.exists() && target.length() > 0;
         if (current) return false;
-        boolean ok = fetchInto(context, imageUrl, target, key);
+        boolean ok = fetchEither(context, imageUrl, fallbackUrl, target, key);
         if (ok && version != null) {
             setAppliedVersion(context, key, version);
         }
@@ -125,6 +126,13 @@ public final class CassetteArtistArt {
      * can never stick as a permanent broken placeholder. Returns true only when a real
      * image landed. Best-effort; call from a worker thread.
      */
+    /** The image ladder's size first (a 1200px photo, not the original); the original if that fails. */
+    private static boolean fetchEither(Context context, String imageUrl, @Nullable String fallbackUrl,
+                                       File target, String key) {
+        if (fetchInto(context, imageUrl, target, key)) return true;
+        return fallbackUrl != null && !fallbackUrl.equals(imageUrl) && fetchInto(context, fallbackUrl, target, key);
+    }
+
     private static boolean fetchInto(Context context, String imageUrl, File target, String key) {
         OkHttpClient client = new OkHttpClient.Builder()
                 .connectTimeout(15, TimeUnit.SECONDS)
