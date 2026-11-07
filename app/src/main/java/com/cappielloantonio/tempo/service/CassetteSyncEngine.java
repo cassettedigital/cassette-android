@@ -514,7 +514,8 @@ public final class CassetteSyncEngine {
      *
      * Fetching again reuses the proven path: remove the copy and report it, the server's reconciler sees the
      * track still DESIRED but no longer ACTUAL and queues a normal add intent, and the re-added copy, reported
-     * with a fresh date, is traced on the next sweep.
+     * with a fresh date, is traced on the next sweep. Because that removes first, it happens only when the
+     * computer answers in the same pass, and at most STALE_REFETCH_PER_PASS at a time.
      */
     private static void sweepTrackFreshnessIfDue(Context context, String token) {
         long now = System.currentTimeMillis();
@@ -531,6 +532,10 @@ public final class CassetteSyncEngine {
             DownloaderManager manager = DownloadUtil.getDownloadTracker(context);
             int traced = 0, remeasured = 0;
             List<CassetteSyncApi.InventoryItem> staleRemoved = new ArrayList<>();
+            // Fetching again here means removing first (the re-add follows through the reconciler), so a stale copy
+            // is only let go when the computer answers in this very pass, and a few at a time: away from home, or
+            // with the computer asleep, the old copy stays rather than leaving a gap.
+            Boolean hubAnswers = null;
 
             for (CassetteSyncApi.TrackFreshness entry : manifest) {
                 if (entry.audioVersion == null) continue; // UNKNOWN: no signal yet
@@ -558,6 +563,9 @@ public final class CassetteSyncEngine {
                     stale = true;
                 }
                 if (stale) {
+                    if (staleRemoved.size() >= STALE_REFETCH_PER_PASS) continue; // the rest wait for later passes
+                    if (hubAnswers == null) hubAnswers = fetchSong(row.getId()) != null;
+                    if (!hubAnswers) continue;
                     if (manager.isDownloaded(row.getId()) || dao.getOne(row.getId()) != null) {
                         manager.removeById(row.getId());
                     }
@@ -578,6 +586,9 @@ public final class CassetteSyncEngine {
             Log.w(TAG, "track-freshness sweep skipped: " + e);
         }
     }
+
+    /** At most this many stale copies are let go (to be fetched again) in one pass. */
+    private static final int STALE_REFETCH_PER_PASS = 50;
 
     /** A copy reported within this long after its file came into being still counts as made from that file. */
     private static final long COPY_DATE_SLACK_MS = 60_000L;
