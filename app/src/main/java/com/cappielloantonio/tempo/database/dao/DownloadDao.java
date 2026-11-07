@@ -37,6 +37,11 @@ public interface DownloadDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertAll(List<Download> downloads);
 
+    // cassette (BUG-897): every fingerprint stored before the satellite rule was adopted, not traced to the copy
+    // this phone holds; the freshness sweep forgets them once and traces each copy again.
+    @Query("UPDATE download SET content_fingerprint = NULL")
+    void forgetAllContentFingerprints();
+
     @Query("UPDATE download SET download_state = 1 WHERE id = :id")
     void update(String id);
 

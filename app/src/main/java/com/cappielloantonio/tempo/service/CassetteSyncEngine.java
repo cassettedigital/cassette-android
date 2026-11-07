@@ -500,28 +500,21 @@ public final class CassetteSyncEngine {
     }
 
     /**
-     * Content-freshness sweep: for every owned track, compare the hub's current
-     * content fingerprint (GET /devices/:id/track-freshness) against what this
-     * phone last applied (Download.contentFingerprint).
+     * Content-freshness sweep: the hub is the source, this phone a satellite that follows every change at the
+     * source without needing a reason, and holds nothing of its own (the founder, 2026-11-07; BUG-897). For every
+     * owned track the manifest (GET /devices/:id/track-freshness) gives the hub's current audio_version, when the
+     * song's file came into being on the hub, and when this phone made its copy.
      *
-     * cassette_local_id is deliberately content-blind (artist+title+duration),
-     * so a re-rip that fixes an audio-quality issue without changing the title
-     * or duration is invisible to every other sync signal — the phone already
-     * has "that identity" and never looks again. This is the periodic check-in
-     * that closes the gap, the audio sibling of syncAlbumCoversIfDue above.
+     * Download.contentFingerprint is the version this phone's copy was made from, set only when that is known:
+     * - known, same kind, different value: the hub changed the song; fetch it again.
+     * - known, different kind (the part before ':'): the same song measured a new way (BUG-882); take it.
+     * - unknown (a copy made before this rule, or freshly downloaded): if the hub's file is newer than the copy,
+     *   the copy was made from a file the hub has since replaced, so fetch it again; otherwise the copy was made
+     *   from this very file, so record its version. With no dates yet, wait, and never adopt a version blind.
      *
-     * A track this phone has never stamped (contentFingerprint == null) ADOPTS
-     * the manifest's value silently — the file it already has IS current, and
-     * treating "never checked" as "changed" would force a one-time re-download
-     * of the entire library the moment this feature ships (exactly the same
-     * reasoning the cover sweep already applies above). A track whose STORED
-     * fingerprint differs from the manifest's is a real change: remove it via
-     * the same manager.removeById() path a normal remove-intent uses, and
-     * report the removal. The server's reconciler then sees the track is still
-     * DESIRED but no longer ACTUAL and queues a normal add intent, which a
-     * later pass executes through the already-proven download path — reusing
-     * that path, rather than hand-rolling a second one here, is the whole
-     * safety argument for this feature.
+     * Fetching again reuses the proven path: remove the copy and report it, the server's reconciler sees the
+     * track still DESIRED but no longer ACTUAL and queues a normal add intent, and the re-added copy, reported
+     * with a fresh date, is traced on the next sweep.
      */
     private static void sweepTrackFreshnessIfDue(Context context, String token) {
         long now = System.currentTimeMillis();
@@ -529,25 +522,42 @@ public final class CassetteSyncEngine {
         lastTrackFreshnessSweepAt = now;
 
         try {
+            DownloadDao dao = AppDatabase.getInstance().downloadDao();
+            forgetAdoptedFingerprintsOnce(context, dao);
+
             List<CassetteSyncApi.TrackFreshness> manifest = CassetteSyncApi.getTrackFreshnessManifest(token);
             if (manifest.isEmpty()) return;
 
-            DownloadDao dao = AppDatabase.getInstance().downloadDao();
             DownloaderManager manager = DownloadUtil.getDownloadTracker(context);
-            int adopted = 0;
+            int traced = 0, remeasured = 0;
             List<CassetteSyncApi.InventoryItem> staleRemoved = new ArrayList<>();
 
             for (CassetteSyncApi.TrackFreshness entry : manifest) {
-                if (entry.audioVersion == null) continue; // UNKNOWN — no signal yet
+                if (entry.audioVersion == null) continue; // UNKNOWN: no signal yet
                 Download row = dao.getByCassetteLocalId(entry.cassetteLocalId);
-                if (row == null) continue; // not actually on this device — nothing to check
+                if (row == null) continue; // not actually on this device: nothing to check
 
-                String stored = row.getContentFingerprint();
-                if (stored == null) {
+                String madeFrom = row.getContentFingerprint();
+                boolean stale;
+                if (madeFrom == null) {
+                    if (entry.fileCreatedAtMs == null || entry.copyMadeAtMs == null) continue; // wait for dates
+                    stale = entry.fileCreatedAtMs > entry.copyMadeAtMs + COPY_DATE_SLACK_MS;
+                    if (!stale) {
+                        row.setContentFingerprint(entry.audioVersion);
+                        dao.insert(row); // REPLACE, the upsert pattern used elsewhere in this file
+                        traced++;
+                    }
+                } else if (madeFrom.equals(entry.audioVersion)) {
+                    stale = false;
+                } else if (!fingerprintKind(madeFrom).equals(fingerprintKind(entry.audioVersion))) {
                     row.setContentFingerprint(entry.audioVersion);
-                    dao.insert(row); // REPLACE — same upsert pattern used elsewhere in this file
-                    adopted++;
-                } else if (!stored.equals(entry.audioVersion)) {
+                    dao.insert(row);
+                    remeasured++;
+                    stale = false;
+                } else {
+                    stale = true;
+                }
+                if (stale) {
                     if (manager.isDownloaded(row.getId()) || dao.getOne(row.getId()) != null) {
                         manager.removeById(row.getId());
                     }
@@ -558,15 +568,35 @@ public final class CassetteSyncEngine {
             if (!staleRemoved.isEmpty()) {
                 CassetteSyncApi.reportInventoryDiff(token, new ArrayList<>(), staleRemoved);
             }
-            if (adopted > 0 || !staleRemoved.isEmpty()) {
-                Log.d(TAG, "track-freshness sweep: " + adopted + " adopted, " + staleRemoved.size()
-                        + " stale (queued for re-fetch)");
+            if (traced > 0 || remeasured > 0 || !staleRemoved.isEmpty()) {
+                Log.d(TAG, "track-freshness sweep: " + traced + " traced, " + remeasured + " re-measured, "
+                        + staleRemoved.size() + " stale (queued for re-fetch)");
             }
         } catch (Throwable e) {
             // Best-effort pass, same posture as the cover sweep: a manifest hiccup
             // must never crash the sync thread. Swallow and retry next pass.
             Log.w(TAG, "track-freshness sweep skipped: " + e);
         }
+    }
+
+    /** A copy reported within this long after its file came into being still counts as made from that file. */
+    private static final long COPY_DATE_SLACK_MS = 60_000L;
+
+    /** How a fingerprint was measured: the part before ':' ("a1", "f1"), or "" for one from before kinds. */
+    private static String fingerprintKind(String fingerprint) {
+        int colon = fingerprint.indexOf(':');
+        return colon > 0 ? fingerprint.substring(0, colon) : "";
+    }
+
+    /** Every fingerprint stored before the satellite rule was adopted from the first manifest, never traced to the
+     *  copy itself (BUG-897): forget them once, so each copy is traced again by its dates. */
+    private static void forgetAdoptedFingerprintsOnce(Context context, DownloadDao dao) {
+        android.content.SharedPreferences prefs =
+                context.getSharedPreferences("cassette_track_freshness", Context.MODE_PRIVATE);
+        if (prefs.getBoolean("adopted_forgotten_v1", false)) return;
+        dao.forgetAllContentFingerprints();
+        prefs.edit().putBoolean("adopted_forgotten_v1", true).apply();
+        Log.d(TAG, "track-freshness: forgot adopted fingerprints; every copy will be traced again");
     }
 
     // ------------------------------------------------------------------

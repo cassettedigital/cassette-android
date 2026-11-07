@@ -349,12 +349,39 @@ public final class CassetteSyncApi {
         public final String cassetteLocalId;
         public final String subsonicTrackId;
         @Nullable public final String audioVersion;
+        // cassette (BUG-897): when the song's file came into being on the hub, and when this device made its copy
+        // (as it reported it), in epoch ms; null when the server has no signal yet.
+        @Nullable public final Long fileCreatedAtMs;
+        @Nullable public final Long copyMadeAtMs;
 
-        TrackFreshness(String cassetteLocalId, String subsonicTrackId, @Nullable String audioVersion) {
+        TrackFreshness(String cassetteLocalId, String subsonicTrackId, @Nullable String audioVersion,
+                       @Nullable Long fileCreatedAtMs, @Nullable Long copyMadeAtMs) {
             this.cassetteLocalId = cassetteLocalId;
             this.subsonicTrackId = subsonicTrackId;
             this.audioVersion = audioVersion;
+            this.fileCreatedAtMs = fileCreatedAtMs;
+            this.copyMadeAtMs = copyMadeAtMs;
         }
+    }
+
+    /** The server's ISO time (always UTC, from JavaScript's toISOString) in epoch ms, or null. Plain parsing, since
+     *  java.time needs API 26 and this app supports 24. */
+    @Nullable
+    static Long parseIsoMs(@Nullable String iso) {
+        if (iso == null) return null;
+        String[] shapes = {"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", "yyyy-MM-dd'T'HH:mm:ss'Z'"};
+        for (String shape : shapes) {
+            try {
+                java.text.SimpleDateFormat f = new java.text.SimpleDateFormat(shape, java.util.Locale.US);
+                f.setTimeZone(java.util.TimeZone.getTimeZone("UTC"));
+                f.setLenient(false);
+                java.util.Date d = f.parse(iso);
+                if (d != null) return d.getTime();
+            } catch (java.text.ParseException ignored) {
+                // try the next shape
+            }
+        }
+        return null;
     }
 
     /**
@@ -378,7 +405,9 @@ public final class CassetteSyncApi {
                 tracks.add(new TrackFreshness(
                         cassetteLocalId,
                         subsonicTrackId != null ? subsonicTrackId : "",
-                        optString(row, "audio_version")));
+                        optString(row, "audio_version"),
+                        parseIsoMs(optString(row, "file_created_at")),
+                        parseIsoMs(optString(row, "copy_made_at"))));
             }
         }
         return tracks;
