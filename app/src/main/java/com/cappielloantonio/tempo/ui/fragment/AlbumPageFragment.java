@@ -203,10 +203,10 @@ public class AlbumPageFragment extends Fragment implements ClickCallback {
                 if (bind != null)
                     bind.albumNotesTextview.setText(MusicUtil.forceReadableString(albumInfo.getNotes()));
 
-                // cassette: no Last.fm link. Tempo turned the notes into a
-                // tap-through to last.fm; that provider is prohibited here (not
-                // as a source, not as a citation, not as a link). The notes text
-                // itself is empty on our agents-off hub, so nothing is lost.
+                // cassette: the notes stay plain text. Tempo turned them into a
+                // tap-through to an outside listening-stats site that Cassette
+                // never links to. The notes text itself is empty on our
+                // agents-off hub, so nothing is lost.
             } else {
                 if (bind != null) bind.albumNotesTextview.setVisibility(View.GONE);
             }

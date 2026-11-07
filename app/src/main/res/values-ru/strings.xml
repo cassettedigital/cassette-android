@@ -304,7 +304,7 @@
     <string name="settings_rounded_corner_size_summary">Устанавливает величину угла кривизны.</string>
     <string name="settings_rounded_corner_summary">Если этот параметр включен, задает угол кривизны для всех отображаемых обложек. Изменения вступят в силу при перезапуске.</string>
     <string name="settings_scan_title">Сканировать библиотеку</string>
-    <string name="settings_scrobble_title">Включить скробблинг музыки Last.FM и т.д.</string>
+    <string name="settings_scrobble_title">Включить скробблинг музыки</string>
     <string name="settings_share_title">Включить обмен музыкой</string>
     <string name="settings_sub_summary_scrobble">Важно отметить, что скробблинг также зависит от того, настроен ли сервер для получения этих данных.</string>
     <string name="settings_summary_skip_min_star_rating">При прослушивании радио исполнителя, мгновенном миксе или перемешивании всех, треки ниже определенного пользовательского рейтинга будут игнорироваться.</string>

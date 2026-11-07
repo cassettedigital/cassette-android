@@ -16,7 +16,7 @@
 
 **Tempo** is an open-source and lightweight music client for Subsonic, designed and built natively for Android. It provides a seamless and intuitive music streaming experience, allowing you to access and play your Subsonic music library directly from your Android device. 
 
-Tempo does not rely on magic algorithms to decide what you should listen to. Instead, the interface is built around your listening history, randomness, and optionally integrates with services like Last.fm to personalize your music experience.
+Tempo does not rely on magic algorithms to decide what you should listen to. Instead, the interface is built around your listening history, randomness, and the play history kept on your own server.
 
 **If you find Tempo useful, please consider starring the project on GitHub. It would mean a lot to me and help promote the app to a wider audience.**
 
@@ -30,7 +30,7 @@ Tempo does not rely on magic algorithms to decide what you should listen to. Ins
 - **Playlist Management**: Create, edit, and manage playlists to curate your perfect music collection.
 - **Gapless Playback**: Experience uninterrupted playback with gapless listening mode.
 - **Chromecast Support**: Stream your music to Chromecast devices. The support is currently in a rudimentary state.
-- **Scrobbling Integration**: Optionally integrate Tempo with Last.fm to scrobble your played tracks, gather music insights, and further personalize your music recommendations, if supported by your Subsonic server.
+- **Play History**: The tracks you play are recorded on your own Subsonic server, so play counts and recently played follow you between devices. Nothing is sent to outside services.
 - **Podcasts and Radio**: If your Subsonic server supports it, listen to podcasts and radio shows directly within Tempo, expanding your audio entertainment options.
 - **Transcoding Support**: Activate transcoding of tracks on your Subsonic server, allowing you to set a transcoding profile for optimized streaming directly from the app. This feature requires support from your Subsonic server.
 - **Android Auto Support**: Enjoy your favorite music on the go with full Android Auto integration, allowing you to seamlessly control and listen to your tracks directly from your mobile device while driving.
