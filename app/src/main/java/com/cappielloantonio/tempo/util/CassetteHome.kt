@@ -72,6 +72,7 @@ object CassetteHome {
         val artists: List<ArtistID3> = emptyList(),
         val mixes: List<DrawnMix> = emptyList(),
         val playlists: List<Playlist> = emptyList(),
+        val stations: List<CassetteRadio.Station> = emptyList(),
         /** Resume: the record's song to pick up from. */
         val song: Child? = null,
         val resumePlaylistId: String? = null,
@@ -81,6 +82,7 @@ object CassetteHome {
                 "mixes" -> mixes.isNotEmpty()
                 "artists" -> artists.isNotEmpty()
                 "playlists" -> playlists.isNotEmpty()
+                "stations" -> stations.isNotEmpty()
                 "resume" -> song != null || resumePlaylistId != null
                 "reach" -> albums.size >= 2 || (id.startsWith("deep-dive") && albums.isNotEmpty())
                 else -> albums.isNotEmpty()
@@ -106,14 +108,14 @@ object CassetteHome {
         val app = context.applicationContext
         io.execute {
             readHeld(app)?.let { held ->
-                val rows = resolve(held, playlistsOnPhone(app))
+                val rows = resolve(held, playlistsOnPhone(app), dial(app))
                 main.post { callback.onRows(rows) }
             }
             val now = System.currentTimeMillis()
             if (now - lastAsk < MIN_GAP_MS) return@execute
             lastAsk = now
             val fresh = ask(app) ?: return@execute
-            val rows = resolve(fresh, refreshPlaylistsOnPhone(app))
+            val rows = resolve(fresh, refreshPlaylistsOnPhone(app), dial(app))
             main.post { callback.onRows(rows) }
         }
     }
@@ -173,7 +175,10 @@ object CassetteHome {
         return out
     }
 
-    private fun resolve(answer: Answer, playlistsHere: Set<String>?): List<DrawnRow> {
+    private fun dial(context: Context): Map<String, CassetteRadio.Station> =
+        runCatching { CassetteRadio.stations(context).associateBy { it.slug } }.getOrDefault(emptyMap())
+
+    private fun resolve(answer: Answer, playlistsHere: Set<String>?, dial: Map<String, CassetteRadio.Station>): List<DrawnRow> {
         val dao = AppDatabase.getInstance().downloadDao()
         val wanted = HashSet<String>()
         fun want(r: Record?) { r?.songs?.let { wanted.addAll(it) } }
@@ -258,7 +263,10 @@ object CassetteHome {
                         albums = albums(shelf.records),
                         mixes = listOfNotNull(shelf.mix?.let { mix(it) }))
                 }
-                // stations wait for the radio lane; all-shelves for its page
+                // the Radio row: the cloud's stations, found on the dial by slug
+                "stations" -> DrawnRow(id, "stations", shout, row.answer,
+                    stations = row.stations.orEmpty().mapNotNull { dial[it] }.distinctBy { it.slug })
+                // all-shelves waits for its page
                 else -> continue
             }
             out.add(drawn)

@@ -52,6 +52,8 @@ public class SearchFragment extends Fragment implements ClickCallback {
     private com.cappielloantonio.tempo.ui.adapter.CassetteTileAdapter albumTiles;
     private com.cappielloantonio.tempo.ui.adapter.CassetteTileAdapter artistTiles;
     private com.cappielloantonio.tempo.ui.adapter.CassetteTileAdapter playlistTiles;
+    private com.cappielloantonio.tempo.ui.adapter.CassetteTileAdapter stationTiles;
+    private java.util.List<com.cappielloantonio.tempo.util.CassetteRadio.Station> stationResults = new java.util.ArrayList<>();
     private java.util.List<com.cappielloantonio.tempo.subsonic.models.Playlist> playlists = new java.util.ArrayList<>();
 
     private final android.os.Handler main = new android.os.Handler(android.os.Looper.getMainLooper());
@@ -116,6 +118,10 @@ public class SearchFragment extends Fragment implements ClickCallback {
         bind.searchPlaylists.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
         bind.searchPlaylists.setAdapter(playlistTiles);
 
+        stationTiles = new com.cappielloantonio.tempo.ui.adapter.CassetteTileAdapter();
+        bind.searchStations.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
+        bind.searchStations.setAdapter(stationTiles);
+
         new com.cappielloantonio.tempo.repository.PlaylistRepository().getPinnedPlaylists()
                 .observe(getViewLifecycleOwner(), list -> playlists = list != null ? list : new java.util.ArrayList<>());
     }
@@ -178,7 +184,10 @@ public class SearchFragment extends Fragment implements ClickCallback {
         bind.searchStart.setVisibility(View.GONE);
         worker.execute(() -> {
             com.cappielloantonio.tempo.util.CassetteSearch.Results results = com.cappielloantonio.tempo.util.CassetteSearch.search(query);
+            java.util.List<com.cappielloantonio.tempo.util.CassetteRadio.Station> stations =
+                    com.cappielloantonio.tempo.util.CassetteRadio.search(activity.getApplicationContext(), query);
             main.post(() -> {
+                stationResults = stations;
                 if (bind == null || ticket != generation) return;
                 showResults(query, results);
             });
@@ -191,7 +200,7 @@ public class SearchFragment extends Fragment implements ClickCallback {
         for (com.cappielloantonio.tempo.subsonic.models.Playlist p : playlists) {
             if (com.cappielloantonio.tempo.util.CassetteSearch.fold(p.getName()).contains(q)) matchedPlaylists.add(p);
         }
-        boolean nothing = results.isEmpty() && matchedPlaylists.isEmpty();
+        boolean nothing = results.isEmpty() && matchedPlaylists.isEmpty() && stationResults.isEmpty();
         bind.searchResults.setVisibility(nothing ? View.GONE : View.VISIBLE);
         bind.searchEmpty.emptyStateTitle.setText(R.string.cassette_empty_search);
         bind.searchEmpty.emptyStateTitle.setVisibility(nothing ? View.VISIBLE : View.GONE);
@@ -204,6 +213,7 @@ public class SearchFragment extends Fragment implements ClickCallback {
         }
         com.cappielloantonio.tempo.subsonic.models.AlbumID3 leadAlbum = results.getAlbums().isEmpty() ? null : results.getAlbums().get(0);
         bind.searchTopCard.setVisibility(leadArtist != null || leadAlbum != null ? View.VISIBLE : View.GONE);
+        bind.searchSongsHeading.setVisibility(View.GONE);
         bind.searchTopGlow.setRecipe(com.cappielloantonio.tempo.ui.view.CoverGlowView.TOP_RESULT);
         if (leadArtist != null) {
             final com.cappielloantonio.tempo.subsonic.models.ArtistID3 artist = leadArtist;
@@ -279,6 +289,19 @@ public class SearchFragment extends Fragment implements ClickCallback {
         }
         playlistTiles.setItems(lists);
         bind.searchPlaylistsHeading.setVisibility(lists.isEmpty() ? View.GONE : View.VISIBLE);
+
+        // STATIONS: the best five on the whole dial, under the music
+        java.util.List<com.cappielloantonio.tempo.ui.adapter.CassetteTileAdapter.Tile> stations = new java.util.ArrayList<>();
+        for (com.cappielloantonio.tempo.util.CassetteRadio.Station station : stationResults) {
+            Runnable tune = () -> {
+                MediaManager.startRadio(mediaBrowserListenableFuture, station.toInternetRadioStation());
+                activity.setBottomSheetInPeek(true);
+            };
+            stations.add(new com.cappielloantonio.tempo.ui.adapter.CassetteTileAdapter.Tile(station.getName(), station.getLabel(),
+                    station.getImage(), CustomGlideRequest.ResourceType.Radio, false, tune, tune));
+        }
+        stationTiles.setItems(stations);
+        bind.searchStationsHeading.setVisibility(stations.isEmpty() ? View.GONE : View.VISIBLE);
     }
 
     private void openAlbum(com.cappielloantonio.tempo.subsonic.models.AlbumID3 album) {

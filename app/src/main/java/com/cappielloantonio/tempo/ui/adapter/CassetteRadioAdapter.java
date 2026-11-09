@@ -34,6 +34,13 @@ public class CassetteRadioAdapter extends RecyclerView.Adapter<RecyclerView.View
     private final Listener listener;
     private final List<Object> rows = new ArrayList<>();
     private String onAir;
+    private java.util.Map<String, String> onNow = new java.util.HashMap<>();
+
+    /** What's on at each station (by slug), shown under its name while the dial is up. */
+    public void setOnNow(java.util.Map<String, String> lines) {
+        onNow = lines != null ? lines : new java.util.HashMap<>();
+        notifyDataSetChanged();
+    }
 
     public CassetteRadioAdapter(Listener listener) {
         this.listener = listener;
@@ -82,7 +89,8 @@ public class CassetteRadioAdapter extends RecyclerView.Adapter<RecyclerView.View
         CassetteRadio.Station station = (CassetteRadio.Station) row;
         ItemRadioStationBinding b = ((StationHolder) holder).bind;
         b.stationName.setText(station.getName());
-        b.stationLabel.setText(station.getLabel());
+        String now = onNow.get(station.getSlug());
+        b.stationLabel.setText(now != null ? now : station.getLabel());
         boolean live = ("cassette-radio-" + station.getSlug()).equals(onAir);
         b.stationName.setTextColor(androidx.core.content.ContextCompat.getColor(holder.itemView.getContext(),
                 live ? R.color.cs_accent : R.color.cs_ink));

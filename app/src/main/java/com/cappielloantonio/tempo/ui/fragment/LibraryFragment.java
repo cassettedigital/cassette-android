@@ -106,6 +106,34 @@ public class LibraryFragment extends Fragment implements ClickCallback {
     private com.cappielloantonio.tempo.ui.adapter.CassetteRadioAdapter radio;
     private com.google.common.util.concurrent.ListenableFuture<androidx.media3.session.MediaBrowser> radioBrowser;
 
+    // what's on at each station, read every 30 seconds while the dial is on screen
+    private final android.os.Handler onNowHandler = new android.os.Handler(android.os.Looper.getMainLooper());
+    private final Runnable onNowTick = new Runnable() {
+        @Override
+        public void run() {
+            if (bind == null || radio == null || !CATEGORY_RADIO.equals(Preferences.getLibraryLastCategory())) return;
+            com.cappielloantonio.tempo.util.CassetteRadio.onNow(lines -> { if (radio != null) radio.setOnNow(lines); });
+            onNowHandler.postDelayed(this, 30_000);
+        }
+    };
+
+    private void startOnNow() {
+        onNowHandler.removeCallbacks(onNowTick);
+        onNowHandler.post(onNowTick);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        onNowHandler.removeCallbacks(onNowTick);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (radio != null && CATEGORY_RADIO.equals(Preferences.getLibraryLastCategory())) startOnNow();
+    }
+
     /** cassette: the dial (Library > Radio): every station, playing from its own stream. */
     private com.cappielloantonio.tempo.ui.adapter.CassetteRadioAdapter radioAdapter() {
         if (radio != null) return radio;
@@ -138,6 +166,7 @@ public class LibraryFragment extends Fragment implements ClickCallback {
                 popup.show();
             }
         });
+        startOnNow();
         new Thread(() -> {
             java.util.List<com.cappielloantonio.tempo.util.CassetteRadio.Station> stations =
                     com.cappielloantonio.tempo.util.CassetteRadio.stations(requireContext().getApplicationContext());
@@ -305,6 +334,7 @@ public class LibraryFragment extends Fragment implements ClickCallback {
                 bind.libraryCatalogueRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
                 applyGridSpacing(1);
                 bind.libraryCatalogueRecyclerView.setAdapter(radioAdapter());
+                startOnNow();
                 break;
             case CATEGORY_PLAYLISTS:
                 pushPickerToToolbar(R.string.library_title_playlist);

@@ -31,6 +31,8 @@ object CassetteRadio {
         val supportUrl: String?,
         val image: String?,
         val accent: String?,
+        /** genres, moods, eras and cities, for Search */
+        val keywords: List<String> = emptyList(),
     ) {
         fun toInternetRadioStation(): InternetRadioStation = InternetRadioStation().apply {
             id = "cassette-radio-$slug"
@@ -86,9 +88,71 @@ object CassetteRadio {
             val cities = o.getAsJsonArray("cityLabels")?.mapNotNull { it.asString }.orEmpty()
             val network = o.str("sourceLabel")?.takeIf { it != name }
             val label = listOfNotNull(network, cities.firstOrNull()).joinToString(" · ")
-            Station(slug, name, label, o.str("section") ?: "", stream, o.str("homepage"), o.str("supportUrl"), o.str("image"), o.str("accent"))
+            val words = listOf("genres", "moods", "eras", "cityLabels").flatMap { k ->
+                o.getAsJsonArray(k)?.mapNotNull { runCatching { it.asString }.getOrNull() }.orEmpty()
+            } + listOfNotNull(o.str("sourceLabel"), o.str("section"))
+            Station(slug, name, label, o.str("section") ?: "", stream, o.str("homepage"), o.str("supportUrl"), o.str("image"), o.str("accent"), words)
         }.orEmpty()
         return out.sortedBy { order.indexOf(it.section).let { i -> if (i < 0) Int.MAX_VALUE else i } }
+    }
+
+    /** Stations matching what was typed, by name, network, city, mood, era or genre (iPhone e0b0efab). */
+    @JvmStatic
+    fun search(context: Context, query: String): List<Station> {
+        val q = CassetteSearch.fold(query)
+        if (q.isEmpty()) return emptyList()
+        return stations(context).map { s ->
+            val name = CassetteSearch.fold(s.name)
+            val rank = when {
+                name.startsWith(q) -> 0
+                name.contains(q) -> 1
+                s.keywords.any { CassetteSearch.fold(it).contains(q) } -> 2
+                else -> 3
+            }
+            rank to s
+        }.filter { it.first < 3 }.sortedBy { it.first }.map { it.second }.take(5)
+    }
+
+    fun interface OnNow {
+        fun onNow(lines: Map<String, String>)
+    }
+
+    /**
+     * What's on at every station whose feed the cloud reads (`GET /api/radio/on-now`,
+     * public), as one line per slug: "Title · Artist", or the show. Read only while a
+     * screen with stations is up.
+     */
+    @JvmStatic
+    fun onNow(callback: OnNow) {
+        Thread({
+            val lines = HashMap<String, String>()
+            try {
+                val client = OkHttpClient.Builder().callTimeout(10, TimeUnit.SECONDS).build()
+                client.newCall(Request.Builder().url(Cassette.BASE_URL + "/api/radio/on-now").build()).execute().use { r ->
+                    val body = r.body?.string()
+                    if (r.isSuccessful && body != null) {
+                        val stations = JsonParser.parseString(body).asJsonObject.getAsJsonObject("stations")
+                        stations?.entrySet()?.forEach { (slug, v) ->
+                            if (!v.isJsonObject) return@forEach
+                            val o = v.asJsonObject
+                            val title = o.str("title")
+                            val artist = o.str("artist")
+                            val show = o.str("show")
+                            val line = when {
+                                title != null && artist != null -> "$title · $artist"
+                                title != null -> title
+                                show != null -> show
+                                else -> null
+                            }
+                            if (line != null) lines[slug] = line
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                Log.w(TAG, "on-now failed", e)
+            }
+            android.os.Handler(android.os.Looper.getMainLooper()).post { callback.onNow(lines) }
+        }, "cassette-radio-on-now").start()
     }
 
     private fun JsonObject.str(key: String): String? = get(key)?.takeIf { !it.isJsonNull }?.asString?.takeIf { it.isNotEmpty() }

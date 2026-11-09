@@ -449,11 +449,14 @@ public class HomeTabMusicFragment extends Fragment implements ClickCallback {
         }
         boolean cloud = drawn > 0;
         container.setVisibility(cloud ? View.VISIBLE : View.GONE);
-        int standIn = cloud ? View.GONE : View.VISIBLE;
-        bind.homeRecentlyPlayedAlbumsSector.setVisibility(standIn);
-        bind.homeRecentlyAddedAlbumsSector.setVisibility(standIn);
-        bind.homeRecentlyPlayedArtistsSector.setVisibility(standIn);
-        bind.pinnedPlaylistsSector.setVisibility(standIn);
+        if (cloud) {
+            // the stand-in rows leave for good once the cloud's Home has drawn:
+            // their own observers would otherwise show them again as data lands
+            for (View standIn : new View[]{bind.homeRecentlyPlayedAlbumsSector, bind.homeRecentlyAddedAlbumsSector,
+                    bind.homeRecentlyPlayedArtistsSector, bind.pinnedPlaylistsSector}) {
+                if (standIn.getParent() instanceof ViewGroup) ((ViewGroup) standIn.getParent()).removeView(standIn);
+            }
+        }
         applyResumeCard();
     }
 
@@ -502,6 +505,15 @@ public class HomeTabMusicFragment extends Fragment implements ClickCallback {
                         MediaManager.playArtist(mediaBrowserListenableFuture, artist.getId());
                         activity.setBottomSheetInPeek(true);
                     }));
+        }
+        for (com.cappielloantonio.tempo.util.CassetteRadio.Station station : row.getStations()) {
+            Runnable tune = () -> {
+                MediaManager.startRadio(mediaBrowserListenableFuture, station.toInternetRadioStation());
+                activity.setBottomSheetInPeek(true);
+            };
+            tiles.add(new com.cappielloantonio.tempo.ui.adapter.CassetteTileAdapter.Tile(
+                    station.getName(), station.getLabel(), station.getImage(), CustomGlideRequest.ResourceType.Radio,
+                    false, tune, tune));
         }
         for (com.cappielloantonio.tempo.subsonic.models.Playlist playlist : row.getPlaylists()) {
             int n = playlist.getSongCount();

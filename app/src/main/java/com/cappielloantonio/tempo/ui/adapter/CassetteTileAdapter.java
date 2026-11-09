@@ -64,8 +64,11 @@ public class CassetteTileAdapter extends RecyclerView.Adapter<CassetteTileAdapte
         holder.bind.tileTitle.setText(tile.title);
         holder.bind.tileSubtitle.setText(tile.subtitle);
         holder.bind.tileSubtitle.setVisibility(tile.subtitle == null || tile.subtitle.isEmpty() ? View.GONE : View.VISIBLE);
-        float corner = tile.circle ? 75f * holder.itemView.getResources().getDisplayMetrics().density
-                : 3f * holder.itemView.getResources().getDisplayMetrics().density;
+        float density = holder.itemView.getResources().getDisplayMetrics().density;
+        // circles for artists, squircles for stations (kit shape.station 22.5%), else 3dp
+        float corner = tile.circle ? 75f * density
+                : tile.coverType == CustomGlideRequest.ResourceType.Radio ? 150f * 0.225f * density
+                : 3f * density;
         holder.bind.tileCover.setShapeAppearanceModel(ShapeAppearanceModel.builder().setAllCornerSizes(corner).build());
         if (tile.coverId != null) {
             CustomGlideRequest.Builder.from(holder.itemView.getContext(), tile.coverId, tile.coverType)
