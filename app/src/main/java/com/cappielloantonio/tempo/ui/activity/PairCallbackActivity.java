@@ -17,6 +17,7 @@ import com.cappielloantonio.tempo.model.Server;
 import com.cappielloantonio.tempo.repository.ServerRepository;
 import com.cappielloantonio.tempo.repository.SystemRepository;
 import com.cappielloantonio.tempo.util.Cassette;
+import com.cappielloantonio.tempo.util.CassetteComputerLogin;
 import com.cappielloantonio.tempo.util.Preferences;
 
 import java.util.UUID;
@@ -74,30 +75,12 @@ public class PairCallbackActivity extends AppCompatActivity {
 
     /** Save + activate, mirroring LoginFragment's server-tap path. */
     private void activate(Cassette.PlayerConfig config) {
-        // Stable identity: re-pairing must REPLACE the same server row (Room
-        // insert is REPLACE on the primary key), not mint a new UUID — play
-        // history, downloads, and the queue are all keyed to this id, and a
-        // fresh id every re-pair orphans them (the local twin of the iOS
-        // credential-stranding lesson).
-        Server server = new Server(
-                "cassette-" + config.subsonicUsername,
-                "Cassette",
-                config.subsonicUsername,
-                config.subsonicPassword,
-                config.address(),
-                null,
-                System.currentTimeMillis(),
-                false);
-
-        new ServerRepository().insert(server);
-
-        Preferences.setServerId(server.getServerId());
-        Preferences.setServer(server.getAddress());
-        Preferences.setLocalAddress(null);
-        Preferences.setUser(server.getUsername());
-        Preferences.setPassword(server.getPassword());
-        Preferences.setLowSecurity(false);
-        App.getSubsonicClientInstance(true);
+        CassetteComputerLogin.save(config);
+        // no computer on the account yet: straight in, to Home's "Not set up" (iPhone c652049f)
+        if (config.isNoComputer()) {
+            enterApp();
+            return;
+        }
 
         // Reachability is transient (the hub may be on another network right
         // now); the pairing itself is done either way, so keep the credential

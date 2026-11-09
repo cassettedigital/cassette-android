@@ -381,6 +381,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         });
 
         Preference resync = findPreference("resync");
+        // no Resync until there is a computer (iPhone c652049f)
+        if (resync != null) resync.setVisible(!com.cappielloantonio.tempo.util.CassetteComputerLogin.waitingForComputer());
         if (resync != null) resync.setOnPreferenceClickListener(p -> {
             com.cappielloantonio.tempo.service.CassetteSyncEngine.kick(requireContext());
             android.widget.Toast.makeText(requireContext(), R.string.cassette_resync_started, android.widget.Toast.LENGTH_SHORT).show();

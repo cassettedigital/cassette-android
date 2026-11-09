@@ -127,6 +127,8 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        // cassette: a phone signed in before its account had a computer asks for it on every return
+        com.cappielloantonio.tempo.util.CassetteComputerLogin.connectIfReady(this::restartForComputer);
         pingServer();
         cassetteSyncHandler.post(cassetteSyncTick);
         // cassette play spine (Phase B): pull other-surface plays once per
@@ -300,6 +302,14 @@ public class MainActivity extends BaseActivity {
      * stored pairing token. Best-effort and silent — a changed skin applies on
      * the next launch, so there's no mid-session re-theme jank.
      */
+    /** The account's computer arrived (the stand-in is gone): start again on it, as after sign-in. */
+    public void restartForComputer() {
+        android.content.Intent intent = new android.content.Intent(this, MainActivity.class);
+        intent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK | android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
+    }
+
     private void refreshCassetteAccount() {
         String token = Preferences.getCassetteBearerToken();
         if (token == null || token.isEmpty()) return;

@@ -75,6 +75,23 @@ public final class Cassette {
         }
     }
 
+    /**
+     * cassette (BUG-876, BUG-899, iPhone c652049f): the address a phone signs in to before its
+     * account has a computer. It never resolves; Home shows "Not set up", radio works, and
+     * the phone connects on its own once a computer signs in (CassetteComputerLogin).
+     */
+    public static final String NO_COMPUTER_HOST = "no-computer.invalid";
+
+    /** Whether this server address is the stand-in for a computer the account doesn't have yet. */
+    public static boolean isNoComputer(String serverUrl) {
+        if (serverUrl == null) return false;
+        try {
+            return NO_COMPUTER_HOST.equals(new java.net.URI(serverUrl).getHost());
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     /** The registered player config, as returned by /api/player/me. */
     public static final class PlayerConfig {
         public final String lanHostname;
@@ -94,6 +111,15 @@ public final class Cassette {
 
         public String address() {
             return "http://" + lanHostname + ":" + lanPort;
+        }
+
+        /** The stand-in: the account has no computer yet. */
+        public boolean isNoComputer() {
+            return NO_COMPUTER_HOST.equals(lanHostname);
+        }
+
+        static PlayerConfig noComputer(String themeId) {
+            return new PlayerConfig(NO_COMPUTER_HOST, 4533, "cassette-pending", "pending", themeId);
         }
     }
 
@@ -116,8 +142,12 @@ public final class Cassette {
             }
 
             JsonObject json = JsonParser.parseString(response.body().string()).getAsJsonObject();
-            if (!json.has("lanHostname") || !json.has("subsonicUsername") || !json.has("subsonicPassword")) {
-                throw new IOException("No player is registered to this Cassette account yet");
+            if (!json.has("lanHostname") || json.get("lanHostname").isJsonNull()
+                    || !json.has("subsonicUsername") || json.get("subsonicUsername").isJsonNull()
+                    || !json.has("subsonicPassword") || json.get("subsonicPassword").isJsonNull()) {
+                // no computer on the account yet: sign in anyway, to the stand-in (iPhone c652049f)
+                String themeId = json.has("themeId") && !json.get("themeId").isJsonNull() ? json.get("themeId").getAsString() : null;
+                return PlayerConfig.noComputer(themeId);
             }
 
             int port = json.has("lanPort") && !json.get("lanPort").isJsonNull()

@@ -96,7 +96,7 @@ object CassetteComputer {
     /** One word for now, or null when nothing true can be said yet. */
     @JvmStatic
     fun state(): String? {
-        if (Preferences.getCassetteBearerToken().isNullOrEmpty()) return "not paired"
+        if (Preferences.getCassetteBearerToken().isNullOrEmpty() || Cassette.isNoComputer(Preferences.getServer())) return "not paired"
         val sync = CassetteSyncStatus.live().value
         if (sync != null && sync.active) return if (sync.waitingForWifi) "out of reach" else "syncing"
         val s = summary ?: return null

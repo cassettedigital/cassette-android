@@ -360,6 +360,7 @@ public class HomeTabMusicFragment extends Fragment implements ClickCallback {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        computerCheck.removeCallbacksAndMessages(null);
         bind = null;
     }
 
@@ -425,6 +426,15 @@ public class HomeTabMusicFragment extends Fragment implements ClickCallback {
      * the phone can draw any of them, they replace the stand-in rows (Recent,
      * Albums, Artists, Playlists), which stay only for a first launch offline.
      */
+    private final android.os.Handler computerCheck = new android.os.Handler(android.os.Looper.getMainLooper());
+
+    /** While Home says "Not set up": has the account's computer signed in yet? (at most every 10 s) */
+    private void askForComputer() {
+        if (bind == null || !isResumed()) return;
+        com.cappielloantonio.tempo.util.CassetteComputerLogin.connectIfReady(() -> activity.restartForComputer());
+        computerCheck.postDelayed(this::askForComputer, 10_000);
+    }
+
     /** The computer card's state from what the phone knows (iPhone ComputerCardModel); gone once the music is in. */
     private void paintComputerCard() {
         if (bind == null) return;
@@ -456,6 +466,11 @@ public class HomeTabMusicFragment extends Fragment implements ClickCallback {
                         null);
                 com.cappielloantonio.tempo.util.CassetteComputerCard.Phase phase = com.cappielloantonio.tempo.util.CassetteComputerCard.phase(facts);
                 bind.homeComputerCard.setVisibility(phase == null ? View.GONE : View.VISIBLE);
+                computerCheck.removeCallbacksAndMessages(null);
+                if (phase == com.cappielloantonio.tempo.util.CassetteComputerCard.Phase.NOT_SET_UP
+                        && com.cappielloantonio.tempo.util.CassetteComputerLogin.waitingForComputer()) {
+                    computerCheck.postDelayed(this::askForComputer, 10_000);
+                }
                 if (phase == null) return;
                 bind.homeComputerHeadline.setText(com.cappielloantonio.tempo.util.CassetteComputerCard.headline(phase));
                 int total = sync != null ? sync.albumsTotal : 0;
