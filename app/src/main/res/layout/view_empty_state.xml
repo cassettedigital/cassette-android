@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- cassette: one empty state for every list (iPhone ListScreenChrome): a title
+     and nothing else. No illustration, no explainer, no exclamation mark. -->
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/empty_state_title"
+    style="@style/Cassette.Role.Empty"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:paddingStart="32dp"
+    android:paddingTop="96dp"
+    android:paddingEnd="32dp"
+    android:paddingBottom="96dp"
+    android:visibility="gone" />

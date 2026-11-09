@@ -102,6 +102,108 @@ object CassetteKitTokens {
         val kicker = TypeRole("dm_mono", 500, 13f, 2f, true, false)
         val meta = TypeRole("dm_mono", 500, 13f, 1.7f, true, false)
     }
+    object Opacity {
+        const val faint: Float = 0.08f
+        const val scrim: Float = 0.5f
+        const val disabled: Float = 0.4f
+    }
+    object Component {
+        object Heading { // HomeVC CassetteHeading
+            const val top: Float = 28f
+            const val bottom: Float = 12f
+            const val side: Float = 20f
+            const val chevron: Float = 13f
+        }
+        object PlayDisc { // CassettePlayDisc
+            const val size: Float = 34f
+            const val glyph: Float = 15f
+            const val inset: Float = 8f
+            const val hit: Float = 44f
+        }
+        object PlayerDisc { // PlayerControlView
+            const val size: Float = 78f
+            const val glyph: Float = 30f
+            const val side: Float = 28f
+            const val height: Float = 195f
+        }
+        object Pill { // LibraryElementDetailTableHeaderView makePlayPill/makeShufflePill
+            const val height: Float = 48f
+            const val gap: Float = 10f
+            const val glyph: Float = 16f
+            const val glyphGap: Float = 8f
+            const val stroke: Float = 1.5f
+            const val strokeAlpha: Float = 0.35f
+        }
+        object Tile { // AlbumCollectionCell / AlbumCarousel
+            const val width: Float = 150f
+            const val gap: Float = 12f
+            const val gutter: Float = 20f
+            const val titleGap: Float = 8f
+            const val ring: Float = 0.08f
+        }
+        object TrackRow { // PlayableTableCell
+            const val height: Float = 76f
+            const val art: Float = 48f
+            const val lead: Float = 10f
+            const val artGap: Float = 8f
+            const val side: Float = 16f
+            const val number: Float = 18f
+        }
+        object Scrubber { // PlayerControlView SeekableTimeSlider
+            const val track: Float = 4f
+            const val hitExtra: Float = 12f
+        }
+        object MiniScrubber { // MiniPlayerView
+            const val track: Float = 3f
+            const val inset: Float = 24f
+        }
+        object PlayerFoot { // PlayerControlView foot row
+            const val inset: Float = 32f
+        }
+        object StationRow { // RadiosVC RadioStationCell
+            const val logo: Float = 56f
+            const val padY: Float = 12f
+            const val side: Float = 16f
+            const val gap: Float = 3f
+        }
+        object StationMark { // LargeCurrentlyPlayingPlayerView station row
+            const val size: Float = 22f
+            const val gap: Float = 8f
+            const val above: Float = 12f
+        }
+        object Hero { // GenericDetailTableHeader
+            const val cover: Float = 240f
+            const val side: Float = 22f
+            const val coverToTitle: Float = 24f
+            const val titleToLine: Float = 6f
+            const val lineToMeta: Float = 10f
+            const val metaToPills: Float = 18f
+        }
+        object HubRow { // SettingsView HubRow
+            const val tile: Float = 36f
+            const val glyph: Float = 17f
+            const val minHeight: Float = 50f
+        }
+        object Strip { // SettingsView StripRow
+            const val cover: Float = 46f
+            const val gap: Float = 6f
+            const val fadeFrom: Float = 0.78f
+        }
+        object Waveform { // WaveformAnimatedView
+            const val box: Float = 24f
+            const val bar: Float = 3f
+            const val gap: Float = 3f
+            const val min: Float = 4f
+            const val max: Float = 18f
+        }
+        object Ambient { // AmbientCoverBackdrop
+            const val scale: Float = 1.4f
+            const val centerY: Float = 0.42f
+            const val playing: Float = 0.5f
+            const val paused: Float = 0.38f
+            const val fade: Float = 0.9f
+        }
+    }
     object Taste {
         object Dark {
             const val bg: Long = 0xFF16110D

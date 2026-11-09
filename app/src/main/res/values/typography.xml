@@ -193,6 +193,82 @@
         <item name="android:textFontWeight">700</item>
         <item name="android:textColor">@color/titleTextColor</item>
     </style>
+    <!-- cassette: the phone-taste roles (packages/cassette-kit tokens.json
+         type.*), the iPhone's October redesign. letterSpacing is the kit's
+         kern (pt) over the size, in em. Caps roles are set in capitals by
+         CassetteType rather than textAllCaps, so an italic answer can sit in
+         the same line in its own case. -->
+    <style name="Cassette.Role.Shout" parent="CassetteDisplay">
+        <item name="android:textSize">26sp</item>
+        <item name="android:textFontWeight">800</item>
+        <item name="android:letterSpacing">0.005</item>
+        <item name="android:textColor">@color/cs_ink</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+    <style name="Cassette.Role.PageTitle" parent="CassetteDisplay">
+        <item name="android:textSize">36sp</item>
+        <item name="android:textFontWeight">800</item>
+        <item name="android:letterSpacing">-0.005</item>
+        <item name="android:textColor">@color/cs_ink</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:lineSpacingMultiplier">0.92</item>
+    </style>
+    <style name="Cassette.Role.HeroName" parent="CassetteDisplay">
+        <item name="android:textSize">46sp</item>
+        <item name="android:textFontWeight">800</item>
+        <item name="android:letterSpacing">-0.005</item>
+        <item name="android:textColor">@color/cs_ink</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:lineSpacingMultiplier">0.9</item>
+    </style>
+    <style name="Cassette.Role.PlayerTitle" parent="CassetteDisplay">
+        <item name="android:textSize">34sp</item>
+        <item name="android:textFontWeight">800</item>
+        <item name="android:textColor">@color/cs_ink</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+    <style name="Cassette.Role.CardTitle" parent="CassetteDisplay">
+        <item name="android:textSize">22sp</item>
+        <item name="android:textFontWeight">800</item>
+        <item name="android:textColor">@color/cs_ink</item>
+    </style>
+    <style name="Cassette.Role.TileLabel" parent="CassetteDisplay">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textFontWeight">600</item>
+        <item name="android:textColor">@color/cs_ink</item>
+    </style>
+    <style name="Cassette.Role.Pill" parent="CassetteDisplay">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textFontWeight">700</item>
+        <item name="android:letterSpacing">0.08</item>
+        <item name="android:textAllCaps">true</item>
+    </style>
+    <style name="Cassette.Role.Answer" parent="">
+        <item name="fontFamily">@font/newsreader</item>
+        <item name="android:fontFamily">@font/newsreader</item>
+        <item name="android:textStyle">italic</item>
+        <item name="android:textSize">25sp</item>
+        <item name="android:letterSpacing">-0.01</item>
+        <item name="android:textColor">@color/cs_ink2</item>
+    </style>
+    <style name="Cassette.Role.Kicker" parent="CassetteMono">
+        <item name="android:textSize">13sp</item>
+        <item name="android:textFontWeight">500</item>
+        <item name="android:letterSpacing">0.15</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textColor">@color/cs_ink3</item>
+    </style>
+    <style name="Cassette.Role.Meta" parent="CassetteMono">
+        <item name="android:textSize">13sp</item>
+        <item name="android:textFontWeight">500</item>
+        <item name="android:letterSpacing">0.13</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textColor">@color/cs_ink2</item>
+    </style>
+    <style name="Cassette.Role.Empty" parent="CassetteDisplay">
+        <item name="android:textSize">22sp</item>
+        <item name="android:textFontWeight">600</item>
+        <item name="android:textColor">@color/cs_ink2</item>
+        <item name="android:gravity">center</item>
+    </style>
 </resources>
-
-

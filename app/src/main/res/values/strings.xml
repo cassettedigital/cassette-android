@@ -489,4 +489,15 @@
     <string name="cassette_signed_out_title">Signed out</string>
     <string name="cassette_signed_out_message">This phone was signed out from your account, or went unused for 90 days.</string>
     <string name="cassette_signed_out_sign_in">Sign In</string>
+    <string name="cassette_appearance">Appearance</string>
+    <!-- cassette: shared words, one place (the iPhone's d65942cd) -->
+    <string name="cassette_play">Play</string>
+    <string name="cassette_pause">Pause</string>
+    <string name="cassette_shuffle">Shuffle</string>
+    <string name="cassette_empty_phone">Nothing on this phone yet</string>
+    <string name="cassette_empty_playlists">No playlists yet</string>
+    <string name="cassette_empty_genres">No genres yet</string>
+    <string name="cassette_empty_stations">No stations yet</string>
+    <string name="cassette_empty_search">No results on this phone</string>
+    <string name="cassette_empty_playlist">Empty playlist</string>
 </resources>

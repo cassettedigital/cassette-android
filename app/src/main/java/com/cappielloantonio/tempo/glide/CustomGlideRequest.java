@@ -62,7 +62,7 @@ public class CustomGlideRequest {
 
     public static RequestOptions createRequestOptions(Context context, Object signature, ResourceType type) {
         return new RequestOptions()
-                .placeholder(new ColorDrawable(context.getColor(com.cappielloantonio.tempo.R.color.md_theme_dark_surfaceContainerHigh)))
+                .placeholder(new ColorDrawable(context.getColor(com.cappielloantonio.tempo.R.color.cs_elevated)))
                 .fallback(getPlaceholder(context, type))
                 .error(getPlaceholder(context, type))
                 .diskCacheStrategy(DEFAULT_DISK_CACHE_STRATEGY)
@@ -91,7 +91,7 @@ public class CustomGlideRequest {
                 return AppCompatResources.getDrawable(context, R.drawable.ic_placeholder_song);
             default:
             case Unknown:
-                return new ColorDrawable(context.getColor(com.cappielloantonio.tempo.R.color.md_theme_dark_surfaceContainerHigh));
+                return new ColorDrawable(context.getColor(com.cappielloantonio.tempo.R.color.cs_elevated));
         }
     }
 
@@ -143,6 +143,9 @@ public class CustomGlideRequest {
     public static class Builder {
         private final RequestManager requestManager;
         private Object item;
+        // cassette: what this picture is, for caches that sit beside Glide's
+        // (the record colour): the local file and its mtime when there is one.
+        private Object signatureKey;
 
         private Builder(Context context, String item, ResourceType type) {
             this.requestManager = Glide.with(context);
@@ -187,7 +190,27 @@ public class CustomGlideRequest {
                 }
             }
 
+            this.signatureKey = signature;
             requestManager.applyDefaultRequestOptions(createRequestOptions(context, signature, type));
+        }
+
+        /** cassette: a stable key for this exact picture (changes when a synced cover is re-pulled). */
+        @Nullable
+        public String cacheKey() {
+            return signatureKey != null ? String.valueOf(signatureKey) : null;
+        }
+
+        /**
+         * cassette: the same picture as a small bitmap with no corners or crop,
+         * for reading the record's colour (util/CoverTint). Never a separate
+         * size request to the server: the ladder rung is the one the screen uses.
+         */
+        public RequestBuilder<android.graphics.Bitmap> buildBitmap(int px) {
+            return requestManager
+                    .asBitmap()
+                    .load(item)
+                    .override(px)
+                    .dontTransform();
         }
 
         /** e.g. playlist-covers/preset-07.png for …/preset-07.svg|.png URLs */

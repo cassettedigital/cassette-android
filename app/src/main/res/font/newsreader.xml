@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- cassette: the answer voice. New York is Apple's own face, so Android sets
+     the second half of each heading (ON REPEAT *lately*) in Newsreader Medium
+     Italic, the kit's named stand-in (packages/cassette-kit tokens.json face.answer).
+     The file is Google's OFL release, from the brand fonts folder. -->
+<font-family xmlns:android="http://schemas.android.com/apk/res/android">
+    <font
+        android:font="@font/newsreader_medium_italic"
+        android:fontStyle="italic"
+        android:fontWeight="500" />
+</font-family>

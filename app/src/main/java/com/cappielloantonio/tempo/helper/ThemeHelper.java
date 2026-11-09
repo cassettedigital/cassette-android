@@ -23,10 +23,9 @@ public class ThemeHelper {
                 break;
             }
             default: {
-                // cassette: dark-first everywhere — "default" means dark, not
-                // follow-system (web + iOS are dark-first). Explicit "light"
-                // above remains available in Settings.
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                // cassette: Auto follows the phone's light or dark (founder,
+                // 2026-10-29: follow the system; the iPhone did the same in 77bcd9a1).
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
                 break;
             }
         }

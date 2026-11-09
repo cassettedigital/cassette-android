@@ -121,7 +121,7 @@
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/md_theme_dark_surface"
+        android:background="@color/cs_bg"
         app:elevation="0dp"
         app:liftOnScroll="false">
 
@@ -131,7 +131,7 @@
             android:layout_height="wrap_content"
             android:elevation="0dp"
             android:hint="@string/search_hint"
-            app:backgroundTint="@color/md_theme_dark_surfaceContainerHigh"
+            app:backgroundTint="@color/cs_elevated"
             app:elevation="0dp">
 
         </com.google.android.material.search.SearchBar>
@@ -143,7 +143,7 @@
         android:layout_height="match_parent"
         android:elevation="0dp"
         android:hint="@string/search_hint"
-        app:backgroundTint="@color/md_theme_dark_surface"
+        app:backgroundTint="@color/cs_bg"
         app:layout_anchor="@id/search_bar">
 
         <!-- Content goes here (ScrollView, RecyclerView, etc.). -->

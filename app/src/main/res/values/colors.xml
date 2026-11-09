@@ -1,84 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="md_theme_light_primary">#B4531A</color>
-    <color name="md_theme_light_onPrimary">#FFFFFF</color>
-    <color name="md_theme_light_primaryContainer">#EADDFF</color>
-    <color name="md_theme_light_onPrimaryContainer">#21005D</color>
-    <color name="md_theme_light_secondary">#625B71</color>
-    <color name="md_theme_light_onSecondary">#FFFFFF</color>
-    <color name="md_theme_light_secondaryContainer">#E8DEF8</color>
-    <color name="md_theme_light_onSecondaryContainer">#1D192B</color>
-    <color name="md_theme_light_tertiary">#7D5260</color>
-    <color name="md_theme_light_onTertiary">#FFFFFF</color>
-    <color name="md_theme_light_tertiaryContainer">#FFD8E4</color>
-    <color name="md_theme_light_onTertiaryContainer">#31111D</color>
-    <color name="md_theme_light_error">#B3261E</color>
-    <color name="md_theme_light_errorContainer">#F9DEDC</color>
-    <color name="md_theme_light_onError">#FFFFFF</color>
-    <color name="md_theme_light_onErrorContainer">#410E0B</color>
-    <color name="md_theme_light_background">#FFFBFE</color>
-    <color name="md_theme_light_onBackground">#1C1B1F</color>
-    <color name="md_theme_light_surface">#FFFBFE</color>
-    <color name="md_theme_light_onSurface">#1C1B1F</color>
-    <color name="md_theme_light_surfaceVariant">#E7E0EC</color>
-    <color name="md_theme_light_onSurfaceVariant">#49454F</color>
-    <color name="md_theme_light_outline">#79747E</color>
-    <color name="md_theme_light_inverseOnSurface">#F4EFF4</color>
-    <color name="md_theme_light_inverseSurface">#313033</color>
-    <color name="md_theme_light_primaryInverse">#D0BCFF</color>
+    <!-- cassette: the kit's colour roles (packages/cassette-kit tokens.json
+         color.*.light), the same roles the iPhone and the web read. These are
+         the LIGHT paper values; values-night/colors.xml holds the dark ones, so
+         every screen follows the phone's light or dark (Settings > Appearance:
+         Auto, Light, Dark). Orange (cs_accent) is for live state only: progress,
+         what's playing, a switch that is on. Everything pressable is ink. -->
+    <color name="cs_sunken">#E9DFCD</color>
+    <color name="cs_bg">#F3EADB</color>
+    <color name="cs_raised">#F8F1E4</color>
+    <color name="cs_elevated">#ECE3D2</color>
+    <color name="cs_hairline">#CFC5B4</color>
+    <color name="cs_ink">#15110E</color>
+    <color name="cs_ink2">#5A4E40</color>
+    <color name="cs_ink3">#6B5F51</color>
+    <color name="cs_fill">#2E241C</color>
+    <color name="cs_on_fill">#F3EADB</color>
+    <color name="cs_accent">#CC6A2A</color>
+    <color name="cs_accent_text">#A05321</color>
+    <color name="cs_danger">#B2462F</color>
+    <color name="cs_success">#37745D</color>
+    <color name="cs_warning">#836314</color>
+    <color name="cs_tint_neutral">#6B5A44</color>
+    <color name="cs_tint_neutral_glow">#A17236</color>
+    <color name="cs_tint_neutral_text">#7A5A2E</color>
+    <!-- always dark, whatever the phone: the launch lockup -->
+    <color name="cs_dark_bg">#1C1914</color>
+    <color name="cs_dark_ink">#EDE4D0</color>
 
-    <color name="md_theme_dark_primary">#E87830</color>
-    <color name="md_theme_dark_onPrimary">#2A160A</color>
-    <color name="md_theme_dark_primaryContainer">#7A3D18</color>
-    <color name="md_theme_dark_onPrimaryContainer">#FFD9B8</color>
-    <!-- cassette: warm-grey chassis secondaries. The web renders its base ramp
-         at full chroma (classic skin = identity), but the web keeps its chrome
-         on the low, near-neutral steps. Android's Material elevated surfaces
-         (bottom nav = surfaceContainer, nav pill = secondaryContainer) climb to
-         the mid steps, where the ramp's chroma widens and reads BROWN. So the
-         Android tonal ramp is de-saturated (~35% of the base warmth kept) to
-         match the warm-grey web/iOS chrome — accent still carries the colour. -->
-    <color name="md_theme_dark_secondary">#B7B1A6</color>
-    <color name="md_theme_dark_onSecondary">#23201A</color>
-    <color name="md_theme_dark_secondaryContainer">#36342F</color>
-    <color name="md_theme_dark_onSecondaryContainer">#F2EDE4</color>
-    <color name="md_theme_dark_tertiary">#D9A05B</color>
-    <color name="md_theme_dark_onTertiary">#2A160A</color>
-    <color name="md_theme_dark_tertiaryContainer">#4A300F</color>
-    <color name="md_theme_dark_onTertiaryContainer">#F5C9A8</color>
-    <color name="md_theme_dark_error">#F2B8B5</color>
-    <color name="md_theme_dark_errorContainer">#8C1D18</color>
-    <color name="md_theme_dark_onError">#601410</color>
-    <color name="md_theme_dark_onErrorContainer">#F9DEDC</color>
-    <color name="md_theme_dark_background">#1C1913</color>
-    <color name="md_theme_dark_onBackground">#F2EDE4</color>
-    <color name="md_theme_dark_surface">#21201E</color>
-    <color name="md_theme_dark_onSurface">#F2EDE4</color>
-    <!-- cassette: the M3 tonal-surface family — filled cards and the bottom nav
-         resolve THESE. De-saturated from the web base ramp (cs-gray-1..6-base):
-         the ramp gains lightness WITHOUT gaining chroma, so elevated surfaces
-         read warm-grey instead of brown. Base gap R-B climbed 9->13->20->26 up
-         the ramp; de-saturated it stays ~3->5->7->9. bg/lowest kept at the base
-         (already near-neutral, looked right). -->
-    <color name="md_theme_dark_surfaceDim">#1C1913</color>
-    <color name="md_theme_dark_surfaceBright">#3F3C36</color>
-    <color name="md_theme_dark_surfaceContainerLowest">#1C1913</color>
-    <color name="md_theme_dark_surfaceContainerLow">#21201E</color>
-    <color name="md_theme_dark_surfaceContainer">#2A2825</color>
-    <color name="md_theme_dark_surfaceContainerHigh">#302E2B</color>
-    <color name="md_theme_dark_surfaceContainerHighest">#36342F</color>
-    <color name="md_theme_dark_surfaceVariant">#36342F</color>
-    <color name="md_theme_dark_onSurfaceVariant">#B7B1A6</color>
-    <color name="md_theme_dark_outline">#4C4840</color>
-    <color name="md_theme_dark_inverseOnSurface">#1C1B1F</color>
-    <color name="md_theme_dark_inverseSurface">#E6E1E5</color>
-    <color name="md_theme_dark_primaryInverse">#6750A4</color>
+    <!-- Tempo's names, kept for the layouts that use them, pointed at the roles. -->
+    <color name="titleTextColor">@color/cs_ink</color>
+    <color name="subtitleTextColor">@color/cs_ink2</color>
+    <color name="dividerColor">@color/cs_hairline</color>
+    <color name="lyricsTextColor">@color/cs_ink</color>
+    <color name="shadowsLyricsTextColor">@color/cs_hairline</color>
+    <color name="searchPlaceholderColor">@color/cs_ink3</color>
+    <color name="searchColor">@color/cs_ink</color>
+
 
     <color name="gradientTitleColor">#FFFFFF</color>
     <color name="gradientSubtitleColor">#BFBFBF</color>
-    <color name="titleTextColor">#252525</color>
-    <color name="subtitleTextColor">#646464</color>
-    <color name="dividerColor">#e0e0e0</color>
     <color name="white">#FFFFFF</color>
     <color name="ic_launcher_background">#e87830</color>
 
@@ -96,12 +57,6 @@
     <!-- cassette: scrim over the blurred now-playing backdrop — dark enough that
          cream text/controls stay readable over any cover, warm to match the chassis. -->
     <color name="player_backdrop_scrim">#C2120F0C</color>
-
-    <color name="lyricsTextColor">#252525</color>
-    <color name="shadowsLyricsTextColor">#B4B4B4</color>
-
-    <color name="searchPlaceholderColor">#303030</color>
-    <color name="searchColor">#252525</color>
 
     <!-- <color name="iconLauncher">https://icon.kitchen/i/H4sIAAAAAAAAAzWQu27DMAxF%2F4VdPbhBsmTt0LVAuxVFIUuUIoAWDT36gJF%2Fz5WCcJCow8uXdvox0rjQeScfXiRuJtf%2BKIyLHHvTpNJE0WoCEE7le5GW6TrREj7%2BNwYN2bjIqevA%2BK%2B2DLxTfbi0ajHR3pNeH2oorIrmZwiejmaevUeFgQ4dzcOATAqCKscT8jFlF%2FS4H4a4D2%2FGuZjCaKobnQ%2BniXIMFzTp7qK16nr3hf2gY5b3ixkb2JgtWoCt6pr0D%2FlEW5c1ur69Fpy%2FvNDX9QZCITMSMwEAAA%3D%3D</color> -->
 </resources>

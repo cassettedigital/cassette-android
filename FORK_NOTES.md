@@ -122,3 +122,11 @@ Samsung/Xiaomi/OnePlus hardware).
 - **Sign Out** (BUG-937): asks Keep / Remove / Cancel about the music, calls `POST /api/player/sign-out`, forgets the account and the saved Cassette server (`util/CassetteSession`). A 401 from the cloud shows "Signed out" with Sign In (BUG-946).
 - **Instant mix, the heart and Rate hidden** in the song, album and artist sheets; the Now Playing cover overlay removed (BUG-947).
 - **Home's Albums row is newest added first**, not A to Z (BUG-944).
+
+### 2026-11-09 — Catch-up with the iPhone, pass 2: the design floor
+
+- **Colour roles from the kit, light and dark.** `res/values/colors.xml` (light paper) and `res/values-night/colors.xml` (dark) hold the kit's roles (`cs_bg`, `cs_raised`, `cs_elevated`, `cs_ink`, `cs_ink2`, `cs_ink3`, `cs_fill`, `cs_accent`...), the iPhone's values. The stock Material purple light palette and the July de-saturated dark one are gone; Tempo's colour names (`titleTextColor`...) alias the roles.
+- **One DayNight theme** (`values/styles.xml`; `values-night/styles.xml` removed). Primary is ink, not orange: orange (`cs_accent`) is used by name for live state only. Auto follows the phone (default), Light and Dark in Settings > Appearance.
+- **Account skins off** on Android (founder call); **round controls** (`Cassette.Shape.Button` 50%); **Android's own selected-tab pill** restored.
+- **Kit:** `generate.mjs` now writes `Opacity` and `Component` (heading, playDisc, pill, tile, hero...) to `digital/cassette/kit/CassetteKitTokens.kt`.
+- **New shared pieces:** `util/CoverTint.kt` (the record's colour, CoverTintMath ported from iOS), `ui/view/CoverGlowView.kt` (tiny pre-blurred cover + scrim, PAGE / RESUME_CARD / TOP_RESULT recipes), `util/CassetteType.kt` (SHOUT *answer*), `font/newsreader` (Newsreader Medium Italic, OFL, the kit's stand-in for New York), `Cassette.Role.*` type roles, `Cassette.Pill.Play` / `.Shuffle`, `layout/view_play_disc.xml`, `layout/view_empty_state.xml`.

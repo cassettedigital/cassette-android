@@ -1,16 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- cassette: warm-grey inks on the dark chassis. Cream title (gray-12) kept —
-     it reads as warm off-white, not brown. Muted ink, divider, and shadow are
-     de-saturated from the base ramp (gray-11/4/7) to match the surfaces: the
-     tan muted text (#C2B191) was a big part of the "brown" read. -->
+<!-- cassette: the kit's colour roles on the dark paper (packages/cassette-kit
+     tokens.json color.*.hex), the iPhone's own values. See values/colors.xml. -->
 <resources>
-    <color name="titleTextColor">#F2EDE4</color>
-    <color name="subtitleTextColor">#B7B1A6</color>
-    <color name="dividerColor">#302E2B</color>
-
-    <color name="lyricsTextColor">#F2EDE4</color>
-    <color name="shadowsLyricsTextColor">#4C4840</color>
-
-    <color name="searchPlaceholderColor">#B7B1A6</color>
-    <color name="searchColor">#F2EDE4</color>
+    <color name="cs_sunken">#161310</color>
+    <color name="cs_bg">#1C1914</color>
+    <color name="cs_raised">#221F19</color>
+    <color name="cs_elevated">#2A261E</color>
+    <color name="cs_hairline">#3E3628</color>
+    <color name="cs_ink">#EDE4D0</color>
+    <color name="cs_ink2">#A89878</color>
+    <color name="cs_ink3">#9C8D70</color>
+    <color name="cs_fill">#EDE4D0</color>
+    <color name="cs_on_fill">#1C1914</color>
+    <color name="cs_accent">#E87830</color>
+    <color name="cs_accent_text">#E87830</color>
+    <color name="cs_danger">#B84830</color>
+    <color name="cs_success">#48987A</color>
+    <color name="cs_warning">#D4A020</color>
+    <color name="cs_tint_neutral_text">#D4AE7D</color>
 </resources>

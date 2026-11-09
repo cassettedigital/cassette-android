@@ -37,9 +37,9 @@ public class App extends Application {
         CassetteDiagnostics.flushPendingAsync(context);
 
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        // cassette: dark-first, like the web dashboard and iOS app. "default"
-        // (follow-system) and light stay available in Settings.
-        String themePref = sharedPreferences.getString(Preferences.THEME, ThemeHelper.DARK_MODE);
+        // cassette: Auto by default (follows the phone), with Light and Dark in
+        // Settings > Appearance.
+        String themePref = sharedPreferences.getString(Preferences.THEME, ThemeHelper.DEFAULT_MODE);
         ThemeHelper.applyTheme(themePref);
     }
 

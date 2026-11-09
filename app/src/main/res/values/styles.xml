@@ -1,50 +1,159 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <style name="AppTheme.SplashScreen" parent="Theme.SplashScreen">
         <!-- cassette: open on our own dark, not a flat black that belongs to
              nothing. Matches the app background the splash hands off to. -->
-        <item name="windowSplashScreenBackground">@color/md_theme_dark_background</item>
+        <item name="windowSplashScreenBackground">@color/cs_dark_bg</item>
         <item name="windowSplashScreenAnimatedIcon">@drawable/ui_splash_screen</item>
         <item name="postSplashScreenTheme">@style/AppTheme</item>
         <item name="windowSplashScreenAnimationDuration">100</item>
     </style>
 
-    <style name="AppTheme" parent="Theme.Material3.Light.NoActionBar">
-        <item name="colorPrimary">@color/md_theme_light_primary</item>
-        <item name="colorOnPrimary">@color/md_theme_light_onPrimary</item>
-        <item name="colorPrimaryContainer">@color/md_theme_light_primaryContainer</item>
-        <item name="colorOnPrimaryContainer">@color/md_theme_light_onPrimaryContainer</item>
-        <item name="colorSecondary">@color/md_theme_light_secondary</item>
-        <item name="colorOnSecondary">@color/md_theme_light_onSecondary</item>
-        <item name="colorSecondaryContainer">@color/md_theme_light_secondaryContainer</item>
-        <item name="colorOnSecondaryContainer">@color/md_theme_light_onSecondaryContainer</item>
-        <item name="colorTertiary">@color/md_theme_light_tertiary</item>
-        <item name="colorOnTertiary">@color/md_theme_light_onTertiary</item>
-        <item name="colorTertiaryContainer">@color/md_theme_light_tertiaryContainer</item>
-        <item name="colorOnTertiaryContainer">@color/md_theme_light_onTertiaryContainer</item>
-        <item name="colorError">@color/md_theme_light_error</item>
-        <item name="colorErrorContainer">@color/md_theme_light_errorContainer</item>
-        <item name="colorOnError">@color/md_theme_light_onError</item>
-        <item name="colorOnErrorContainer">@color/md_theme_light_onErrorContainer</item>
-        <item name="android:colorBackground">@color/md_theme_light_background</item>
-        <item name="colorOnBackground">@color/md_theme_light_onBackground</item>
-        <item name="colorSurface">@color/md_theme_light_surface</item>
-        <item name="colorOnSurface">@color/md_theme_light_onSurface</item>
-        <item name="colorSurfaceVariant">@color/md_theme_light_surfaceVariant</item>
-        <item name="colorOnSurfaceVariant">@color/md_theme_light_onSurfaceVariant</item>
-        <item name="colorOutline">@color/md_theme_light_outline</item>
-        <item name="colorOnSurfaceInverse">@color/md_theme_light_inverseOnSurface</item>
-        <item name="colorSurfaceInverse">@color/md_theme_light_inverseSurface</item>
-        <item name="colorPrimaryInverse">@color/md_theme_light_primaryInverse</item>
+    <!-- cassette: one theme for light and dark (DayNight). Every colour is a
+         kit role from values/colors.xml (light) or values-night/colors.xml
+         (dark), so the app follows the phone's light or dark the way the iPhone
+         does (Settings > Appearance: Auto, Light, Dark).
 
-        <item name="android:windowLightStatusBar">true</item>
-        <item name="android:statusBarColor">?attr/colorSurface</item>
-        <item name="android:navigationBarColor">?attr/colorSurface</item>
+         Primary is INK, not orange: buttons, switches, text buttons and dialog
+         keys are ink on the paper (cream in dark, espresso in light), the
+         iPhone's rule that orange marks only live state. Orange is cs_accent,
+         used by name where something is live (progress, what's playing). -->
+    <style name="AppTheme" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/cs_fill</item>
+        <item name="colorOnPrimary">@color/cs_on_fill</item>
+        <item name="colorPrimaryContainer">@color/cs_elevated</item>
+        <item name="colorOnPrimaryContainer">@color/cs_ink</item>
+        <item name="colorSecondary">@color/cs_ink2</item>
+        <item name="colorOnSecondary">@color/cs_bg</item>
+        <item name="colorSecondaryContainer">@color/cs_elevated</item>
+        <item name="colorOnSecondaryContainer">@color/cs_ink</item>
+        <item name="colorTertiary">@color/cs_accent</item>
+        <item name="colorOnTertiary">@color/cs_on_fill</item>
+        <item name="colorTertiaryContainer">@color/cs_elevated</item>
+        <item name="colorOnTertiaryContainer">@color/cs_ink</item>
+        <item name="colorError">@color/cs_danger</item>
+        <item name="colorErrorContainer">@color/cs_elevated</item>
+        <item name="colorOnError">@color/cs_on_fill</item>
+        <item name="colorOnErrorContainer">@color/cs_ink</item>
+        <item name="android:colorBackground">@color/cs_bg</item>
+        <item name="colorOnBackground">@color/cs_ink</item>
+        <item name="colorSurface">@color/cs_bg</item>
+        <item name="colorOnSurface">@color/cs_ink</item>
+        <item name="colorSurfaceVariant">@color/cs_elevated</item>
+        <item name="colorOnSurfaceVariant">@color/cs_ink2</item>
+        <item name="colorSurfaceDim">@color/cs_sunken</item>
+        <item name="colorSurfaceBright">@color/cs_elevated</item>
+        <item name="colorSurfaceContainerLowest">@color/cs_sunken</item>
+        <item name="colorSurfaceContainerLow">@color/cs_raised</item>
+        <item name="colorSurfaceContainer">@color/cs_raised</item>
+        <item name="colorSurfaceContainerHigh">@color/cs_elevated</item>
+        <item name="colorSurfaceContainerHighest">@color/cs_elevated</item>
+        <item name="colorOutline">@color/cs_hairline</item>
+        <item name="colorOutlineVariant">@color/cs_hairline</item>
+        <item name="colorOnSurfaceInverse">@color/cs_bg</item>
+        <item name="colorSurfaceInverse">@color/cs_ink</item>
+        <item name="colorPrimaryInverse">@color/cs_bg</item>
+        <!-- Material tints elevated surfaces with primary; ours are flat roles. -->
+        <item name="elevationOverlayEnabled">false</item>
+        <item name="elevationOverlayColor">@color/cs_elevated</item>
+
+        <item name="android:windowLightStatusBar">@bool/cs_light_paper</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="27">@bool/cs_light_paper</item>
+        <item name="android:statusBarColor">@color/cs_bg</item>
+        <item name="android:navigationBarColor">@color/cs_raised</item>
         <item name="android:scrollbars">none</item>
 
-        <!-- cassette: see the note in values-night/styles.xml - declared here
-             rather than in a values-v35 fork of the entire theme. -->
+        <!-- the brand faces reach Material's own components too -->
+        <item name="android:fontFamily">@font/barlow_condensed</item>
+        <item name="fontFamily">@font/barlow_condensed</item>
+        <item name="textAppearanceTitleLarge">@style/Cassette.Text.TitleLarge</item>
+        <item name="textAppearanceTitleMedium">@style/Cassette.Text.TitleMedium</item>
+        <item name="textAppearanceBodyLarge">@style/Cassette.Text.BodyLarge</item>
+        <item name="textAppearanceBodyMedium">@style/Cassette.Text.BodyMedium</item>
+        <item name="textAppearanceLabelLarge">@style/Cassette.Text.LabelLarge</item>
+        <item name="textAppearanceLabelMedium">@style/Cassette.Text.LabelMedium</item>
+        <item name="textAppearanceLabelSmall">@style/Cassette.Text.LabelSmall</item>
+
+        <!-- keep the window out of Android 15's forced edge-to-edge -->
         <item name="android:windowOptOutEdgeToEdgeEnforcement">true</item>
+
+        <item name="popupMenuStyle">@style/Cassette.PopupMenu</item>
+        <item name="android:popupMenuStyle">@style/Cassette.PopupMenu</item>
+        <item name="actionOverflowMenuStyle">@style/Cassette.PopupMenu.Overflow</item>
+        <item name="materialAlertDialogTheme">@style/Cassette.Dialog</item>
+        <item name="bottomSheetDialogTheme">@style/Cassette.BottomSheet</item>
+        <item name="materialButtonStyle">@style/Cassette.Button</item>
+    </style>
+
+
+    <!-- cassette: sheets, menus and dialogs on flat role surfaces. -->
+    <style name="Cassette.BottomSheet" parent="ThemeOverlay.Material3.BottomSheetDialog">
+        <item name="elevationOverlayEnabled">false</item>
+        <item name="colorSurface">@color/cs_raised</item>
+        <item name="colorSurfaceContainerLow">@color/cs_raised</item>
+        <item name="shapeAppearanceOverlay">@style/Cassette.Shape.BottomSheet</item>
+    </style>
+
+    <style name="Cassette.PopupMenu" parent="Widget.Material3.PopupMenu">
+        <item name="android:popupBackground">@drawable/cs_menu_background</item>
+    </style>
+
+    <style name="Cassette.PopupMenu.Overflow" parent="Widget.Material3.PopupMenu.Overflow">
+        <item name="android:popupBackground">@drawable/cs_menu_background</item>
+    </style>
+
+    <style name="Cassette.Dialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="colorSurface">@color/cs_elevated</item>
+        <item name="colorSurfaceContainerHigh">@color/cs_elevated</item>
+        <item name="elevationOverlayEnabled">false</item>
+    </style>
+
+    <!-- Material re-tints popup backgrounds with primary in code; wrapping the
+         popup's context here makes that tint the neutral surface itself. -->
+    <style name="Cassette.NeutralTintContext" parent="">
+        <item name="colorPrimary">@color/cs_elevated</item>
+        <item name="elevationOverlayColor">@color/cs_elevated</item>
+    </style>
+
+
+    <!-- cassette: the two pills that head every record page (iPhone 4b0bbde8,
+         kit component.pill): a cream PLAY (PAUSE while that page plays) and a
+         ghost SHUFFLE ring, both 48dp capsules in Barlow Bold capitals. -->
+    <style name="Cassette.Pill" parent="Widget.Material3.Button">
+        <item name="android:minHeight">48dp</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="android:paddingStart">20dp</item>
+        <item name="android:paddingEnd">22dp</item>
+        <item name="android:textAppearance">@style/Cassette.Role.Pill</item>
+        <item name="iconSize">16dp</item>
+        <item name="iconPadding">8dp</item>
+        <item name="iconGravity">textStart</item>
+        <item name="shapeAppearanceOverlay">@style/Cassette.Shape.Button</item>
+        <item name="elevation">0dp</item>
+    </style>
+    <style name="Cassette.Pill.Play">
+        <item name="backgroundTint">@color/cs_fill</item>
+        <item name="android:textColor">@color/cs_on_fill</item>
+        <item name="iconTint">@color/cs_on_fill</item>
+        <item name="icon">@drawable/cs_play_glyph</item>
+    </style>
+    <style name="Cassette.Pill.Shuffle" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="android:minHeight">48dp</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="android:paddingStart">20dp</item>
+        <item name="android:paddingEnd">22dp</item>
+        <item name="android:textAppearance">@style/Cassette.Role.Pill</item>
+        <item name="android:textColor">@color/cs_ink</item>
+        <item name="iconSize">16dp</item>
+        <item name="iconPadding">8dp</item>
+        <item name="iconGravity">textStart</item>
+        <item name="iconTint">@color/cs_ink</item>
+        <item name="icon">@drawable/ic_lucide_shuffle</item>
+        <item name="strokeColor">@color/cs_pill_ring</item>
+        <item name="strokeWidth">1.5dp</item>
+        <item name="shapeAppearanceOverlay">@style/Cassette.Shape.Button</item>
     </style>
 
     <!-- cassette: perfect circle for the big album-page play button -->
@@ -105,10 +214,8 @@
         <item name="android:textColor">?attr/colorOnErrorContainer</item>
     </style>
 
-    <!-- cassette: no active-indicator pill in the tab bar. Material draws a
-         colorSecondaryContainer capsule behind the selected icon; iOS marks the
-         selected tab with ink alone. Zero-size and transparent removes it
-         without fighting the component's own layout. -->
+    <!-- cassette: unused since 2026-11-09. The tab bar keeps Android's own
+         selected-tab pill (founder call: Android's conventions for the frame). -->
     <style name="Cassette.NavIndicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
         <item name="android:width">0dp</item>
         <item name="android:height">0dp</item>
@@ -116,9 +223,6 @@
         <item name="marginHorizontal">0dp</item>
     </style>
 
-    <!-- cassette: buttons are a soft rectangle (iOS BasicButton, 10pt), not
-         Material's fully-rounded pill. The pill is the single most "stock
-         Android" shape in the app and appears wherever a filled button does. -->
     <style name="Cassette.Button" parent="Widget.Material3.Button">
         <item name="shapeAppearanceOverlay">@style/Cassette.Shape.Button</item>
     </style>
@@ -134,8 +238,10 @@
     <!-- parent="" is required: a dotted name otherwise implies a Cassette.Shape
          parent that does not exist, and AAPT fails linking. -->
     <style name="Cassette.Shape.Button" parent="">
+        <!-- round everywhere (design-system decision, 2026-10-29): anything you
+             press is a capsule, as on the iPhone and the web. -->
         <item name="cornerFamily">rounded</item>
-        <item name="cornerSize">10dp</item>
+        <item name="cornerSize">50%</item>
     </style>
 
     <!-- cassette: sheet corners at iOS's 15pt, down from Material's 28dp. -->

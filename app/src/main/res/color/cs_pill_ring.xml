@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- cassette: the ghost SHUFFLE pill's ring, ink at the kit's 35% (component.pill.strokeAlpha). -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:alpha="0.35" android:color="@color/cs_ink" />
+</selector>

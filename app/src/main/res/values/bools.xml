@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- cassette: true on the light paper, so the status and navigation bars draw dark icons -->
+    <bool name="cs_light_paper">true</bool>
+</resources>

@@ -116,7 +116,7 @@ public class BaseActivity extends AppCompatActivity {
         // cassette: flat de-saturated surfaces (was SurfaceColors elevation,
         // which blends the orange primary -> brown system bars). Nav bar matches
         // the app's bottom nav; status bar matches the page surface.
-        getWindow().setNavigationBarColor(getColor(com.cappielloantonio.tempo.R.color.md_theme_dark_surfaceContainer));
-        getWindow().setStatusBarColor(getColor(com.cappielloantonio.tempo.R.color.md_theme_dark_surface));
+        getWindow().setNavigationBarColor(getColor(com.cappielloantonio.tempo.R.color.cs_raised));
+        getWindow().setStatusBarColor(getColor(com.cappielloantonio.tempo.R.color.cs_bg));
     }
 }

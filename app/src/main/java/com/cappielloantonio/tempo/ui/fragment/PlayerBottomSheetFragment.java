@@ -92,7 +92,7 @@ public class PlayerBottomSheetFragment extends Fragment {
         // washed BROWN and overrode the layout background. Use the flat
         // de-saturated container colour so the peek matches the bottom nav.
         bind.playerHeaderLayout.getRoot().setBackgroundColor(
-                requireContext().getColor(com.cappielloantonio.tempo.R.color.md_theme_dark_surfaceContainer));
+                requireContext().getColor(com.cappielloantonio.tempo.R.color.cs_raised));
     }
 
     private void customizeBottomSheetAction() {

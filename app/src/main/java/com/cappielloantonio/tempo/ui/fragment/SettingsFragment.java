@@ -141,6 +141,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         setDownloadQualityInfo();
 
         actionLogout();
+        actionAppearance();
         actionChangeStreamingCacheStorage();
         actionChangeDownloadStorage();
         actionDeleteDownloadStorage();
@@ -315,6 +316,15 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             default: label = R.string.settings_download_quality_high; break;
         }
         pref.setSummary(getString(label) + " · " + getString(R.string.settings_download_quality_account_note));
+    }
+
+    private void actionAppearance() {
+        androidx.preference.ListPreference theme = findPreference("theme");
+        if (theme == null) return;
+        theme.setOnPreferenceChangeListener((preference, value) -> {
+            com.cappielloantonio.tempo.helper.ThemeHelper.applyTheme(String.valueOf(value));
+            return true;
+        });
     }
 
     private void actionLogout() {

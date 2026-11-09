@@ -4,7 +4,7 @@
      while keeping the rounded-corner shape. -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle">
-    <solid android:color="@color/md_theme_dark_surfaceContainerHigh" />
+    <solid android:color="@color/cs_elevated" />
     <corners
         android:topLeftRadius="16dp"
         android:topRightRadius="16dp" />

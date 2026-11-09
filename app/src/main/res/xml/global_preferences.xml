@@ -45,6 +45,16 @@
             android:title="@string/settings_equalizer_title" />
     </PreferenceScreen>
 
+    <!-- cassette: Appearance, the iPhone's three-way choice. Auto follows the
+         phone's light or dark; the choice is this phone's own, never synced. -->
+    <ListPreference
+        app:defaultValue="default"
+        app:entries="@array/theme_list_titles"
+        app:entryValues="@array/theme_list_values"
+        app:key="theme"
+        app:title="@string/cassette_appearance"
+        app:useSimpleSummaryProvider="true" />
+
     <PreferenceScreen
         app:key="screen_storage"
         app:title="@string/settings_screen_storage">

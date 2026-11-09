@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- cassette: the solid play triangle the iPhone's pills and discs carry (SF play.fill). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M7.2,4.6C7.2,3.8 8.06,3.32 8.74,3.74L19.62,10.74C20.24,11.14 20.24,12.06 19.62,12.46L8.74,19.46C8.06,19.88 7.2,19.4 7.2,18.6Z" />
+</vector>

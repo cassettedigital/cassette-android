@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- cassette: the cream play disc on a cover (iPhone CassettePlayDisc, kit
+     component.playDisc): 34dp disc, 15dp glyph, a 44dp touch. A tap plays and
+     the screen stays put; the cover around it still opens the record. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/play_disc"
+    android:layout_width="44dp"
+    android:layout_height="44dp"
+    android:background="?attr/selectableItemBackgroundBorderless"
+    android:clickable="true"
+    android:contentDescription="@string/cassette_play"
+    android:focusable="true">
+
+    <ImageView
+        android:layout_width="34dp"
+        android:layout_height="34dp"
+        android:layout_gravity="center"
+        android:background="@drawable/cs_cream_disc"
+        android:elevation="2dp"
+        android:importantForAccessibility="no"
+        android:padding="9.5dp"
+        android:paddingStart="10.5dp"
+        android:src="@drawable/cs_play_glyph"
+        app:tint="@color/cs_on_fill"
+        xmlns:app="http://schemas.android.com/apk/res-auto" />
+</FrameLayout>

@@ -4,6 +4,6 @@
      and lifts the ink from ink3 to cream; the pill was Material's idea, not
      ours, and it was the loudest non-Cassette thing on the screen. -->
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:color="@color/md_theme_dark_onSurface" android:state_checked="true" />
+    <item android:color="@color/cs_ink" android:state_checked="true" />
     <item android:color="@color/subtitleTextColor" />
 </selector>

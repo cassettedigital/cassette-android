@@ -74,7 +74,9 @@ public class MainActivity extends BaseActivity {
         // (the "washed out" gray-blue cards/buttons). Cassette IS the theme:
         // the account's cross-device skin (users.theme_id, via pairing) picks
         // the accent overlay instead.
-        getTheme().applyStyle(Cassette.themeOverlayFor(Preferences.getCassetteThemeId()), true);
+        // cassette: account skins are off on Android until the desktop app has
+        // them (founder call, 2026-11-09). The accent is Cassette's own, and
+        // orange marks only live state.
         refreshCassetteAccount();
 
         super.onCreate(savedInstanceState);
