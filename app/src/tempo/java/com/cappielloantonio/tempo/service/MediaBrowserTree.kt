@@ -479,6 +479,24 @@ object MediaBrowserTree {
 
                     toAdd = toAdd.subList(index, toAdd.size)
 
+                    // cassette (BUG-941): the car plays the phone's own copies and
+                    // only songs on the phone, from the one tapped on, like CarPlay
+                    // (fbd10d85). The stored list carried the computer's streaming
+                    // address for every song, which streamed at home and played
+                    // nothing away from it.
+                    val tracker = com.cappielloantonio.tempo.util.DownloadUtil.getDownloadTracker(com.cappielloantonio.tempo.App.getContext())
+                    toAdd = toAdd.mapNotNull { item ->
+                        val type = item.mediaMetadata.extras?.getString("type") ?: com.cappielloantonio.tempo.util.Constants.MEDIA_TYPE_MUSIC
+                        if (type != com.cappielloantonio.tempo.util.Constants.MEDIA_TYPE_MUSIC) return@mapNotNull item
+                        if (tracker.isCompleted(item.mediaId)) {
+                            item.buildUpon().setUri(com.cappielloantonio.tempo.util.MappingUtil.getDownloadUri(item.mediaId)).build()
+                        } else if (com.cappielloantonio.tempo.util.Preferences.isOfflineFirst()) {
+                            null
+                        } else {
+                            item
+                        }
+                    }
+
                     updatedMediaItems.addAll(toAdd)
                 }
             }

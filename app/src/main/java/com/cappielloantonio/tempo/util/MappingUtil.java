@@ -281,7 +281,7 @@ public class MappingUtil {
                 : MusicUtil.getStreamUri(podcastEpisode.getStreamId());
     }
 
-    private static Uri getDownloadUri(String id) {
+    public static Uri getDownloadUri(String id) {
         Download download = new DownloadRepository().getDownload(id);
         return download != null && !download.getDownloadUri().isEmpty() ? Uri.parse(download.getDownloadUri()) : MusicUtil.getDownloadUri(id);
     }

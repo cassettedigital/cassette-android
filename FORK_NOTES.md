@@ -171,3 +171,8 @@ Samsung/Xiaomi/OnePlus hardware).
 - Each station plays straight from its own stream (`MediaManager.startRadio`); no computer involved. Rows: a squircle (`CassetteStationShape`, the kit's 22.5%) of the station's picture, or its name as word art on its own colour; the station on air in orange. A long press: Play, Go to <site>, Support <station>; never Tempo's station editor.
 - `MappingUtil.mapInternetRadioStation`: a station is never its stream address. The title is left empty so the stream's own title (the song or show) fills it; the station's name is the second line and its picture the artwork. The mini player shows no Next for a station.
 - Not yet: what's on now (`/api/radio/now-playing`, `/on-now`), Save (`/api/radio/saved`), station pages, stations in Search and on Home.
+
+### 2026-11-09 — Catch-up with the iPhone, pass 9: Android Auto plays the phone's copies
+
+- `MediaBrowserTree.getItems` (BUG-941): when the car taps a song, the queue rebuilt from the stored list keeps only songs on the phone, from the one tapped on, each pointed at the phone's own copy (`MappingUtil.getDownloadUri`, now public). It used to carry the computer's streaming address for every song.
+- Not yet: the car's lists still come live from the computer (Tempo's tree); Home in the car does not draw the cloud's Home; no Play/Shuffle row on album lists; radio in the car still lists the computer's stations.
