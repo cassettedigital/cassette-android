@@ -19,6 +19,7 @@ import com.cappielloantonio.tempo.repository.SongRepository;
 import com.cappielloantonio.tempo.subsonic.models.Child;
 import com.cappielloantonio.tempo.subsonic.models.InternetRadioStation;
 import com.cappielloantonio.tempo.subsonic.models.PodcastEpisode;
+import com.cappielloantonio.tempo.util.CassetteOnPhone;
 import com.cappielloantonio.tempo.util.CassettePlaySync;
 import com.cappielloantonio.tempo.util.MappingUtil;
 import com.cappielloantonio.tempo.util.Preferences;
@@ -91,9 +92,20 @@ public class MediaManager {
             mediaBrowserListenableFuture.addListener(() -> {
                 try {
                     if (mediaBrowserListenableFuture.isDone()) {
+                        // cassette (BUG-939): restore only songs still on the phone, and
+                        // land on the saved song's place in that list, not the old one.
+                        List<Child> kept = CassetteOnPhone.keep(media);
+                        if (kept.isEmpty()) {
+                            clearDatabase();
+                            return;
+                        }
+                        int start = CassetteOnPhone.startIn(media, getQueueRepository().getLastPlayedMediaIndex());
+                        long at = start >= 0 ? getQueueRepository().getLastPlayedMediaTimestamp() : 0;
+                        if (start < 0) start = 0;
+                        if (kept.size() != media.size()) enqueueDatabase(kept, true, 0);
                         mediaBrowserListenableFuture.get().clearMediaItems();
-                        mediaBrowserListenableFuture.get().setMediaItems(MappingUtil.mapMediaItems(media));
-                        mediaBrowserListenableFuture.get().seekTo(getQueueRepository().getLastPlayedMediaIndex(), getQueueRepository().getLastPlayedMediaTimestamp());
+                        mediaBrowserListenableFuture.get().setMediaItems(MappingUtil.mapMediaItems(kept));
+                        mediaBrowserListenableFuture.get().seekTo(start, at);
                         mediaBrowserListenableFuture.get().prepare();
                     }
                 } catch (ExecutionException | InterruptedException e) {
@@ -108,12 +120,17 @@ public class MediaManager {
             mediaBrowserListenableFuture.addListener(() -> {
                 try {
                     if (mediaBrowserListenableFuture.isDone()) {
+                        // cassette (BUG-939): queue only songs on the phone, and start on
+                        // the tapped song's place in that list (or the next that can play).
+                        List<Child> kept = CassetteOnPhone.keep(media);
+                        int start = CassetteOnPhone.startIn(media, startIndex);
+                        if (kept.isEmpty() || start < 0) return;
                         mediaBrowserListenableFuture.get().clearMediaItems();
-                        mediaBrowserListenableFuture.get().setMediaItems(MappingUtil.mapMediaItems(media));
+                        mediaBrowserListenableFuture.get().setMediaItems(MappingUtil.mapMediaItems(kept));
                         mediaBrowserListenableFuture.get().prepare();
-                        mediaBrowserListenableFuture.get().seekTo(startIndex, 0);
+                        mediaBrowserListenableFuture.get().seekTo(start, 0);
                         mediaBrowserListenableFuture.get().play();
-                        enqueueDatabase(media, true, 0);
+                        enqueueDatabase(kept, true, 0);
                     }
                 } catch (ExecutionException | InterruptedException e) {
                     e.printStackTrace();
@@ -182,6 +199,7 @@ public class MediaManager {
             mediaBrowserListenableFuture.addListener(() -> {
                 try {
                     if (mediaBrowserListenableFuture.isDone()) {
+                        if (!CassetteOnPhone.playable(media)) return; // cassette (BUG-942)
                         mediaBrowserListenableFuture.get().clearMediaItems();
                         mediaBrowserListenableFuture.get().setMediaItem(MappingUtil.mapMediaItem(media));
                         mediaBrowserListenableFuture.get().prepare();
@@ -193,6 +211,50 @@ public class MediaManager {
                 }
             }, MoreExecutors.directExecutor());
         }
+    }
+
+    /**
+     * cassette (BUG-943): Resume. When the saved queue is loaded and holds this
+     * song, carry on from it there, at the saved position. Otherwise play the
+     * song's record from that song on (only songs on the phone), the way the
+     * iPhone's Resume picks the record up where it was.
+     */
+    public static void resume(ListenableFuture<MediaBrowser> mediaBrowserListenableFuture, Child song, long positionMs) {
+        if (mediaBrowserListenableFuture == null || song == null) return;
+        mediaBrowserListenableFuture.addListener(() -> {
+            try {
+                if (!mediaBrowserListenableFuture.isDone()) return;
+                MediaBrowser browser = mediaBrowserListenableFuture.get();
+                for (int i = 0; i < browser.getMediaItemCount(); i++) {
+                    if (song.getId().equals(browser.getMediaItemAt(i).mediaId)) {
+                        browser.seekTo(i, Math.max(0, positionMs));
+                        browser.prepare();
+                        browser.play();
+                        return;
+                    }
+                }
+                new Thread(() -> {
+                    List<Child> record = new java.util.ArrayList<>();
+                    if (song.getAlbumId() != null) {
+                        record.addAll(com.cappielloantonio.tempo.database.AppDatabase.getInstance()
+                                .downloadDao().getAlbumSync(song.getAlbumId()));
+                    }
+                    int at = -1;
+                    for (int i = 0; i < record.size(); i++) {
+                        if (song.getId().equals(record.get(i).getId())) { at = i; break; }
+                    }
+                    if (at < 0) { record.clear(); record.add(song); at = 0; }
+                    final List<Child> queue = record;
+                    final int start = at;
+                    androidx.core.os.HandlerCompat.createAsync(android.os.Looper.getMainLooper()).post(() -> {
+                        startQueue(mediaBrowserListenableFuture, queue, start);
+                        if (positionMs > 0) seekTo(mediaBrowserListenableFuture, positionMs);
+                    });
+                }).start();
+            } catch (ExecutionException | InterruptedException e) {
+                e.printStackTrace();
+            }
+        }, MoreExecutors.directExecutor());
     }
 
     public static void startRadio(ListenableFuture<MediaBrowser> mediaBrowserListenableFuture, InternetRadioStation internetRadioStation) {
@@ -229,10 +291,13 @@ public class MediaManager {
         }
     }
 
-    public static void enqueue(ListenableFuture<MediaBrowser> mediaBrowserListenableFuture, List<Child> media, boolean playImmediatelyAfter) {
+    public static void enqueue(ListenableFuture<MediaBrowser> mediaBrowserListenableFuture, List<Child> songs, boolean playImmediatelyAfter) {
         if (mediaBrowserListenableFuture != null) {
             mediaBrowserListenableFuture.addListener(() -> {
                 try {
+                    // cassette (BUG-942): only songs on the phone join the queue.
+                    List<Child> media = CassetteOnPhone.keep(songs);
+                    if (media.isEmpty()) return;
                     if (mediaBrowserListenableFuture.isDone()) {
                         if (playImmediatelyAfter && mediaBrowserListenableFuture.get().getNextMediaItemIndex() != -1) {
                             enqueueDatabase(media, false, mediaBrowserListenableFuture.get().getNextMediaItemIndex());
@@ -253,6 +318,7 @@ public class MediaManager {
         if (mediaBrowserListenableFuture != null) {
             mediaBrowserListenableFuture.addListener(() -> {
                 try {
+                    if (!CassetteOnPhone.playable(media)) return; // cassette (BUG-942)
                     if (mediaBrowserListenableFuture.isDone()) {
                         if (playImmediatelyAfter && mediaBrowserListenableFuture.get().getNextMediaItemIndex() != -1) {
                             enqueueDatabase(media, false, mediaBrowserListenableFuture.get().getNextMediaItemIndex());

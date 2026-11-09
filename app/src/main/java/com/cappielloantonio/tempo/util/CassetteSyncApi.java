@@ -67,6 +67,11 @@ public final class CassetteSyncApi {
 
     private static JsonObject execute(Request request) throws IOException {
         try (Response response = client().newCall(request).execute()) {
+            if (response.code() == 401) {
+                // cassette (BUG-946): the cloud no longer accepts this phone's
+                // sign-in (signed out elsewhere, or 90 days unused). Say so once.
+                CassetteSession.cloudRefusedToken();
+            }
             if (!response.isSuccessful() || response.body() == null) {
                 throw new IOException("Cassette sync: HTTP " + response.code() + " for " + request.url().encodedPath());
             }
@@ -77,6 +82,20 @@ public final class CassetteSyncApi {
     @Nullable
     private static String optString(JsonObject json, String key) {
         return json.has(key) && !json.get(key).isJsonNull() ? json.get(key).getAsString() : null;
+    }
+
+    // ------------------------------------------------------------------
+    // Sign out (BUG-937): ends exactly this phone's sign-in on the cloud.
+
+    public static void signOut(String bearerToken) throws IOException {
+        Request req = request("/api/player/sign-out", bearerToken)
+                .post(RequestBody.create("{}", MediaType.get("application/json")))
+                .build();
+        try (Response response = client().newCall(req).execute()) {
+            if (!response.isSuccessful() && response.code() != 401) {
+                throw new IOException("Cassette sign-out: HTTP " + response.code());
+            }
+        }
     }
 
     // ------------------------------------------------------------------

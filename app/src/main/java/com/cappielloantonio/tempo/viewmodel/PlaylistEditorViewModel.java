@@ -5,6 +5,7 @@ import android.app.Application;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.cappielloantonio.tempo.repository.PlaylistRepository;
@@ -15,7 +16,9 @@ import com.cappielloantonio.tempo.subsonic.models.Share;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 public class PlaylistEditorViewModel extends AndroidViewModel {
@@ -28,6 +31,11 @@ public class PlaylistEditorViewModel extends AndroidViewModel {
     private Playlist toEdit;
 
     private MutableLiveData<List<Child>> songLiveList = new MutableLiveData<>();
+    // cassette (BUG-936): each row's cloud item, by the row's own object, so a
+    // save sends only the removes and moves made. The same song can sit in a
+    // playlist twice, hence identity rather than song id.
+    private final Map<Child, String> itemIdOf = new IdentityHashMap<>();
+    private final List<String> loadedItemIds = new ArrayList<>();
 
     public PlaylistEditorViewModel(@NonNull Application application) {
         super(application);
@@ -41,7 +49,18 @@ public class PlaylistEditorViewModel extends AndroidViewModel {
     }
 
     public void updatePlaylist(String name) {
-        playlistRepository.updatePlaylist(toEdit.getId(), name, getPlaylistSongIds());
+        String newName = name != null && !name.equals(toEdit.getName()) ? name : null;
+        List<String> kept = new ArrayList<>();
+        List<Child> songs = songLiveList.getValue();
+        if (songs != null) {
+            for (Child song : songs) {
+                String itemId = itemIdOf.get(song);
+                if (itemId != null) kept.add(itemId);
+            }
+        }
+        List<String> removed = new ArrayList<>(loadedItemIds);
+        removed.removeAll(kept);
+        playlistRepository.savePlaylistEdits(toEdit.getId(), newName, kept, removed);
     }
 
     public void deletePlaylist() {
@@ -63,8 +82,24 @@ public class PlaylistEditorViewModel extends AndroidViewModel {
     public void setPlaylistToEdit(Playlist playlist) {
         this.toEdit = playlist;
 
+        itemIdOf.clear();
+        loadedItemIds.clear();
         if (playlist != null) {
-            this.songLiveList = playlistRepository.getPlaylistSongs(toEdit.getId());
+            MediatorLiveData<List<Child>> songs = new MediatorLiveData<>();
+            songs.addSource(playlistRepository.getPlaylistEditorRows(toEdit.getId()), rows -> {
+                itemIdOf.clear();
+                loadedItemIds.clear();
+                List<Child> children = new ArrayList<>();
+                if (rows != null) {
+                    for (PlaylistRepository.EditorRow row : rows) {
+                        itemIdOf.put(row.child, row.itemId);
+                        loadedItemIds.add(row.itemId);
+                        children.add(row.child);
+                    }
+                }
+                songs.setValue(children);
+            });
+            this.songLiveList = songs;
         } else {
             this.songLiveList = new MutableLiveData<>();
         }
@@ -82,19 +117,6 @@ public class PlaylistEditorViewModel extends AndroidViewModel {
 
     public void orderPlaylistSongLiveListAfterSwap(List<Child> songs) {
         songLiveList.postValue(songs);
-    }
-
-    private ArrayList<String> getPlaylistSongIds() {
-        List<Child> songs = songLiveList.getValue();
-        ArrayList<String> ids = new ArrayList<>();
-
-        if (songs != null && !songs.isEmpty()) {
-            for (Child song : songs) {
-                ids.add(song.getId());
-            }
-        }
-
-        return ids;
     }
 
     public MutableLiveData<Share> sharePlaylist() {

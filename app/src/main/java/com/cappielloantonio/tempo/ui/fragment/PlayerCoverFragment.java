@@ -87,25 +87,16 @@ public class PlayerCoverFragment extends Fragment {
         handler.postDelayed(runnable, 10000);
     }
 
+    // cassette: the cover stays clean, the iPhone's way. Tempo's overlay (a
+    // floating "tap" hint, then Download / Add to playlist / Instant mix /
+    // Lyrics or Save queue over the art) is gone: Instant mix empties the queue
+    // for an empty answer (BUG-947), and the rest live in the ⋮ menu.
     private void initOverlay() {
-        bind.nowPlayingSongCoverImageView.setOnClickListener(view -> toggleOverlayVisibility(true));
-        bind.nowPlayingSongCoverButtonGroup.setOnClickListener(view -> toggleOverlayVisibility(false));
-        bind.nowPlayingTapButton.setOnClickListener(view -> toggleOverlayVisibility(true));
     }
 
     private void toggleOverlayVisibility(boolean isVisible) {
-        Transition transition = new Fade();
-        transition.setDuration(200);
-        transition.addTarget(bind.nowPlayingSongCoverButtonGroup);
-
-        TransitionManager.beginDelayedTransition(bind.getRoot(), transition);
-        bind.nowPlayingSongCoverButtonGroup.setVisibility(isVisible ? View.VISIBLE : View.GONE);
-        bind.nowPlayingTapButton.setVisibility(isVisible ? View.GONE : View.VISIBLE);
-
-        bind.innerButtonBottomRight.setVisibility(Preferences.isSyncronizationEnabled() ? View.VISIBLE : View.GONE);
-        bind.innerButtonBottomRightAlternative.setVisibility(Preferences.isSyncronizationEnabled() ? View.GONE : View.VISIBLE);
-
-        if (!isVisible) initTapButtonHideTransition();
+        bind.nowPlayingSongCoverButtonGroup.setVisibility(View.GONE);
+        bind.nowPlayingTapButton.setVisibility(View.GONE);
     }
 
     private void initInnerButton() {

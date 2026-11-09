@@ -110,3 +110,15 @@ against the local hub at `http://10.0.2.2:4533` with the Navidrome admin
 credentials from `apps/cassette-player/.env`. Emulator is Google-stock Android:
 fine for UI/flow, useless for OEM background-kill validation (needs real
 Samsung/Xiaomi/OnePlus hardware).
+
+### 2026-11-09 — Catch-up with the iPhone, pass 1: stop the harm
+
+**Type:** Java/Kotlin patch
+**Audit:** monorepo `docs/CASSETTE_ANDROID_PARITY_AUDIT_2026-11-09.md` (BUG-936..948)
+
+- **Playlist editor sends only the edits made** (BUG-936). `PlaylistRepository.getPlaylistEditorRows` ties each row on this phone to its cloud item; `savePlaylistEdits` sends a rename, the removed items and `reorder` ops that reuse the places the on-phone songs already held. Songs that live only on the computer or another phone are never touched. The old remove-all-then-re-add save and the unused index-based one are gone.
+- **One on-phone rule for every play path** (BUG-939, BUG-942). `util/CassetteOnPhone` decides what can play; `MediaManager.startQueue/enqueue/init` queue only those songs, save that same list for the queue page and mini player, and start on the tapped song's place in it.
+- **Resume carries on with the record** (BUG-943): `MediaManager.resume` continues the loaded queue at the saved place, else plays the song's record from that song (`DownloadDao.getAlbumSync`).
+- **Sign Out** (BUG-937): asks Keep / Remove / Cancel about the music, calls `POST /api/player/sign-out`, forgets the account and the saved Cassette server (`util/CassetteSession`). A 401 from the cloud shows "Signed out" with Sign In (BUG-946).
+- **Instant mix, the heart and Rate hidden** in the song, album and artist sheets; the Now Playing cover overlay removed (BUG-947).
+- **Home's Albums row is newest added first**, not A to Z (BUG-944).

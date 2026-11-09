@@ -23,6 +23,11 @@ public interface DownloadDao {
     @Query("SELECT * FROM download WHERE download_state = 1")
     List<Download> getAllDownloadedSync();
 
+    // cassette: one record's songs on this phone, in play order (Resume carries
+    // on with the record, BUG-943).
+    @Query("SELECT * FROM download WHERE download_state = 1 AND album_id = :albumId ORDER BY disc_number, track ASC")
+    List<Download> getAlbumSync(String albumId);
+
     @Query("SELECT * FROM download WHERE cassette_local_id = :cassetteLocalId LIMIT 1")
     Download getByCassetteLocalId(String cassetteLocalId);
 

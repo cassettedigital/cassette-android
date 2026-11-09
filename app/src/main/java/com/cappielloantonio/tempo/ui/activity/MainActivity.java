@@ -89,6 +89,7 @@ public class MainActivity extends BaseActivity {
         connectivityStatusReceiverManager(true);
 
         init();
+        observeCassetteSignedOut();
         checkConnectionType();
         getOpenSubsonicExtensions();
         checkTempoUpdate();
@@ -98,6 +99,27 @@ public class MainActivity extends BaseActivity {
     protected void onStart() {
         super.onStart();
         initService();
+    }
+
+    // cassette (BUG-946): when the cloud refuses this phone's sign-in, say so once
+    // and offer Sign In, instead of sync quietly stopping for good.
+    private boolean cassetteSignedOutShown = false;
+
+    private void observeCassetteSignedOut() {
+        com.cappielloantonio.tempo.util.CassetteSession.signedOutByCloud().observe(this, refused -> {
+            if (!Boolean.TRUE.equals(refused) || cassetteSignedOutShown) return;
+            cassetteSignedOutShown = true;
+            new com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+                    .setTitle(R.string.cassette_signed_out_title)
+                    .setMessage(R.string.cassette_signed_out_message)
+                    .setCancelable(false)
+                    .setPositiveButton(R.string.cassette_signed_out_sign_in, (d, w) ->
+                            com.cappielloantonio.tempo.util.CassetteSession.signOut(this, false, () -> {
+                                cassetteSignedOutShown = false;
+                                quit();
+                            }))
+                    .show();
+        });
     }
 
     @Override

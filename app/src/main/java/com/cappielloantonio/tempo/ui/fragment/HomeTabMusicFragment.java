@@ -272,13 +272,9 @@ public class HomeTabMusicFragment extends Fragment implements ClickCallback {
         // exploratory press on the biggest thing on the screen started audio.
         bind.homeResumeCard.setOnClickListener(v -> openResumeContainer(target));
         bind.homeResumePlay.setOnClickListener(v -> {
-            MediaManager.startQueue(mediaBrowserListenableFuture, target);
-            // ...and it resumes rather than restarting: the flavour's
-            // MediaService has been writing the paused position to
-            // Queue.playingChanged all along, and nothing ever read it back.
-            if (savedPositionMs > 0) {
-                MediaManager.seekTo(mediaBrowserListenableFuture, savedPositionMs);
-            }
+            // cassette (BUG-943): carry on with the record, from this song, at the
+            // saved position. It used to clear the queue and play this one song.
+            MediaManager.resume(mediaBrowserListenableFuture, target, savedPositionMs);
             activity.setBottomSheetInPeek(true);
         });
     }

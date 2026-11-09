@@ -45,6 +45,19 @@ public final class CassetteOfflineLibrary {
         }).start();
     }
 
+    /** Downloaded albums, newest added first (Home's Albums row, BUG-944). */
+    public static void recentlyAddedAlbums(AlbumsCallback callback) {
+        new Thread(() -> {
+            List<AlbumID3> result = buildAlbums();
+            result.sort((a, b) -> {
+                if (a.getCreated() == null) return b.getCreated() == null ? 0 : 1;
+                if (b.getCreated() == null) return -1;
+                return b.getCreated().compareTo(a.getCreated());
+            });
+            new Handler(Looper.getMainLooper()).post(() -> callback.onResult(result));
+        }).start();
+    }
+
     /** Owned albums ordered by when they were last played on this device. */
     public static void recentAlbums(int limit, AlbumsCallback callback) {
         new Thread(() -> {
@@ -110,6 +123,11 @@ public final class CassetteOfflineLibrary {
                 byAlbum.put(albumId, album);
             }
             album.setSongCount(album.getSongCount() + 1);
+            // cassette: an album was added when its newest song was (BUG-944).
+            if (track.getCreated() != null
+                    && (album.getCreated() == null || track.getCreated().after(album.getCreated()))) {
+                album.setCreated(track.getCreated());
+            }
         }
 
         List<AlbumID3> result = new ArrayList<>(byAlbum.values());

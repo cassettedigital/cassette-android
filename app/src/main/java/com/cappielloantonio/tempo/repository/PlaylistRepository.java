@@ -157,64 +157,97 @@ public class PlaylistRepository {
         });
     }
 
-    public void updatePlaylist(String playlistId, String name, ArrayList<String> songsId) {
-        EXEC.execute(() -> {
-            String bearer = Preferences.getCassetteBearerToken();
-            if (bearer == null || bearer.isEmpty() || playlistId == null) return;
-            try {
-                if (name != null) CassetteSyncApi.updatePlaylist(bearer, playlistId, name);
-                // Full replace: remove all cloud items then re-add. Low traffic;
-                // editor dialog is the only caller.
-                CassetteSyncApi.CloudPlaylist current =
-                        CassetteSyncApi.getPlaylist(bearer, playlistId);
-                JsonArray removeOps = new JsonArray();
-                for (CassetteSyncApi.CloudPlaylistItem item : current.items) {
-                    JsonObject op = new JsonObject();
-                    op.addProperty("op", "remove");
-                    op.addProperty("item_id", item.id);
-                    removeOps.add(op);
-                }
-                if (removeOps.size() > 0) {
-                    CassetteSyncApi.applyPlaylistOps(bearer, playlistId, removeOps);
-                }
-                if (songsId != null && !songsId.isEmpty()) {
-                    addSongToPlaylistBlocking(bearer, playlistId, songsId);
-                }
-            } catch (Exception e) {
-                Log.w(TAG, "updatePlaylist(full) failed", e);
-            }
-        });
+    /** One row of the playlist editor: the song on this phone and the cloud item it is. */
+    public static final class EditorRow {
+        public final String itemId;
+        public final Child child;
+
+        EditorRow(String itemId, Child child) {
+            this.itemId = itemId;
+            this.child = child;
+        }
     }
 
-    public void updatePlaylist(String playlistId, String name, boolean isPublic,
-                               ArrayList<String> songIdToAdd, ArrayList<Integer> songIndexToRemove) {
+    /**
+     * The editor's rows: the playlist's songs that are on this phone, each tied
+     * to its cloud item, so a save can touch exactly the items the person
+     * removed or moved. Songs not on this phone are never shown and never
+     * touched (BUG-936).
+     */
+    public MutableLiveData<List<EditorRow>> getPlaylistEditorRows(String id) {
+        MutableLiveData<List<EditorRow>> live = new MutableLiveData<>();
+        EXEC.execute(() -> {
+            String bearer = Preferences.getCassetteBearerToken();
+            List<EditorRow> rows = new ArrayList<>();
+            if (bearer == null || bearer.isEmpty()) {
+                live.postValue(rows);
+                return;
+            }
+            try {
+                CassetteSyncApi.CloudPlaylist cp = CassetteSyncApi.getPlaylist(bearer, id);
+                for (CassetteSyncApi.CloudPlaylistItem item : cp.items) {
+                    Child resolved = resolveChild(item);
+                    if (resolved != null) rows.add(new EditorRow(item.id, resolved));
+                }
+            } catch (Exception e) {
+                Log.w(TAG, "getPlaylistEditorRows failed", e);
+            }
+            live.postValue(rows);
+        });
+        return live;
+    }
+
+    /**
+     * Saves only what the person changed in the editor (BUG-936): a new name,
+     * the items they removed, and new places for the items they moved. A moved
+     * song takes one of the places the songs on this phone already held, so
+     * songs that live only on the computer or another phone keep their place.
+     */
+    public void savePlaylistEdits(String playlistId, String newName,
+                                  List<String> keptItemIdsInOrder, List<String> removedItemIds) {
         EXEC.execute(() -> {
             String bearer = Preferences.getCassetteBearerToken();
             if (bearer == null || bearer.isEmpty() || playlistId == null) return;
             try {
-                if (name != null) CassetteSyncApi.updatePlaylist(bearer, playlistId, name);
-                CassetteSyncApi.CloudPlaylist current =
-                        CassetteSyncApi.getPlaylist(bearer, playlistId);
+                if (newName != null) CassetteSyncApi.updatePlaylist(bearer, playlistId, newName);
+                if (keptItemIdsInOrder.isEmpty() && removedItemIds.isEmpty()) return;
+
+                CassetteSyncApi.CloudPlaylist current = CassetteSyncApi.getPlaylist(bearer, playlistId);
+                java.util.Map<String, Double> placeOf = new java.util.HashMap<>();
+                for (CassetteSyncApi.CloudPlaylistItem item : current.items) {
+                    placeOf.put(item.id, item.position);
+                }
+
                 JsonArray ops = new JsonArray();
-                if (songIndexToRemove != null) {
-                    List<Integer> sorted = new ArrayList<>(songIndexToRemove);
-                    Collections.sort(sorted, Collections.reverseOrder());
-                    for (Integer idx : sorted) {
-                        if (idx == null || idx < 0 || idx >= current.items.size()) continue;
-                        JsonObject op = new JsonObject();
-                        op.addProperty("op", "remove");
-                        op.addProperty("item_id", current.items.get(idx).id);
-                        ops.add(op);
-                    }
+                for (String itemId : removedItemIds) {
+                    if (!placeOf.containsKey(itemId)) continue;
+                    JsonObject op = new JsonObject();
+                    op.addProperty("op", "remove");
+                    op.addProperty("item_id", itemId);
+                    ops.add(op);
                 }
-                if (ops.size() > 0) {
-                    CassetteSyncApi.applyPlaylistOps(bearer, playlistId, ops);
+
+                List<String> kept = new ArrayList<>();
+                for (String itemId : keptItemIdsInOrder) {
+                    if (placeOf.containsKey(itemId)) kept.add(itemId);
                 }
-                if (songIdToAdd != null && !songIdToAdd.isEmpty()) {
-                    addSongToPlaylistBlocking(bearer, playlistId, songIdToAdd);
+                List<Double> places = new ArrayList<>();
+                for (String itemId : kept) places.add(placeOf.get(itemId));
+                Collections.sort(places);
+                for (int i = 0; i < kept.size(); i++) {
+                    String itemId = kept.get(i);
+                    double place = places.get(i);
+                    if (Double.compare(place, placeOf.get(itemId)) == 0) continue;
+                    JsonObject op = new JsonObject();
+                    op.addProperty("op", "reorder");
+                    op.addProperty("item_id", itemId);
+                    op.addProperty("position", place);
+                    ops.add(op);
                 }
+
+                if (ops.size() > 0) CassetteSyncApi.applyPlaylistOps(bearer, playlistId, ops);
             } catch (Exception e) {
-                Log.w(TAG, "updatePlaylist(ops) failed", e);
+                Log.w(TAG, "savePlaylistEdits failed", e);
             }
         });
     }

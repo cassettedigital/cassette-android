@@ -318,9 +318,23 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     }
 
     private void actionLogout() {
+        // cassette (BUG-937): Sign out asks about the music on the phone, ends this
+        // phone's sign-in on the cloud and forgets the account, the iPhone's way.
         findPreference("logout").setOnPreferenceClickListener(preference -> {
-            activity.quit();
+            new com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
+                    .setTitle(getString(R.string.cassette_sign_out_title, com.cappielloantonio.tempo.util.CassetteSession.accountName()))
+                    .setMessage(R.string.cassette_sign_out_message)
+                    .setPositiveButton(R.string.cassette_sign_out_keep, (d, w) -> signOut(false))
+                    .setNeutralButton(R.string.cassette_sign_out_remove, (d, w) -> signOut(true))
+                    .setNegativeButton(R.string.cassette_cancel, null)
+                    .show();
             return true;
+        });
+    }
+
+    private void signOut(boolean removeMusic) {
+        com.cappielloantonio.tempo.util.CassetteSession.signOut(requireContext(), removeMusic, () -> {
+            if (activity != null) activity.quit();
         });
     }
 

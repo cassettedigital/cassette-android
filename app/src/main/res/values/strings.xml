@@ -325,7 +325,7 @@
     <string name="settings_github_title">Github</string>
     <string name="settings_image_size">Set image resolution</string>
     <string name="settings_language">Language</string>
-    <string name="settings_logout_title">Log out</string>
+    <string name="settings_logout_title">Sign Out</string>
     <string name="settings_max_bitrate_download">Bitrate for downloads</string>
     <string name="settings_max_bitrate_mobile">Bitrate in mobile</string>
     <string name="settings_max_bitrate_wifi">Bitrate in Wi-Fi</string>
@@ -480,4 +480,13 @@
     <string name="share_song_not_saved_title">That link didn\'t save</string>
     <string name="share_song_not_saved">It won\'t open for them. Check your connection and share it again.</string>
     <string name="player_more">More</string>
+    <!-- cassette: sign out and signed out (BUG-937, BUG-946) -->
+    <string name="cassette_sign_out_title">Sign out of %1$s?</string>
+    <string name="cassette_sign_out_message">Your playlists and listening history stay in your account. What should happen to the music on this phone?</string>
+    <string name="cassette_sign_out_keep">Keep</string>
+    <string name="cassette_sign_out_remove">Remove</string>
+    <string name="cassette_cancel">Cancel</string>
+    <string name="cassette_signed_out_title">Signed out</string>
+    <string name="cassette_signed_out_message">This phone was signed out from your account, or went unused for 90 days.</string>
+    <string name="cassette_signed_out_sign_in">Sign In</string>
 </resources>

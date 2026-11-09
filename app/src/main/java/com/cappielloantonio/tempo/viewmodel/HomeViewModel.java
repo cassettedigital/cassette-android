@@ -386,7 +386,7 @@ public class HomeViewModel extends AndroidViewModel {
             // cassette: offline-first shows only synced music — album shelves
             // come from the on-device Download store, not the hub.
             if (com.cappielloantonio.tempo.util.Preferences.isOfflineFirst()) {
-                com.cappielloantonio.tempo.util.CassetteOfflineLibrary.albums(
+                com.cappielloantonio.tempo.util.CassetteOfflineLibrary.recentlyAddedAlbums(
                         albums -> recentlyAddedAlbumSample.postValue(cassetteCap(albums)));
             } else {
                 albumRepository.getAlbums("newest", 20, null, null).observe(owner, recentlyAddedAlbumSample::postValue);
