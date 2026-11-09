@@ -20,6 +20,7 @@ import com.cappielloantonio.tempo.subsonic.models.Child;
 import com.cappielloantonio.tempo.subsonic.models.InternetRadioStation;
 import com.cappielloantonio.tempo.subsonic.models.PodcastEpisode;
 import com.cappielloantonio.tempo.util.CassetteOnPhone;
+import com.cappielloantonio.tempo.util.Constants;
 import com.cappielloantonio.tempo.util.CassettePlaySync;
 import com.cappielloantonio.tempo.util.MappingUtil;
 import com.cappielloantonio.tempo.util.Preferences;
@@ -131,6 +132,7 @@ public class MediaManager {
                         mediaBrowserListenableFuture.get().seekTo(start, 0);
                         mediaBrowserListenableFuture.get().play();
                         enqueueDatabase(kept, true, 0);
+                        com.cappielloantonio.tempo.util.CassetteKeepPlaying.noteStarted(kept);
                     }
                 } catch (ExecutionException | InterruptedException e) {
                     e.printStackTrace();
@@ -458,28 +460,22 @@ public class MediaManager {
         }
     }
 
-    @OptIn(markerClass = UnstableApi.class)
+    /**
+     * cassette: the last song of the queue just started. Keep playing asks the cloud
+     * what carries on (CassetteKeepPlaying); Tempo's continuous play, an instant mix
+     * from the computer that answers nothing with its outside lookups off, is gone
+     * (BUG-947).
+     */
+    /** Tempo's other build flavours call the one-argument form. */
     public static void continuousPlay(MediaItem mediaItem) {
-        if (mediaItem != null && Preferences.isContinuousPlayEnabled() && Preferences.isInstantMixUsable()) {
-            Preferences.setLastInstantMix();
+        continuousPlay(mediaItem, true);
+    }
 
-            LiveData<List<Child>> instantMix = getSongRepository().getInstantMix(mediaItem.mediaId, 10);
-            instantMix.observeForever(new Observer<List<Child>>() {
-                @Override
-                public void onChanged(List<Child> media) {
-                    if (media != null) {
-                        ListenableFuture<MediaBrowser> mediaBrowserListenableFuture = new MediaBrowser.Builder(
-                                App.getContext(),
-                                new SessionToken(App.getContext(), new ComponentName(App.getContext(), MediaService.class))
-                        ).buildAsync();
-
-                        enqueue(mediaBrowserListenableFuture, media, true);
-                    }
-
-                    instantMix.removeObserver(this);
-                }
-            });
-        }
+    public static void continuousPlay(MediaItem mediaItem, boolean repeatOff) {
+        if (mediaItem == null || mediaItem.mediaMetadata.extras == null) return;
+        String type = mediaItem.mediaMetadata.extras.getString("type", Constants.MEDIA_TYPE_MUSIC);
+        if (!Constants.MEDIA_TYPE_MUSIC.equals(type)) return;
+        com.cappielloantonio.tempo.util.CassetteKeepPlaying.onLastSongStarted(mediaItem.mediaId, repeatOff);
     }
 
     public static void saveChronology(MediaItem mediaItem) {

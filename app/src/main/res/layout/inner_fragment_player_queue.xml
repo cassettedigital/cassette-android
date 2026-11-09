@@ -67,7 +67,30 @@
                         android:scaleType="fitCenter"
                         android:src="@drawable/ic_lucide_repeat"
                         app:tint="@color/cs_ink" />
+
+                    <!-- Keep playing: when the queue runs out, carry on (repeat wins) -->
+                    <ImageButton
+                        android:id="@+id/queue_keep_playing"
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="@string/cassette_keep_playing"
+                        android:padding="10dp"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/ic_lucide_infinity"
+                        app:tint="@color/cs_ink" />
                 </LinearLayout>
+
+                <TextView
+                    android:id="@+id/queue_then"
+                    style="@style/Cassette.Role.Meta"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="20dp"
+                    android:paddingEnd="20dp"
+                    android:paddingBottom="8dp"
+                    android:textColor="@color/cs_ink3"
+                    android:visibility="gone" />
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/player_queue_recycler_view"

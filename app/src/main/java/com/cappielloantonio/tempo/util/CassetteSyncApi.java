@@ -99,6 +99,19 @@ public final class CassetteSyncApi {
         }
     }
 
+    /** Keep playing: what carries on when the queue runs out (contract: lib/keep-playing/contract.ts). */
+    @Nullable
+    public static String keepPlaying(String bearerToken, String body) throws IOException {
+        Request req = request("/api/sync/keep-playing", bearerToken)
+                .post(RequestBody.create(body, JSON))
+                .build();
+        try (Response response = client().newCall(req).execute()) {
+            if (response.code() == 401) CassetteSession.cloudRefusedToken();
+            if (!response.isSuccessful() || response.body() == null) return null;
+            return response.body().string();
+        }
+    }
+
     /** A playlist started playing (any device's Playlists row and Resume order by it). */
     public static void playlistPlayed(String bearerToken, String playlistId) throws IOException {
         Request req = request("/api/sync/playlists/" + playlistId + "/played", bearerToken)

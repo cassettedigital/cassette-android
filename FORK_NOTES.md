@@ -150,3 +150,9 @@ Samsung/Xiaomi/OnePlus hardware).
 
 - **Search reads the phone** (BUG-940): `util/CassetteSearch.kt` matches what is on this phone as you type, no network (songs on title, artist or album; albums on name or artist; artists on name; names starting with what was typed lead). `fragment_search.xml` / `SearchFragment` rebuilt as Cassette's own screen, Android's resting search tab (the keyboard comes up when the field is tapped): one lit top card that plays at once (artist, else album), SONGS, ALBUMS and ARTISTS tiles with the play disc, your PLAYLISTS by name; "No results on this phone" when nothing matches; recent searches before typing; coming back keeps the results.
 - **Library**: a "139 ALBUMS" / "N ARTISTS" / "N PLAYLISTS" count line; one plain empty title; the grid fills in as music arrives (watches the phone's songs, no flash); playlists show the last good list offline instead of an empty page until restart (BUG-948); playlist rows read "9 songs" (no "0:00"), lose the ⋮ (long-press still edits) and sit on the page's gutter.
+
+### 2026-11-09 — Catch-up with the iPhone, pass 6: Keep playing
+
+- `util/CassetteKeepPlaying.kt`: the switch (on by default, `cassette_keep_playing`); as the last song of the queue starts (`MediaService.onTracksChanged` → `MediaManager.continuousPlay`), it sends the queue as Cassette song ids to `POST /api/sync/keep-playing` (one contract with the iPhone and desktop: monorepo `lib/keep-playing/contract.ts`) and appends the answer, only songs on this phone: a record in disc/track order, or songs in the cloud's order. Repeat wins (the key waits, faint, while repeat is on; pressing it turns repeat off). Offline, a record carries on with another record by the same artist on the phone.
+- Tempo's continuous play (an instant mix from the computer, empty with its outside lookups off) is gone.
+- The queue's head gains the ∞ key (orange while on) and a "THEN: <the cloud's words>" line once a pick is queued.

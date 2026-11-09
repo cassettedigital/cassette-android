@@ -175,6 +175,21 @@ public class PlayerQueueFragment extends Fragment implements ClickCallback {
      */
     private void initQueueHead(MediaBrowser mediaBrowser) {
         bind.queueShuffle.setOnClickListener(v -> mediaBrowser.setShuffleModeEnabled(!mediaBrowser.getShuffleModeEnabled()));
+        bind.queueKeepPlaying.setOnClickListener(v -> {
+            // repeat wins: pressing keep playing while repeat is on turns repeat off
+            if (mediaBrowser.getRepeatMode() != androidx.media3.common.Player.REPEAT_MODE_OFF) {
+                mediaBrowser.setRepeatMode(androidx.media3.common.Player.REPEAT_MODE_OFF);
+                com.cappielloantonio.tempo.util.CassetteKeepPlaying.setOn(true);
+            } else {
+                com.cappielloantonio.tempo.util.CassetteKeepPlaying.setOn(!com.cappielloantonio.tempo.util.CassetteKeepPlaying.isOn());
+            }
+            paintHead(mediaBrowser);
+        });
+        com.cappielloantonio.tempo.util.CassetteKeepPlaying.heading().observe(getViewLifecycleOwner(), words -> {
+            if (bind == null) return;
+            bind.queueThen.setVisibility(words == null || words.isEmpty() ? View.GONE : View.VISIBLE);
+            if (words != null) bind.queueThen.setText(getString(R.string.cassette_then, words));
+        });
         bind.queueRepeat.setOnClickListener(v -> {
             int next = mediaBrowser.getRepeatMode() == androidx.media3.common.Player.REPEAT_MODE_OFF
                     ? androidx.media3.common.Player.REPEAT_MODE_ALL
@@ -209,6 +224,11 @@ public class PlayerQueueFragment extends Fragment implements ClickCallback {
         bind.queueRepeat.setColorFilter(repeat != androidx.media3.common.Player.REPEAT_MODE_OFF ? live : ink);
         bind.queueRepeat.setImageResource(repeat == androidx.media3.common.Player.REPEAT_MODE_ONE
                 ? R.drawable.exo_icon_repeat_one : R.drawable.ic_lucide_repeat);
+        // keep playing: orange while on, faint while repeat holds it waiting
+        boolean keep = com.cappielloantonio.tempo.util.CassetteKeepPlaying.isOn();
+        boolean waiting = keep && repeat != androidx.media3.common.Player.REPEAT_MODE_OFF;
+        bind.queueKeepPlaying.setColorFilter(keep && !waiting ? live : ink);
+        bind.queueKeepPlaying.setAlpha(waiting ? 0.4f : 1f);
 
         // the answer: the record, when what's ahead is all one record
         String album = null;

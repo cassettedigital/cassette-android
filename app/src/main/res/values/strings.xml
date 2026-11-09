@@ -538,4 +538,6 @@
         <item quantity="one">%d playlist</item>
         <item quantity="other">%d playlists</item>
     </plurals>
+    <string name="cassette_keep_playing">Keep playing</string>
+    <string name="cassette_then">Then: %1$s</string>
 </resources>
