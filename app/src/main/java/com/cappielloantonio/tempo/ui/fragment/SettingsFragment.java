@@ -348,7 +348,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             return true;
         });
         if (help != null) help.setOnPreferenceClickListener(p -> {
-            startActivity(new Intent(Intent.ACTION_VIEW, android.net.Uri.parse("https://cassette.digital/help")));
+            startActivity(new Intent(Intent.ACTION_VIEW, android.net.Uri.parse("https://cassette.digital/help/your-android")));
             return true;
         });
         Preference credit = findPreference("credit");
