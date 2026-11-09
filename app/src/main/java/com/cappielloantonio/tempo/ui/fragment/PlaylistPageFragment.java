@@ -241,6 +241,7 @@ public class PlaylistPageFragment extends Fragment implements ClickCallback {
         com.cappielloantonio.tempo.util.CoverTint.resolve(requireContext(), cover, CustomGlideRequest.ResourceType.Playlist, next -> {
             if (bind == null) return;
             tint = next;
+            com.cappielloantonio.tempo.ui.adapter.CassetteShelf.heading(this, bind.moreLikeShelf, playlistPageViewModel.getPlaylist().getName(), next.text(requireContext()));
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
                 bind.playlistCoverImageView.setOutlineSpotShadowColor(next.shadow(0.4));
                 bind.playlistCoverImageView.setOutlineAmbientShadowColor(next.shadow(0.4));
@@ -255,7 +256,19 @@ public class PlaylistPageFragment extends Fragment implements ClickCallback {
         songHorizontalAdapter = new SongHorizontalAdapter(this, true, false, null);
         bind.songRecyclerView.setAdapter(songHorizontalAdapter);
 
-        playlistPageViewModel.getPlaylistSongLiveList().observe(getViewLifecycleOwner(), songs -> songHorizontalAdapter.setItems(songs));
+        playlistPageViewModel.getPlaylistSongLiveList().observe(getViewLifecycleOwner(), songs -> {
+            songHorizontalAdapter.setItems(songs);
+            // MORE LIKE *playlist*: records like its songs, none it already draws from
+            java.util.List<String> songIds = new java.util.ArrayList<>();
+            java.util.Set<String> albumIds = new java.util.HashSet<>();
+            if (songs != null) for (com.cappielloantonio.tempo.subsonic.models.Child song : songs) {
+                songIds.add(song.getId());
+                if (song.getAlbumId() != null) albumIds.add(song.getAlbumId());
+            }
+            com.cappielloantonio.tempo.ui.adapter.CassetteShelf.moreLike(this, bind.moreLikeShelf, playlistPageViewModel.getPlaylist().getName(),
+                    tint.text(requireContext()), () -> mediaBrowserListenableFuture,
+                    app -> com.cappielloantonio.tempo.util.CassetteMoods.forSongs(app, songIds, albumIds));
+        });
     }
 
     private void initializeMediaBrowser() {

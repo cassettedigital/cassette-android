@@ -170,6 +170,10 @@ public class ArtistPageFragment extends Fragment implements ClickCallback {
         if (artist == null || bind == null) return;
 
         bind.artistNameLabel.setText(artist.getName() != null ? artist.getName().toUpperCase(java.util.Locale.getDefault()) : "");
+        // MORE LIKE *artist*: other artists on this phone whose music carries the same moods and sound
+        com.cappielloantonio.tempo.ui.adapter.CassetteShelf.moreLike(this, bind.moreLikeShelf, artist.getName(),
+                tint.text(requireContext()), () -> mediaBrowserListenableFuture,
+                app -> com.cappielloantonio.tempo.util.CassetteMoods.forArtist(app, artist.getName()));
 
         // the artist's own photo, when this phone holds one, goes full-bleed and
         // the name climbs into its faded foot (iPhone: Artist.hasOwnPhotoOnDisk)
@@ -228,6 +232,8 @@ public class ArtistPageFragment extends Fragment implements ClickCallback {
         if (bind == null) return;
         tint = next;
         if (songHorizontalAdapter != null) songHorizontalAdapter.setTint(next.text(requireContext()));
+        ArtistID3 shown = artistPageViewModel.getArtist();
+        if (shown != null) com.cappielloantonio.tempo.ui.adapter.CassetteShelf.heading(this, bind.moreLikeShelf, shown.getName(), next.text(requireContext()));
     }
 
     private void refreshMetadata(List<AlbumID3> albums) {

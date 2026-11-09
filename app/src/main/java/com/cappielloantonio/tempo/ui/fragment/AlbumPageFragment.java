@@ -109,6 +109,9 @@ public class AlbumPageFragment extends Fragment implements ClickCallback {
     public void onDestroyView() {
         super.onDestroyView();
         bind = null;
+        // the songs list belongs to the view: coming back builds it again, or the page
+        // returns with no songs under its buttons
+        songHorizontalAdapter = null;
     }
 
     @Override
@@ -255,6 +258,9 @@ public class AlbumPageFragment extends Fragment implements ClickCallback {
 
     private void initSongsView() {
         albumPageViewModel.getAlbum().observe(getViewLifecycleOwner(), album -> {
+            if (bind != null && album != null && songHorizontalAdapter != null) {
+                songHorizontalAdapter.setContextArtist(album.getArtist());
+            }
             if (bind != null && album != null && songHorizontalAdapter == null) {
                 bind.songRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
                 bind.songRecyclerView.setHasFixedSize(true);
@@ -305,6 +311,10 @@ public class AlbumPageFragment extends Fragment implements ClickCallback {
 
         albumPageViewModel.getAlbum().observe(getViewLifecycleOwner(), album -> {
             if (album == null) return;
+            // MORE LIKE *record*: other artists' records on this phone with the same moods and sound
+            com.cappielloantonio.tempo.ui.adapter.CassetteShelf.moreLike(this, bind.moreLikeShelf, album.getName(),
+                    tint.text(requireContext()), () -> mediaBrowserListenableFuture,
+                    app -> com.cappielloantonio.tempo.util.CassetteMoods.forAlbum(app, album.getId(), album.getArtist()));
             albumPageViewModel.getMoreByArtist().observe(getViewLifecycleOwner(), others -> {
                 if (bind == null) return;
                 moreByAdapter.setItems(others);
@@ -320,6 +330,7 @@ public class AlbumPageFragment extends Fragment implements ClickCallback {
         if (album == null) return;
         com.cappielloantonio.tempo.util.CassetteType.twoVoice(bind.moreByHeading,
                 getString(R.string.cassette_more_by), album.getArtist(), tint.text(requireContext()));
+        com.cappielloantonio.tempo.ui.adapter.CassetteShelf.heading(this, bind.moreLikeShelf, album.getName(), tint.text(requireContext()));
     }
 
     private void refreshPlayButtonState() {

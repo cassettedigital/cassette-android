@@ -117,6 +117,10 @@
             <include
                 android:id="@+id/playlist_empty"
                 layout="@layout/view_empty_state" />
+
+            <include
+                android:id="@+id/more_like_shelf"
+                layout="@layout/view_record_shelf" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 

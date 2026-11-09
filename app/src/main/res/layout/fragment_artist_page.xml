@@ -216,6 +216,10 @@
                     android:paddingStart="20dp"
                     android:paddingEnd="20dp" />
             </LinearLayout>
+
+            <include
+                android:id="@+id/more_like_shelf"
+                layout="@layout/view_record_shelf" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 

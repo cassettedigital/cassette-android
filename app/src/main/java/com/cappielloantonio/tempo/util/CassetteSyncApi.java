@@ -123,6 +123,17 @@ public final class CassetteSyncApi {
         }
     }
 
+    /** Each song's moods, energy, valence, sound and scenarios, keyed by cassette_local_id (GET /api/sync/library-moods). */
+    @Nullable
+    public static String getLibraryMoods(String bearerToken) throws IOException {
+        Request req = request("/api/sync/library-moods", bearerToken).get().build();
+        try (Response response = client().newCall(req).execute()) {
+            if (response.code() == 401) CassetteSession.cloudRefusedToken();
+            if (!response.isSuccessful() || response.body() == null) return null;
+            return response.body().string();
+        }
+    }
+
     /** Genres for your albums, keyed by group key (GET /api/sync/album-genres): your own, else the catalog's. */
     @Nullable
     public static String getAlbumGenres(String bearerToken) throws IOException {

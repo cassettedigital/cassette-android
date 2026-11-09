@@ -39,7 +39,7 @@ public class SongHorizontalAdapter extends RecyclerView.Adapter<SongHorizontalAd
     private final boolean showAlbum;
     private final AlbumID3 album;
     /** When set (album/artist page), suppress a redundant primary and keep feat. guests. */
-    private final String contextArtist;
+    private String contextArtist;
 
     private List<Child> songsFull;
     private List<Child> songs;
@@ -100,6 +100,16 @@ public class SongHorizontalAdapter extends RecyclerView.Adapter<SongHorizontalAd
             notifyDataSetChanged();
         }
     };
+
+    /**
+     * cassette: the page's artist, again: an album page gets the record twice (what was
+     * tapped, then the library's copy), and rows built on the first must follow the second.
+     */
+    public void setContextArtist(String artist) {
+        if (java.util.Objects.equals(artist, contextArtist)) return;
+        contextArtist = artist;
+        notifyDataSetChanged();
+    }
 
     public SongHorizontalAdapter(ClickCallback click, boolean showCoverArt, boolean showAlbum, AlbumID3 album) {
         this(click, showCoverArt, showAlbum, album, album != null ? album.getArtist() : null);
