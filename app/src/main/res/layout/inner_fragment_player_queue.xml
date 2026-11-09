@@ -1,8 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- cassette: one list in play order (iPhone 518ef8b4): UP NEXT *album* in the
+     record's colour with shuffle and repeat in its head (orange only while on),
+     no history above the song playing, no floating shuffle button, no "clean
+     queue". Drag to reorder and swipe to remove stay, Android's own gestures. -->
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/cs_bg">
 
     <com.cappielloantonio.tempo.helper.recyclerview.NestedScrollableHost
         android:id="@+id/player_queue_nested_scrollable_recycler_view"
@@ -17,36 +23,58 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical"
-                android:paddingTop="8dp"
+                android:paddingTop="16dp"
                 android:paddingBottom="@dimen/global_padding_bottom">
+
+                <LinearLayout
+                    android:id="@+id/queue_head"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingStart="20dp"
+                    android:paddingEnd="12dp"
+                    android:paddingBottom="8dp">
+
+                    <TextView
+                        android:id="@+id/queue_heading"
+                        style="@style/Cassette.Role.Shout"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:ellipsize="end"
+                        android:maxLines="2"
+                        tools:text="UP NEXT Bon Iver" />
+
+                    <ImageButton
+                        android:id="@+id/queue_shuffle"
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="@string/cassette_shuffle"
+                        android:padding="11dp"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/ic_lucide_shuffle"
+                        app:tint="@color/cs_ink" />
+
+                    <ImageButton
+                        android:id="@+id/queue_repeat"
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="@string/cassette_repeat"
+                        android:padding="11dp"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/ic_lucide_repeat"
+                        app:tint="@color/cs_ink" />
+                </LinearLayout>
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/player_queue_recycler_view"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical" />
-
-                <TextView
-                    android:id="@+id/player_clean_queue_button"
-                    style="@style/TitleMedium"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:layout_marginTop="24dp"
-                    android:text="@string/player_queue_clean_all_button"/>
-
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>
     </com.cappielloantonio.tempo.helper.recyclerview.NestedScrollableHost>
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/player_shuffle_queue_fab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="16dp"
-        android:contentDescription="@string/content_description_shuffle_button"
-        app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior"
-        app:srcCompat="@drawable/ic_shuffle" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
-

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- cassette: the mini player as a floating card above the tabs (Android's twin
+     of the iPhone's floating capsule): raised paper, round corners, inset from
+     the edges, on the page's own colour so Now Playing's room underneath never
+     shows round it. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/cs_bg" />
+        </shape>
+    </item>
+    <item
+        android:bottom="4dp"
+        android:left="8dp"
+        android:right="8dp"
+        android:top="4dp">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/cs_elevated" />
+            <corners android:radius="14dp" />
+        </shape>
+    </item>
+</layer-list>

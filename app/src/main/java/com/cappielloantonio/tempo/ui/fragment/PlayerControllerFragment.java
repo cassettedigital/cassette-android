@@ -70,6 +70,23 @@ public class PlayerControllerFragment extends Fragment {
 
     private MainActivity activity;
     private PlayerBottomSheetViewModel playerBottomSheetViewModel;
+
+    // cassette: the room. The cover's tiny pre-blurred copy fills the sheet over
+    // the cover's hue, under glass of the page's own paper (thinnest around the
+    // cover), the iPhone's recipe (AmbientCoverBackdrop, bac20c78).
+    private static final com.cappielloantonio.tempo.ui.view.CoverGlowView.Recipe ROOM =
+            new com.cappielloantonio.tempo.ui.view.CoverGlowView.Recipe(2.4f, -0.05f, 0f, 0.75f,
+                    java.util.Arrays.asList(
+                            new kotlin.Triple<>(R.color.cs_bg, 0.42f, 0f),
+                            new kotlin.Triple<>(R.color.cs_bg, 0.22f, 0.3f),
+                            new kotlin.Triple<>(R.color.cs_bg, 0.55f, 0.62f),
+                            new kotlin.Triple<>(R.color.cs_bg, 0.8f, 1f)),
+                    false, 0f);
+    @Nullable
+    private com.cappielloantonio.tempo.ui.view.CoverGlowView playerGlow;
+    @Nullable
+    private View playerRoom;
+    private String litCoverId;
     private ListenableFuture<MediaBrowser> mediaBrowserListenableFuture;
 
     @Override
@@ -112,25 +129,9 @@ public class PlayerControllerFragment extends Fragment {
 
     private void init() {
         playerMediaCoverViewPager = bind.getRoot().findViewById(R.id.player_media_cover_view_pager);
-        playerBlurredBackground = bind.getRoot().findViewById(R.id.player_blurred_background);
-        // cassette: iOS-style blurred backdrop of the cover. RenderEffect is a
-        // GPU blur (API 31+); below that, hide it and keep the flat surface.
-        if (playerBlurredBackground != null) {
-            if (android.os.Build.VERSION.SDK_INT >= 31) {
-                // cassette: aim for ambient light (colour bleeding off the cover),
-                // not a recognisable blurred duplicate. A heavy radius plus a
-                // zoom pushes the cover's shapes off-screen so only soft colour
-                // fields remain — like backlight behind a TV.
-                playerBlurredBackground.setRenderEffect(
-                        android.graphics.RenderEffect.createBlurEffect(
-                                140f, 140f, android.graphics.Shader.TileMode.CLAMP));
-                playerBlurredBackground.setScaleX(1.6f);
-                playerBlurredBackground.setScaleY(1.6f);
-            } else {
-                playerBlurredBackground.setVisibility(android.view.View.GONE);
-                bind.getRoot().findViewById(R.id.player_background_scrim).setVisibility(android.view.View.GONE);
-            }
-        }
+        playerGlow = bind.getRoot().findViewById(R.id.player_glow);
+        playerRoom = bind.getRoot().findViewById(R.id.player_room);
+        if (playerGlow != null) playerGlow.setRecipe(ROOM);
         buttonFavorite = bind.getRoot().findViewById(R.id.button_favorite);
         playerMediaTitleLabel = bind.getRoot().findViewById(R.id.player_media_title_label);
         playerArtistNameLabel = bind.getRoot().findViewById(R.id.player_artist_name_label);
@@ -148,8 +149,7 @@ public class PlayerControllerFragment extends Fragment {
     private void initQuickActionView() {
         // cassette: flat de-saturated container (was SurfaceColors elevation-8,
         // which washes orange-brown from the tonal tint). Matches the mini-player.
-        playerQuickActionView.setBackgroundColor(
-                requireContext().getColor(com.cappielloantonio.tempo.R.color.cs_raised));
+        playerQuickActionView.setBackgroundColor(android.graphics.Color.TRANSPARENT);
 
         playerOpenQueueButton.setOnClickListener(view -> {
             PlayerBottomSheetFragment playerBottomSheetFragment = (PlayerBottomSheetFragment) requireActivity().getSupportFragmentManager().findFragmentByTag("PlayerBottomSheet");
@@ -186,6 +186,7 @@ public class PlayerControllerFragment extends Fragment {
         setMetadata(mediaBrowser.getMediaMetadata());
         setMediaInfo(mediaBrowser.getMediaMetadata());
         updateControlAccents(mediaBrowser);
+        liftRoom(mediaBrowser.isPlaying());
 
         mediaBrowser.addListener(new Player.Listener() {
             @Override
@@ -199,6 +200,11 @@ public class PlayerControllerFragment extends Fragment {
             @Override
             public void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {
                 updateControlAccents(mediaBrowser);
+            }
+
+            @Override
+            public void onIsPlayingChanged(boolean isPlaying) {
+                liftRoom(isPlaying);
             }
 
             @Override
@@ -235,28 +241,58 @@ public class PlayerControllerFragment extends Fragment {
         }
     }
 
+    /** Playing lifts the glow (0.75); paused settles it (0.62). */
+    private void liftRoom(boolean playing) {
+        if (playerGlow == null) return;
+        playerGlow.animate().alpha(playing ? 1f : 0.83f).setDuration(600).start();
+    }
+
     private void setMetadata(MediaMetadata mediaMetadata) {
-        playerMediaTitleLabel.setText(String.valueOf(mediaMetadata.title));
+        // the player's caps title; the artist in the serif, in the record's colour
+        String title = mediaMetadata.title != null ? String.valueOf(mediaMetadata.title) : "";
+        playerMediaTitleLabel.setText(title.toUpperCase(java.util.Locale.getDefault()));
         playerArtistNameLabel.setText(String.valueOf(mediaMetadata.artist));
 
-        // cassette: feed the current cover into the blurred backdrop.
-        if (playerBlurredBackground != null && playerBlurredBackground.getVisibility() == android.view.View.VISIBLE
-                && mediaMetadata.extras != null) {
-            String coverArtId = mediaMetadata.extras.getString("coverArtId");
-            if (coverArtId != null) {
-                com.cappielloantonio.tempo.glide.CustomGlideRequest.Builder
-                        .from(requireContext(), coverArtId,
-                                com.cappielloantonio.tempo.glide.CustomGlideRequest.ResourceType.Album)
-                        .build()
-                        .into(playerBlurredBackground);
-            }
+        String coverArtId = mediaMetadata.extras != null ? mediaMetadata.extras.getString("coverArtId") : null;
+        if (playerBlurredBackground != null && playerBlurredBackground.getVisibility() == android.view.View.VISIBLE && coverArtId != null) {
+            com.cappielloantonio.tempo.glide.CustomGlideRequest.Builder
+                    .from(requireContext(), coverArtId, com.cappielloantonio.tempo.glide.CustomGlideRequest.ResourceType.Album)
+                    .build()
+                    .into(playerBlurredBackground);
         }
+        lightRoom(coverArtId);
 
         playerMediaTitleLabel.setSelected(true);
         playerArtistNameLabel.setSelected(true);
 
         playerMediaTitleLabel.setVisibility(mediaMetadata.title != null && !Objects.equals(mediaMetadata.title, "") ? View.VISIBLE : View.GONE);
         playerArtistNameLabel.setVisibility(mediaMetadata.artist != null && !Objects.equals(mediaMetadata.artist, "") ? View.VISIBLE : View.GONE);
+    }
+
+    /** The record lights the room, the artist line and the scrubber; never orange. */
+    private void lightRoom(@Nullable String coverArtId) {
+        if (bind == null || Objects.equals(coverArtId, litCoverId)) return;
+        litCoverId = coverArtId;
+        applyRecordTint(com.cappielloantonio.tempo.util.CoverTint.NEUTRAL);
+        if (playerGlow != null) playerGlow.setCover(coverArtId, com.cappielloantonio.tempo.glide.CustomGlideRequest.ResourceType.Album);
+        if (coverArtId == null) return;
+        com.cappielloantonio.tempo.util.CoverTint.resolve(requireContext(), coverArtId,
+                com.cappielloantonio.tempo.glide.CustomGlideRequest.ResourceType.Album, tint -> {
+                    if (Objects.equals(coverArtId, litCoverId)) applyRecordTint(tint);
+                });
+    }
+
+    private void applyRecordTint(com.cappielloantonio.tempo.util.CoverTint tint) {
+        if (bind == null) return;
+        int text = tint.text(requireContext());
+        playerArtistNameLabel.setTextColor(text);
+        if (playerRoom != null) playerRoom.setBackgroundColor(tint.room());
+        androidx.media3.ui.DefaultTimeBar bar = bind.getRoot().findViewById(R.id.exo_progress);
+        if (bar != null) {
+            bar.setPlayedColor(text);
+            bar.setScrubberColor(text);
+        }
+        com.cappielloantonio.tempo.util.CoverTint.setNowPlaying(tint);
     }
 
     private void setMediaInfo(MediaMetadata mediaMetadata) {
@@ -329,7 +365,7 @@ public class PlayerControllerFragment extends Fragment {
                     bind.getRoot().setRepeatToggleModes(RepeatModeUtil.REPEAT_TOGGLE_MODE_ALL | RepeatModeUtil.REPEAT_TOGGLE_MODE_ONE);
                     bind.getRoot().findViewById(R.id.player_playback_speed_button).setVisibility(View.GONE);
                     bind.getRoot().findViewById(R.id.player_skip_silence_toggle_button).setVisibility(View.GONE);
-                    bind.getRoot().findViewById(R.id.button_favorite).setVisibility(View.VISIBLE);
+                    bind.getRoot().findViewById(R.id.button_favorite).setVisibility(View.GONE);
                     if (playerMoreButton != null) playerMoreButton.setVisibility(View.VISIBLE);
                     resetPlaybackParameters(mediaBrowser);
                     break;
@@ -340,6 +376,9 @@ public class PlayerControllerFragment extends Fragment {
     private void initCoverLyricsSlideView() {
         playerMediaCoverViewPager.setOrientation(ViewPager2.ORIENTATION_HORIZONTAL);
         playerMediaCoverViewPager.setAdapter(new PlayerControllerHorizontalPager(this));
+        // cassette: lyrics are switched off, as on the iPhone (Cassette.lyricsEnabled
+        // = false there); the cover no longer swipes sideways to a lyrics page.
+        playerMediaCoverViewPager.setUserInputEnabled(false);
 
         playerMediaCoverViewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override

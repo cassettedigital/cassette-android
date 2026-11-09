@@ -91,8 +91,14 @@ public class PlayerBottomSheetFragment extends Fragment {
         // the tonal-elevation tint (colorPrimary = orange) -> the mini-player
         // washed BROWN and overrode the layout background. Use the flat
         // de-saturated container colour so the peek matches the bottom nav.
-        bind.playerHeaderLayout.getRoot().setBackgroundColor(
-                requireContext().getColor(com.cappielloantonio.tempo.R.color.cs_raised));
+        // the floating card is the layout's own background (cs_mini_player_card);
+        // the progress line speaks in the playing record's colour
+        bind.playerHeaderLayout.getRoot().setBackgroundResource(com.cappielloantonio.tempo.R.drawable.cs_mini_player_card);
+        com.cappielloantonio.tempo.util.CoverTint.nowPlaying().observe(getViewLifecycleOwner(), tint -> {
+            if (bind == null || tint == null) return;
+            bind.playerHeaderLayout.playerHeaderSeekBar.setProgressTintList(
+                    android.content.res.ColorStateList.valueOf(tint.text(requireContext())));
+        });
     }
 
     private void customizeBottomSheetAction() {

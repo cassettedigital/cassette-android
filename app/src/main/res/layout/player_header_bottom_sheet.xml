@@ -3,22 +3,23 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="@dimen/bottom_sheet_peek_height"
-    android:background="@color/cs_raised"
+    android:background="@drawable/cs_mini_player_card"
     android:clipChildren="false">
 
     <ImageView
         android:id="@+id/player_header_media_cover_image"
-        android:layout_width="42dp"
-        android:layout_height="42dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
         android:layout_gravity="center"
-        android:layout_marginStart="12dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="2dp"
         app:layout_constraintBottom_toTopOf="@+id/player_header_seek_bar"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/player_header_media_title_label"
-        style="@style/LabelMedium"
+        style="@style/Cassette.Role.TileLabel"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:ellipsize="end"
@@ -34,6 +35,7 @@
     <TextView
         android:id="@+id/player_header_media_artist_label"
         style="@style/LabelCardSubtitle"
+        android:textSize="14sp"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:ellipsize="end"
@@ -93,28 +95,32 @@
 
     <ToggleButton
         android:id="@+id/player_header_button"
-        android:layout_width="28dp"
-        android:layout_height="28dp"
-        android:layout_marginStart="12dp"
-        android:layout_marginEnd="12dp"
-        android:background="@drawable/button_play_pause_selector"
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginEnd="4dp"
+        android:background="@drawable/cs_mini_play_pause"
+        android:contentDescription="@string/cassette_play"
         android:checked="false"
         android:foreground="?android:attr/selectableItemBackgroundBorderless"
         android:text=""
         android:textOff=""
         android:textOn=""
         app:layout_constraintBottom_toTopOf="@+id/player_header_seek_bar"
-        app:layout_constraintEnd_toStartOf="@+id/placeholder_right_view"
+        app:layout_constraintEnd_toStartOf="@+id/player_header_next_media_button"
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageButton
         android:id="@+id/player_header_next_media_button"
-        android:layout_width="28dp"
-        android:layout_height="28dp"
-        android:layout_marginStart="12dp"
-        android:layout_marginEnd="12dp"
-        android:background="@drawable/ic_skip_next"
-        android:foreground="?android:attr/selectableItemBackgroundBorderless"
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginEnd="16dp"
+        android:background="?android:attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/cassette_next"
+        android:padding="9dp"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_skip_next"
         app:layout_constraintBottom_toTopOf="@+id/player_header_seek_bar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -132,11 +138,17 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <!-- the progress line in the record's colour, inset like the iPhone's (kit miniScrubber) -->
     <SeekBar
         android:id="@+id/player_header_seek_bar"
-        android:layout_width="match_parent"
-        android:layout_height="2dp"
-        android:background="?attr/colorSurface"
+        android:layout_width="0dp"
+        android:layout_height="3dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="6dp"
+        android:background="@android:color/transparent"
+        android:progressBackgroundTint="@color/cs_hairline"
+        android:splitTrack="false"
         android:clickable="false"
         android:paddingStart="0dp"
         android:paddingEnd="0dp"

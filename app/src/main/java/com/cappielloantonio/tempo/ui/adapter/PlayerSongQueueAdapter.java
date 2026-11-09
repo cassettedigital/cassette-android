@@ -63,24 +63,29 @@ public class PlayerSongQueueAdapter extends RecyclerView.Adapter<PlayerSongQueue
         MediaManager.getCurrentIndex(mediaBrowserListenableFuture, new MediaIndexCallback() {
             @Override
             public void onRecovery(int index) {
-                // cassette: three states, not two. Played rows recede, the row
-                // that is sounding gets the accent and the bars, everything
-                // ahead of it sits at full strength. Before this the current
-                // track looked exactly like the rest of the queue.
+                // cassette: one list in play order with no history above it (iPhone
+                // 518ef8b4). Played rows fold away (kept in the list so indexes stay
+                // the player's); the song playing keeps ink, its bars take the
+                // record's colour.
+                boolean played = position < index;
+                ViewGroup.LayoutParams lp = holder.itemView.getLayoutParams();
+                int height = played ? 0 : ViewGroup.LayoutParams.WRAP_CONTENT;
+                if (lp.height != height) {
+                    lp.height = height;
+                    holder.itemView.setLayoutParams(lp);
+                }
+                holder.itemView.setVisibility(played ? View.GONE : View.VISIBLE);
+
                 boolean isCurrent = position == index;
-                float alpha = position < index ? 0.35f : 1.0f;
-
-                holder.item.queueSongTitleTextView.setAlpha(alpha);
-                holder.item.queueSongSubtitleTextView.setAlpha(alpha);
-                holder.item.ratingIndicatorImageView.setAlpha(alpha);
-
-                holder.item.queueSongTitleTextView.setTextColor(isCurrent
-                        ? com.google.android.material.color.MaterialColors.getColor(
-                                holder.itemView, com.google.android.material.R.attr.colorPrimary)
-                        : androidx.core.content.ContextCompat.getColor(
-                                holder.itemView.getContext(), R.color.titleTextColor));
+                holder.item.queueSongTitleTextView.setAlpha(1f);
+                holder.item.queueSongSubtitleTextView.setAlpha(1f);
+                holder.item.queueSongTitleTextView.setTextColor(androidx.core.content.ContextCompat.getColor(
+                        holder.itemView.getContext(), R.color.titleTextColor));
 
                 holder.item.queueNowPlayingIndicator.setVisibility(isCurrent ? View.VISIBLE : View.GONE);
+                com.cappielloantonio.tempo.util.CoverTint tint = com.cappielloantonio.tempo.util.CoverTint.nowPlaying().getValue();
+                holder.item.queueNowPlayingIndicator.setColorFilter(
+                        (tint != null ? tint : com.cappielloantonio.tempo.util.CoverTint.NEUTRAL).text(holder.itemView.getContext()));
                 android.graphics.drawable.Drawable bars = holder.item.queueNowPlayingIndicator.getDrawable();
                 if (bars instanceof android.graphics.drawable.AnimationDrawable) {
                     if (isCurrent) ((android.graphics.drawable.AnimationDrawable) bars).start();

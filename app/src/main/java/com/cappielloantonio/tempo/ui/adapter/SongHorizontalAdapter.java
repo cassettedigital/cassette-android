@@ -280,8 +280,9 @@ public class SongHorizontalAdapter extends RecyclerView.Adapter<SongHorizontalAd
             holder.item.searchResultSongTitleTextView.setTextColor(
                     androidx.core.content.ContextCompat.getColor(
                             holder.itemView.getContext(), R.color.titleTextColor));
+            com.cappielloantonio.tempo.util.CoverTint playing = com.cappielloantonio.tempo.util.CoverTint.nowPlaying().getValue();
             holder.item.nowPlayingIndicator.setColorFilter(tint != 0 ? tint
-                    : androidx.core.content.ContextCompat.getColor(holder.itemView.getContext(), R.color.cs_accent));
+                    : (playing != null ? playing : com.cappielloantonio.tempo.util.CoverTint.NEUTRAL).text(holder.itemView.getContext()));
             if (!showCoverArt) {
                 holder.item.trackNumberTextView.setVisibility(View.INVISIBLE);
                 holder.item.nowPlayingIndicator.setVisibility(View.VISIBLE);

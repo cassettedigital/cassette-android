@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- cassette: a glass circle over a lit surface (Now Playing's •••): the page's
+     own paper, half through. -->
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="#33FFFFFF">
+    <item>
+        <shape android:shape="oval">
+            <solid android:color="@color/cs_glass" />
+        </shape>
+    </item>
+</ripple>

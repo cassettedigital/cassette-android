@@ -5,10 +5,10 @@
          player; ours was 80 + 56 = 136dp, 40% taller, eating the bottom of
          every screen. Now 64 + 52 = 116dp: still taller than iOS, because an
          Android tab item needs its label, but no longer a shelf. -->
-    <dimen name="bottom_sheet_behavior_peek_height">116dp</dimen>
-    <dimen name="bottom_sheet_peek_height">52dp</dimen>
+    <dimen name="bottom_sheet_behavior_peek_height">128dp</dimen>
+    <dimen name="bottom_sheet_peek_height">64dp</dimen>
     <dimen name="now_playing_bottom_peek_height">64dp</dimen>
-    <dimen name="global_padding_bottom">140dp</dimen>
+    <dimen name="global_padding_bottom">152dp</dimen>
     <!-- cassette: a track row leads with either 48dp of cover art (search,
          lists) or just a track number (album page). The number needs a fraction
          of that width, so on the album page the lead slot collapses to

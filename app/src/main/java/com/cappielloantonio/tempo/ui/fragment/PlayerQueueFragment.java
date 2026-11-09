@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.cappielloantonio.tempo.R;
 import com.cappielloantonio.tempo.databinding.InnerFragmentPlayerQueueBinding;
 import com.cappielloantonio.tempo.interfaces.ClickCallback;
 import com.cappielloantonio.tempo.service.MediaManager;
@@ -92,8 +93,7 @@ public class PlayerQueueFragment extends Fragment implements ClickCallback {
         mediaBrowserListenableFuture.addListener(() -> {
             try {
                 MediaBrowser mediaBrowser = mediaBrowserListenableFuture.get();
-                initShuffleButton(mediaBrowser);
-                initCleanButton(mediaBrowser);
+                initQueueHead(mediaBrowser);
             } catch (Exception exception) {
                 exception.printStackTrace();
             }
@@ -168,44 +168,61 @@ public class PlayerQueueFragment extends Fragment implements ClickCallback {
         }).attachToRecyclerView(bind.playerQueueRecyclerView);
     }
 
-    private void initShuffleButton(MediaBrowser mediaBrowser) {
-        bind.playerShuffleQueueFab.setOnClickListener(view -> {
-            int startPosition = mediaBrowser.getCurrentMediaItemIndex() + 1;
-            int endPosition = playerSongQueueAdapter.getItems().size() - 1;
+    /**
+     * cassette: the queue's head. UP NEXT and what started it (the record, when the
+     * songs ahead are one record) in the record's colour; shuffle and repeat beside
+     * it, ink when off and orange while on (live state).
+     */
+    private void initQueueHead(MediaBrowser mediaBrowser) {
+        bind.queueShuffle.setOnClickListener(v -> mediaBrowser.setShuffleModeEnabled(!mediaBrowser.getShuffleModeEnabled()));
+        bind.queueRepeat.setOnClickListener(v -> {
+            int next = mediaBrowser.getRepeatMode() == androidx.media3.common.Player.REPEAT_MODE_OFF
+                    ? androidx.media3.common.Player.REPEAT_MODE_ALL
+                    : mediaBrowser.getRepeatMode() == androidx.media3.common.Player.REPEAT_MODE_ALL
+                    ? androidx.media3.common.Player.REPEAT_MODE_ONE
+                    : androidx.media3.common.Player.REPEAT_MODE_OFF;
+            mediaBrowser.setRepeatMode(next);
+        });
+        mediaBrowser.addListener(new androidx.media3.common.Player.Listener() {
+            @Override
+            public void onShuffleModeEnabledChanged(boolean on) { paintHead(mediaBrowser); }
 
-            if (startPosition < endPosition) {
-                ArrayList<Integer> pool = new ArrayList<>();
+            @Override
+            public void onRepeatModeChanged(int mode) { paintHead(mediaBrowser); }
 
-                for (int i = startPosition; i <= endPosition; i++) {
-                    pool.add(i);
-                }
-
-                while (pool.size() >= 2) {
-                    int fromPosition = (int) (Math.random() * (pool.size()));
-                    int positionA = pool.get(fromPosition);
-                    pool.remove(fromPosition);
-
-                    int toPosition = (int) (Math.random() * (pool.size()));
-                    int positionB = pool.get(toPosition);
-                    pool.remove(toPosition);
-
-                    Collections.swap(playerSongQueueAdapter.getItems(), positionA, positionB);
-                    bind.playerQueueRecyclerView.getAdapter().notifyItemMoved(positionA, positionB);
-                }
-
-                MediaManager.shuffle(mediaBrowserListenableFuture, playerSongQueueAdapter.getItems(), startPosition, endPosition);
+            @Override
+            public void onMediaItemTransition(@androidx.annotation.Nullable androidx.media3.common.MediaItem item, int reason) {
+                paintHead(mediaBrowser);
+                playerSongQueueAdapter.notifyDataSetChanged();
             }
         });
+        com.cappielloantonio.tempo.util.CoverTint.nowPlaying().observe(getViewLifecycleOwner(), t -> paintHead(mediaBrowser));
+        paintHead(mediaBrowser);
     }
 
-    private void initCleanButton(MediaBrowser mediaBrowser) {
-        bind.playerCleanQueueButton.setOnClickListener(view -> {
-            int startPosition = mediaBrowser.getCurrentMediaItemIndex() + 1;
-            int endPosition = playerSongQueueAdapter.getItems().size();
+    private void paintHead(MediaBrowser player) {
+        if (bind == null) return;
+        int ink = androidx.core.content.ContextCompat.getColor(requireContext(), R.color.cs_ink);
+        int live = androidx.core.content.ContextCompat.getColor(requireContext(), R.color.cs_accent);
+        bind.queueShuffle.setColorFilter(player.getShuffleModeEnabled() ? live : ink);
+        int repeat = player.getRepeatMode();
+        bind.queueRepeat.setColorFilter(repeat != androidx.media3.common.Player.REPEAT_MODE_OFF ? live : ink);
+        bind.queueRepeat.setImageResource(repeat == androidx.media3.common.Player.REPEAT_MODE_ONE
+                ? R.drawable.exo_icon_repeat_one : R.drawable.ic_lucide_repeat);
 
-            MediaManager.removeRange(mediaBrowserListenableFuture, playerSongQueueAdapter.getItems(), startPosition, endPosition);
-            bind.playerQueueRecyclerView.getAdapter().notifyItemRangeRemoved(startPosition, endPosition);
-        });
+        // the answer: the record, when what's ahead is all one record
+        String album = null;
+        java.util.List<Child> items = playerSongQueueAdapter.getItems();
+        int at = player.getCurrentMediaItemIndex();
+        if (items != null && at >= 0 && at < items.size()) {
+            album = items.get(at).getAlbum();
+            for (int i = at; i < items.size(); i++) {
+                if (!java.util.Objects.equals(album, items.get(i).getAlbum())) { album = null; break; }
+            }
+        }
+        com.cappielloantonio.tempo.util.CoverTint tint = com.cappielloantonio.tempo.util.CoverTint.nowPlaying().getValue();
+        int color = (tint != null ? tint : com.cappielloantonio.tempo.util.CoverTint.NEUTRAL).text(requireContext());
+        com.cappielloantonio.tempo.util.CassetteType.twoVoice(bind.queueHeading, getString(R.string.cassette_up_next), album, color);
     }
 
     private void updateNowPlayingItem() {

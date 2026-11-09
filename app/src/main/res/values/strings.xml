@@ -517,4 +517,9 @@
     <string name="cassette_play_next">Play Next</string>
     <string name="cassette_add_to_queue">Add to Queue</string>
     <string name="cassette_edit">Edit</string>
+    <string name="cassette_previous">Previous</string>
+    <string name="cassette_next">Next</string>
+    <string name="cassette_back_15">Back 15 seconds</string>
+    <string name="cassette_up_next">Up Next</string>
+    <string name="cassette_repeat">Repeat</string>
 </resources>

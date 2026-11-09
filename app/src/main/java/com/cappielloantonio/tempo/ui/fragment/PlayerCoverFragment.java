@@ -92,6 +92,12 @@ public class PlayerCoverFragment extends Fragment {
     // Lyrics or Save queue over the art) is gone: Instant mix empties the queue
     // for an empty answer (BUG-947), and the rest live in the ⋮ menu.
     private void initOverlay() {
+        // a tap on the cover opens Up Next, as on the iPhone
+        bind.nowPlayingSongCoverImageView.setOnClickListener(v -> {
+            PlayerBottomSheetFragment sheet = (PlayerBottomSheetFragment) requireActivity()
+                    .getSupportFragmentManager().findFragmentByTag("PlayerBottomSheet");
+            if (sheet != null) sheet.goToQueuePage();
+        });
     }
 
     private void toggleOverlayVisibility(boolean isVisible) {

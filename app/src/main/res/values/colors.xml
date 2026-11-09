@@ -24,6 +24,7 @@
     <color name="cs_tint_neutral">#6B5A44</color>
     <color name="cs_tint_neutral_glow">#A17236</color>
     <color name="cs_tint_neutral_text">#7A5A2E</color>
+    <color name="cs_glass">#80F3EADB</color>
     <!-- always dark, whatever the phone: the launch lockup -->
     <color name="cs_dark_bg">#1C1914</color>
     <color name="cs_dark_ink">#EDE4D0</color>

@@ -18,4 +18,5 @@
     <color name="cs_success">#48987A</color>
     <color name="cs_warning">#D4A020</color>
     <color name="cs_tint_neutral_text">#D4AE7D</color>
+    <color name="cs_glass">#661C1914</color>
 </resources>

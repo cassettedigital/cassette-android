@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- cassette: the mini player's play/pause at 30dp inside a 44dp touch. -->
+<inset xmlns:android="http://schemas.android.com/apk/res/android"
+    android:drawable="@drawable/button_play_pause_selector"
+    android:inset="7dp" />
