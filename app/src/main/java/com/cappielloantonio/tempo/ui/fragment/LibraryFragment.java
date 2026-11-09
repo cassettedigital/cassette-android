@@ -62,6 +62,8 @@ public class LibraryFragment extends Fragment implements ClickCallback {
 
     private AlbumCatalogueAdapter albumAdapter;
     private ArtistCatalogueAdapter artistAdapter;
+    /** cassette: Library > Artists as the iPhone's list (rows under letters), not Tempo's grid. */
+    private com.cappielloantonio.tempo.ui.adapter.CassetteArtistListAdapter artistList;
     private PlaylistHorizontalAdapter playlistAdapter;
 
     @Nullable
@@ -314,6 +316,7 @@ public class LibraryFragment extends Fragment implements ClickCallback {
         albumAdapter = new AlbumCatalogueAdapter(this, true);
         letteredAlbums = new com.cappielloantonio.tempo.ui.adapter.CassetteLetteredAlbumAdapter(this);
         artistAdapter = new ArtistCatalogueAdapter(this);
+        artistList = new com.cappielloantonio.tempo.ui.adapter.CassetteArtistListAdapter(this);
         playlistAdapter = new PlaylistHorizontalAdapter(this);
     }
 
@@ -335,8 +338,19 @@ public class LibraryFragment extends Fragment implements ClickCallback {
             refreshCountLine();
         });
         artistCatalogueViewModel.getArtistList().observe(getViewLifecycleOwner(), artists -> {
-            if (artists != null) artistAdapter.setItems(artists);
+            if (artists != null) {
+                artistAdapter.setItems(artists);
+                artistList.setItems(artists);
+            }
             artistCount = artists != null ? artists.size() : -1;
+            // the # to Z index once there are enough artists to need it, as they arrive
+            if (bind != null && CATEGORY_ARTISTS.equals(Preferences.getLibraryLastCategory())) {
+                boolean index = artistCount > com.cappielloantonio.tempo.util.CassetteLetters.THRESHOLD;
+                bind.libraryLetterIndex.setVisibility(index ? View.VISIBLE : View.GONE);
+                int end = Math.round((index ? 30 : 16) * getResources().getDisplayMetrics().density);
+                bind.libraryCatalogueRecyclerView.setPadding(bind.libraryCatalogueRecyclerView.getPaddingLeft(),
+                        bind.libraryCatalogueRecyclerView.getPaddingTop(), end, bind.libraryCatalogueRecyclerView.getPaddingBottom());
+            }
             refreshCountLine();
         });
         playlistCatalogueViewModel.getPlaylistList(getViewLifecycleOwner()).observe(getViewLifecycleOwner(), playlists -> {
@@ -419,9 +433,9 @@ public class LibraryFragment extends Fragment implements ClickCallback {
         switch (category) {
             case CATEGORY_ARTISTS:
                 pushPickerToToolbar(R.string.library_title_artist);
-                bind.libraryCatalogueRecyclerView.setLayoutManager(new GridLayoutManager(requireContext(), GRID_COLUMNS));
-                applyGridSpacing(GRID_COLUMNS);
-                bind.libraryCatalogueRecyclerView.setAdapter(artistAdapter);
+                bind.libraryCatalogueRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+                applyGridSpacing(1);
+                bind.libraryCatalogueRecyclerView.setAdapter(artistList);
                 break;
             case CATEGORY_RADIO:
                 pushPickerToToolbar(R.string.cassette_radio);
@@ -464,15 +478,17 @@ public class LibraryFragment extends Fragment implements ClickCallback {
         }
 
         Preferences.setLibraryLastCategory(category);
-        boolean index = CATEGORY_ALBUMS.equals(category) && showingLetters;
+        boolean index = (CATEGORY_ALBUMS.equals(category) && showingLetters)
+                || (CATEGORY_ARTISTS.equals(category) && artistCount > com.cappielloantonio.tempo.util.CassetteLetters.THRESHOLD);
         bind.libraryLetterIndex.setVisibility(index ? View.VISIBLE : View.GONE);
         int end = Math.round((index ? 30 : 16) * getResources().getDisplayMetrics().density);
         bind.libraryCatalogueRecyclerView.setPadding(bind.libraryCatalogueRecyclerView.getPaddingLeft(),
                 bind.libraryCatalogueRecyclerView.getPaddingTop(), end, bind.libraryCatalogueRecyclerView.getPaddingBottom());
+        final boolean artists = CATEGORY_ARTISTS.equals(category);
         bind.libraryLetterIndex.setOnLetter(letter -> {
-            int at = letteredAlbums.positionFor(letter);
+            int at = artists ? artistList.positionFor(letter) : letteredAlbums.positionFor(letter);
             RecyclerView.LayoutManager lm = bind.libraryCatalogueRecyclerView.getLayoutManager();
-            if (at >= 0 && lm instanceof GridLayoutManager) ((GridLayoutManager) lm).scrollToPositionWithOffset(at, 0);
+            if (at >= 0 && lm instanceof LinearLayoutManager) ((LinearLayoutManager) lm).scrollToPositionWithOffset(at, 0);
         });
         refreshCountLine();
     }
