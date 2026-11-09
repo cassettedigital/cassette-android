@@ -23,7 +23,7 @@
 
         <TextView
             android:id="@+id/disc_title_text_view"
-            style="@style/LabelSmall"
+            style="@style/Cassette.Role.Meta"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ellipsize="end"
@@ -37,8 +37,9 @@
 
         <View
             android:id="@+id/different_disk_divider"
-            style="@style/Divider"
             android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:visibility="invisible"
             app:layout_constraintBottom_toBottomOf="@+id/disc_title_text_view"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/disc_title_text_view"
@@ -62,7 +63,7 @@
         style="@style/TitleMedium"
         android:layout_width="@dimen/track_row_number"
         android:layout_height="@dimen/track_row_art"
-        android:layout_marginStart="16dp"
+        android:layout_marginStart="20dp"
         android:gravity="center_vertical|end"
         android:paddingEnd="6dp"
         android:text="@string/label_placeholder"

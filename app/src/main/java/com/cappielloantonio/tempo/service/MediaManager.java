@@ -257,6 +257,22 @@ public class MediaManager {
         }, MoreExecutors.directExecutor());
     }
 
+    /**
+     * cassette: a play disc on a record tile. Plays that record's songs on this
+     * phone from the top (or shuffled), and the screen stays where it is.
+     */
+    public static void playAlbum(ListenableFuture<MediaBrowser> mediaBrowserListenableFuture, String albumId, boolean shuffle) {
+        if (mediaBrowserListenableFuture == null || albumId == null) return;
+        new Thread(() -> {
+            List<Child> record = new java.util.ArrayList<>(com.cappielloantonio.tempo.database.AppDatabase
+                    .getInstance().downloadDao().getAlbumSync(albumId));
+            if (record.isEmpty()) return;
+            if (shuffle) java.util.Collections.shuffle(record);
+            androidx.core.os.HandlerCompat.createAsync(android.os.Looper.getMainLooper())
+                    .post(() -> startQueue(mediaBrowserListenableFuture, record, 0));
+        }, "cassette-play-album").start();
+    }
+
     public static void startRadio(ListenableFuture<MediaBrowser> mediaBrowserListenableFuture, InternetRadioStation internetRadioStation) {
         if (mediaBrowserListenableFuture != null) {
             mediaBrowserListenableFuture.addListener(() -> {

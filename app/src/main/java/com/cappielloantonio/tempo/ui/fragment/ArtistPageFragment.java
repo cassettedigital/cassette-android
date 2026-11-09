@@ -54,7 +54,7 @@ public class ArtistPageFragment extends Fragment implements ClickCallback {
     /** Match @discovery/cassette-contract POPULAR_SONGS_COLLAPSED_LIMIT. */
     private static final int POPULAR_COLLAPSED_LIMIT = 5;
     /** Match @discovery/cassette-contract POPULAR_SONGS_TEASER_LIMIT. */
-    private static final int POPULAR_TEASER_LIMIT = 20;
+    private static final int POPULAR_TEASER_LIMIT = 5;
     private static final ExecutorService POPULAR_RANK_EXECUTOR = Executors.newSingleThreadExecutor();
 
     private FragmentArtistPageBinding bind;
@@ -138,76 +138,107 @@ public class ArtistPageFragment extends Fragment implements ClickCallback {
     private void init() {
         ArtistID3 artist = requireArguments().getParcelable(Constants.ARTIST_OBJECT);
         artistPageViewModel.setArtist(artist);
-        popularExpanded = false;
     }
 
     private void initAppBar() {
         activity.setSupportActionBar(bind.animToolbar);
         if (activity.getSupportActionBar() != null) {
             activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            activity.getSupportActionBar().setDisplayShowTitleEnabled(false);
+            activity.getSupportActionBar().setDisplayShowTitleEnabled(true);
         }
         bind.animToolbar.setTitle("");
         bind.animToolbar.setNavigationOnClickListener(v -> activity.navController.navigateUp());
+
+        // a solid bar with the artist's name fades in once the hero scrolls away
+        bind.artistPageNestedScrollView.setOnScrollChangeListener(
+                (androidx.core.widget.NestedScrollView.OnScrollChangeListener) (v, x, y, ox, oy) -> {
+                    if (bind == null) return;
+                    int bar = bind.animToolbar.getHeight();
+                    int past = bind.artistInfo.getTop() + bind.artistNameLabel.getBottom() - bar;
+                    float t = past <= 0 ? 1f : Math.max(0f, Math.min(1f, (y - past + bar) / (float) bar));
+                    bind.artistBarBackdrop.setAlpha(t);
+                    ArtistID3 a = artistPageViewModel.getArtist();
+                    bind.animToolbar.setTitle(t >= 1f && a != null ? a.getName() : "");
+                });
     }
+
+    private com.cappielloantonio.tempo.util.CoverTint tint = com.cappielloantonio.tempo.util.CoverTint.NEUTRAL;
+    private String leadCoverId;
 
     private void initHeader() {
         ArtistID3 artist = artistPageViewModel.getArtist();
         if (artist == null || bind == null) return;
 
-        bind.artistNameLabel.setText(artist.getName());
+        bind.artistNameLabel.setText(artist.getName() != null ? artist.getName().toUpperCase(java.util.Locale.getDefault()) : "");
 
-        String coverId = artist.getCoverArtId() != null ? artist.getCoverArtId() : artist.getId();
-        CustomGlideRequest.Builder
-                .from(requireContext(), coverId, CustomGlideRequest.ResourceType.Artist)
-                .build()
-                .into(bind.artistCoverImageView);
-
-        // Counts come from the album list (ArtistID3 has no songCount on the wire).
-        if (artistPageViewModel.getAlbumList() != null) {
-            artistPageViewModel.getAlbumList().observe(getViewLifecycleOwner(), this::refreshMetadata);
+        // the artist's own photo, when this phone holds one, goes full-bleed and
+        // the name climbs into its faded foot (iPhone: Artist.hasOwnPhotoOnDisk)
+        java.io.File photo = com.cappielloantonio.tempo.util.CassetteArtistArt.localFile(requireContext(), artist.getId());
+        if (photo != null) {
+            bind.artistPhotoFrame.setVisibility(View.VISIBLE);
+            bind.artistFan.setVisibility(View.GONE);
+            com.bumptech.glide.Glide.with(this).load(photo)
+                    .signature(new com.bumptech.glide.signature.ObjectKey(photo.lastModified()))
+                    .into(bind.artistPhoto);
+            ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) bind.artistInfo.getLayoutParams();
+            lp.topMargin = -Math.round(110 * getResources().getDisplayMetrics().density);
+            bind.artistInfo.setLayoutParams(lp);
+        } else {
+            bind.artistPhotoFrame.setVisibility(View.GONE);
         }
+
+        if (artistPageViewModel.getAlbumList() != null) {
+            artistPageViewModel.getAlbumList().observe(getViewLifecycleOwner(), albums -> {
+                refreshMetadata(albums);
+                lightFrom(albums, photo == null);
+            });
+        }
+    }
+
+    /** Lit by their newest record; with no photo of their own, their three newest covers fan out. */
+    private void lightFrom(List<AlbumID3> albums, boolean fan) {
+        if (bind == null) return;
+        if (albums == null || albums.isEmpty()) {
+            bind.artistFan.setVisibility(View.GONE);
+            return;
+        }
+        AlbumID3 lead = albums.get(0);
+        if (lead.getCoverArtId() != null && !lead.getCoverArtId().equals(leadCoverId)) {
+            leadCoverId = lead.getCoverArtId();
+            bind.artistGlow.setRecipe(com.cappielloantonio.tempo.ui.view.CoverGlowView.PAGE);
+            bind.artistGlow.setCover(leadCoverId, CustomGlideRequest.ResourceType.Album);
+            com.cappielloantonio.tempo.util.CoverTint.resolve(requireContext(), leadCoverId,
+                    CustomGlideRequest.ResourceType.Album, this::applyTint);
+        }
+        if (!fan) return;
+        bind.artistFan.setVisibility(View.VISIBLE);
+        android.widget.ImageView[] slots = {bind.artistFanCenter, bind.artistFanLeft, bind.artistFanRight};
+        for (int i = 0; i < slots.length; i++) {
+            if (i < albums.size()) {
+                slots[i].setVisibility(View.VISIBLE);
+                CustomGlideRequest.Builder.from(requireContext(), albums.get(i).getCoverArtId(),
+                        CustomGlideRequest.ResourceType.Album).build().into(slots[i]);
+            } else {
+                slots[i].setVisibility(View.GONE);
+            }
+        }
+    }
+
+    private void applyTint(com.cappielloantonio.tempo.util.CoverTint next) {
+        if (bind == null) return;
+        tint = next;
+        if (songHorizontalAdapter != null) songHorizontalAdapter.setTint(next.text(requireContext()));
     }
 
     private void refreshMetadata(List<AlbumID3> albums) {
         if (bind == null) return;
-
         int albumCount = albums != null ? albums.size() : 0;
-        int songCount = 0;
-        if (albums != null) {
-            for (AlbumID3 album : albums) {
-                Integer count = album.getSongCount();
-                if (count != null) songCount += count;
-            }
-        }
-
-        // Fall back to library song list size if album songCount was missing.
-        if (songCount == 0 && librarySongs != null && !librarySongs.isEmpty()) {
-            songCount = librarySongs.size();
-        }
-
+        int songCount = librarySongs != null ? librarySongs.size() : 0;
         List<String> parts = new ArrayList<>();
-        if (albumCount > 0) {
-            parts.add(getString(
-                    albumCount == 1 ? R.string.artist_page_album_count_one : R.string.artist_page_album_count_other,
-                    albumCount));
-        }
-        if (songCount > 0) {
-            parts.add(getString(
-                    songCount == 1 ? R.string.artist_page_song_count_one : R.string.artist_page_song_count_other,
-                    songCount));
-        }
-
-        if (parts.isEmpty()) {
-            bind.artistMetadataLabel.setVisibility(View.GONE);
-            return;
-        }
-
-        String line = parts.size() == 1
-                ? parts.get(0)
-                : getString(R.string.artist_page_metadata_joiner, parts.get(0), parts.get(1));
-        bind.artistMetadataLabel.setText(line);
-        bind.artistMetadataLabel.setVisibility(View.VISIBLE);
+        if (albumCount > 0) parts.add(getResources().getQuantityString(R.plurals.cassette_album_count, albumCount, albumCount));
+        if (songCount > 0) parts.add(getResources().getQuantityString(R.plurals.cassette_song_count, songCount, songCount));
+        bind.artistMetadataLabel.setText(android.text.TextUtils.join(" · ", parts));
+        bind.artistMetadataLabel.setVisibility(parts.isEmpty() ? View.GONE : View.VISIBLE);
     }
 
     private void initMusicButton() {
@@ -220,18 +251,12 @@ public class ArtistPageFragment extends Fragment implements ClickCallback {
             boolean hasSongs = !librarySongs.isEmpty();
             bind.artistPagePlayButton.setEnabled(hasSongs);
             bind.artistPageShuffleButton.setEnabled(hasSongs);
-            bind.artistPageRepeatButton.setEnabled(hasSongs);
-
-            // Album songCount can be null on some servers; refresh once library loads.
             if (artistPageViewModel.getAlbumList() != null) {
                 refreshMetadata(artistPageViewModel.getAlbumList().getValue());
             }
 
             bind.artistPagePlayButton.setOnClickListener(v -> {
-                if (librarySongs.isEmpty()) {
-                    Toast.makeText(requireContext(), getString(R.string.artist_error_retrieving_tracks), Toast.LENGTH_SHORT).show();
-                    return;
-                }
+                if (librarySongs.isEmpty()) return;
                 if (isThisArtistCurrent(librarySongs)) {
                     MediaManager.togglePlayPause(mediaBrowserListenableFuture);
                     activity.setBottomSheetInPeek(true);
@@ -242,23 +267,10 @@ public class ArtistPageFragment extends Fragment implements ClickCallback {
             });
 
             bind.artistPageShuffleButton.setOnClickListener(v -> {
-                if (librarySongs.isEmpty()) {
-                    Toast.makeText(requireContext(), getString(R.string.artist_error_retrieving_tracks), Toast.LENGTH_SHORT).show();
-                    return;
-                }
+                if (librarySongs.isEmpty()) return;
                 List<Child> shuffled = new ArrayList<>(librarySongs);
                 Collections.shuffle(shuffled);
                 MediaManager.startQueue(mediaBrowserListenableFuture, shuffled, 0);
-                activity.setBottomSheetInPeek(true);
-            });
-
-            bind.artistPageRepeatButton.setOnClickListener(v -> {
-                if (librarySongs.isEmpty()) {
-                    Toast.makeText(requireContext(), getString(R.string.artist_error_retrieving_tracks), Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                MediaManager.startQueue(mediaBrowserListenableFuture, librarySongs, 0);
-                MediaManager.setRepeatMode(mediaBrowserListenableFuture, Player.REPEAT_MODE_ALL);
                 activity.setBottomSheetInPeek(true);
             });
 
@@ -277,8 +289,8 @@ public class ArtistPageFragment extends Fragment implements ClickCallback {
     private void refreshPlayButtonState() {
         if (bind == null) return;
         boolean playingThisArtist = CassetteNowPlaying.current().isPlaying && isThisArtistCurrent(librarySongs);
-        bind.artistPagePlayButton.setImageResource(
-                playingThisArtist ? R.drawable.ic_pause : R.drawable.ic_play);
+        bind.artistPagePlayButton.setText(playingThisArtist ? R.string.cassette_pause : R.string.cassette_play);
+        bind.artistPagePlayButton.setIconResource(playingThisArtist ? R.drawable.cs_pause_glyph : R.drawable.cs_play_glyph);
     }
 
     private boolean isThisArtistCurrent(List<Child> songs) {
@@ -290,13 +302,28 @@ public class ArtistPageFragment extends Fragment implements ClickCallback {
         return false;
     }
 
+    private com.cappielloantonio.tempo.ui.adapter.CassetteRecordTileAdapter albumTiles;
+
+    /** ALBUMS: their records on this phone, newest first, the year under each, one-tap play. */
     private void initAlbumsView() {
         bind.albumsRecyclerView.setLayoutManager(
                 new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
-        bind.albumsRecyclerView.setHasFixedSize(true);
+        albumTiles = new com.cappielloantonio.tempo.ui.adapter.CassetteRecordTileAdapter(
+                new com.cappielloantonio.tempo.ui.adapter.CassetteRecordTileAdapter.Listener() {
+                    @Override
+                    public void onOpen(AlbumID3 album) {
+                        Bundle bundle = new Bundle();
+                        bundle.putParcelable(Constants.ALBUM_OBJECT, album);
+                        activity.navController.navigate(R.id.albumPageFragment, bundle);
+                    }
 
-        albumAdapter = new AlbumAdapter(this);
-        bind.albumsRecyclerView.setAdapter(albumAdapter);
+                    @Override
+                    public void onPlay(AlbumID3 album) {
+                        MediaManager.playAlbum(mediaBrowserListenableFuture, album.getId(), false);
+                        activity.setBottomSheetInPeek(true);
+                    }
+                }, com.cappielloantonio.tempo.ui.adapter.CassetteRecordTileAdapter.Subtitle.YEAR);
+        bind.albumsRecyclerView.setAdapter(albumTiles);
 
         if (artistPageViewModel.getAlbumList() == null) return;
         artistPageViewModel.getAlbumList().observe(getViewLifecycleOwner(), albums -> {
@@ -306,40 +333,29 @@ public class ArtistPageFragment extends Fragment implements ClickCallback {
                 return;
             }
             bind.artistPageAlbumsSector.setVisibility(View.VISIBLE);
-            albumAdapter.setItems(albums);
+            albumTiles.setItems(albums);
         });
     }
 
+    /**
+     * MOST PLAYED leads the page: only songs that have actually been played, top
+     * five, ranked by the cloud's counts across every device (popular-rank), with
+     * the rank in the record's colour and the album under each title.
+     */
     private void initPopularView() {
         bind.mostStreamedSongRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
-
-        String artistName = artistPageViewModel.getArtist() != null
-                ? artistPageViewModel.getArtist().getName()
-                : null;
-        // Cover art; no artist line under each row (page already is that artist).
-        songHorizontalAdapter = new SongHorizontalAdapter(this, true, false, null, artistName);
+        String artistName = artistPageViewModel.getArtist() != null ? artistPageViewModel.getArtist().getName() : null;
+        songHorizontalAdapter = new SongHorizontalAdapter(this, true, true, null, artistName);
+        songHorizontalAdapter.setRankMode(true);
+        songHorizontalAdapter.setTint(tint.text(requireContext()));
         bind.mostStreamedSongRecyclerView.setAdapter(songHorizontalAdapter);
 
-        bind.popularShowMoreButton.setOnClickListener(v -> {
-            popularExpanded = true;
-            renderPopularList();
-        });
-
-        // cassette: Popular is the artist's library songs, ranked by cloud
-        // play counts (POST /api/sync/popular-rank) — same order as web/iOS.
-        // Hold the sector until ranking lands so hub counts never flash then
-        // re-rank. Offline falls back to hub playCount with the same sort.
         if (artistPageViewModel.getArtistLibrarySongs() == null) return;
         artistPageViewModel.getArtistLibrarySongs().observe(getViewLifecycleOwner(), songs -> {
             librarySongs = songs != null ? songs : Collections.emptyList();
             if (bind == null) return;
-            if (librarySongs.isEmpty()) {
-                popularSongsFull = Collections.emptyList();
-                bind.artistPageTopSongsSector.setVisibility(View.GONE);
-                return;
-            }
-            // Hold until ranked — mirrors web holding songs for fresh ranks.
             bind.artistPageTopSongsSector.setVisibility(View.GONE);
+            if (librarySongs.isEmpty()) return;
             final int generation = ++popularRankGeneration;
             final List<Child> snapshot = new ArrayList<>(librarySongs);
             POPULAR_RANK_EXECUTOR.execute(() -> {
@@ -348,12 +364,8 @@ public class ArtistPageFragment extends Fragment implements ClickCallback {
                 requireActivity().runOnUiThread(() -> {
                     if (bind == null || generation != popularRankGeneration) return;
                     popularSongsFull = ranked;
-                    if (popularSongsFull.isEmpty()) {
-                        bind.artistPageTopSongsSector.setVisibility(View.GONE);
-                        return;
-                    }
-                    bind.artistPageTopSongsSector.setVisibility(View.VISIBLE);
-                    renderPopularList();
+                    bind.artistPageTopSongsSector.setVisibility(ranked.isEmpty() ? View.GONE : View.VISIBLE);
+                    songHorizontalAdapter.setItems(ranked);
                 });
             });
         });
@@ -383,6 +395,7 @@ public class ArtistPageFragment extends Fragment implements ClickCallback {
                         CassetteSyncApi.rankPopular(bearer, inputs);
                 List<Child> out = new ArrayList<>(ranked.size());
                 for (CassetteSyncApi.PopularRankItem item : ranked) {
+                    if (item.playCount <= 0) continue; // only songs actually played
                     Child song = byLocalId.get(item.cassetteLocalId);
                     if (song != null) out.add(song);
                 }
@@ -400,7 +413,10 @@ public class ArtistPageFragment extends Fragment implements ClickCallback {
 
     /** Hub playCount ↓, title A→Z — offline fallback only. */
     private static List<Child> rankPopularLocal(List<Child> songs) {
-        List<Child> ranked = new ArrayList<>(songs);
+        List<Child> ranked = new ArrayList<>();
+        for (Child song : songs) {
+            if (song.getPlayCount() != null && song.getPlayCount() > 0) ranked.add(song);
+        }
         ranked.sort((a, b) -> {
             long pa = a.getPlayCount() != null ? a.getPlayCount() : 0L;
             long pb = b.getPlayCount() != null ? b.getPlayCount() : 0L;
@@ -413,18 +429,6 @@ public class ArtistPageFragment extends Fragment implements ClickCallback {
         return ranked.size() > POPULAR_TEASER_LIMIT
                 ? new ArrayList<>(ranked.subList(0, POPULAR_TEASER_LIMIT))
                 : ranked;
-    }
-
-    private void renderPopularList() {
-        if (bind == null || songHorizontalAdapter == null) return;
-
-        int limit = popularExpanded
-                ? popularSongsFull.size()
-                : Math.min(popularSongsFull.size(), POPULAR_COLLAPSED_LIMIT);
-        songHorizontalAdapter.setItems(popularSongsFull.subList(0, limit));
-
-        boolean showMore = !popularExpanded && popularSongsFull.size() > POPULAR_COLLAPSED_LIMIT;
-        bind.popularShowMoreButton.setVisibility(showMore ? View.VISIBLE : View.GONE);
     }
 
     private void initializeMediaBrowser() {

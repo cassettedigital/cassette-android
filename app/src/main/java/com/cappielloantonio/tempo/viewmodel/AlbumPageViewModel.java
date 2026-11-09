@@ -30,8 +30,50 @@ public class AlbumPageViewModel extends AndroidViewModel {
         artistRepository = new ArtistRepository();
     }
 
+    private String songsFor;
+    private LiveData<List<Child>> songs;
+
+    /**
+     * cassette: the album's songs. Offline-first (the default) lists only the
+     * songs on this phone, read from the phone's own store, so the page works
+     * away from the computer and never offers a song that can't play (R1 in
+     * the 2026-11-09 audit). One LiveData per album, shared by the page.
+     */
     public LiveData<List<Child>> getAlbumSongLiveList() {
-        return albumRepository.getAlbumTracks(albumId);
+        if (songs != null && albumId != null && albumId.equals(songsFor)) return songs;
+        songsFor = albumId;
+        if (com.cappielloantonio.tempo.util.Preferences.isOfflineFirst()) {
+            MutableLiveData<List<Child>> live = new MutableLiveData<>();
+            final String id = albumId;
+            new Thread(() -> live.postValue(new java.util.ArrayList<>(
+                    com.cappielloantonio.tempo.database.AppDatabase.getInstance().downloadDao().getAlbumSync(id))),
+                    "cassette-album-songs").start();
+            songs = live;
+        } else {
+            songs = albumRepository.getAlbumTracks(albumId);
+        }
+        return songs;
+    }
+
+    /** cassette: the artist's other records on this phone, newest first (MORE BY). */
+    public LiveData<List<AlbumID3>> getMoreByArtist() {
+        MutableLiveData<List<AlbumID3>> live = new MutableLiveData<>();
+        AlbumID3 current = album.getValue();
+        final String artistId = current != null ? current.getArtistId() : null;
+        final String thisId = albumId;
+        if (artistId == null) {
+            live.setValue(new java.util.ArrayList<>());
+            return live;
+        }
+        com.cappielloantonio.tempo.util.CassetteOfflineLibrary.albums(all -> {
+            List<AlbumID3> out = new java.util.ArrayList<>();
+            for (AlbumID3 a : all) {
+                if (artistId.equals(a.getArtistId()) && !a.getId().equals(thisId)) out.add(a);
+            }
+            out.sort((a, b) -> Integer.compare(b.getYear(), a.getYear()));
+            live.setValue(out);
+        });
+        return live;
     }
 
     public MutableLiveData<AlbumID3> getAlbum() {

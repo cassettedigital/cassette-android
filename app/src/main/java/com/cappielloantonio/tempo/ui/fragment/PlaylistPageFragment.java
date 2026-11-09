@@ -65,35 +65,6 @@ public class PlaylistPageFragment extends Fragment implements ClickCallback {
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         inflater.inflate(R.menu.playlist_page_menu, menu);
-
-        // cassette: manual "download all" is streaming-mode only, like the album
-        // page - kept consistent even though playlists are not album-scope synced.
-        MenuItem downloadItem = menu.findItem(R.id.action_download_playlist);
-        if (downloadItem != null) {
-            downloadItem.setVisible(com.cappielloantonio.tempo.util.Preferences.isServerMode());
-        }
-
-        MenuItem searchItem = menu.findItem(R.id.action_search);
-
-        SearchView searchView = (SearchView) searchItem.getActionView();
-        searchView.setImeOptions(EditorInfo.IME_ACTION_DONE);
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                searchView.clearFocus();
-                return false;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                songHorizontalAdapter.getFilter().filter(newText);
-                return false;
-            }
-        });
-
-        searchView.setPadding(-32, 0, 0, 0);
-
-        initMenuOption(menu);
     }
 
     @Override
@@ -134,29 +105,20 @@ public class PlaylistPageFragment extends Fragment implements ClickCallback {
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.action_download_playlist) {
-            playlistPageViewModel.getPlaylistSongLiveList().observe(getViewLifecycleOwner(), songs -> {
-                if (isVisible() && getActivity() != null) {
-                    DownloadUtil.getDownloadTracker(requireContext()).download(
-                            MappingUtil.mapDownloads(songs),
-                            songs.stream().map(child -> {
-                                Download toDownload = new Download(child);
-                                toDownload.setPlaylistId(playlistPageViewModel.getPlaylist().getId());
-                                toDownload.setPlaylistName(playlistPageViewModel.getPlaylist().getName());
-                                return toDownload;
-                            }).collect(Collectors.toList())
-                    );
-                }
-            });
+        int id = item.getItemId();
+        if (id == R.id.action_playlist_play_next || id == R.id.action_playlist_add_to_queue) {
+            MediaManager.enqueue(mediaBrowserListenableFuture, new java.util.ArrayList<>(playlistSongs), id == R.id.action_playlist_play_next);
+            activity.setBottomSheetInPeek(true);
             return true;
-        } else if (item.getItemId() == R.id.action_pin_playlist) {
-            playlistPageViewModel.setPinned(true);
-            return true;
-        } else if (item.getItemId() == R.id.action_unpin_playlist) {
-            playlistPageViewModel.setPinned(false);
+        } else if (id == R.id.action_playlist_edit) {
+            Bundle bundle = new Bundle();
+            bundle.putParcelable(Constants.PLAYLIST_OBJECT, playlistPageViewModel.getPlaylist());
+            com.cappielloantonio.tempo.ui.dialog.PlaylistEditorDialog dialog =
+                    new com.cappielloantonio.tempo.ui.dialog.PlaylistEditorDialog(new com.cappielloantonio.tempo.interfaces.PlaylistCallback() { });
+            dialog.setArguments(bundle);
+            dialog.show(activity.getSupportFragmentManager(), null);
             return true;
         }
-
         return false;
     }
 
@@ -164,133 +126,124 @@ public class PlaylistPageFragment extends Fragment implements ClickCallback {
         playlistPageViewModel.setPlaylist(requireArguments().getParcelable(Constants.PLAYLIST_OBJECT));
     }
 
-    private void initMenuOption(Menu menu) {
-        playlistPageViewModel.isPinned(getViewLifecycleOwner()).observe(getViewLifecycleOwner(), isPinned -> {
-            menu.findItem(R.id.action_unpin_playlist).setVisible(isPinned);
-            menu.findItem(R.id.action_pin_playlist).setVisible(!isPinned);
-        });
-    }
+    private java.util.List<com.cappielloantonio.tempo.subsonic.models.Child> playlistSongs = Collections.emptyList();
+    private com.cappielloantonio.tempo.util.CoverTint tint = com.cappielloantonio.tempo.util.CoverTint.NEUTRAL;
 
     private void initAppBar() {
         activity.setSupportActionBar(bind.animToolbar);
-
         if (activity.getSupportActionBar() != null) {
             activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             activity.getSupportActionBar().setDisplayShowHomeEnabled(true);
+            activity.getSupportActionBar().setDisplayShowTitleEnabled(true);
+        }
+        bind.animToolbar.setTitle("");
+        bind.animToolbar.setNavigationOnClickListener(v -> activity.navController.navigateUp());
+        if (bind.animToolbar.getOverflowIcon() != null) {
+            bind.animToolbar.getOverflowIcon().setTint(requireContext().getResources().getColor(R.color.titleTextColor, null));
         }
 
-        bind.animToolbar.setTitle(playlistPageViewModel.getPlaylist().getName());
+        com.cappielloantonio.tempo.subsonic.models.Playlist playlist = playlistPageViewModel.getPlaylist();
+        bind.playlistNameLabel.setText(playlist.getName() != null ? playlist.getName().toUpperCase(java.util.Locale.getDefault()) : "");
+        // your own words for it, in the serif; a saved mixtape's boilerplate is left out
+        String description = playlist.getComment();
+        boolean own = description != null && !description.trim().isEmpty()
+                && !description.toLowerCase(java.util.Locale.ROOT).contains("mixtape");
+        bind.playlistDescriptionLabel.setText(own ? description.trim() : "");
+        bind.playlistDescriptionLabel.setVisibility(own ? View.VISIBLE : View.GONE);
 
-        bind.playlistNameLabel.setText(playlistPageViewModel.getPlaylist().getName());
-        bind.playlistSongCountLabel.setText(getString(R.string.playlist_song_count, playlistPageViewModel.getPlaylist().getSongCount()));
-        bind.playlistDurationLabel.setText(getString(R.string.playlist_duration, MusicUtil.getReadableDurationString(playlistPageViewModel.getPlaylist().getDuration(), false)));
-
-        bind.animToolbar.setNavigationOnClickListener(v -> {
-            hideKeyboard(v);
-            activity.navController.navigateUp();
-        });
-
-        Objects.requireNonNull(bind.animToolbar.getOverflowIcon()).setTint(requireContext().getResources().getColor(R.color.titleTextColor, null));
-    }
-
-    private void hideKeyboard(View view) {
-        InputMethodManager imm = (InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        bind.playlistNestedScrollView.setOnScrollChangeListener(
+                (androidx.core.widget.NestedScrollView.OnScrollChangeListener) (v, x, y, ox, oy) -> {
+                    if (bind == null) return;
+                    int bar = bind.animToolbar.getHeight();
+                    int past = bind.playlistCoverImageView.getBottom() - bar;
+                    float t = past <= 0 ? 1f : Math.max(0f, Math.min(1f, (y - past + bar) / (float) bar));
+                    bind.playlistBarBackdrop.setAlpha(t);
+                    bind.animToolbar.setTitle(t >= 1f ? playlist.getName() : "");
+                });
     }
 
     private void initMusicButton() {
         playlistPageViewModel.getPlaylistSongLiveList().observe(getViewLifecycleOwner(), songs -> {
-            if (bind != null) {
-                bind.playlistPagePlayButton.setOnClickListener(v -> {
-                    MediaManager.startQueue(mediaBrowserListenableFuture, songs.subList(0, Math.min(100, songs.size())), 0);
-                    activity.setBottomSheetInPeek(true);
-                });
+            if (bind == null) return;
+            playlistSongs = songs != null ? songs : Collections.emptyList();
+            boolean any = !playlistSongs.isEmpty();
+            bind.playlistPagePlayButton.setEnabled(any);
+            bind.playlistPageShuffleButton.setEnabled(any);
+            bind.playlistEmpty.emptyStateTitle.setText(R.string.cassette_empty_playlist);
+            bind.playlistEmpty.emptyStateTitle.setVisibility(any ? View.GONE : View.VISIBLE);
+            refreshMeta();
+            refreshPlayButtonState();
 
-                bind.playlistPageShuffleButton.setOnClickListener(v -> {
-                    Collections.shuffle(songs);
-                    MediaManager.startQueue(mediaBrowserListenableFuture, songs.subList(0, Math.min(100, songs.size())), 0);
-                    activity.setBottomSheetInPeek(true);
-                });
-            }
+            bind.playlistPagePlayButton.setOnClickListener(v -> {
+                if (isThisPlaylistCurrent()) {
+                    MediaManager.togglePlayPause(mediaBrowserListenableFuture);
+                } else {
+                    MediaManager.startQueue(mediaBrowserListenableFuture, new java.util.ArrayList<>(playlistSongs), 0);
+                }
+                activity.setBottomSheetInPeek(true);
+            });
+
+            bind.playlistPageShuffleButton.setOnClickListener(v -> {
+                java.util.List<com.cappielloantonio.tempo.subsonic.models.Child> shuffled = new java.util.ArrayList<>(playlistSongs);
+                Collections.shuffle(shuffled);
+                MediaManager.startQueue(mediaBrowserListenableFuture, shuffled, 0);
+                activity.setBottomSheetInPeek(true);
+            });
+        });
+
+        com.cappielloantonio.tempo.util.CassetteNowPlaying.live().observe(getViewLifecycleOwner(), state -> {
+            if (bind == null || state == null) return;
+            if (songHorizontalAdapter != null) songHorizontalAdapter.setNowPlaying(state.mediaId, state.isPlaying);
+            refreshPlayButtonState();
         });
     }
 
-    private void initBackCover() {
-        // cassette: web-chosen cloud cover is a single absolute URL. Show it
-        // full-bleed instead of the song-art mosaic.
-        String cloudCover = playlistPageViewModel.getPlaylist() != null
-                ? playlistPageViewModel.getPlaylist().getCoverArtId()
-                : null;
-        if (CustomGlideRequest.isRemoteCoverUrl(cloudCover)) {
-            showCloudPlaylistCover(cloudCover);
-            return;
-        }
-
-        playlistPageViewModel.getPlaylistSongLiveList().observe(requireActivity(), songs -> {
-            if (bind != null && songs != null && !songs.isEmpty()) {
-                Collections.shuffle(songs);
-
-                // Pic top-left
-                CustomGlideRequest.Builder
-                        .from(requireContext(), !songs.isEmpty() ? songs.get(0).getCoverArtId() : playlistPageViewModel.getPlaylist().getCoverArtId(), CustomGlideRequest.ResourceType.Song)
-                        .build()
-                        .transform(new GranularRoundedCorners(CustomGlideRequest.CORNER_RADIUS, 0, 0, 0))
-                        .into(bind.playlistCoverImageViewTopLeft);
-
-                // Pic top-right
-                CustomGlideRequest.Builder
-                        .from(requireContext(), songs.size() > 1 ? songs.get(1).getCoverArtId() : playlistPageViewModel.getPlaylist().getCoverArtId(), CustomGlideRequest.ResourceType.Song)
-                        .build()
-                        .transform(new GranularRoundedCorners(0, CustomGlideRequest.CORNER_RADIUS, 0, 0))
-                        .into(bind.playlistCoverImageViewTopRight);
-
-                // Pic bottom-left
-                CustomGlideRequest.Builder
-                        .from(requireContext(), songs.size() > 2 ? songs.get(2).getCoverArtId() : playlistPageViewModel.getPlaylist().getCoverArtId(), CustomGlideRequest.ResourceType.Song)
-                        .build()
-                        .transform(new GranularRoundedCorners(0, 0, 0, CustomGlideRequest.CORNER_RADIUS))
-                        .into(bind.playlistCoverImageViewBottomLeft);
-
-                // Pic bottom-right
-                CustomGlideRequest.Builder
-                        .from(requireContext(), songs.size() > 3 ? songs.get(3).getCoverArtId() : playlistPageViewModel.getPlaylist().getCoverArtId(), CustomGlideRequest.ResourceType.Song)
-                        .build()
-                        .transform(new GranularRoundedCorners(0, 0, CustomGlideRequest.CORNER_RADIUS, 0))
-                        .into(bind.playlistCoverImageViewBottomRight);
-            }
-        });
-    }
-
-    private void showCloudPlaylistCover(String coverUrl) {
+    /** "9 SONGS · 38 MIN", counting the songs on this phone (the length is never 0:00). */
+    private void refreshMeta() {
         if (bind == null) return;
+        int count = playlistSongs.size();
+        java.util.List<String> parts = new java.util.ArrayList<>();
+        if (count > 0) {
+            parts.add(getResources().getQuantityString(R.plurals.cassette_song_count, count, count));
+            long seconds = 0;
+            for (com.cappielloantonio.tempo.subsonic.models.Child song : playlistSongs) if (song.getDuration() != null) seconds += song.getDuration();
+            if (seconds > 0) parts.add(getString(R.string.cassette_minutes, Math.max(1, Math.round(seconds / 60f))));
+        }
+        bind.playlistMetaLabel.setText(android.text.TextUtils.join(" · ", parts));
+        bind.playlistMetaLabel.setVisibility(parts.isEmpty() ? View.GONE : View.VISIBLE);
+    }
 
-        bind.playlistCoverImageViewTopRight.setVisibility(View.GONE);
-        bind.playlistCoverImageViewBottomLeft.setVisibility(View.GONE);
-        bind.playlistCoverImageViewBottomRight.setVisibility(View.GONE);
+    private boolean isThisPlaylistCurrent() {
+        String mediaId = com.cappielloantonio.tempo.util.CassetteNowPlaying.current().mediaId;
+        if (mediaId == null) return false;
+        for (com.cappielloantonio.tempo.subsonic.models.Child song : playlistSongs) {
+            if (mediaId.equals(song.getId())) return true;
+        }
+        return false;
+    }
 
-        ConstraintSet cs = new ConstraintSet();
-        cs.clone(bind.playlistInfoSector);
-        cs.clear(R.id.playlist_cover_image_view_top_left, ConstraintSet.END);
-        cs.connect(
-                R.id.playlist_cover_image_view_top_left,
-                ConstraintSet.END,
-                ConstraintSet.PARENT_ID,
-                ConstraintSet.END,
-                (int) (64 * getResources().getDisplayMetrics().density)
-        );
-        cs.connect(
-                R.id.playlist_name_label,
-                ConstraintSet.TOP,
-                R.id.playlist_cover_image_view_top_left,
-                ConstraintSet.BOTTOM
-        );
-        cs.applyTo(bind.playlistInfoSector);
+    private void refreshPlayButtonState() {
+        if (bind == null) return;
+        boolean playing = com.cappielloantonio.tempo.util.CassetteNowPlaying.current().isPlaying && isThisPlaylistCurrent();
+        bind.playlistPagePlayButton.setText(playing ? R.string.cassette_pause : R.string.cassette_play);
+        bind.playlistPagePlayButton.setIconResource(playing ? R.drawable.cs_pause_glyph : R.drawable.cs_play_glyph);
+    }
 
-        CustomGlideRequest.Builder
-                .from(requireContext(), coverUrl, CustomGlideRequest.ResourceType.Playlist)
-                .build()
-                .transform(new RoundedCorners(CustomGlideRequest.CORNER_RADIUS))
-                .into(bind.playlistCoverImageViewTopLeft);
+    /** The playlist's own cover (your pick, else its preset), lighting the page. Never a mosaic. */
+    private void initBackCover() {
+        String cover = playlistPageViewModel.getPlaylist() != null ? playlistPageViewModel.getPlaylist().getCoverArtId() : null;
+        CustomGlideRequest.Builder.from(requireContext(), cover, CustomGlideRequest.ResourceType.Playlist)
+                .build().into(bind.playlistCoverImageView);
+        bind.playlistGlow.setRecipe(com.cappielloantonio.tempo.ui.view.CoverGlowView.PAGE);
+        bind.playlistGlow.setCover(cover, CustomGlideRequest.ResourceType.Playlist);
+        com.cappielloantonio.tempo.util.CoverTint.resolve(requireContext(), cover, CustomGlideRequest.ResourceType.Playlist, next -> {
+            if (bind == null) return;
+            tint = next;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+                bind.playlistCoverImageView.setOutlineSpotShadowColor(next.shadow(0.4));
+                bind.playlistCoverImageView.setOutlineAmbientShadowColor(next.shadow(0.4));
+            }
+        });
     }
 
     private void initSongsView() {

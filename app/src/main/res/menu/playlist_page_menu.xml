@@ -1,26 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- cassette: a playlist's more menu, the iPhone's (05fb68d9, d31e451b): queue
+     verbs and Edit. Tempo's search field, Pin and Download all are gone; the
+     page re-syncs on open. -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/action_search"
-        android:icon="@drawable/ic_search"
-        android:title="@string/menu_search_button"
-        app:actionViewClass="android.widget.SearchView"
-        app:showAsAction="ifRoom" />
-
-    <item
-        android:id="@+id/action_download_playlist"
-        android:icon="@drawable/ic_file_download"
-        android:title="@string/menu_download_all_button"
+        android:id="@+id/action_playlist_play_next"
+        android:title="@string/cassette_play_next"
         app:showAsAction="never" />
     <item
-        android:id="@+id/action_pin_playlist"
-        android:icon="@drawable/ic_add"
-        android:title="@string/menu_pin_button"
+        android:id="@+id/action_playlist_add_to_queue"
+        android:title="@string/cassette_add_to_queue"
         app:showAsAction="never" />
     <item
-        android:id="@+id/action_unpin_playlist"
-        android:icon="@drawable/ic_close"
-        android:title="@string/menu_unpin_button"
+        android:id="@+id/action_playlist_edit"
+        android:title="@string/cassette_edit"
         app:showAsAction="never" />
 </menu>

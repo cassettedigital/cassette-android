@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- cassette: an artist photo's foot fading into the page, so the name can climb into it. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <gradient
+        android:angle="270"
+        android:centerColor="#991C1914"
+        android:endColor="@color/cs_bg"
+        android:startColor="#001C1914" />
+</shape>

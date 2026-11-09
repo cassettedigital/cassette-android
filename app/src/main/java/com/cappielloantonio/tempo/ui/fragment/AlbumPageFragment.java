@@ -83,11 +83,11 @@ public class AlbumPageFragment extends Fragment implements ClickCallback {
 
         init();
         initAppBar();
-        initAlbumInfoTextButton();
-        initAlbumNotes();
+        initHeader();
+        initArtistLink();
         initMusicButton();
-        initBackCover();
         initSongsView();
+        initMoreBy();
 
         return view;
     }
@@ -114,9 +114,6 @@ public class AlbumPageFragment extends Fragment implements ClickCallback {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.action_album_options) {
-            // cassette: open the shared album action sheet (mix, shuffle, play
-            // next, queue, download, go to artist) — the same one a long-press
-            // opens elsewhere. Reuse the album this page was launched with.
             Bundle bundle = new Bundle();
             bundle.putParcelable(Constants.ALBUM_OBJECT, requireArguments().getParcelable(Constants.ALBUM_OBJECT));
             Navigation.findNavController(requireView()).navigate(R.id.albumBottomSheetDialog, bundle);
@@ -132,60 +129,94 @@ public class AlbumPageFragment extends Fragment implements ClickCallback {
 
     private void initAppBar() {
         activity.setSupportActionBar(bind.animToolbar);
-        // cassette: no app-name title — the action bar defaults to the app label
-        // when the toolbar has none; this page's chrome is back/overflow only.
         bind.animToolbar.setTitle("");
 
         if (activity.getSupportActionBar() != null) {
             activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            activity.getSupportActionBar().setDisplayShowTitleEnabled(false);
+            activity.getSupportActionBar().setDisplayShowTitleEnabled(true);
             activity.getSupportActionBar().setDisplayShowHomeEnabled(true);
-
         }
-
-        albumPageViewModel.getAlbum().observe(getViewLifecycleOwner(), album -> {
-            if (bind != null && album != null) {
-                // cassette: no toolbar title — the cover + centered title own
-                // the page (iOS reference); toolbar is just back/overflow chrome.
-
-                bind.albumNameLabel.setText(album.getName());
-                bind.albumArtistLabel.setText(album.getArtist());
-                // cassette: year under the artist (web/iOS parity). Genre stays
-                // out of this quiet header line.
-                if (album.getYear() > 0) {
-                    bind.albumReleaseYearLabel.setVisibility(View.VISIBLE);
-                    bind.albumReleaseYearLabel.setText(String.valueOf(album.getYear()));
-                } else {
-                    bind.albumReleaseYearLabel.setVisibility(View.GONE);
-                    bind.albumReleaseYearLabel.setText("");
-                }
-                // The count/duration string is still set for the collapsible
-                // detail pane, which stays hidden.
-                bind.albumSongCountDurationTextview.setText(getString(R.string.album_page_tracks_count_and_duration, album.getSongCount(), album.getDuration() != null ? album.getDuration() / 60 : 0));
-                bind.albumGenresTextview.setText(album.getGenre());
-
-                if (album.getReleaseDate() != null && album.getOriginalReleaseDate() != null) {
-                    bind.albumReleaseYearsTextview.setVisibility(View.VISIBLE);
-
-                    if (album.getReleaseDate() == null || album.getOriginalReleaseDate() == null) {
-                        bind.albumReleaseYearsTextview.setText(getString(R.string.album_page_release_date_label, album.getReleaseDate() != null ? album.getReleaseDate().getFormattedDate() : album.getOriginalReleaseDate().getFormattedDate()));
-                    }
-
-                    if (album.getReleaseDate() != null && album.getOriginalReleaseDate() != null) {
-                        if (Objects.equals(album.getReleaseDate().getYear(), album.getOriginalReleaseDate().getYear()) && Objects.equals(album.getReleaseDate().getMonth(), album.getOriginalReleaseDate().getMonth()) && Objects.equals(album.getReleaseDate().getDay(), album.getOriginalReleaseDate().getDay())) {
-                            bind.albumReleaseYearsTextview.setText(getString(R.string.album_page_release_date_label, album.getReleaseDate().getFormattedDate()));
-                        } else {
-                            bind.albumReleaseYearsTextview.setText(getString(R.string.album_page_release_dates_label, album.getReleaseDate().getFormattedDate(), album.getOriginalReleaseDate().getFormattedDate()));
-                        }
-                    }
-                }
-            }
-        });
+        bind.animToolbar.setTitle("");
 
         bind.animToolbar.setNavigationOnClickListener(v -> activity.navController.navigateUp());
+
+        // cassette (BUG-945): once the header has scrolled away, a solid bar with
+        // the record's name fades in behind back and more, so the songs never
+        // slide under a bare arrow.
+        bind.fragmentAlbumPageNestedScrollView.setOnScrollChangeListener(
+                (androidx.core.widget.NestedScrollView.OnScrollChangeListener) (v, x, y, ox, oy) -> {
+                    if (bind == null) return;
+                    int bar = bind.animToolbar.getHeight();
+                    int pastCover = bind.albumCoverImageView.getBottom() - bar;
+                    float t = pastCover <= 0 ? 1f : Math.max(0f, Math.min(1f, (y - pastCover + bar) / (float) bar));
+                    bind.albumBarBackdrop.setAlpha(t);
+                    boolean showTitle = t >= 1f;
+                    com.cappielloantonio.tempo.subsonic.models.AlbumID3 a = albumPageViewModel.getAlbum().getValue();
+                    bind.animToolbar.setTitle(showTitle && a != null ? a.getName() : "");
+                });
     }
 
-    private void initAlbumInfoTextButton() {
+    /** cassette: the lit header: title, artist in the record's colour, the meta line, the glow. */
+    private void initHeader() {
+        albumPageViewModel.getAlbum().observe(getViewLifecycleOwner(), album -> {
+            if (bind == null || album == null) return;
+            bind.albumNameLabel.setText(album.getName() != null ? album.getName().toUpperCase(java.util.Locale.getDefault()) : "");
+            bind.albumArtistLabel.setText(album.getArtist());
+
+            CustomGlideRequest.Builder.from(requireContext(), album.getCoverArtId(), CustomGlideRequest.ResourceType.Album).build().into(bind.albumCoverImageView);
+            bind.albumGlow.setRecipe(com.cappielloantonio.tempo.ui.view.CoverGlowView.PAGE);
+            bind.albumGlow.setCover(album.getCoverArtId(), CustomGlideRequest.ResourceType.Album);
+
+            // the record's colour: neutral until read, never orange
+            applyTint(com.cappielloantonio.tempo.util.CoverTint.NEUTRAL);
+            com.cappielloantonio.tempo.util.CoverTint.resolve(requireContext(), album.getCoverArtId(),
+                    CustomGlideRequest.ResourceType.Album, this::applyTint);
+            refreshMeta();
+        });
+    }
+
+    private com.cappielloantonio.tempo.util.CoverTint tint = com.cappielloantonio.tempo.util.CoverTint.NEUTRAL;
+
+    private void applyTint(com.cappielloantonio.tempo.util.CoverTint next) {
+        if (bind == null) return;
+        tint = next;
+        int text = next.text(requireContext());
+        bind.albumArtistLabel.setTextColor(text);
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+            bind.albumCoverImageView.setOutlineSpotShadowColor(next.shadow(0.4));
+            bind.albumCoverImageView.setOutlineAmbientShadowColor(next.shadow(0.4));
+        }
+        if (songHorizontalAdapter != null) songHorizontalAdapter.setTint(text);
+        refreshMoreByHeading();
+    }
+
+    /** "1997 · 12 SONGS · 53 MIN", counting what is on this phone. */
+    private void refreshMeta() {
+        if (bind == null) return;
+        com.cappielloantonio.tempo.subsonic.models.AlbumID3 album = albumPageViewModel.getAlbum().getValue();
+        List<String> parts = new java.util.ArrayList<>();
+        if (album != null && album.getYear() > 0) parts.add(String.valueOf(album.getYear()));
+        int count = albumSongs.size();
+        if (count > 0) {
+            parts.add(getResources().getQuantityString(R.plurals.cassette_song_count, count, count));
+            long seconds = 0;
+            for (Child song : albumSongs) if (song.getDuration() != null) seconds += song.getDuration();
+            if (seconds > 0) parts.add(getString(R.string.cassette_minutes, Math.max(1, Math.round(seconds / 60f))));
+        }
+        bind.albumMetaLabel.setText(android.text.TextUtils.join(" · ", parts));
+        bind.albumMetaLabel.setVisibility(parts.isEmpty() ? View.GONE : View.VISIBLE);
+
+        // when part of the record is still on the computer, say so once, quietly
+        Integer total = album != null ? album.getSongCount() : null;
+        if (total != null && count > 0 && total > count) {
+            bind.albumOnPhoneLine.setText(getString(R.string.cassette_songs_on_phone, count, total));
+            bind.albumOnPhoneLine.setVisibility(View.VISIBLE);
+        } else {
+            bind.albumOnPhoneLine.setVisibility(View.GONE);
+        }
+    }
+
+    private void initArtistLink() {
         bind.albumArtistLabel.setOnClickListener(v -> albumPageViewModel.getArtist().observe(getViewLifecycleOwner(), artist -> {
             if (artist != null) {
                 Bundle bundle = new Bundle();
@@ -196,90 +227,51 @@ public class AlbumPageFragment extends Fragment implements ClickCallback {
         }));
     }
 
-    private void initAlbumNotes() {
-        albumPageViewModel.getAlbumInfo().observe(getViewLifecycleOwner(), albumInfo -> {
-            if (albumInfo != null) {
-                if (bind != null) bind.albumNotesTextview.setVisibility(View.VISIBLE);
-                if (bind != null)
-                    bind.albumNotesTextview.setText(MusicUtil.forceReadableString(albumInfo.getNotes()));
-
-                // cassette: the notes stay plain text. Tempo turned them into a
-                // tap-through to an outside listening-stats site that Cassette
-                // never links to. The notes text itself is empty on our
-                // agents-off hub, so nothing is lost.
-            } else {
-                if (bind != null) bind.albumNotesTextview.setVisibility(View.GONE);
-            }
-        });
-    }
-
     private void initMusicButton() {
         albumPageViewModel.getAlbumSongLiveList().observe(getViewLifecycleOwner(), songs -> {
-            if (bind != null && !songs.isEmpty()) {
-                bind.albumPagePlayButton.setOnClickListener(v -> {
-                    // cassette: if this album is the one sounding, the button is
-                    // a pause, not a restart. Tapping play on a record that is
-                    // already playing used to throw you back to track one.
-                    if (isThisAlbumCurrent(songs)) {
-                        MediaManager.togglePlayPause(mediaBrowserListenableFuture);
-                        activity.setBottomSheetInPeek(true);
-                        return;
-                    }
-                    MediaManager.startQueue(mediaBrowserListenableFuture, songs, 0);
+            if (bind == null) return;
+            boolean any = songs != null && !songs.isEmpty();
+            bind.albumPagePlayButton.setEnabled(any);
+            bind.albumPageShuffleButton.setEnabled(any);
+            if (!any) return;
+            bind.albumPagePlayButton.setOnClickListener(v -> {
+                if (isThisAlbumCurrent(songs)) {
+                    MediaManager.togglePlayPause(mediaBrowserListenableFuture);
                     activity.setBottomSheetInPeek(true);
-                });
+                    return;
+                }
+                MediaManager.startQueue(mediaBrowserListenableFuture, songs, 0);
+                activity.setBottomSheetInPeek(true);
+            });
 
-                bind.albumPageShuffleButton.setOnClickListener(v -> {
-                    Collections.shuffle(songs);
-                    MediaManager.startQueue(mediaBrowserListenableFuture, songs, 0);
-                    activity.setBottomSheetInPeek(true);
-                });
-
-                bind.albumPageRepeatButton.setOnClickListener(v -> {
-                    MediaManager.startQueue(mediaBrowserListenableFuture, songs, 0);
-                    MediaManager.setRepeatMode(mediaBrowserListenableFuture, Player.REPEAT_MODE_ALL);
-                    activity.setBottomSheetInPeek(true);
-                });
-            }
-
-            if (bind != null && songs.isEmpty()) {
-                bind.albumPagePlayButton.setEnabled(false);
-                bind.albumPageShuffleButton.setEnabled(false);
-                bind.albumPageRepeatButton.setEnabled(false);
-            }
-        });
-    }
-
-    private void initBackCover() {
-        albumPageViewModel.getAlbum().observe(getViewLifecycleOwner(), album -> {
-            if (bind != null && album != null) {
-                CustomGlideRequest.Builder.from(requireContext(), album.getCoverArtId(), CustomGlideRequest.ResourceType.Album).build().into(bind.albumCoverImageView);
-            }
+            bind.albumPageShuffleButton.setOnClickListener(v -> {
+                List<Child> shuffled = new java.util.ArrayList<>(songs);
+                Collections.shuffle(shuffled);
+                MediaManager.startQueue(mediaBrowserListenableFuture, shuffled, 0);
+                activity.setBottomSheetInPeek(true);
+            });
         });
     }
 
     private void initSongsView() {
         albumPageViewModel.getAlbum().observe(getViewLifecycleOwner(), album -> {
-            if (bind != null && album != null) {
+            if (bind != null && album != null && songHorizontalAdapter == null) {
                 bind.songRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
                 bind.songRecyclerView.setHasFixedSize(true);
 
                 songHorizontalAdapter = new SongHorizontalAdapter(this, false, false, album);
+                songHorizontalAdapter.setTint(tint.text(requireContext()));
                 bind.songRecyclerView.setAdapter(songHorizontalAdapter);
 
                 albumPageViewModel.getAlbumSongLiveList().observe(getViewLifecycleOwner(), songs -> {
-                    // cassette: hold the list. getAlbumSongLiveList() hands back
-                    // a fresh LiveData each call, so its getValue() is null and
-                    // anything asking "is this album playing" got a no.
                     albumSongs = songs != null ? songs : Collections.emptyList();
                     songHorizontalAdapter.setItems(songs);
                     refreshPlayButtonState();
+                    refreshMeta();
                 });
             }
         });
 
-        // cassette: keep the tracklist and the big button honest about what is
-        // sounding — the marker on the row, play/pause on the button.
         CassetteNowPlaying.live().observe(getViewLifecycleOwner(), state -> {
             if (bind == null || state == null) return;
             if (songHorizontalAdapter != null) {
@@ -289,11 +281,52 @@ public class AlbumPageFragment extends Fragment implements ClickCallback {
         });
     }
 
+    private com.cappielloantonio.tempo.ui.adapter.CassetteRecordTileAdapter moreByAdapter;
+
+    /** cassette: MORE BY *artist*: their other records on this phone, each playable in one tap. */
+    private void initMoreBy() {
+        moreByAdapter = new com.cappielloantonio.tempo.ui.adapter.CassetteRecordTileAdapter(
+                new com.cappielloantonio.tempo.ui.adapter.CassetteRecordTileAdapter.Listener() {
+                    @Override
+                    public void onOpen(com.cappielloantonio.tempo.subsonic.models.AlbumID3 album) {
+                        Bundle bundle = new Bundle();
+                        bundle.putParcelable(Constants.ALBUM_OBJECT, album);
+                        activity.navController.navigate(R.id.albumPageFragment, bundle);
+                    }
+
+                    @Override
+                    public void onPlay(com.cappielloantonio.tempo.subsonic.models.AlbumID3 album) {
+                        MediaManager.playAlbum(mediaBrowserListenableFuture, album.getId(), false);
+                        activity.setBottomSheetInPeek(true);
+                    }
+                }, com.cappielloantonio.tempo.ui.adapter.CassetteRecordTileAdapter.Subtitle.YEAR);
+        bind.moreByRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
+        bind.moreByRecyclerView.setAdapter(moreByAdapter);
+
+        albumPageViewModel.getAlbum().observe(getViewLifecycleOwner(), album -> {
+            if (album == null) return;
+            albumPageViewModel.getMoreByArtist().observe(getViewLifecycleOwner(), others -> {
+                if (bind == null) return;
+                moreByAdapter.setItems(others);
+                bind.moreBySector.setVisibility(others == null || others.isEmpty() ? View.GONE : View.VISIBLE);
+                refreshMoreByHeading();
+            });
+        });
+    }
+
+    private void refreshMoreByHeading() {
+        if (bind == null) return;
+        com.cappielloantonio.tempo.subsonic.models.AlbumID3 album = albumPageViewModel.getAlbum().getValue();
+        if (album == null) return;
+        com.cappielloantonio.tempo.util.CassetteType.twoVoice(bind.moreByHeading,
+                getString(R.string.cassette_more_by), album.getArtist(), tint.text(requireContext()));
+    }
+
     private void refreshPlayButtonState() {
         if (bind == null) return;
         boolean playingThisAlbum = CassetteNowPlaying.current().isPlaying && isThisAlbumCurrent(albumSongs);
-        bind.albumPagePlayButton.setImageResource(
-                playingThisAlbum ? R.drawable.ic_pause : R.drawable.ic_play);
+        bind.albumPagePlayButton.setText(playingThisAlbum ? R.string.cassette_pause : R.string.cassette_play);
+        bind.albumPagePlayButton.setIconResource(playingThisAlbum ? R.drawable.cs_pause_glyph : R.drawable.cs_play_glyph);
     }
 
     /** cassette: is the track currently loaded one of this album's? */

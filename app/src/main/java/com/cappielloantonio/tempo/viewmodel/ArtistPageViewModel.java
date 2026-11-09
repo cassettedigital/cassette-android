@@ -53,6 +53,26 @@ public class ArtistPageViewModel extends AndroidViewModel {
         }
 
         this.artist = artist;
+        // cassette: offline-first (the default) shows only this artist's records
+        // and songs on this phone, read from the phone's own store, so the page
+        // works away from the computer and counts only what can play.
+        if (com.cappielloantonio.tempo.util.Preferences.isOfflineFirst()) {
+            final String id = artist.getId();
+            androidx.lifecycle.MutableLiveData<List<AlbumID3>> albums = new androidx.lifecycle.MutableLiveData<>();
+            com.cappielloantonio.tempo.util.CassetteOfflineLibrary.albums(all -> {
+                List<AlbumID3> mine = new java.util.ArrayList<>();
+                for (AlbumID3 a : all) if (id.equals(a.getArtistId())) mine.add(a);
+                mine.sort((a, b) -> Integer.compare(b.getYear(), a.getYear()));
+                albums.setValue(mine);
+            });
+            albumList = albums;
+            androidx.lifecycle.MutableLiveData<List<Child>> songs = new androidx.lifecycle.MutableLiveData<>();
+            new Thread(() -> songs.postValue(new java.util.ArrayList<>(
+                    com.cappielloantonio.tempo.database.AppDatabase.getInstance().downloadDao().getArtistSync(id))),
+                    "cassette-artist-songs").start();
+            librarySongs = songs;
+            return;
+        }
         albumList = albumRepository.getArtistAlbums(artist.getId());
         librarySongs = albumRepository.getArtistLibrarySongs(artist.getId());
     }

@@ -156,6 +156,20 @@
         <item name="shapeAppearanceOverlay">@style/Cassette.Shape.Button</item>
     </style>
 
+    <!-- cassette: artwork corners from the kit (radius.artworkTile 3, artworkRow 5). -->
+    <style name="CassetteArtworkTile" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">3dp</item>
+    </style>
+    <style name="CassetteArtworkRow" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">5dp</item>
+    </style>
+    <style name="CassettePlayerArtwork" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">8dp</item>
+    </style>
+
     <!-- cassette: perfect circle for the big album-page play button -->
     <style name="CassetteCircleFab">
         <item name="cornerFamily">rounded</item>

@@ -50,6 +50,26 @@ public class SongHorizontalAdapter extends RecyclerView.Adapter<SongHorizontalAd
     private String nowPlayingId;
     private boolean nowPlayingIsPlaying;
 
+    // cassette: the record's colour (CoverTint.text) for track numbers and the
+    // playing bars on a record page; 0 = the quiet ink. The playing title stays
+    // ink: the bars carry "this one" (iPhone e0b0efab).
+    private int tint = 0;
+
+    // cassette: MOST PLAYED rows (iPhone 0c326f66): the rank in the record's
+    // colour beside a smaller 44dp cover, the album under the title.
+    private boolean rankMode = false;
+
+    public void setRankMode(boolean rankMode) {
+        this.rankMode = rankMode;
+        notifyDataSetChanged();
+    }
+
+    public void setTint(int color) {
+        if (this.tint == color) return;
+        this.tint = color;
+        notifyDataSetChanged();
+    }
+
     private final Filter filtering = new Filter() {
         @Override
         protected FilterResults performFiltering(CharSequence constraint) {
@@ -134,9 +154,16 @@ public class SongHorizontalAdapter extends RecyclerView.Adapter<SongHorizontalAd
         }
 
         holder.item.trackNumberTextView.setText(MusicUtil.getReadableTrackNumber(holder.itemView.getContext(), song.getTrack()));
+        if (tint != 0) holder.item.trackNumberTextView.setTextColor(tint);
+
+        // cassette: a record page's rows are one tight line (iPhone 52pt rows);
+        // rows with art (lists, search) keep their height.
+        int pad = holder.itemView.getResources().getDimensionPixelSize(
+                showCoverArt ? R.dimen.track_row_pad : R.dimen.track_row_pad_compact);
+        holder.itemView.setPadding(holder.itemView.getPaddingLeft(), pad, holder.itemView.getPaddingRight(), pad);
 
         // cassette: duration in the trailing slot; overflow is long-press.
-        if (song.getDuration() != null && song.getDuration() > 0) {
+        if (!rankMode && song.getDuration() != null && song.getDuration() > 0) {
             holder.item.searchResultSongDurationTextView.setVisibility(View.VISIBLE);
             holder.item.searchResultSongDurationTextView.setText(
                     MusicUtil.getReadableDurationString(song.getDuration(), false));
@@ -150,8 +177,16 @@ public class SongHorizontalAdapter extends RecyclerView.Adapter<SongHorizontalAd
                 .build()
                 .into(holder.item.songCoverImageView);
 
-        holder.item.trackNumberTextView.setVisibility(showCoverArt ? View.INVISIBLE : View.VISIBLE);
+        holder.item.trackNumberTextView.setVisibility(showCoverArt && !rankMode ? View.INVISIBLE : View.VISIBLE);
         holder.item.songCoverImageView.setVisibility(showCoverArt ? View.VISIBLE : View.INVISIBLE);
+        if (rankMode) holder.item.trackNumberTextView.setText(String.valueOf(position + 1));
+        android.util.DisplayMetrics dm = holder.itemView.getResources().getDisplayMetrics();
+        ViewGroup.MarginLayoutParams coverMargins = (ViewGroup.MarginLayoutParams) holder.item.songCoverImageView.getLayoutParams();
+        int coverStart = Math.round((rankMode ? 20 + 26 + 8 : 16) * dm.density);
+        if (coverMargins.getMarginStart() != coverStart) {
+            coverMargins.setMarginStart(coverStart);
+            holder.item.songCoverImageView.setLayoutParams(coverMargins);
+        }
 
         // cassette: the title is anchored to the end of the cover slot. On an
         // album page the cover is hidden and only the track number leads, so
@@ -159,10 +194,11 @@ public class SongHorizontalAdapter extends RecyclerView.Adapter<SongHorizontalAd
         // art column holds every title needlessly far to the right. Rows that
         // show real art (search, lists) keep the full slot.
         ViewGroup.LayoutParams leadParams = holder.item.songCoverImageView.getLayoutParams();
-        int leadWidth = holder.itemView.getResources().getDimensionPixelSize(
+        int leadWidth = rankMode ? Math.round(44 * dm.density) : holder.itemView.getResources().getDimensionPixelSize(
                 showCoverArt ? R.dimen.track_row_art : R.dimen.track_row_number);
-        if (leadParams.width != leadWidth) {
+        if (leadParams.width != leadWidth || (rankMode && leadParams.height != leadWidth)) {
             leadParams.width = leadWidth;
+            if (rankMode) leadParams.height = leadWidth;
             holder.item.songCoverImageView.setLayoutParams(leadParams);
         }
 
@@ -242,8 +278,10 @@ public class SongHorizontalAdapter extends RecyclerView.Adapter<SongHorizontalAd
 
         if (isCurrent) {
             holder.item.searchResultSongTitleTextView.setTextColor(
-                    com.google.android.material.color.MaterialColors.getColor(
-                            holder.itemView, com.google.android.material.R.attr.colorPrimary));
+                    androidx.core.content.ContextCompat.getColor(
+                            holder.itemView.getContext(), R.color.titleTextColor));
+            holder.item.nowPlayingIndicator.setColorFilter(tint != 0 ? tint
+                    : androidx.core.content.ContextCompat.getColor(holder.itemView.getContext(), R.color.cs_accent));
             if (!showCoverArt) {
                 holder.item.trackNumberTextView.setVisibility(View.INVISIBLE);
                 holder.item.nowPlayingIndicator.setVisibility(View.VISIBLE);

@@ -15,6 +15,9 @@
          track_row_number and the title sits that much further left. -->
     <dimen name="track_row_art">48dp</dimen>
     <dimen name="track_row_number">26dp</dimen>
+    <!-- cassette: row padding; a record page's one-line rows are 52dp (48 + 2 + 2) -->
+    <dimen name="track_row_pad">13dp</dimen>
+    <dimen name="track_row_pad_compact">2dp</dimen>
     <dimen name="radius">2dp</dimen>
     <dimen name="dots_height">2dp</dimen>
     <dimen name="downloaded_item_padding">12dp</dimen>

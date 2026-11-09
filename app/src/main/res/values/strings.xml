@@ -500,4 +500,21 @@
     <string name="cassette_empty_stations">No stations yet</string>
     <string name="cassette_empty_search">No results on this phone</string>
     <string name="cassette_empty_playlist">Empty playlist</string>
+    <string name="cassette_more_by">More by</string>
+    <string name="cassette_more_like">More like</string>
+    <string name="cassette_minutes">%1$d min</string>
+    <string name="cassette_songs_on_phone">%1$d of %2$d songs on this phone</string>
+    <plurals name="cassette_song_count">
+        <item quantity="one">%d song</item>
+        <item quantity="other">%d songs</item>
+    </plurals>
+    <string name="cassette_most_played">Most played</string>
+    <string name="cassette_albums">Albums</string>
+    <plurals name="cassette_album_count">
+        <item quantity="one">%d album</item>
+        <item quantity="other">%d albums</item>
+    </plurals>
+    <string name="cassette_play_next">Play Next</string>
+    <string name="cassette_add_to_queue">Add to Queue</string>
+    <string name="cassette_edit">Edit</string>
 </resources>

@@ -1,209 +1,231 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- cassette: music-first artist page (iOS ArtistDetailVC). Round face, Barlow
-     name, mono album/song counts, repeat | play | shuffle, then Albums carousel
-     and Popular tracks. No biography, radio, or similar artists. -->
+<!-- cassette: the artist page, the iPhone's October room (bae19e55, 4b81bf84):
+     the artist's own photo full-bleed with the name climbing into its faded foot
+     (or a fan of their three newest covers when there is no photo of their own),
+     the name in huge caps, "12 ALBUMS · 187 SONGS" counting what is on this phone,
+     PLAY and SHUFFLE pills, then MOST PLAYED (songs actually played, top five,
+     ranks in the record's colour) and ALBUMS newest first with the year. Lit by
+     their newest record. No hairlines. -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/cs_bg">
 
     <androidx.core.widget.NestedScrollView
-        android:id="@+id/fragment_artist_page_nested_scroll_view"
+        android:id="@+id/artist_page_nested_scroll_view"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:paddingBottom="@dimen/global_padding_bottom">
 
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/artist_info_sector"
+            <FrameLayout
+                android:id="@+id/artist_hero"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:clipChildren="false"
-                android:paddingTop="8dp">
+                android:layout_height="wrap_content">
 
-                <com.google.android.material.imageview.ShapeableImageView
-                    android:id="@+id/artist_cover_image_view"
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:layout_marginTop="12dp"
-                    android:layout_marginBottom="8dp"
-                    android:scaleType="centerCrop"
-                    app:layout_constraintDimensionRatio="1:1"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintWidth_percent="0.52"
-                    app:shapeAppearanceOverlay="@style/CassetteCircleCover" />
+                <com.cappielloantonio.tempo.ui.view.CoverGlowView
+                    android:id="@+id/artist_glow"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
 
-                <TextView
-                    android:id="@+id/artist_name_label"
-                    style="@style/LabelExtraLarge"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="24dp"
-                    android:layout_marginEnd="24dp"
-                    android:ellipsize="end"
-                    android:maxLines="2"
-                    android:paddingTop="12dp"
-                    android:text="@string/label_placeholder"
-                    android:textAlignment="center"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/artist_cover_image_view" />
-
-                <TextView
-                    android:id="@+id/artist_metadata_label"
-                    style="@style/LabelCardSubtitle"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="18dp"
-                    android:layout_marginTop="4dp"
-                    android:layout_marginEnd="18dp"
-                    android:text="@string/label_placeholder"
-                    android:textAlignment="center"
-                    android:visibility="gone"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/artist_name_label"
-                    tools:text="1 album • 13 songs"
-                    tools:visibility="visible" />
-
-                <!-- cassette: iOS control row — repeat | big round play | shuffle -->
                 <LinearLayout
-                    android:id="@+id/artist_page_button_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:orientation="horizontal"
-                    android:paddingTop="14dp"
-                    android:paddingBottom="10dp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/artist_metadata_label">
+                    android:orientation="vertical">
 
-                    <ImageButton
-                        android:id="@+id/artist_page_repeat_button"
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
-                        android:background="?attr/selectableItemBackgroundBorderless"
-                        android:contentDescription="@string/artist_page_repeat_button"
-                        android:padding="9dp"
-                        android:scaleType="fitCenter"
-                        android:src="@drawable/ic_lucide_repeat"
-                        android:tint="?attr/colorOnSurface" />
+                    <!-- the artist's own photo, full-bleed, fading into the page -->
+                    <FrameLayout
+                        android:id="@+id/artist_photo_frame"
+                        android:layout_width="match_parent"
+                        android:layout_height="400dp"
+                        android:visibility="gone"
+                        tools:visibility="visible">
 
-                    <com.google.android.material.floatingactionbutton.FloatingActionButton
-                        android:id="@+id/artist_page_play_button"
-                        android:layout_width="wrap_content"
+                        <ImageView
+                            android:id="@+id/artist_photo"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:importantForAccessibility="no"
+                            android:scaleType="centerCrop" />
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="220dp"
+                            android:layout_gravity="bottom"
+                            android:background="@drawable/cs_photo_foot_fade" />
+                    </FrameLayout>
+
+                    <!-- no photo of their own: a fan of their three newest covers -->
+                    <FrameLayout
+                        android:id="@+id/artist_fan"
+                        android:layout_width="match_parent"
+                        android:layout_height="260dp"
+                        android:layout_marginTop="?attr/actionBarSize"
+                        android:visibility="gone">
+
+                        <com.google.android.material.imageview.ShapeableImageView
+                            android:id="@+id/artist_fan_left"
+                            android:layout_width="170dp"
+                            android:layout_height="170dp"
+                            android:layout_gravity="center"
+                            android:elevation="6dp"
+                            android:rotation="-9"
+                            android:scaleType="centerCrop"
+                            android:translationX="-86dp"
+                            android:translationY="14dp"
+                            app:shapeAppearanceOverlay="@style/CassetteArtworkTile" />
+
+                        <com.google.android.material.imageview.ShapeableImageView
+                            android:id="@+id/artist_fan_right"
+                            android:layout_width="170dp"
+                            android:layout_height="170dp"
+                            android:layout_gravity="center"
+                            android:elevation="7dp"
+                            android:rotation="9"
+                            android:scaleType="centerCrop"
+                            android:translationX="86dp"
+                            android:translationY="14dp"
+                            app:shapeAppearanceOverlay="@style/CassetteArtworkTile" />
+
+                        <com.google.android.material.imageview.ShapeableImageView
+                            android:id="@+id/artist_fan_center"
+                            android:layout_width="190dp"
+                            android:layout_height="190dp"
+                            android:layout_gravity="center"
+                            android:elevation="10dp"
+                            android:scaleType="centerCrop"
+                            app:shapeAppearanceOverlay="@style/CassetteArtworkTile" />
+                    </FrameLayout>
+
+                    <LinearLayout
+                        android:id="@+id/artist_info"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="40dp"
-                        android:layout_marginEnd="40dp"
-                        android:contentDescription="@string/artist_page_play_button"
-                        android:src="@drawable/ic_play"
-                        app:backgroundTint="?attr/colorOnSurface"
-                        app:fabCustomSize="60dp"
-                        app:maxImageSize="28dp"
-                        app:shapeAppearanceOverlay="@style/CassetteCircleFab"
-                        app:tint="?attr/colorSurface" />
+                        android:orientation="vertical"
+                        android:paddingStart="22dp"
+                        android:paddingTop="16dp"
+                        android:paddingEnd="22dp"
+                        android:paddingBottom="8dp">
 
-                    <ImageButton
-                        android:id="@+id/artist_page_shuffle_button"
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
-                        android:background="?attr/selectableItemBackgroundBorderless"
-                        android:contentDescription="@string/artist_page_shuffle_button"
-                        android:padding="9dp"
-                        android:scaleType="fitCenter"
-                        android:src="@drawable/ic_lucide_shuffle"
-                        android:tint="?attr/colorOnSurface" />
+                        <TextView
+                            android:id="@+id/artist_name_label"
+                            style="@style/Cassette.Role.HeroName"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:breakStrategy="balanced"
+                            android:maxLines="3"
+                            android:shadowColor="#66000000"
+                            android:shadowDy="2"
+                            android:shadowRadius="10"
+                            tools:text="BON IVER" />
+
+                        <TextView
+                            android:id="@+id/artist_metadata_label"
+                            style="@style/Cassette.Role.Meta"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp"
+                            tools:text="4 ALBUMS · 41 SONGS" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="18dp"
+                            android:orientation="horizontal">
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/artist_page_play_button"
+                                style="@style/Cassette.Pill.Play"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginEnd="5dp"
+                                android:layout_weight="1"
+                                android:text="@string/cassette_play" />
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/artist_page_shuffle_button"
+                                style="@style/Cassette.Pill.Shuffle"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="5dp"
+                                android:layout_weight="1"
+                                android:text="@string/cassette_shuffle" />
+                        </LinearLayout>
+                    </LinearLayout>
                 </LinearLayout>
-            </androidx.constraintlayout.widget.ConstraintLayout>
+            </FrameLayout>
 
             <LinearLayout
+                android:id="@+id/artist_page_top_songs_sector"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:paddingBottom="@dimen/global_padding_bottom">
+                android:visibility="gone"
+                tools:visibility="visible">
 
-                <LinearLayout
-                    android:id="@+id/artist_page_albums_sector"
+                <TextView
+                    android:id="@+id/most_played_heading"
+                    style="@style/Cassette.Role.Shout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:visibility="gone"
-                    tools:visibility="visible">
+                    android:paddingStart="20dp"
+                    android:paddingTop="28dp"
+                    android:paddingEnd="20dp"
+                    android:paddingBottom="8dp"
+                    android:text="@string/cassette_most_played"
+                    android:textAllCaps="true" />
 
-                    <TextView
-                        style="@style/LabelCardSubtitle"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:paddingStart="16dp"
-                        android:paddingTop="16dp"
-                        android:paddingEnd="16dp"
-                        android:paddingBottom="6dp"
-                        android:text="@string/artist_page_title_album_section"
-                        android:textAllCaps="true" />
-
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/albums_recycler_view"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:layout_marginBottom="8dp"
-                        android:clipToPadding="false"
-                        android:nestedScrollingEnabled="false"
-                        android:paddingStart="16dp"
-                        android:paddingEnd="8dp" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/artist_page_top_songs_sector"
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/most_streamed_song_recycler_view"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:visibility="gone"
-                    tools:visibility="visible">
+                    android:nestedScrollingEnabled="false" />
+            </LinearLayout>
 
-                    <TextView
-                        style="@style/LabelCardSubtitle"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:paddingStart="16dp"
-                        android:paddingTop="16dp"
-                        android:paddingEnd="16dp"
-                        android:paddingBottom="6dp"
-                        android:text="@string/artist_page_title_popular_section"
-                        android:textAllCaps="true" />
+            <LinearLayout
+                android:id="@+id/artist_page_albums_sector"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone"
+                tools:visibility="visible">
 
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/most_streamed_song_recycler_view"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:clipToPadding="false"
-                        android:nestedScrollingEnabled="false"
-                        android:paddingTop="4dp" />
+                <TextView
+                    style="@style/Cassette.Role.Shout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="20dp"
+                    android:paddingTop="28dp"
+                    android:paddingEnd="20dp"
+                    android:paddingBottom="12dp"
+                    android:text="@string/cassette_albums"
+                    android:textAllCaps="true" />
 
-                    <TextView
-                        android:id="@+id/popular_show_more_button"
-                        style="@style/LabelCardSubtitle"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="?attr/selectableItemBackground"
-                        android:gravity="center"
-                        android:paddingTop="14dp"
-                        android:paddingBottom="18dp"
-                        android:text="@string/artist_page_show_more"
-                        android:visibility="gone"
-                        tools:visibility="visible" />
-                </LinearLayout>
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/albums_recycler_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:clipToPadding="false"
+                    android:nestedScrollingEnabled="false"
+                    android:paddingStart="20dp"
+                    android:paddingEnd="20dp" />
             </LinearLayout>
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
+
+    <View
+        android:id="@+id/artist_bar_backdrop"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:layout_gravity="top"
+        android:alpha="0"
+        android:background="@color/cs_bg" />
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/anim_toolbar"
@@ -211,5 +233,6 @@
         android:layout_height="?attr/actionBarSize"
         android:layout_gravity="top"
         android:background="@android:color/transparent"
-        app:navigationIcon="@drawable/ic_arrow_back" />
+        app:navigationIcon="@drawable/ic_arrow_back"
+        app:titleTextAppearance="@style/Cassette.Text.BarTitle" />
 </FrameLayout>

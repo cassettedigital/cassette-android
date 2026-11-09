@@ -28,6 +28,10 @@ public interface DownloadDao {
     @Query("SELECT * FROM download WHERE download_state = 1 AND album_id = :albumId ORDER BY disc_number, track ASC")
     List<Download> getAlbumSync(String albumId);
 
+    // cassette: an artist's songs on this phone (the artist page, offline-first).
+    @Query("SELECT * FROM download WHERE download_state = 1 AND artist_id = :artistId ORDER BY album, disc_number, track ASC")
+    List<Download> getArtistSync(String artistId);
+
     @Query("SELECT * FROM download WHERE cassette_local_id = :cassetteLocalId LIMIT 1")
     Download getByCassetteLocalId(String cassetteLocalId);
 

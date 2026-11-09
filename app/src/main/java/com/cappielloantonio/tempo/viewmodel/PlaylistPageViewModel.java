@@ -26,8 +26,15 @@ public class PlaylistPageViewModel extends AndroidViewModel {
         playlistRepository = new PlaylistRepository();
     }
 
+    private String songsFor;
+    private LiveData<List<Child>> songs;
+
+    /** cassette: one fetch per playlist per page, shared by the page's parts (its songs on this phone). */
     public LiveData<List<Child>> getPlaylistSongLiveList() {
-        return playlistRepository.getPlaylistSongs(playlist.getId());
+        if (songs != null && playlist != null && playlist.getId().equals(songsFor)) return songs;
+        songsFor = playlist.getId();
+        songs = playlistRepository.getPlaylistSongs(playlist.getId());
+        return songs;
     }
 
     public Playlist getPlaylist() {

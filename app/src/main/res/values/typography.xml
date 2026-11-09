@@ -271,4 +271,10 @@
         <item name="android:textColor">@color/cs_ink2</item>
         <item name="android:gravity">center</item>
     </style>
+    <!-- cassette: a record's name in the bar once its header has scrolled away -->
+    <style name="Cassette.Text.BarTitle" parent="CassetteDisplay">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textFontWeight">600</item>
+        <item name="android:textColor">@color/cs_ink</item>
+    </style>
 </resources>

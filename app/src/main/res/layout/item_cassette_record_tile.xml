@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- cassette: one record tile (iPhone AlbumCarousel / kit component.tile): a
+     150dp cover with 3dp corners and the cream play disc in its corner, then the
+     name and one quiet line (the artist, or the year on an artist's own page).
+     The cover opens the record; the disc plays it and the screen stays put. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="150dp"
+    android:layout_height="wrap_content"
+    android:layout_marginEnd="12dp"
+    android:orientation="vertical">
+
+    <FrameLayout
+        android:layout_width="150dp"
+        android:layout_height="150dp">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/tile_cover"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="?attr/selectableItemBackground"
+            android:scaleType="centerCrop"
+            app:shapeAppearanceOverlay="@style/CassetteArtworkTile" />
+
+        <include
+            android:id="@+id/tile_play_disc"
+            layout="@layout/view_play_disc"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="4dp" />
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/tile_title"
+        style="@style/Cassette.Role.TileLabel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        tools:text="Kid A" />
+
+    <TextView
+        android:id="@+id/tile_subtitle"
+        style="@style/LabelCardSubtitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:maxLines="1"
+        tools:text="2000" />
+</LinearLayout>
