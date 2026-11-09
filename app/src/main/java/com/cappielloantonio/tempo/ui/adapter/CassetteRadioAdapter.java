@@ -23,6 +23,8 @@ import java.util.List;
  */
 public class CassetteRadioAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public interface Listener {
+        void onOpen(CassetteRadio.Station station);
+
         void onTune(CassetteRadio.Station station);
 
         void onMenu(View anchor, CassetteRadio.Station station);
@@ -46,8 +48,30 @@ public class CassetteRadioAdapter extends RecyclerView.Adapter<RecyclerView.View
         this.listener = listener;
     }
 
+    private List<CassetteRadio.Station> all = new ArrayList<>();
+    private List<String> saved = new ArrayList<>();
+    private String yourStations = "Your stations";
+
+    /** Your stations, latest save first, lead the dial (iPhone RadioSaved). */
+    public void setSaved(List<String> slugs, String heading) {
+        saved = slugs != null ? slugs : new ArrayList<>();
+        yourStations = heading;
+        setStations(all);
+    }
+
     public void setStations(List<CassetteRadio.Station> stations) {
+        all = stations;
         rows.clear();
+        if (!saved.isEmpty()) {
+            java.util.Map<String, CassetteRadio.Station> bySlug = new java.util.HashMap<>();
+            for (CassetteRadio.Station s : stations) bySlug.put(s.getSlug(), s);
+            List<Object> yours = new ArrayList<>();
+            for (String slug : saved) if (bySlug.containsKey(slug)) yours.add(bySlug.get(slug));
+            if (!yours.isEmpty()) {
+                rows.add(yourStations);
+                rows.addAll(yours);
+            }
+        }
         String section = null;
         for (CassetteRadio.Station s : stations) {
             if (!s.getSection().equals(section)) {
@@ -100,17 +124,13 @@ public class CassetteRadioAdapter extends RecyclerView.Adapter<RecyclerView.View
                     .build().into(b.stationArt);
         } else {
             // no picture: its name as word art on its own colour
-            int color;
-            try {
-                color = station.getAccent() != null ? Color.parseColor(station.getAccent()) : 0xFF6B5A44;
-            } catch (IllegalArgumentException e) {
-                color = 0xFF6B5A44;
-            }
+            int color = station.accentColor();
             b.stationArt.setImageDrawable(new android.graphics.drawable.ColorDrawable(color));
             b.stationWordArt.setVisibility(View.VISIBLE);
             b.stationWordArt.setText(station.getName());
         }
-        holder.itemView.setOnClickListener(v -> listener.onTune(station));
+        holder.itemView.setOnClickListener(v -> listener.onOpen(station));
+        b.stationPlay.getRoot().setOnClickListener(v -> listener.onTune(station));
         holder.itemView.setOnLongClickListener(v -> {
             listener.onMenu(v, station);
             return true;

@@ -502,6 +502,27 @@
     <string name="cassette_empty_playlist">Empty playlist</string>
     <string name="cassette_more_by">More by</string>
     <string name="cassette_more_like">More like</string>
+    <string name="cassette_save">Save</string>
+    <string name="cassette_saved">Saved</string>
+    <string name="cassette_stop">Stop</string>
+    <string name="cassette_on_air">On air</string>
+    <string name="cassette_now">Now</string>
+    <string name="cassette_live">LIVE</string>
+    <string name="cassette_your_stations">Your stations</string>
+    <string name="cassette_remove_from_your_stations">Remove from Your Stations</string>
+    <string name="cassette_save_failed">Couldn’t save that. Try again when you’re online.</string>
+    <string name="cassette_copy_song">Copy Song and Artist</string>
+    <string name="cassette_copied">Copied</string>
+    <string name="cassette_next_line">Next: %1$s</string>
+    <string name="cassette_just_now">just now</string>
+    <plurals name="cassette_minutes_ago">
+        <item quantity="one">%d min ago</item>
+        <item quantity="other">%d min ago</item>
+    </plurals>
+    <plurals name="cassette_hours_ago">
+        <item quantity="one">%d hr ago</item>
+        <item quantity="other">%d hr ago</item>
+    </plurals>
     <string name="cassette_minutes">%1$d min</string>
     <string name="cassette_songs_on_phone">%1$d of %2$d songs on this phone</string>
     <plurals name="cassette_song_count">

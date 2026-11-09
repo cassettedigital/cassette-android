@@ -32,6 +32,16 @@ public class CassetteTileAdapter extends RecyclerView.Adapter<CassetteTileAdapte
         public final Runnable onOpen;
         public final Runnable onPlay;
 
+        /** A station with no picture: its colour, for word art. */
+        @Nullable public Integer wordArt;
+
+        /** A station: its picture, or its name as word art on its own colour; the tile opens its page, the disc tunes in. */
+        public static Tile station(com.cappielloantonio.tempo.util.CassetteRadio.Station s, Runnable onOpen, Runnable onPlay) {
+            Tile t = new Tile(s.getName(), s.getLabel(), s.getImage(), CustomGlideRequest.ResourceType.Radio, false, onOpen, onPlay);
+            if (s.getImage() == null) t.wordArt = s.accentColor();
+            return t;
+        }
+
         public Tile(String title, @Nullable String subtitle, @Nullable String coverId,
                     CustomGlideRequest.ResourceType coverType, boolean circle,
                     Runnable onOpen, Runnable onPlay) {
@@ -72,9 +82,13 @@ public class CassetteTileAdapter extends RecyclerView.Adapter<CassetteTileAdapte
                     * androidx.core.content.res.ResourcesCompat.getFloat(holder.itemView.getResources(), com.cappielloantonio.tempo.R.dimen.kit_shape_station)
                 : 3f * density;
         holder.bind.tileCover.setShapeAppearanceModel(ShapeAppearanceModel.builder().setAllCornerSizes(corner).build());
+        holder.bind.tileWordArt.setVisibility(tile.wordArt != null ? View.VISIBLE : View.GONE);
         if (tile.coverId != null) {
             CustomGlideRequest.Builder.from(holder.itemView.getContext(), tile.coverId, tile.coverType)
                     .build().into(holder.bind.tileCover);
+        } else if (tile.wordArt != null) {
+            holder.bind.tileCover.setImageDrawable(new android.graphics.drawable.ColorDrawable(tile.wordArt));
+            holder.bind.tileWordArt.setText(tile.title);
         } else {
             holder.bind.tileCover.setImageDrawable(null);
         }

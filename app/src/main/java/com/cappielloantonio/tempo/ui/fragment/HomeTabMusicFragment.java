@@ -511,9 +511,8 @@ public class HomeTabMusicFragment extends Fragment implements ClickCallback {
                 MediaManager.startRadio(mediaBrowserListenableFuture, station.toInternetRadioStation());
                 activity.setBottomSheetInPeek(true);
             };
-            tiles.add(new com.cappielloantonio.tempo.ui.adapter.CassetteTileAdapter.Tile(
-                    station.getName(), station.getLabel(), station.getImage(), CustomGlideRequest.ResourceType.Radio,
-                    false, tune, tune));
+            tiles.add(com.cappielloantonio.tempo.ui.adapter.CassetteTileAdapter.Tile.station(
+                    station, () -> StationPageFragment.open(this, station.getSlug()), tune));
         }
         for (com.cappielloantonio.tempo.subsonic.models.Playlist playlist : row.getPlaylists()) {
             int n = playlist.getSongCount();

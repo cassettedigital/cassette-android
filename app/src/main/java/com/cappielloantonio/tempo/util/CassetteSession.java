@@ -73,6 +73,14 @@ public final class CassetteSession {
                 DownloadUtil.getDownloadTracker(app).removeAll();
             }
 
+            // what the phone kept of this account: its Home, its genres and song tags, its stations
+            for (String name : new String[]{"cassette_home.json", "album-genres.json", "library-moods.json"}) {
+                new java.io.File(app.getFilesDir(), name).delete();
+            }
+            App.getInstance().getPreferences().edit()
+                    .remove("cassette_album_genres_at").remove("cassette_library_moods_at").apply();
+            CassetteRadioSaved.forget(app);
+
             SIGNED_OUT.postValue(false);
             new Handler(Looper.getMainLooper()).post(then);
         }, "cassette-sign-out").start();

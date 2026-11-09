@@ -36,6 +36,7 @@ import com.cappielloantonio.tempo.ui.dialog.TrackInfoDialog;
 import com.cappielloantonio.tempo.ui.fragment.bottomsheetdialog.SongBottomSheetDialog;
 import com.cappielloantonio.tempo.ui.fragment.pager.PlayerControllerHorizontalPager;
 import com.cappielloantonio.tempo.util.CassetteShareSong;
+import com.cappielloantonio.tempo.util.CassetteRadioLive;
 import com.cappielloantonio.tempo.util.Constants;
 import com.cappielloantonio.tempo.util.MusicUtil;
 import com.cappielloantonio.tempo.util.Preferences;
@@ -104,6 +105,8 @@ public class PlayerControllerFragment extends Fragment {
         initMediaListenable();
         initMediaLabelButton();
         initArtistLabelButton();
+        // a station's Save key follows the saved list, whoever changes it
+        com.cappielloantonio.tempo.util.CassetteRadioSaved.saved(requireContext()).observe(getViewLifecycleOwner(), slugs -> paintRadioSave());
 
         return view;
     }
@@ -144,6 +147,109 @@ public class PlayerControllerFragment extends Fragment {
         playerTrackInfo = bind.getRoot().findViewById(R.id.player_info_track);
         // portrait only: the landscape layout has no ⋮
         playerMoreButton = bind.getRoot().findViewById(R.id.player_more_button);
+    }
+
+    // ------------------------------------------------------------------
+    // cassette: a station (iPhone f3a3c506, 316d011a): its name over the song (opens its
+    // page), "Show · Until 3:00 PM, then X" under the artist, LIVE instead of a scrubber,
+    // Save left of Stop and Go to album right of it. The words come from the playing item,
+    // which the service keeps current (CassetteRadioLive).
+
+    @Nullable private String radioSlug;
+    @Nullable private android.os.Bundle radioExtras;
+
+    private void paintRadio(MediaMetadata meta) {
+        if (bind == null) return;
+        android.os.Bundle extras = meta.extras;
+        boolean radio = extras != null && Constants.MEDIA_TYPE_RADIO.equals(extras.getString("type"));
+        View root = bind.getRoot();
+        android.widget.TextView stationLine = root.findViewById(R.id.player_station_line);
+        android.widget.TextView whenLine = root.findViewById(R.id.player_radio_when);
+        android.widget.TextView live = root.findViewById(R.id.player_live_label);
+        ImageButton save = root.findViewById(R.id.player_radio_save);
+        ImageButton album = root.findViewById(R.id.player_radio_album);
+        if (stationLine == null) return; // the landscape layout carries none of this
+        for (int id : new int[]{R.id.exo_progress, R.id.exo_position, R.id.exo_duration}) {
+            View v = root.findViewById(id);
+            if (v != null) v.setVisibility(radio ? View.INVISIBLE : View.VISIBLE);
+        }
+        stationLine.setVisibility(radio ? View.VISIBLE : View.GONE);
+        live.setVisibility(radio ? View.VISIBLE : View.GONE);
+        save.setVisibility(radio ? View.VISIBLE : View.GONE);
+        album.setVisibility(radio ? View.VISIBLE : View.GONE);
+        if (!radio) {
+            whenLine.setVisibility(View.GONE);
+            radioSlug = null;
+            radioExtras = null;
+            return;
+        }
+        radioExtras = extras;
+        String id = extras.getString("id", "");
+        radioSlug = id.startsWith("cassette-radio-") ? id.substring("cassette-radio-".length()) : null;
+        String station = extras.getString(CassetteRadioLive.STATION, extras.getString("title", ""));
+        stationLine.setText(station);
+        stationLine.setOnClickListener(v -> {
+            if (radioSlug == null) return;
+            Bundle bundle = new Bundle();
+            bundle.putString(StationPageFragment.SLUG, radioSlug);
+            activity.setBottomSheetInPeek(true);
+            activity.navController.navigate(R.id.stationPageFragment, bundle);
+        });
+        String when = extras.getString(CassetteRadioLive.WHEN);
+        whenLine.setText(when);
+        whenLine.setVisibility(when != null && !when.isEmpty() ? View.VISIBLE : View.GONE);
+
+        android.text.SpannableString dot = new android.text.SpannableString("\u25CF  " + getString(R.string.cassette_live));
+        dot.setSpan(new android.text.style.ForegroundColorSpan(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.cs_accent)),
+                0, 1, android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        live.setText(dot);
+
+        boolean hasAlbum = extras.getString(CassetteRadioLive.ALBUM_SLUG) != null;
+        album.setEnabled(hasAlbum);
+        album.setAlpha(hasAlbum ? 1f : 0.35f);
+        album.setOnClickListener(v -> openRadioAlbum());
+        save.setOnClickListener(v -> {
+            if (radioSlug == null) return;
+            boolean saved = com.cappielloantonio.tempo.util.CassetteRadioSaved.isSaved(requireContext(), radioSlug);
+            android.content.Context app = requireContext().getApplicationContext();
+            com.cappielloantonio.tempo.util.CassetteRadioSaved.set(requireContext(), radioSlug, !saved, ok -> {
+                if (!ok) android.widget.Toast.makeText(app, R.string.cassette_save_failed, android.widget.Toast.LENGTH_SHORT).show();
+            });
+        });
+        paintRadioSave();
+    }
+
+    private void paintRadioSave() {
+        if (bind == null || radioSlug == null) return;
+        ImageButton save = bind.getRoot().findViewById(R.id.player_radio_save);
+        if (save == null) return;
+        boolean saved = com.cappielloantonio.tempo.util.CassetteRadioSaved.isSaved(requireContext(), radioSlug);
+        save.setImageResource(saved ? R.drawable.ic_done : R.drawable.ic_add);
+        save.setContentDescription(getString(saved ? R.string.cassette_saved : R.string.cassette_save));
+    }
+
+    /** The record the station is playing: our copy when we carry it, else its page on Cassette. */
+    private void openRadioAlbum() {
+        android.os.Bundle extras = radioExtras;
+        if (extras == null) return;
+        String slug = extras.getString(CassetteRadioLive.ALBUM_SLUG);
+        String title = extras.getString(CassetteRadioLive.ALBUM_TITLE);
+        String artist = extras.getString("artist");
+        new Thread(() -> {
+            com.cappielloantonio.tempo.subsonic.models.AlbumID3 own = com.cappielloantonio.tempo.util.CassetteRadio.onPhone(title, artist);
+            requireActivity().runOnUiThread(() -> {
+                if (bind == null) return;
+                if (own != null) {
+                    Bundle bundle = new Bundle();
+                    bundle.putParcelable(Constants.ALBUM_OBJECT, own);
+                    activity.setBottomSheetInPeek(true);
+                    activity.navController.navigate(R.id.albumPageFragment, bundle);
+                } else if (slug != null) {
+                    startActivity(new android.content.Intent(android.content.Intent.ACTION_VIEW,
+                            android.net.Uri.parse("https://cassette.digital/album/" + android.net.Uri.encode(slug))));
+                }
+            });
+        }, "cassette-radio-album").start();
     }
 
     private void initQuickActionView() {
@@ -249,7 +355,8 @@ public class PlayerControllerFragment extends Fragment {
 
     private void setMetadata(MediaMetadata mediaMetadata) {
         // the player's caps title; the artist in the serif, in the record's colour
-        String title = mediaMetadata.title != null ? String.valueOf(mediaMetadata.title) : "";
+        String title = mediaMetadata.title != null ? String.valueOf(mediaMetadata.title)
+                : (mediaMetadata.extras != null ? mediaMetadata.extras.getString("title", "") : "");
         playerMediaTitleLabel.setText(title.toUpperCase(java.util.Locale.getDefault()));
         playerArtistNameLabel.setText(String.valueOf(mediaMetadata.artist));
 
@@ -265,8 +372,9 @@ public class PlayerControllerFragment extends Fragment {
         playerMediaTitleLabel.setSelected(true);
         playerArtistNameLabel.setSelected(true);
 
-        playerMediaTitleLabel.setVisibility(mediaMetadata.title != null && !Objects.equals(mediaMetadata.title, "") ? View.VISIBLE : View.GONE);
+        playerMediaTitleLabel.setVisibility(!title.isEmpty() ? View.VISIBLE : View.GONE);
         playerArtistNameLabel.setVisibility(mediaMetadata.artist != null && !Objects.equals(mediaMetadata.artist, "") ? View.VISIBLE : View.GONE);
+        paintRadio(mediaMetadata);
     }
 
     /** The record lights the room, the artist line and the scrubber; never orange. */

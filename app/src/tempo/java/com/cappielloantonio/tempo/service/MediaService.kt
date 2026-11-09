@@ -128,6 +128,10 @@ class MediaService : MediaLibraryService(), SessionAvailabilityListener {
     }
 
     private fun initializePlayerListener() {
+        // cassette: a station's song, show and picture, kept current on the playing item
+        val clock = android.text.format.DateFormat.getTimeFormat(this)
+        player.addListener(com.cappielloantonio.tempo.util.CassetteRadioLive.Follower(player) { t -> clock.format(java.util.Date(t)) })
+
         player.addListener(object : Player.Listener {
             override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
                 if (mediaItem == null) return

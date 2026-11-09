@@ -23,6 +23,21 @@
             android:scaleType="centerCrop"
             app:shapeAppearanceOverlay="@style/CassetteArtworkTile" />
 
+        <!-- a station with no picture: its name as word art on its own colour -->
+        <TextView
+            android:id="@+id/tile_word_art"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fontFamily="@font/barlow_condensed"
+            android:gravity="center"
+            android:maxLines="3"
+            android:padding="12dp"
+            android:textAllCaps="true"
+            android:textColor="#FFF3EADB"
+            android:textFontWeight="800"
+            android:textSize="24sp"
+            android:visibility="gone" />
+
         <include
             android:id="@+id/tile_play_disc"
             layout="@layout/view_play_disc"

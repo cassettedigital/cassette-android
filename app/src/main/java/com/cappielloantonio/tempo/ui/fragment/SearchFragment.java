@@ -326,8 +326,8 @@ public class SearchFragment extends Fragment implements ClickCallback {
                 MediaManager.startRadio(mediaBrowserListenableFuture, station.toInternetRadioStation());
                 activity.setBottomSheetInPeek(true);
             };
-            stations.add(new com.cappielloantonio.tempo.ui.adapter.CassetteTileAdapter.Tile(station.getName(), station.getLabel(),
-                    station.getImage(), CustomGlideRequest.ResourceType.Radio, false, tune, tune));
+            stations.add(com.cappielloantonio.tempo.ui.adapter.CassetteTileAdapter.Tile.station(
+                    station, () -> StationPageFragment.open(this, station.getSlug()), tune));
         }
         stationTiles.setItems(stations);
         bind.searchStationsHeading.setVisibility(stations.isEmpty() ? View.GONE : View.VISIBLE);

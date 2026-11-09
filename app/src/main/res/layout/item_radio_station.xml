@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- cassette: a station on the dial (iPhone RadioStationCell, kit component.stationRow):
      a squircle of the station's picture (or its name as word art in its own colour),
-     the name, and "Network · City". A tap tunes in; a long press has its site and
-     support, never an editor. -->
+     the name, and what's on (else "Network · City"). A tap opens its page; the
+     disc tunes in; a long press has Play, Save, its site and support, never an
+     editor. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -64,4 +65,10 @@
             android:ellipsize="end"
             android:maxLines="1" />
     </LinearLayout>
+    <include
+        android:id="@+id/station_play"
+        layout="@layout/view_play_disc"
+        android:layout_width="@dimen/kit_play_disc_hit"
+        android:layout_height="@dimen/kit_play_disc_hit"
+        android:layout_marginStart="8dp" />
 </LinearLayout>

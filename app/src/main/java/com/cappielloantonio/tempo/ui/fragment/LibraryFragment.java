@@ -100,6 +100,9 @@ public class LibraryFragment extends Fragment implements ClickCallback {
     public void onDestroyView() {
         super.onDestroyView();
         bind = null;
+        // the dial watches the view's life (saved stations): build it again with the next view
+        radio = null;
+        genres = null;
     }
 
     private int albumCount = -1, artistCount = -1, playlistCount = -1, songsSeen = -1, stationCount = -1;
@@ -176,6 +179,11 @@ public class LibraryFragment extends Fragment implements ClickCallback {
         com.cappielloantonio.tempo.util.CassetteRadio.refresh(requireContext().getApplicationContext());
         radio = new com.cappielloantonio.tempo.ui.adapter.CassetteRadioAdapter(new com.cappielloantonio.tempo.ui.adapter.CassetteRadioAdapter.Listener() {
             @Override
+            public void onOpen(com.cappielloantonio.tempo.util.CassetteRadio.Station station) {
+                StationPageFragment.open(LibraryFragment.this, station.getSlug());
+            }
+
+            @Override
             public void onTune(com.cappielloantonio.tempo.util.CassetteRadio.Station station) {
                 if (radioBrowser == null) {
                     radioBrowser = new androidx.media3.session.MediaBrowser.Builder(requireContext(),
@@ -191,10 +199,18 @@ public class LibraryFragment extends Fragment implements ClickCallback {
             public void onMenu(View anchor, com.cappielloantonio.tempo.util.CassetteRadio.Station station) {
                 PopupMenu popup = new PopupMenu(new android.view.ContextThemeWrapper(requireContext(), R.style.Cassette_NeutralTintContext), anchor);
                 popup.getMenu().add(0, 1, 0, R.string.cassette_play);
-                if (station.site() != null) popup.getMenu().add(0, 2, 1, getString(R.string.cassette_go_to_site, station.site()));
-                if (station.getSupportUrl() != null) popup.getMenu().add(0, 3, 2, getString(R.string.cassette_support_station, station.getName()));
+                boolean saved = com.cappielloantonio.tempo.util.CassetteRadioSaved.isSaved(requireContext(), station.getSlug());
+                popup.getMenu().add(0, 4, 1, saved ? R.string.cassette_remove_from_your_stations : R.string.cassette_save);
+                if (station.site() != null) popup.getMenu().add(0, 2, 2, getString(R.string.cassette_go_to_site, station.site()));
+                if (station.getSupportUrl() != null) popup.getMenu().add(0, 3, 3, getString(R.string.cassette_support_station, station.getName()));
                 popup.setOnMenuItemClickListener(item -> {
                     if (item.getItemId() == 1) onTune(station);
+                    else if (item.getItemId() == 4) {
+                        android.content.Context app = requireContext().getApplicationContext();
+                        com.cappielloantonio.tempo.util.CassetteRadioSaved.set(requireContext(), station.getSlug(), !saved, ok -> {
+                            if (!ok) android.widget.Toast.makeText(app, R.string.cassette_save_failed, android.widget.Toast.LENGTH_SHORT).show();
+                        });
+                    }
                     else if (item.getItemId() == 2) startActivity(new android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(station.getHomepage())));
                     else if (item.getItemId() == 3) startActivity(new android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(station.getSupportUrl())));
                     return true;
@@ -203,6 +219,9 @@ public class LibraryFragment extends Fragment implements ClickCallback {
             }
         });
         startOnNow();
+        com.cappielloantonio.tempo.util.CassetteRadioSaved.refresh(requireContext());
+        com.cappielloantonio.tempo.util.CassetteRadioSaved.saved(requireContext()).observe(getViewLifecycleOwner(),
+                slugs -> { if (radio != null) radio.setSaved(slugs, getString(R.string.cassette_your_stations)); });
         new Thread(() -> {
             java.util.List<com.cappielloantonio.tempo.util.CassetteRadio.Station> stations =
                     com.cappielloantonio.tempo.util.CassetteRadio.stations(requireContext().getApplicationContext());

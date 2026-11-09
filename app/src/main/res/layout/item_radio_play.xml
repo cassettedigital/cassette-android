@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- cassette: one song a station played (iPhone RadioStationVC's plays): the cover,
+     the song, the artist, and when ("Now" in orange, else "12 min ago"). A song we
+     carry opens its record; long-press copies "Song · Artist". -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?attr/selectableItemBackground"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingStart="20dp"
+    android:paddingTop="8dp"
+    android:paddingEnd="20dp"
+    android:paddingBottom="8dp">
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/play_cover"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:background="@color/cs_elevated"
+        android:importantForAccessibility="no"
+        android:scaleType="centerCrop"
+        app:shapeAppearanceOverlay="@style/CassetteArtworkRow" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="8dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/play_title"
+            style="@style/Cassette.Role.TileLabel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textSize="17sp"
+            tools:text="Vampire Empire" />
+
+        <TextView
+            android:id="@+id/play_artist"
+            style="@style/LabelCardSubtitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            tools:text="Big Thief" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/play_when"
+        style="@style/CassetteMono"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/cs_ink2"
+        android:textSize="@dimen/kit_type_caption"
+        tools:text="12 min ago" />
+</LinearLayout>

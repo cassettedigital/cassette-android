@@ -106,6 +106,29 @@
         android:orientation="horizontal"
         app:layout_constraintGuide_percent="0.575" />
 
+    <!-- cassette: a station's name over the song, opening its page (iPhone f3a3c506) -->
+    <TextView
+        android:id="@+id/player_station_line"
+        style="@style/Cassette.Role.Kicker"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="2dp"
+        android:layout_marginEnd="24dp"
+        android:background="?attr/selectableItemBackground"
+        android:drawablePadding="6dp"
+        android:ellipsize="end"
+        android:gravity="center_vertical"
+        android:singleLine="true"
+        android:textAllCaps="true"
+        android:textColor="@color/cs_ink2"
+        android:visibility="gone"
+        app:drawableStartCompat="@drawable/ic_lucide_radio"
+        app:drawableTint="@color/cs_ink2"
+        app:layout_constraintEnd_toStartOf="@+id/player_more_button"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/guideline" />
+
     <TextView
         android:id="@+id/player_media_title_label"
         style="@style/Cassette.Role.PlayerTitle"
@@ -136,6 +159,23 @@
         app:layout_constraintEnd_toStartOf="@+id/player_more_button"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/player_media_title_label" />
+
+    <!-- cassette: on a station, "Show · Until 3:00 PM, then X" -->
+    <TextView
+        android:id="@+id/player_radio_when"
+        style="@style/Cassette.Role.Meta"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="6dp"
+        android:layout_marginEnd="24dp"
+        android:ellipsize="end"
+        android:singleLine="true"
+        android:textAllCaps="false"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/player_artist_name_label" />
 
     <!-- cassette: the song's menu (Go to album, Go to artist, Add to playlist,
          Share), a glass circle in the title row as on the iPhone. Hidden for
@@ -196,7 +236,7 @@
         app:buffered_color="#00000000"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/player_artist_name_label"
+        app:layout_constraintTop_toBottomOf="@+id/player_radio_when"
         app:played_color="@color/cs_tint_neutral_text"
         app:scrubber_color="@color/cs_tint_neutral_text"
         app:unplayed_color="@color/cs_hairline" />
@@ -214,6 +254,18 @@
         android:textSize="12sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/exo_progress" />
+
+    <!-- cassette: a station is live: no scrubber, a live dot (iPhone 316d011a) -->
+    <TextView
+        android:id="@+id/player_live_label"
+        style="@style/Cassette.Role.Meta"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/exo_progress"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/exo_progress" />
 
     <View
         android:id="@+id/placeholder_view_left"
@@ -308,6 +360,39 @@
         app:layout_constraintStart_toEndOf="@id/placeholder_view_left"
         app:layout_constraintTop_toTopOf="@+id/player_play_pause_placeholder_view"
         app:srcCompat="@drawable/ic_skip_previous"
+        app:tint="@color/cs_ink" />
+
+    <!-- cassette: on a station, Save left of Stop and Go to album right of it -->
+    <ImageButton
+        android:id="@+id/player_radio_save"
+        android:layout_width="52dp"
+        android:layout_height="52dp"
+        android:padding="12dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/cassette_save"
+        android:scaleType="fitCenter"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/player_play_pause_placeholder_view"
+        app:layout_constraintEnd_toStartOf="@+id/player_play_pause_placeholder_view"
+        app:layout_constraintStart_toEndOf="@id/placeholder_view_left"
+        app:layout_constraintTop_toTopOf="@+id/player_play_pause_placeholder_view"
+        app:srcCompat="@drawable/ic_add"
+        app:tint="@color/cs_ink" />
+
+    <ImageButton
+        android:id="@+id/player_radio_album"
+        android:layout_width="52dp"
+        android:layout_height="52dp"
+        android:padding="12dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/song_bottom_sheet_go_to_album"
+        android:scaleType="fitCenter"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/player_play_pause_placeholder_view"
+        app:layout_constraintEnd_toStartOf="@id/placeholder_view_right"
+        app:layout_constraintStart_toEndOf="@+id/player_play_pause_placeholder_view"
+        app:layout_constraintTop_toTopOf="@+id/player_play_pause_placeholder_view"
+        app:srcCompat="@drawable/ic_lucide_disc"
         app:tint="@color/cs_ink" />
 
     <!-- cassette: the 78dp cream play disc (kit component.playerDisc) -->

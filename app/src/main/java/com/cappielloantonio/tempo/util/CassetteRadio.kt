@@ -43,6 +43,9 @@ object CassetteRadio {
             image = this@Station.image
         }
 
+        /** The station's own colour, for its word art when it has no picture; a warm neutral when it names none. */
+        fun accentColor(): Int = runCatching { android.graphics.Color.parseColor(accent) }.getOrDefault(0xFF6B5A44.toInt())
+
         /** "kexp.org", for the menu's "Go to …". */
         fun site(): String? = homepage?.let { runCatching { java.net.URI(it).host?.removePrefix("www.") }.getOrNull() }
     }
@@ -154,6 +157,70 @@ object CassetteRadio {
             android.os.Handler(android.os.Looper.getMainLooper()).post { callback.onNow(lines) }
         }, "cassette-radio-on-now").start()
     }
+
+    /** One song a station played (lib/radio/types.ts RadioPlay), with the record on Cassette it matched. */
+    class Play(val title: String, val artist: String, val playedAt: Long?, val cover: String?,
+               val albumSlug: String?, val albumTitle: String?, val albumArtist: String?)
+
+    /** A station's page (lib/radio/station-page.ts): what's on, what came before, the stations like it. */
+    class Page(val live: CassetteRadioLive.Live?, val now: Play?, val recent: List<Play>, val similar: List<String>)
+
+    /** `GET /api/radio/station/<slug>` (public). Null when the cloud can't say. Off the main thread. */
+    @JvmStatic
+    fun page(slug: String): Page? = try {
+        val client = OkHttpClient.Builder().callTimeout(15, TimeUnit.SECONDS).build()
+        client.newCall(Request.Builder().url(Cassette.BASE_URL + "/api/radio/station/" + android.net.Uri.encode(slug)).build()).execute().use { r ->
+            val body = r.body?.string()
+            if (!r.isSuccessful || body == null) null else parsePage(body)
+        }
+    } catch (e: Exception) {
+        Log.w(TAG, "station page failed", e)
+        null
+    }
+
+    @JvmStatic
+    fun parsePage(json: String): Page {
+        val o = JsonParser.parseString(json).asJsonObject
+        val liveJson = o.get("live")?.takeIf { it.isJsonObject }?.asJsonObject
+        val live = liveJson?.let { CassetteRadioLive.parseNowPlaying(it.toString()) }
+        val now = liveJson?.get("track")?.takeIf { it.isJsonObject }?.asJsonObject?.let { t ->
+            play(t, liveJson.get("match")?.takeIf { it.isJsonObject }?.asJsonObject)
+        }
+        val recent = o.getAsJsonArray("recent")?.mapNotNull { e ->
+            e.takeIf { it.isJsonObject }?.asJsonObject?.let { p -> play(p, p.get("match")?.takeIf { it.isJsonObject }?.asJsonObject) }
+        }.orEmpty()
+        val similar = o.getAsJsonArray("similar")?.mapNotNull { e ->
+            e.takeIf { it.isJsonObject }?.asJsonObject?.str("slug")
+        }.orEmpty()
+        return Page(live, now, recent, similar)
+    }
+
+    private fun play(t: JsonObject, match: JsonObject?): Play? {
+        val title = t.str("title") ?: return null
+        return Play(title, t.str("artist") ?: "",
+            t.str("playedAt")?.let { runCatching { java.time.Instant.parse(it).toEpochMilli() }.getOrNull() },
+            match?.str("coverUrl") ?: t.str("coverUrl"),
+            match?.str("albumSlug"), match?.str("title"), match?.str("artistName"))
+    }
+
+    /** The record on this phone a station's song came from, by its record's name and artist. Off the main thread. */
+    @JvmStatic
+    fun onPhone(albumTitle: String?, artist: String?): com.cappielloantonio.tempo.subsonic.models.AlbumID3? {
+        if (albumTitle.isNullOrBlank()) return null
+        val wantTitle = CassetteAlbumGroupKey.normalizeTitle(albumTitle)
+        val wantArtist = artist?.let { CassetteAlbumGroupKey.normalizeArtist(it) }
+        val songs = com.cappielloantonio.tempo.database.AppDatabase.getInstance().downloadDao().getAllDownloadedSync()
+        val d = songs.firstOrNull { s ->
+            s.album != null && CassetteAlbumGroupKey.normalizeTitle(s.album!!) == wantTitle &&
+                (wantArtist == null || CassetteAlbumGroupKey.normalizeArtist(s.artist ?: "") == wantArtist)
+        } ?: return null
+        return com.cappielloantonio.tempo.subsonic.models.AlbumID3().apply {
+            id = d.albumId; name = d.album; this.artist = d.artist; artistId = d.artistId; coverArtId = d.coverArtId; year = d.year ?: 0
+        }
+    }
+
+    @JvmStatic
+    fun bySlug(context: Context, slug: String?): Station? = slug?.let { s -> stations(context).firstOrNull { it.slug == s } }
 
     private fun JsonObject.str(key: String): String? = get(key)?.takeIf { !it.isJsonNull }?.asString?.takeIf { it.isNotEmpty() }
 }
