@@ -62,7 +62,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/player_media_bitrate"
-            app:layout_constraintStart_toStartOf="@id/vertical_guideline"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintHorizontal_chainStyle="packed"/>
 
         <TextView
