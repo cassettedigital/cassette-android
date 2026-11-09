@@ -24,7 +24,9 @@ import java.util.concurrent.Executors
  *
  * Home is the cloud's Home, the same rows in the same order and under the same names as
  * the phone (CassetteHome), each row holding what the phone holds. Resume has no card in
- * the car: its record rides as the first tile of On repeat. Radio stays on the phone.
+ * the car: its record rides as the first tile of On repeat. The Radio row's stations play
+ * straight from their own streams. Every record, artist, playlist and made-for-you list starts
+ * with Shuffle (CarPlay's header).
  * Albums are A to Z; Artists are grouped by name ("feat." set aside), each opening their
  * records here. A record opens to its songs here; a tap plays from that song on.
  */
@@ -39,6 +41,8 @@ object CassetteCar {
     private const val ALBUM = "[carAlbum]"
     private const val ARTIST = "[carArtist]"
     private const val MIX = "[carMix]"
+    private const val SHUFFLE = "[carShuffle]"
+    private const val STATION = "cassette-radio-"
 
     private val io = Executors.newSingleThreadExecutor()
 
@@ -104,9 +108,9 @@ object CassetteCar {
         id == ALBUMS -> phone().albums.map(::albumFolder)
         id == ARTISTS -> phone().artists.map { (key, name) -> folder(name, ARTIST + key, MediaMetadata.MEDIA_TYPE_ARTIST) }
         id.startsWith(ROW) -> rowItems(app, id.removePrefix(ROW))
-        id.startsWith(ALBUM) -> songs(repository, AppDatabase.getInstance().downloadDao().getAlbumSync(id.removePrefix(ALBUM)))
-        id.startsWith(ARTIST) -> id.removePrefix(ARTIST).let { key -> phone().albums.filter { artistKey(it.artist) == key }.map(::albumFolder) }
-        id.startsWith(MIX) -> songs(repository, CassetteHome.mix(id.removePrefix(MIX))?.songs.orEmpty())
+        id.startsWith(ALBUM) -> withShuffle(id, songs(repository, AppDatabase.getInstance().downloadDao().getAlbumSync(id.removePrefix(ALBUM))))
+        id.startsWith(ARTIST) -> id.removePrefix(ARTIST).let { key -> withShuffle(id, phone().albums.filter { artistKey(it.artist) == key }.map(::albumFolder)) }
+        id.startsWith(MIX) -> withShuffle(id, songs(repository, CassetteHome.mix(id.removePrefix(MIX))?.songs.orEmpty()))
         id == PLAYLISTS -> playlists().mapNotNull { (p, here) ->
             if (here.isEmpty()) null
             else folder(p.name, PLAYLIST + p.id, MediaMetadata.MEDIA_TYPE_PLAYLIST,
@@ -114,7 +118,7 @@ object CassetteCar {
                 cover(p.coverImageUrl ?: p.derivedCoverUrl))
         }
         id.startsWith(PLAYLIST) -> id.removePrefix(PLAYLIST).let { pid ->
-            songs(repository, playlists().firstOrNull { it.first.id == pid }?.second.orEmpty())
+            withShuffle(id, songs(repository, playlists().firstOrNull { it.first.id == pid }?.second.orEmpty()))
         }
         else -> emptyList()
     }
@@ -123,7 +127,7 @@ object CassetteCar {
 
     /** The rows, with Resume folded into On repeat as its first record. */
     private fun homeRows(app: Context): List<CassetteHome.DrawnRow> {
-        val rows = CassetteHome.rowsNow(app).filter { it.kind != "stations" }
+        val rows = CassetteHome.rowsNow(app)
         val resume = rows.firstOrNull { it.kind == "resume" }?.albums?.firstOrNull()
         return rows.filter { it.kind != "resume" }.map { row ->
             if (resume != null && row.kind == "records" && row === rows.first { it.kind == "records" }) {
@@ -144,11 +148,58 @@ object CassetteCar {
         row.playlists.forEach { p ->
             out.add(folder(p.name ?: "", PLAYLIST + p.id, MediaMetadata.MEDIA_TYPE_PLAYLIST, artwork = cover(p.coverArtId)))
         }
+        // the Radio row: each station plays from its own stream
+        // (the playing item leaves its title to the live song; the car's list names the station)
+        row.stations.forEach { s ->
+            val item = MappingUtil.mapInternetRadioStation(s.toInternetRadioStation())
+            out.add(item.buildUpon().setMediaMetadata(item.mediaMetadata.buildUpon()
+                .setTitle(s.name).setSubtitle(s.label).setArtist(s.label)
+                .setMediaType(MediaMetadata.MEDIA_TYPE_RADIO_STATION).build()).build())
+        }
         row.artists.forEach { a ->
             val name = a.name ?: return@forEach
             out.add(folder(name, ARTIST + artistKey(name), MediaMetadata.MEDIA_TYPE_ARTIST))
         }
         return out
+    }
+
+    // ---- Shuffle first, and what a tapped Shuffle or station means ----
+
+    /** A list that plays, with Shuffle at its head (nothing to shuffle, no Shuffle). */
+    private fun withShuffle(listId: String, items: List<MediaItem>): List<MediaItem> {
+        if (items.isEmpty()) return items
+        val shuffle = MediaItem.Builder()
+            .setMediaId(SHUFFLE + listId)
+            .setMediaMetadata(MediaMetadata.Builder().setTitle("Shuffle").setIsBrowsable(false).setIsPlayable(true)
+                .setMediaType(MediaMetadata.MEDIA_TYPE_MUSIC).build())
+            .build()
+        return listOf(shuffle) + items
+    }
+
+    /**
+     * What the car asked to play, when it is one of the car's own items: a Shuffle (the list's
+     * songs on this phone, shuffled, as the phone's own copies) or a station (its own stream).
+     * Null for anything else, which the session's stored lists answer.
+     */
+    @JvmStatic
+    fun resolve(context: Context, mediaId: String): List<MediaItem>? {
+        if (mediaId.startsWith(STATION)) {
+            val station = CassetteRadio.bySlug(context, mediaId.removePrefix(STATION)) ?: return emptyList()
+            return listOf(MappingUtil.mapInternetRadioStation(station.toInternetRadioStation()))
+        }
+        if (!mediaId.startsWith(SHUFFLE)) return null
+        val list = mediaId.removePrefix(SHUFFLE)
+        val dao = AppDatabase.getInstance().downloadDao()
+        val songs: List<Child> = when {
+            list.startsWith(ALBUM) -> dao.getAlbumSync(list.removePrefix(ALBUM))
+            list.startsWith(ARTIST) -> list.removePrefix(ARTIST).let { key ->
+                phone().albums.filter { artistKey(it.artist) == key }.flatMap { a -> dao.getAlbumSync(a.id!!) }
+            }
+            list.startsWith(MIX) -> CassetteHome.mix(list.removePrefix(MIX))?.songs.orEmpty()
+            list.startsWith(PLAYLIST) -> playlists().firstOrNull { it.first.id == list.removePrefix(PLAYLIST) }?.second.orEmpty()
+            else -> emptyList()
+        }
+        return MappingUtil.mapDownloads(songs.filter { CassetteOnPhone.playable(it) }.shuffled())
     }
 
     // ---- playlists: yours, from the cloud, each with its songs on this phone in order ----

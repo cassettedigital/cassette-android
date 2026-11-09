@@ -482,6 +482,12 @@ object MediaBrowserTree {
         val updatedMediaItems = ArrayList<MediaItem>()
 
         mediaItems.forEach {
+            // cassette: the car's own Shuffle rows and stations
+            val own = CassetteCar.resolve(com.cappielloantonio.tempo.App.getContext(), it.mediaId)
+            if (own != null) {
+                updatedMediaItems.addAll(own)
+                return@forEach
+            }
             if (it.localConfiguration?.uri != null) {
                 updatedMediaItems.add(it)
             } else {

@@ -122,6 +122,13 @@ public class SearchFragment extends Fragment implements ClickCallback {
         bind.searchStations.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
         bind.searchStations.setAdapter(stationTiles);
 
+        // the start page's chips: shuffle what's here, or open Library on a way of browsing it
+        bind.searchChipShuffle.setOnClickListener(v -> shuffleAll());
+        bind.searchChipAlbums.setOnClickListener(v -> openLibrary(LibraryFragment.CATEGORY_ALBUMS));
+        bind.searchChipPlaylists.setOnClickListener(v -> openLibrary(LibraryFragment.CATEGORY_PLAYLISTS));
+        bind.searchChipGenres.setOnClickListener(v -> openLibrary(LibraryFragment.CATEGORY_GENRES));
+        bind.searchChipRadio.setOnClickListener(v -> openLibrary(LibraryFragment.CATEGORY_RADIO));
+
         // GENRES on the start page: two to a row; a tile opens the genre's page
         genreTiles = new com.cappielloantonio.tempo.ui.adapter.CassetteGenreTileAdapter(genre -> {
             Bundle bundle = new Bundle();
@@ -185,6 +192,27 @@ public class SearchFragment extends Fragment implements ClickCallback {
     }
 
     private com.cappielloantonio.tempo.ui.adapter.CassetteGenreTileAdapter genreTiles;
+
+    /** Library, opened on [category] (it reopens on the last one viewed). */
+    private void openLibrary(String category) {
+        com.cappielloantonio.tempo.util.Preferences.setLibraryLastCategory(category);
+        activity.bind.bottomNavigation.setSelectedItemId(R.id.libraryFragment);
+    }
+
+    /** Everything on this phone, shuffled (a long queue is cut at 500 songs). */
+    private void shuffleAll() {
+        worker.execute(() -> {
+            java.util.List<com.cappielloantonio.tempo.subsonic.models.Child> songs = new java.util.ArrayList<>(
+                    com.cappielloantonio.tempo.database.AppDatabase.getInstance().downloadDao().getAllDownloadedSync());
+            java.util.Collections.shuffle(songs);
+            java.util.List<com.cappielloantonio.tempo.subsonic.models.Child> queue = songs.size() > 500 ? new java.util.ArrayList<>(songs.subList(0, 500)) : songs;
+            main.post(() -> {
+                if (queue.isEmpty() || bind == null) return;
+                MediaManager.startQueue(mediaBrowserListenableFuture, queue, 0);
+                activity.setBottomSheetInPeek(true);
+            });
+        });
+    }
 
     private void loadGenres() {
         if (bind == null) return;

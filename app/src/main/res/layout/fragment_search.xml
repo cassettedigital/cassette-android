@@ -64,6 +64,60 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
+                <!-- quiet starting points (iPhone SearchStartView): shuffle what's here, or go browse it -->
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:clipToPadding="false"
+                    android:paddingStart="20dp"
+                    android:paddingTop="16dp"
+                    android:paddingEnd="12dp"
+                    android:scrollbars="none">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/search_chip_shuffle"
+                            style="@style/Cassette.Chip"
+                            android:layout_width="wrap_content"
+                            android:layout_height="36dp"
+                            android:layout_marginEnd="8dp"
+                            android:text="@string/cassette_shuffle_all"
+                            app:icon="@drawable/ic_lucide_shuffle" />
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/search_chip_albums"
+                            style="@style/Cassette.Chip"
+                            android:layout_width="wrap_content"
+                            android:layout_height="36dp"
+                            android:layout_marginEnd="8dp"
+                            android:text="@string/library_title_album" />
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/search_chip_playlists"
+                            style="@style/Cassette.Chip"
+                            android:layout_width="wrap_content"
+                            android:layout_height="36dp"
+                            android:layout_marginEnd="8dp"
+                            android:text="@string/library_title_playlist" />
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/search_chip_genres"
+                            style="@style/Cassette.Chip"
+                            android:layout_width="wrap_content"
+                            android:layout_height="36dp"
+                            android:layout_marginEnd="8dp"
+                            android:text="@string/cassette_genres" />
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/search_chip_radio"
+                            style="@style/Cassette.Chip"
+                            android:layout_width="wrap_content"
+                            android:layout_height="36dp"
+                            android:layout_marginEnd="8dp"
+                            android:text="@string/cassette_radio" />
+                    </LinearLayout>
+                </HorizontalScrollView>
+
                 <!-- GENRES: the genres of the music on this phone, biggest first,
                      each tile in the colour of one of its records (iPhone SearchStartView) -->
                 <TextView

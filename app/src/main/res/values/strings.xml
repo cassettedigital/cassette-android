@@ -502,6 +502,9 @@
     <string name="cassette_empty_playlist">Empty playlist</string>
     <string name="cassette_more_by">More by</string>
     <string name="cassette_more_like">More like</string>
+    <string name="cassette_artist_none_here">Nothing by them on this phone</string>
+    <string name="cassette_shuffle_all">Shuffle all</string>
+    <string name="cassette_made_for_you">Made for you</string>
     <string name="cassette_save">Save</string>
     <string name="cassette_saved">Saved</string>
     <string name="cassette_stop">Stop</string>

@@ -78,46 +78,40 @@ public class ArtistBottomSheetDialog extends BottomSheetDialogFragment implement
         nameArtist.setText(artistBottomSheetViewModel.getArtist().getName());
         nameArtist.setSelected(true);
 
-        ToggleButton favoriteToggle = view.findViewById(R.id.button_favorite);
-        favoriteToggle.setChecked(artistBottomSheetViewModel.getArtist().getStarred() != null);
-        favoriteToggle.setOnClickListener(v -> {
-            artistBottomSheetViewModel.setFavorite();
-        });
+        // cassette: no heart (BUG-947); everything here plays the artist's songs on this phone
+        view.findViewById(R.id.button_favorite).setVisibility(View.GONE);
+        view.findViewById(R.id.play_artist_text_view).setOnClickListener(v -> withSongs(songs -> {
+            MediaManager.startQueue(mediaBrowserListenableFuture, songs, 0);
+            ((MainActivity) requireActivity()).setBottomSheetInPeek(true);
+        }));
+        view.findViewById(R.id.play_random_text_view).setOnClickListener(v -> withSongs(songs -> {
+            java.util.Collections.shuffle(songs);
+            MediaManager.startQueue(mediaBrowserListenableFuture, songs, 0);
+            ((MainActivity) requireActivity()).setBottomSheetInPeek(true);
+        }));
+        view.findViewById(R.id.play_next_text_view).setOnClickListener(v -> withSongs(songs ->
+                MediaManager.enqueue(mediaBrowserListenableFuture, songs, true)));
+        view.findViewById(R.id.add_to_queue_text_view).setOnClickListener(v -> withSongs(songs ->
+                MediaManager.enqueue(mediaBrowserListenableFuture, songs, false)));
+    }
 
-        TextView playRadio = view.findViewById(R.id.play_radio_text_view);
-        playRadio.setOnClickListener(v -> {
-            ArtistRepository artistRepository = new ArtistRepository();
-
-            artistRepository.getInstantMix(artist, 20).observe(getViewLifecycleOwner(), songs -> {
-                MusicUtil.ratingFilter(songs);
-
-                if (!songs.isEmpty()) {
-                    MediaManager.startQueue(mediaBrowserListenableFuture, songs, 0);
-                    ((MainActivity) requireActivity()).setBottomSheetInPeek(true);
-                }
-
-                dismissBottomSheet();
-            });
-        });
-
-        TextView playRandom = view.findViewById(R.id.play_random_text_view);
-        playRandom.setOnClickListener(v -> {
-            ArtistRepository artistRepository = new ArtistRepository();
-            artistRepository.getRandomSong(artist, 50).observe(getViewLifecycleOwner(), songs -> {
-                MusicUtil.ratingFilter(songs);
-
-                if (!songs.isEmpty()) {
-                    MediaManager.startQueue(mediaBrowserListenableFuture, songs, 0);
-                    ((MainActivity) requireActivity()).setBottomSheetInPeek(true);
-
-                    dismissBottomSheet();
+    /** The artist's songs on this phone, record by record, then [use] on the main thread; the sheet closes. */
+    private void withSongs(java.util.function.Consumer<java.util.List<com.cappielloantonio.tempo.subsonic.models.Child>> use) {
+        String id = artist != null ? artist.getId() : null;
+        if (id == null) return;
+        android.content.Context app = requireContext().getApplicationContext();
+        new Thread(() -> {
+            java.util.List<com.cappielloantonio.tempo.subsonic.models.Child> songs = new java.util.ArrayList<>(
+                    com.cappielloantonio.tempo.database.AppDatabase.getInstance().downloadDao().getArtistSync(id));
+            new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
+                if (songs.isEmpty()) {
+                    Toast.makeText(app, R.string.cassette_artist_none_here, Toast.LENGTH_SHORT).show();
                 } else {
-                    Toast.makeText(requireContext(), getString(R.string.artist_error_retrieving_tracks), Toast.LENGTH_SHORT).show();
+                    use.accept(songs);
                 }
-
-                dismissBottomSheet();
+                if (isAdded()) dismissBottomSheet();
             });
-        });
+        }, "cassette-artist-menu").start();
     }
 
     @Override

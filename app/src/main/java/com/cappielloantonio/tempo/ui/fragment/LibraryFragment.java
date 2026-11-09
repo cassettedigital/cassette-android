@@ -103,15 +103,41 @@ public class LibraryFragment extends Fragment implements ClickCallback {
         // the dial watches the view's life (saved stations): build it again with the next view
         radio = null;
         genres = null;
+        mixes = null;
     }
 
     private int albumCount = -1, artistCount = -1, playlistCount = -1, songsSeen = -1, stationCount = -1;
     private com.cappielloantonio.tempo.ui.adapter.CassetteLetteredAlbumAdapter letteredAlbums;
     private boolean showingLetters = false;
-    private static final String CATEGORY_RADIO = "radio";
-    private static final String CATEGORY_GENRES = "genres";
+    public static final String CATEGORY_RADIO = "radio";
+    public static final String CATEGORY_GENRES = "genres";
     private int genreCount = -1;
     private com.cappielloantonio.tempo.ui.adapter.CassetteGenreTileAdapter genres;
+
+    private com.cappielloantonio.tempo.ui.adapter.CassetteMixListAdapter mixes;
+
+    /** cassette: Home's made-for-you playlists, under your own (iPhone I-M8). */
+    private com.cappielloantonio.tempo.ui.adapter.CassetteMixListAdapter mixAdapter() {
+        if (mixes == null) {
+            mixes = new com.cappielloantonio.tempo.ui.adapter.CassetteMixListAdapter(mix -> {
+                Bundle bundle = new Bundle();
+                bundle.putString(MixPageFragment.ARG_MIX_ID, mix.getId());
+                Navigation.findNavController(requireView()).navigate(R.id.mixPageFragment, bundle);
+            });
+        }
+        android.content.Context app = requireContext().getApplicationContext();
+        new Thread(() -> {
+            java.util.List<com.cappielloantonio.tempo.util.CassetteHome.DrawnMix> found = new java.util.ArrayList<>();
+            for (com.cappielloantonio.tempo.util.CassetteHome.DrawnRow row : com.cappielloantonio.tempo.util.CassetteHome.rowsNow(app)) {
+                if ("mixes".equals(row.getKind())) for (com.cappielloantonio.tempo.util.CassetteHome.DrawnMix m : row.getMixes()) {
+                    if (!m.getSongs().isEmpty()) found.add(m);
+                }
+            }
+            if (getActivity() == null) return;
+            getActivity().runOnUiThread(() -> { if (mixes != null) mixes.setItems(found); });
+        }, "cassette-library-mixes").start();
+        return mixes;
+    }
 
     /** cassette: Library > Genres, the genres of the music on this phone as soft tiles, two to a row. */
     private com.cappielloantonio.tempo.ui.adapter.CassetteGenreTileAdapter genreAdapter() {
@@ -417,7 +443,7 @@ public class LibraryFragment extends Fragment implements ClickCallback {
                 pushPickerToToolbar(R.string.library_title_playlist);
                 bind.libraryCatalogueRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
                 applyGridSpacing(1);
-                bind.libraryCatalogueRecyclerView.setAdapter(playlistAdapter);
+                bind.libraryCatalogueRecyclerView.setAdapter(new androidx.recyclerview.widget.ConcatAdapter(playlistAdapter, mixAdapter()));
                 break;
             case CATEGORY_ALBUMS:
             default:
