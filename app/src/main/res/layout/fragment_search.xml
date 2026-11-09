@@ -1,163 +1,257 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<!-- cassette: Search, on the phone (iPhone 246ff23b, Android's own resting
+     search tab). The field sits at the top; the keyboard comes up when it is
+     tapped. Typing searches what is on this phone as you go: one lit card to
+     play at once, then SONGS, ALBUMS, ARTISTS and PLAYLISTS under shout
+     headings, no row lines. Nothing found: one plain line. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/cs_bg"
+    android:orientation="vertical">
+
+    <TextView
+        style="@style/Cassette.Role.PageTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="20dp"
+        android:paddingTop="20dp"
+        android:paddingEnd="20dp"
+        android:text="@string/cassette_search_title"
+        android:textAllCaps="true" />
+
+    <EditText
+        android:id="@+id/search_field"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="14dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="4dp"
+        android:background="@drawable/cs_search_field"
+        android:drawableStart="@drawable/ic_lucide_search"
+        android:drawablePadding="10dp"
+        android:drawableTint="@color/cs_ink3"
+        android:fontFamily="@font/barlow_condensed"
+        android:hint="@string/cassette_search_hint"
+        android:imeOptions="actionSearch"
+        android:importantForAutofill="no"
+        android:inputType="text"
+        android:paddingStart="14dp"
+        android:paddingEnd="14dp"
+        android:singleLine="true"
+        android:textColor="@color/cs_ink"
+        android:textColorHint="@color/cs_ink3"
+        android:textSize="18sp" />
 
     <androidx.core.widget.NestedScrollView
-        android:id="@+id/search_result_nested_scroll_view"
+        android:id="@+id/search_scroll"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/searchbar_scrolling_view_behavior">
+        android:layout_height="match_parent">
 
-        <!-- Search result -->
         <LinearLayout
-            android:id="@+id/search_result_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingTop="64dp"
             android:paddingBottom="@dimen/global_padding_bottom">
 
-            <!--  Artist  -->
+            <!-- before typing: recent searches -->
             <LinearLayout
-                android:id="@+id/search_artist_sector"
+                android:id="@+id/search_start"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/search_recent_heading"
+                    style="@style/Cassette.Role.Shout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="20dp"
+                    android:paddingTop="24dp"
+                    android:paddingEnd="20dp"
+                    android:paddingBottom="8dp"
+                    android:text="@string/cassette_recent"
+                    android:textAllCaps="true" />
+
+                <LinearLayout
+                    android:id="@+id/search_recent_list"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
+            </LinearLayout>
+
+            <!-- after typing -->
+            <LinearLayout
+                android:id="@+id/search_results"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:paddingBottom="8dp"
-                android:visibility="gone">
+                android:visibility="gone"
+                tools:visibility="visible">
+
+                <!-- the one lit card: play at once -->
+                <FrameLayout
+                    android:id="@+id/search_top_card"
+                    android:layout_width="match_parent"
+                    android:layout_height="112dp"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:background="@drawable/cs_lit_card"
+                    android:clipToOutline="true"
+                    android:foreground="?attr/selectableItemBackground">
+
+                    <com.cappielloantonio.tempo.ui.view.CoverGlowView
+                        android:id="@+id/search_top_glow"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:padding="14dp">
+
+                        <com.google.android.material.imageview.ShapeableImageView
+                            android:id="@+id/search_top_cover"
+                            android:layout_width="84dp"
+                            android:layout_height="84dp"
+                            android:scaleType="centerCrop"
+                            app:shapeAppearanceOverlay="@style/CassetteArtworkRow" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="14dp"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/search_top_kicker"
+                                style="@style/Cassette.Role.Kicker"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                tools:text="ARTIST" />
+
+                            <TextView
+                                android:id="@+id/search_top_title"
+                                style="@style/Cassette.Role.CardTitle"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:ellipsize="end"
+                                android:maxLines="2"
+                                tools:text="BON IVER" />
+                        </LinearLayout>
+
+                        <FrameLayout
+                            android:id="@+id/search_top_play"
+                            android:layout_width="52dp"
+                            android:layout_height="52dp"
+                            android:background="@drawable/cs_cream_disc"
+                            android:contentDescription="@string/cassette_play"
+                            android:foreground="?attr/selectableItemBackgroundBorderless">
+
+                            <ImageView
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:layout_gravity="center"
+                                android:layout_marginStart="2dp"
+                                android:importantForAccessibility="no"
+                                android:src="@drawable/cs_play_glyph"
+                                app:tint="@color/cs_on_fill" />
+                        </FrameLayout>
+                    </LinearLayout>
+                </FrameLayout>
 
                 <TextView
-                    style="@style/TitleLarge"
+                    android:id="@+id/search_songs_heading"
+                    style="@style/Cassette.Role.Shout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingStart="16dp"
-                    android:paddingTop="20dp"
-                    android:paddingEnd="16dp"
-                    android:text="@string/search_title_artist" />
+                    android:paddingStart="20dp"
+                    android:paddingTop="26dp"
+                    android:paddingEnd="20dp"
+                    android:paddingBottom="4dp"
+                    android:text="@string/cassette_songs"
+                    android:textAllCaps="true" />
 
                 <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/search_result_artist_recycler_view"
+                    android:id="@+id/search_songs"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginBottom="8dp"
-                    android:clipToPadding="false"
-                    android:paddingStart="16dp"
-                    android:paddingTop="8dp"
-                    android:paddingEnd="8dp"
-                    android:paddingBottom="8dp" />
-            </LinearLayout>
-
-            <!--  Album  -->
-            <LinearLayout
-                android:id="@+id/search_album_sector"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:paddingBottom="8dp"
-                android:visibility="gone">
+                    android:layout_height="wrap_content"
+                    android:nestedScrollingEnabled="false" />
 
                 <TextView
-                    style="@style/TitleLarge"
+                    android:id="@+id/search_albums_heading"
+                    style="@style/Cassette.Role.Shout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingStart="16dp"
-                    android:paddingTop="20dp"
-                    android:paddingEnd="16dp"
-                    android:text="@string/search_title_album" />
+                    android:paddingStart="20dp"
+                    android:paddingTop="26dp"
+                    android:paddingEnd="20dp"
+                    android:paddingBottom="12dp"
+                    android:text="@string/cassette_albums"
+                    android:textAllCaps="true" />
 
                 <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/search_result_album_recycler_view"
+                    android:id="@+id/search_albums"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginBottom="8dp"
+                    android:layout_height="wrap_content"
                     android:clipToPadding="false"
-                    android:paddingStart="16dp"
-                    android:paddingTop="8dp"
-                    android:paddingEnd="8dp"
-                    android:paddingBottom="8dp" />
-            </LinearLayout>
-
-            <!--  Songs  -->
-            <LinearLayout
-                android:id="@+id/search_song_sector"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:paddingBottom="8dp"
-                android:visibility="gone">
+                    android:nestedScrollingEnabled="false"
+                    android:paddingStart="20dp"
+                    android:paddingEnd="20dp" />
 
                 <TextView
-                    style="@style/TitleLarge"
+                    android:id="@+id/search_artists_heading"
+                    style="@style/Cassette.Role.Shout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingStart="16dp"
-                    android:paddingTop="20dp"
-                    android:paddingEnd="16dp"
-                    android:text="@string/search_title_song" />
+                    android:paddingStart="20dp"
+                    android:paddingTop="26dp"
+                    android:paddingEnd="20dp"
+                    android:paddingBottom="12dp"
+                    android:text="@string/cassette_artists"
+                    android:textAllCaps="true" />
 
                 <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/search_result_tracks_recycler_view"
+                    android:id="@+id/search_artists"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginBottom="8dp"
+                    android:layout_height="wrap_content"
                     android:clipToPadding="false"
-                    android:paddingTop="8dp"
-                    android:paddingBottom="8dp" />
+                    android:nestedScrollingEnabled="false"
+                    android:paddingStart="20dp"
+                    android:paddingEnd="20dp" />
+
+                <TextView
+                    android:id="@+id/search_playlists_heading"
+                    style="@style/Cassette.Role.Shout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="20dp"
+                    android:paddingTop="26dp"
+                    android:paddingEnd="20dp"
+                    android:paddingBottom="12dp"
+                    android:text="@string/cassette_playlists"
+                    android:textAllCaps="true" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/search_playlists"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:clipToPadding="false"
+                    android:nestedScrollingEnabled="false"
+                    android:paddingStart="20dp"
+                    android:paddingEnd="20dp" />
             </LinearLayout>
+
+            <include
+                android:id="@+id/search_empty"
+                layout="@layout/view_empty_state" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
-
-    <!-- cassette: the search surfaces are pinned flat. SearchBar and SearchView
-         are the two Material widgets that never resolve a surfaceContainer
-         token - they take colorSurface and composite 6dp of elevation on top,
-         which on this palette means 11% of the orange primary and a page that
-         reads brown. Naming the container colour and zeroing the elevation is
-         the only lever these two expose. -->
-    <com.google.android.material.appbar.AppBarLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/cs_bg"
-        app:elevation="0dp"
-        app:liftOnScroll="false">
-
-        <com.google.android.material.search.SearchBar
-            android:id="@+id/search_bar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:elevation="0dp"
-            android:hint="@string/search_hint"
-            app:backgroundTint="@color/cs_elevated"
-            app:elevation="0dp">
-
-        </com.google.android.material.search.SearchBar>
-    </com.google.android.material.appbar.AppBarLayout>
-
-    <com.google.android.material.search.SearchView
-        android:id="@+id/search_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:elevation="0dp"
-        android:hint="@string/search_hint"
-        app:backgroundTint="@color/cs_bg"
-        app:layout_anchor="@id/search_bar">
-
-        <!-- Content goes here (ScrollView, RecyclerView, etc.). -->
-        <ScrollView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scrollbars="none"
-            android:paddingBottom="@dimen/global_padding_bottom">
-
-            <LinearLayout
-                android:id="@+id/search_view_suggestion_container"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"/>
-        </ScrollView>
-    </com.google.android.material.search.SearchView>
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+</LinearLayout>

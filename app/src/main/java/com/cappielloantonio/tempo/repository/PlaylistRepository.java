@@ -41,7 +41,7 @@ public class PlaylistRepository {
     private final DownloadDao downloadDao = AppDatabase.getInstance().downloadDao();
 
     public MutableLiveData<List<Playlist>> getPlaylists(boolean random, int size) {
-        MutableLiveData<List<Playlist>> live = new MutableLiveData<>(new ArrayList<>());
+        MutableLiveData<List<Playlist>> live = new MutableLiveData<>();
         EXEC.execute(() -> {
             String bearer = Preferences.getCassetteBearerToken();
             if (bearer == null || bearer.isEmpty()) {
@@ -64,8 +64,10 @@ public class PlaylistRepository {
                 }
                 live.postValue(out);
             } catch (Exception e) {
+                // cassette (BUG-948): offline or a failed fetch shows the playlists
+                // kept from the last good one, not an empty list until restart.
                 Log.w(TAG, "listPlaylists failed", e);
-                live.postValue(new ArrayList<>());
+                live.postValue(new ArrayList<>(playlistDao.getAllSync()));
             }
         });
         return live;

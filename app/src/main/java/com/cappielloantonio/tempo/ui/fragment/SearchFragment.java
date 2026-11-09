@@ -24,6 +24,7 @@ import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.cappielloantonio.tempo.R;
+import com.cappielloantonio.tempo.glide.CustomGlideRequest;
 import com.cappielloantonio.tempo.databinding.FragmentSearchBinding;
 import com.cappielloantonio.tempo.helper.recyclerview.CustomLinearSnapHelper;
 import com.cappielloantonio.tempo.interfaces.ClickCallback;
@@ -47,9 +48,15 @@ public class SearchFragment extends Fragment implements ClickCallback {
     private MainActivity activity;
     private SearchViewModel searchViewModel;
 
-    private ArtistAdapter artistAdapter;
-    private AlbumAdapter albumAdapter;
-    private SongHorizontalAdapter songHorizontalAdapter;
+    private SongHorizontalAdapter songAdapter;
+    private com.cappielloantonio.tempo.ui.adapter.CassetteTileAdapter albumTiles;
+    private com.cappielloantonio.tempo.ui.adapter.CassetteTileAdapter artistTiles;
+    private com.cappielloantonio.tempo.ui.adapter.CassetteTileAdapter playlistTiles;
+    private java.util.List<com.cappielloantonio.tempo.subsonic.models.Playlist> playlists = new java.util.ArrayList<>();
+
+    private final android.os.Handler main = new android.os.Handler(android.os.Looper.getMainLooper());
+    private final java.util.concurrent.ExecutorService worker = java.util.concurrent.Executors.newSingleThreadExecutor();
+    private int generation = 0;
 
     private ListenableFuture<MediaBrowser> mediaBrowserListenableFuture;
 
@@ -57,16 +64,21 @@ public class SearchFragment extends Fragment implements ClickCallback {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         activity = (MainActivity) getActivity();
-
         bind = FragmentSearchBinding.inflate(inflater, container, false);
-        View view = bind.getRoot();
         searchViewModel = new ViewModelProvider(requireActivity()).get(SearchViewModel.class);
 
-        initSearchResultView();
-        initSearchView();
-        inputFocus();
+        worker.execute(com.cappielloantonio.tempo.util.CassetteSearch::warm);
+        initResults();
+        initField();
+        renderRecent();
 
-        return view;
+        // coming back from a result keeps what was typed and its results
+        String held = searchViewModel.getQuery();
+        if (held != null && !held.isEmpty()) {
+            bind.searchField.setText(held);
+            bind.searchField.setSelection(held.length());
+        }
+        return bind.getRoot();
     }
 
     @Override
@@ -87,166 +99,198 @@ public class SearchFragment extends Fragment implements ClickCallback {
         bind = null;
     }
 
-    private void initSearchResultView() {
-        // Artists
-        bind.searchResultArtistRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
-        bind.searchResultArtistRecyclerView.setHasFixedSize(true);
+    private void initResults() {
+        bind.searchSongs.setLayoutManager(new LinearLayoutManager(requireContext()));
+        songAdapter = new SongHorizontalAdapter(this, true, true, null);
+        bind.searchSongs.setAdapter(songAdapter);
 
-        artistAdapter = new ArtistAdapter(this, false, false);
-        bind.searchResultArtistRecyclerView.setAdapter(artistAdapter);
+        albumTiles = new com.cappielloantonio.tempo.ui.adapter.CassetteTileAdapter();
+        bind.searchAlbums.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
+        bind.searchAlbums.setAdapter(albumTiles);
 
-        CustomLinearSnapHelper artistSnapHelper = new CustomLinearSnapHelper();
-        artistSnapHelper.attachToRecyclerView(bind.searchResultArtistRecyclerView);
+        artistTiles = new com.cappielloantonio.tempo.ui.adapter.CassetteTileAdapter();
+        bind.searchArtists.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
+        bind.searchArtists.setAdapter(artistTiles);
 
-        // Albums
-        bind.searchResultAlbumRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
-        bind.searchResultAlbumRecyclerView.setHasFixedSize(true);
+        playlistTiles = new com.cappielloantonio.tempo.ui.adapter.CassetteTileAdapter();
+        bind.searchPlaylists.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
+        bind.searchPlaylists.setAdapter(playlistTiles);
 
-        albumAdapter = new AlbumAdapter(this);
-        bind.searchResultAlbumRecyclerView.setAdapter(albumAdapter);
-
-        CustomLinearSnapHelper albumSnapHelper = new CustomLinearSnapHelper();
-        albumSnapHelper.attachToRecyclerView(bind.searchResultAlbumRecyclerView);
-
-        // Songs
-        bind.searchResultTracksRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
-        bind.searchResultTracksRecyclerView.setHasFixedSize(true);
-
-        songHorizontalAdapter = new SongHorizontalAdapter(this, true, false, null);
-        bind.searchResultTracksRecyclerView.setAdapter(songHorizontalAdapter);
+        new com.cappielloantonio.tempo.repository.PlaylistRepository().getPinnedPlaylists()
+                .observe(getViewLifecycleOwner(), list -> playlists = list != null ? list : new java.util.ArrayList<>());
     }
 
-    private void initSearchView() {
-        setRecentSuggestions();
+    private void initField() {
+        bind.searchField.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
 
-        bind.searchView
-                .getEditText()
-                .setOnEditorActionListener((textView, actionId, keyEvent) -> {
-                    String query = bind.searchView.getText().toString();
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                runSearch(s.toString());
+            }
 
-                    if (isQueryValid(query)) {
-                        search(query);
-                        return true;
-                    }
-
-                    return false;
-                });
-
-        bind.searchView
-                .getEditText()
-                .addTextChangedListener(new TextWatcher() {
-                    @Override
-                    public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {
-
-                    }
-
-                    @Override
-                    public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
-                        if (start + count > 1) {
-                            setSearchSuggestions(charSequence.toString());
-                        } else {
-                            setRecentSuggestions();
-                        }
-                    }
-
-                    @Override
-                    public void afterTextChanged(Editable editable) {
-
-                    }
-                });
+            @Override
+            public void afterTextChanged(Editable editable) {
+            }
+        });
+        bind.searchField.setOnEditorActionListener((v, actionId, event) -> {
+            String query = bind.searchField.getText().toString().trim();
+            if (!query.isEmpty()) searchViewModel.insertNewSearch(query);
+            android.view.inputmethod.InputMethodManager imm = (android.view.inputmethod.InputMethodManager)
+                    requireContext().getSystemService(android.content.Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+            return true;
+        });
     }
 
-    public void setRecentSuggestions() {
-        bind.searchViewSuggestionContainer.removeAllViews();
-
-        for (String suggestion : searchViewModel.getRecentSearchSuggestion()) {
-            View view = LayoutInflater.from(bind.searchViewSuggestionContainer.getContext()).inflate(R.layout.item_search_suggestion, bind.searchViewSuggestionContainer, false);
-
-            ImageView leadingImageView = view.findViewById(R.id.search_suggestion_icon);
-            TextView titleView = view.findViewById(R.id.search_suggestion_title);
-            ImageView tailingImageView = view.findViewById(R.id.search_suggestion_delete_icon);
-
-            leadingImageView.setImageDrawable(getResources().getDrawable(R.drawable.ic_history, null));
-            titleView.setText(suggestion);
-
-            view.setOnClickListener(v -> search(suggestion));
-
-            tailingImageView.setOnClickListener(v -> {
-                searchViewModel.deleteRecentSearch(suggestion);
-                setRecentSuggestions();
+    private void renderRecent() {
+        bind.searchRecentList.removeAllViews();
+        java.util.List<String> recent = searchViewModel.getRecentSearchSuggestion();
+        bind.searchRecentHeading.setVisibility(recent.isEmpty() ? View.GONE : View.VISIBLE);
+        for (String suggestion : recent) {
+            View view = LayoutInflater.from(requireContext()).inflate(R.layout.item_search_suggestion, bind.searchRecentList, false);
+            ((ImageView) view.findViewById(R.id.search_suggestion_icon)).setImageResource(R.drawable.ic_history);
+            ((TextView) view.findViewById(R.id.search_suggestion_title)).setText(suggestion);
+            view.setOnClickListener(v -> {
+                bind.searchField.setText(suggestion);
+                bind.searchField.setSelection(suggestion.length());
             });
-
-            bind.searchViewSuggestionContainer.addView(view);
+            view.findViewById(R.id.search_suggestion_delete_icon).setOnClickListener(v -> {
+                searchViewModel.deleteRecentSearch(suggestion);
+                renderRecent();
+            });
+            bind.searchRecentList.addView(view);
         }
     }
 
-    public void setSearchSuggestions(String query) {
-        searchViewModel.getSearchSuggestion(query).observe(getViewLifecycleOwner(), suggestions -> {
-            bind.searchViewSuggestionContainer.removeAllViews();
-
-            for (String suggestion : suggestions) {
-                View view = LayoutInflater.from(bind.searchViewSuggestionContainer.getContext()).inflate(R.layout.item_search_suggestion, bind.searchViewSuggestionContainer, false);
-
-                ImageView leadingImageView = view.findViewById(R.id.search_suggestion_icon);
-                TextView titleView = view.findViewById(R.id.search_suggestion_title);
-                ImageView tailingImageView = view.findViewById(R.id.search_suggestion_delete_icon);
-
-                leadingImageView.setImageDrawable(getResources().getDrawable(R.drawable.ic_search, null));
-                titleView.setText(suggestion);
-                tailingImageView.setVisibility(View.GONE);
-
-                view.setOnClickListener(v -> search(suggestion));
-
-                bind.searchViewSuggestionContainer.addView(view);
-            }
-        });
-    }
-
-    public void search(String query) {
+    /** As you type: what is on this phone, off the main thread, newest typing wins. */
+    private void runSearch(String query) {
         searchViewModel.setQuery(query);
-        bind.searchBar.setText(query);
-        bind.searchView.hide();
-        performSearch(query);
-    }
-
-    private void performSearch(String query) {
-        searchViewModel.search3(query).observe(getViewLifecycleOwner(), result -> {
-            if (bind != null) {
-                if (result.getArtists() != null) {
-                    bind.searchArtistSector.setVisibility(!result.getArtists().isEmpty() ? View.VISIBLE : View.GONE);
-                    artistAdapter.setItems(result.getArtists());
-                } else {
-                    artistAdapter.setItems(Collections.emptyList());
-                    bind.searchArtistSector.setVisibility(View.GONE);
-                }
-
-                if (result.getAlbums() != null) {
-                    bind.searchAlbumSector.setVisibility(!result.getAlbums().isEmpty() ? View.VISIBLE : View.GONE);
-                    albumAdapter.setItems(result.getAlbums());
-                } else {
-                    albumAdapter.setItems(Collections.emptyList());
-                    bind.searchAlbumSector.setVisibility(View.GONE);
-                }
-
-                if (result.getSongs() != null) {
-                    bind.searchSongSector.setVisibility(!result.getSongs().isEmpty() ? View.VISIBLE : View.GONE);
-                    songHorizontalAdapter.setItems(result.getSongs());
-                } else {
-                    songHorizontalAdapter.setItems(Collections.emptyList());
-                    bind.searchSongSector.setVisibility(View.GONE);
-                }
-            }
+        final int ticket = ++generation;
+        if (query.trim().isEmpty()) {
+            bind.searchResults.setVisibility(View.GONE);
+            bind.searchEmpty.emptyStateTitle.setVisibility(View.GONE);
+            bind.searchStart.setVisibility(View.VISIBLE);
+            return;
+        }
+        bind.searchStart.setVisibility(View.GONE);
+        worker.execute(() -> {
+            com.cappielloantonio.tempo.util.CassetteSearch.Results results = com.cappielloantonio.tempo.util.CassetteSearch.search(query);
+            main.post(() -> {
+                if (bind == null || ticket != generation) return;
+                showResults(query, results);
+            });
         });
-
-        bind.searchResultLayout.setVisibility(View.VISIBLE);
     }
 
-    private boolean isQueryValid(String query) {
-        return !query.equals("") && query.trim().length() > 2;
+    private void showResults(String query, com.cappielloantonio.tempo.util.CassetteSearch.Results results) {
+        String q = com.cappielloantonio.tempo.util.CassetteSearch.fold(query);
+        java.util.List<com.cappielloantonio.tempo.subsonic.models.Playlist> matchedPlaylists = new java.util.ArrayList<>();
+        for (com.cappielloantonio.tempo.subsonic.models.Playlist p : playlists) {
+            if (com.cappielloantonio.tempo.util.CassetteSearch.fold(p.getName()).contains(q)) matchedPlaylists.add(p);
+        }
+        boolean nothing = results.isEmpty() && matchedPlaylists.isEmpty();
+        bind.searchResults.setVisibility(nothing ? View.GONE : View.VISIBLE);
+        bind.searchEmpty.emptyStateTitle.setText(R.string.cassette_empty_search);
+        bind.searchEmpty.emptyStateTitle.setVisibility(nothing ? View.VISIBLE : View.GONE);
+        if (nothing) return;
+
+        // the top card: an artist whose name starts with what was typed, else the first album
+        com.cappielloantonio.tempo.subsonic.models.ArtistID3 leadArtist = null;
+        for (com.cappielloantonio.tempo.subsonic.models.ArtistID3 a : results.getArtists()) {
+            if (com.cappielloantonio.tempo.util.CassetteSearch.fold(a.getName()).startsWith(q)) { leadArtist = a; break; }
+        }
+        com.cappielloantonio.tempo.subsonic.models.AlbumID3 leadAlbum = results.getAlbums().isEmpty() ? null : results.getAlbums().get(0);
+        bind.searchTopCard.setVisibility(leadArtist != null || leadAlbum != null ? View.VISIBLE : View.GONE);
+        bind.searchTopGlow.setRecipe(com.cappielloantonio.tempo.ui.view.CoverGlowView.TOP_RESULT);
+        if (leadArtist != null) {
+            final com.cappielloantonio.tempo.subsonic.models.ArtistID3 artist = leadArtist;
+            String cover = null;
+            for (com.cappielloantonio.tempo.subsonic.models.AlbumID3 a : results.getAlbums()) if (artist.getId().equals(a.getArtistId())) { cover = a.getCoverArtId(); break; }
+            bind.searchTopKicker.setText(R.string.cassette_kicker_artist);
+            bind.searchTopTitle.setText(artist.getName() != null ? artist.getName().toUpperCase(java.util.Locale.getDefault()) : "");
+            CustomGlideRequest.Builder.from(requireContext(), artist.getCoverArtId(), CustomGlideRequest.ResourceType.Artist).build().into(bind.searchTopCover);
+            bind.searchTopGlow.setCover(cover, CustomGlideRequest.ResourceType.Album);
+            bind.searchTopCard.setOnClickListener(v -> openArtist(artist));
+            bind.searchTopPlay.setOnClickListener(v -> {
+                MediaManager.playArtist(mediaBrowserListenableFuture, artist.getId());
+                activity.setBottomSheetInPeek(true);
+            });
+        } else if (leadAlbum != null) {
+            final com.cappielloantonio.tempo.subsonic.models.AlbumID3 album = leadAlbum;
+            bind.searchTopKicker.setText(R.string.cassette_kicker_album);
+            bind.searchTopTitle.setText(album.getName() != null ? album.getName().toUpperCase(java.util.Locale.getDefault()) : "");
+            CustomGlideRequest.Builder.from(requireContext(), album.getCoverArtId(), CustomGlideRequest.ResourceType.Album).build().into(bind.searchTopCover);
+            bind.searchTopGlow.setCover(album.getCoverArtId(), CustomGlideRequest.ResourceType.Album);
+            bind.searchTopCard.setOnClickListener(v -> openAlbum(album));
+            bind.searchTopPlay.setOnClickListener(v -> {
+                MediaManager.playAlbum(mediaBrowserListenableFuture, album.getId(), false);
+                activity.setBottomSheetInPeek(true);
+            });
+        }
+
+        songAdapter.setItems(results.getSongs());
+        bind.searchSongsHeading.setVisibility(results.getSongs().isEmpty() ? View.GONE : View.VISIBLE);
+
+        java.util.List<com.cappielloantonio.tempo.ui.adapter.CassetteTileAdapter.Tile> albums = new java.util.ArrayList<>();
+        for (com.cappielloantonio.tempo.subsonic.models.AlbumID3 album : results.getAlbums()) {
+            albums.add(new com.cappielloantonio.tempo.ui.adapter.CassetteTileAdapter.Tile(album.getName(), album.getArtist(),
+                    album.getCoverArtId(), CustomGlideRequest.ResourceType.Album, false,
+                    () -> openAlbum(album),
+                    () -> {
+                        MediaManager.playAlbum(mediaBrowserListenableFuture, album.getId(), false);
+                        activity.setBottomSheetInPeek(true);
+                    }));
+        }
+        albumTiles.setItems(albums);
+        bind.searchAlbumsHeading.setVisibility(albums.isEmpty() ? View.GONE : View.VISIBLE);
+
+        java.util.List<com.cappielloantonio.tempo.ui.adapter.CassetteTileAdapter.Tile> artists = new java.util.ArrayList<>();
+        for (com.cappielloantonio.tempo.subsonic.models.ArtistID3 artist : results.getArtists()) {
+            artists.add(new com.cappielloantonio.tempo.ui.adapter.CassetteTileAdapter.Tile(artist.getName(), null,
+                    artist.getCoverArtId(), CustomGlideRequest.ResourceType.Artist, true,
+                    () -> openArtist(artist),
+                    () -> {
+                        MediaManager.playArtist(mediaBrowserListenableFuture, artist.getId());
+                        activity.setBottomSheetInPeek(true);
+                    }));
+        }
+        artistTiles.setItems(artists);
+        bind.searchArtistsHeading.setVisibility(artists.isEmpty() ? View.GONE : View.VISIBLE);
+
+        java.util.List<com.cappielloantonio.tempo.ui.adapter.CassetteTileAdapter.Tile> lists = new java.util.ArrayList<>();
+        for (com.cappielloantonio.tempo.subsonic.models.Playlist playlist : matchedPlaylists) {
+            lists.add(new com.cappielloantonio.tempo.ui.adapter.CassetteTileAdapter.Tile(playlist.getName(), null,
+                    playlist.getCoverArtId(), CustomGlideRequest.ResourceType.Playlist, false,
+                    () -> {
+                        Bundle bundle = new Bundle();
+                        bundle.putParcelable(Constants.PLAYLIST_OBJECT, playlist);
+                        Navigation.findNavController(requireView()).navigate(R.id.playlistPageFragment, bundle);
+                    },
+                    () -> new com.cappielloantonio.tempo.repository.PlaylistRepository().getPlaylistSongs(playlist.getId())
+                            .observe(getViewLifecycleOwner(), songs -> {
+                                if (songs == null || songs.isEmpty()) return;
+                                MediaManager.startQueue(mediaBrowserListenableFuture, songs, 0);
+                                com.cappielloantonio.tempo.repository.PlaylistRepository.notePlayed(playlist.getId());
+                                activity.setBottomSheetInPeek(true);
+                            })));
+        }
+        playlistTiles.setItems(lists);
+        bind.searchPlaylistsHeading.setVisibility(lists.isEmpty() ? View.GONE : View.VISIBLE);
     }
 
-    private void inputFocus() {
-        bind.searchView.show();
+    private void openAlbum(com.cappielloantonio.tempo.subsonic.models.AlbumID3 album) {
+        Bundle bundle = new Bundle();
+        bundle.putParcelable(Constants.ALBUM_OBJECT, album);
+        Navigation.findNavController(requireView()).navigate(R.id.albumPageFragment, bundle);
+    }
+
+    private void openArtist(com.cappielloantonio.tempo.subsonic.models.ArtistID3 artist) {
+        Bundle bundle = new Bundle();
+        bundle.putParcelable(Constants.ARTIST_OBJECT, artist);
+        Navigation.findNavController(requireView()).navigate(R.id.artistPageFragment, bundle);
     }
 
     private void initializeMediaBrowser() {
@@ -266,25 +310,5 @@ public class SearchFragment extends Fragment implements ClickCallback {
     @Override
     public void onMediaLongClick(Bundle bundle) {
         Navigation.findNavController(requireView()).navigate(R.id.songBottomSheetDialog, bundle);
-    }
-
-    @Override
-    public void onAlbumClick(Bundle bundle) {
-        Navigation.findNavController(requireView()).navigate(R.id.albumPageFragment, bundle);
-    }
-
-    @Override
-    public void onAlbumLongClick(Bundle bundle) {
-        Navigation.findNavController(requireView()).navigate(R.id.albumBottomSheetDialog, bundle);
-    }
-
-    @Override
-    public void onArtistClick(Bundle bundle) {
-        Navigation.findNavController(requireView()).navigate(R.id.artistPageFragment, bundle);
-    }
-
-    @Override
-    public void onArtistLongClick(Bundle bundle) {
-        Navigation.findNavController(requireView()).navigate(R.id.artistBottomSheetDialog, bundle);
     }
 }

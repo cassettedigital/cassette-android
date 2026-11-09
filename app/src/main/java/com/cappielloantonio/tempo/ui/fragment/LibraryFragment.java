@@ -101,6 +101,28 @@ public class LibraryFragment extends Fragment implements ClickCallback {
         bind = null;
     }
 
+    private int albumCount = -1, artistCount = -1, playlistCount = -1, songsSeen = -1;
+
+    /** "139 ALBUMS" over the list, or one plain title when there is nothing here. */
+    private void refreshCountLine() {
+        if (bind == null) return;
+        String category = Preferences.getLibraryLastCategory();
+        int count;
+        int plural;
+        int empty;
+        if (CATEGORY_ARTISTS.equals(category)) {
+            count = artistCount; plural = R.plurals.cassette_artist_count; empty = R.string.cassette_empty_phone;
+        } else if (CATEGORY_PLAYLISTS.equals(category)) {
+            count = playlistCount; plural = R.plurals.cassette_playlist_count; empty = R.string.cassette_empty_playlists;
+        } else {
+            count = albumCount; plural = R.plurals.cassette_album_count; empty = R.string.cassette_empty_phone;
+        }
+        bind.libraryCountLine.setVisibility(count > 0 ? View.VISIBLE : View.GONE);
+        if (count > 0) bind.libraryCountLine.setText(getResources().getQuantityString(plural, count, count));
+        bind.libraryEmpty.emptyStateTitle.setText(empty);
+        bind.libraryEmpty.emptyStateTitle.setVisibility(count == 0 ? View.VISIBLE : View.GONE);
+    }
+
     private void initAppBar() {
         MaterialToolbar materialToolbar = bind.getRoot().findViewById(R.id.toolbar);
 
@@ -138,13 +160,32 @@ public class LibraryFragment extends Fragment implements ClickCallback {
 
         albumCatalogueViewModel.getAlbumList().observe(getViewLifecycleOwner(), albums -> {
             if (albums != null) albumAdapter.setItems(albums);
+            albumCount = albums != null ? albums.size() : -1;
+            refreshCountLine();
         });
         artistCatalogueViewModel.getArtistList().observe(getViewLifecycleOwner(), artists -> {
             if (artists != null) artistAdapter.setItems(artists);
+            artistCount = artists != null ? artists.size() : -1;
+            refreshCountLine();
         });
         playlistCatalogueViewModel.getPlaylistList(getViewLifecycleOwner()).observe(getViewLifecycleOwner(), playlists -> {
             if (playlists != null) playlistAdapter.setItems(playlists);
+            playlistCount = playlists != null ? playlists.size() : -1;
+            refreshCountLine();
         });
+
+        // cassette: the grid fills in as music arrives on the phone, without a
+        // relaunch (iPhone 42a38ecb): a change in the phone's songs reloads it.
+        com.cappielloantonio.tempo.database.AppDatabase.getInstance().downloadDao().getAll()
+                .observe(getViewLifecycleOwner(), songs -> {
+                    int size = songs != null ? songs.size() : 0;
+                    if (size == songsSeen) return;
+                    boolean first = songsSeen < 0;
+                    songsSeen = size;
+                    if (first) return;
+                    albumCatalogueViewModel.loadAlbums();
+                    artistCatalogueViewModel.loadArtists();
+                });
     }
 
     /**
@@ -224,6 +265,7 @@ public class LibraryFragment extends Fragment implements ClickCallback {
         }
 
         Preferences.setLibraryLastCategory(category);
+        refreshCountLine();
     }
 
     @Override

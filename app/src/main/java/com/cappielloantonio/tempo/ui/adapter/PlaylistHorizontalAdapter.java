@@ -76,7 +76,10 @@ public class PlaylistHorizontalAdapter extends RecyclerView.Adapter<PlaylistHori
         Playlist playlist = playlists.get(position);
 
         holder.item.playlistTitleTextView.setText(playlist.getName());
-        holder.item.playlistSubtitleTextView.setText(holder.itemView.getContext().getString(R.string.playlist_counted_tracks, playlist.getSongCount(), MusicUtil.getReadableDurationString(playlist.getDuration(), false)));
+        // cassette: "9 songs" (cloud playlists carry no length, so no "0:00")
+        holder.item.playlistSubtitleTextView.setText(holder.itemView.getResources().getQuantityString(
+                R.plurals.cassette_song_count, playlist.getSongCount(), playlist.getSongCount()));
+        holder.item.playlistMoreButton.setVisibility(android.view.View.GONE);
 
         CustomGlideRequest.Builder
                 .from(holder.itemView.getContext(), playlist.getCoverArtId(), CustomGlideRequest.ResourceType.Playlist)

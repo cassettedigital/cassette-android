@@ -38,6 +38,23 @@
         xmlns:app="http://schemas.android.com/apk/res-auto"
         tools:text="Albums" />
 
+    <!-- cassette: "139 ALBUMS", counting what is on this phone (iPhone 42a38ecb) -->
+    <TextView
+        android:id="@+id/library_count_line"
+        style="@style/Cassette.Role.Meta"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="20dp"
+        android:paddingTop="6dp"
+        android:paddingEnd="20dp"
+        android:paddingBottom="8dp"
+        android:textColor="@color/cs_ink3"
+        android:visibility="gone" />
+
+    <include
+        android:id="@+id/library_empty"
+        layout="@layout/view_empty_state" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/library_catalogue_recycler_view"
         android:layout_width="match_parent"

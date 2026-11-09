@@ -522,4 +522,20 @@
     <string name="cassette_back_15">Back 15 seconds</string>
     <string name="cassette_up_next">Up Next</string>
     <string name="cassette_repeat">Repeat</string>
+    <string name="cassette_search_title">Search</string>
+    <string name="cassette_search_hint">Search your music</string>
+    <string name="cassette_recent">Recent</string>
+    <string name="cassette_songs">Songs</string>
+    <string name="cassette_artists">Artists</string>
+    <string name="cassette_playlists">Playlists</string>
+    <string name="cassette_kicker_artist">Artist</string>
+    <string name="cassette_kicker_album">Album</string>
+    <plurals name="cassette_artist_count">
+        <item quantity="one">%d artist</item>
+        <item quantity="other">%d artists</item>
+    </plurals>
+    <plurals name="cassette_playlist_count">
+        <item quantity="one">%d playlist</item>
+        <item quantity="other">%d playlists</item>
+    </plurals>
 </resources>

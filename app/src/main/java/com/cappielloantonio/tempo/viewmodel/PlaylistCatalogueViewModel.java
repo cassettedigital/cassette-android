@@ -27,9 +27,11 @@ public class PlaylistCatalogueViewModel extends AndroidViewModel {
     }
 
     public LiveData<List<Playlist>> getPlaylistList(LifecycleOwner owner) {
-        if (playlistList.getValue() == null) {
-            playlistRepository.getPlaylists(false, -1).observe(owner, playlistList::postValue);
-        }
+        // cassette: asked on every visit (a playlist made on another device shows),
+        // and the last good list stands in while offline (BUG-948).
+        playlistRepository.getPlaylists(false, -1).observe(owner, list -> {
+            if (list != null) playlistList.postValue(list);
+        });
 
         return playlistList;
     }

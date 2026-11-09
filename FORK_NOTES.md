@@ -145,3 +145,8 @@ Samsung/Xiaomi/OnePlus hardware).
 - `MixPageFragment`: a made-for-you playlist's page (picture, caps name, subtitle in the serif, count and length, pills, songs).
 - `POST /api/sync/playlists/{id}/played` when a playlist starts (`PlaylistRepository.notePlayed`), so every device's Playlists row and Resume know.
 - Note: like the iPhone, each Home fetch records what the reaching row showed (`user_home_shown`) on the cloud.
+
+### 2026-11-09 — Catch-up with the iPhone, pass 5: Search and Library on the phone
+
+- **Search reads the phone** (BUG-940): `util/CassetteSearch.kt` matches what is on this phone as you type, no network (songs on title, artist or album; albums on name or artist; artists on name; names starting with what was typed lead). `fragment_search.xml` / `SearchFragment` rebuilt as Cassette's own screen, Android's resting search tab (the keyboard comes up when the field is tapped): one lit top card that plays at once (artist, else album), SONGS, ALBUMS and ARTISTS tiles with the play disc, your PLAYLISTS by name; "No results on this phone" when nothing matches; recent searches before typing; coming back keeps the results.
+- **Library**: a "139 ALBUMS" / "N ARTISTS" / "N PLAYLISTS" count line; one plain empty title; the grid fills in as music arrives (watches the phone's songs, no flash); playlists show the last good list offline instead of an empty page until restart (BUG-948); playlist rows read "9 songs" (no "0:00"), lose the ⋮ (long-press still edits) and sit on the page's gutter.
