@@ -10,7 +10,7 @@ import androidx.media3.database.StandaloneDatabaseProvider;
 import androidx.media3.datasource.DataSource;
 import androidx.media3.datasource.DataSpec;
 import androidx.media3.datasource.DefaultDataSource;
-import androidx.media3.datasource.DefaultHttpDataSource;
+import androidx.media3.datasource.okhttp.OkHttpDataSource;
 import androidx.media3.datasource.ResolvingDataSource;
 import androidx.media3.datasource.cache.Cache;
 import androidx.media3.datasource.cache.CacheDataSource;
@@ -71,9 +71,11 @@ public final class DownloadUtil {
             CookieManager cookieManager = new CookieManager();
             cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ORIGINAL_SERVER);
             CookieHandler.setDefault(cookieManager);
-            httpDataSourceFactory = new DefaultHttpDataSource
-                    .Factory()
-                    .setAllowCrossProtocolRedirects(true);
+            // cassette (security design rule 2): music and downloads reach the computer
+            // through the one door that checks its key (CassetteHubTrust); radio stations
+            // and the cloud pass through it unchanged.
+            httpDataSourceFactory = new OkHttpDataSource.Factory(
+                    CassetteHubTrust.callFactory(CassetteHubTrust.getMediaClient()));
         }
 
         return httpDataSourceFactory;

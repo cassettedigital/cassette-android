@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  cassette (security design rule 1, the founder 2026-11-09): nothing of Cassette goes along to
+  another phone, by cloud backup or by Google's phone-to-phone copy. A new phone opens at Sign in
+  and gets its music from the computer again. android:allowBackup="false" already turns cloud
+  backup off, but from Android 12 it no longer stops the phone-to-phone copy; these rules do.
+  The sign-in is also sealed with a key that never leaves this phone (CassetteSecureStore), so
+  even a copied file would be unreadable elsewhere.
+-->
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude domain="root" path="." />
+        <exclude domain="file" path="." />
+        <exclude domain="database" path="." />
+        <exclude domain="sharedpref" path="." />
+        <exclude domain="external" path="." />
+        <exclude domain="device_root" path="." />
+        <exclude domain="device_file" path="." />
+        <exclude domain="device_database" path="." />
+        <exclude domain="device_sharedpref" path="." />
+    </cloud-backup>
+    <device-transfer>
+        <exclude domain="root" path="." />
+        <exclude domain="file" path="." />
+        <exclude domain="database" path="." />
+        <exclude domain="sharedpref" path="." />
+        <exclude domain="external" path="." />
+        <exclude domain="device_root" path="." />
+        <exclude domain="device_file" path="." />
+        <exclude domain="device_database" path="." />
+        <exclude domain="device_sharedpref" path="." />
+    </device-transfer>
+</data-extraction-rules>

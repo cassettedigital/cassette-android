@@ -36,6 +36,10 @@ public class App extends Application {
         CassetteDiagnostics.install(context);
         CassetteDiagnostics.flushPendingAsync(context);
 
+        // cassette (security design rule 1): the computer's password leaves the saved-server table
+        // for the sealed store, on phones that signed in before.
+        com.cappielloantonio.tempo.util.CassetteComputerLogin.sealSavedPasswords();
+
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         // cassette: Auto by default (follows the phone), with Light and Dark in
         // Settings > Appearance.

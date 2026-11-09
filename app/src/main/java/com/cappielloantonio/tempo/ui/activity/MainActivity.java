@@ -318,6 +318,9 @@ public class MainActivity extends BaseActivity {
             try {
                 Cassette.PlayerConfig config = Cassette.fetchPlayerConfig(token);
                 if (config.themeId != null) Preferences.setCassetteThemeId(config.themeId);
+                // a new key for the computer reaches the phone here (security design rule 2); it
+                // applies only to requests to the computer the cloud names
+                com.cappielloantonio.tempo.util.CassetteHubTrust.record(config);
             } catch (Exception ignored) {
                 // Offline or cloud unreachable — the cached skin stands.
             }

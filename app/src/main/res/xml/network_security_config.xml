@@ -1,9 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  cassette (security design rule 2): the cloud is reached over https only, trusting the phone's
+  built-in certificate authorities, never one someone installed on the phone (debug builds keep
+  those, for testing). Plain http stays allowed elsewhere for computers the cloud has no key for
+  yet and for radio stations; once the computer's key is known, the app talks to it over https
+  with that key only (CassetteHubTrust), which this file can't express because the computer's
+  name differs on every phone.
+-->
 <network-security-config>
     <base-config cleartextTrafficPermitted="true">
         <trust-anchors>
             <certificates src="system" />
-            <certificates src="user" />
         </trust-anchors>
     </base-config>
+    <domain-config cleartextTrafficPermitted="false">
+        <domain includeSubdomains="true">cassette.digital</domain>
+    </domain-config>
+    <debug-overrides>
+        <trust-anchors>
+            <certificates src="user" />
+        </trust-anchors>
+    </debug-overrides>
 </network-security-config>

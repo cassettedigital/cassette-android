@@ -64,6 +64,8 @@ public final class CassetteSession {
             }
 
             Preferences.setCassetteBearerToken(null);
+            CassetteHubTrust.forget();
+            CassettePairing.forget();
             Preferences.setCassetteAccountName(null);
             Preferences.setCassetteAccountEmail(null);
             Preferences.setCassetteAccountImage(null);

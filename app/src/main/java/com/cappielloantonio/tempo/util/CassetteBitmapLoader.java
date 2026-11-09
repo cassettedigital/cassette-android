@@ -55,7 +55,11 @@ public final class CassetteBitmapLoader implements BitmapLoader {
 
     public CassetteBitmapLoader(Context context) {
         this.context = context.getApplicationContext();
-        this.remote = new DataSourceBitmapLoader(this.context);
+        // through the computer's checked door, like the music (CassetteHubTrust, design rule 2)
+        this.remote = new DataSourceBitmapLoader(
+                MoreExecutors.listeningDecorator(Executors.newSingleThreadExecutor()),
+                new androidx.media3.datasource.DefaultDataSource.Factory(
+                        this.context, DownloadUtil.getHttpDataSourceFactory()));
         this.decodeExecutor =
                 MoreExecutors.listeningDecorator(Executors.newSingleThreadExecutor());
     }

@@ -132,7 +132,20 @@ dependencies {
     implementation 'com.squareup.okhttp3:logging-interceptor:5.0.0-alpha.14'
     implementation 'com.squareup.retrofit2:converter-gson:2.11.0'
 
+    // cassette security track (docs/CASSETTE_PHONE_SECURITY_DESIGN_2026-11-09.md, monorepo):
+    // music, downloads and covers reach the computer through OkHttp, so one door checks its key
+    // (CassetteHubTrust); sign-in opens in a Custom Tab; Tink gives X25519 + HKDF on every
+    // Android version for the sealed sign-in the computer app already uses (CassetteSeal).
+    implementation 'androidx.media3:media3-datasource-okhttp:1.5.1'
+    implementation 'com.github.bumptech.glide:okhttp3-integration:4.16.0'
+    implementation 'androidx.browser:browser:1.8.0'
+    implementation 'com.google.crypto.tink:tink-android:1.15.0'
+
     // Unit tests (JVM) — cassette: CassetteLocalId parity fixture test
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'com.google.code.gson:gson:2.10.1'
+    // cassette security track: a local https server with its own certificate, to check the
+    // computer's door accepts its key and nothing else (CassetteHubTrustTest)
+    testImplementation 'com.squareup.okhttp3:mockwebserver:5.0.0-alpha.14'
+    testImplementation 'com.squareup.okhttp3:okhttp-tls:5.0.0-alpha.14'
 }

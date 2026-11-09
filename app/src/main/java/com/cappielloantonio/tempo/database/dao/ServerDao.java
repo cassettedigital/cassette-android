@@ -21,4 +21,12 @@ public interface ServerDao {
 
     @Delete
     void delete(Server server);
+
+    // cassette (security design rule 1): the computer's password lives sealed in
+    // CassetteSecureStore, never in this table. Off the main thread only.
+    @Query("SELECT * FROM server")
+    List<Server> getAllSync();
+
+    @Query("UPDATE server SET password = '' WHERE id = :serverId")
+    void forgetPassword(String serverId);
 }

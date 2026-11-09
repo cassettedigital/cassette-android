@@ -1,7 +1,5 @@
 package com.cappielloantonio.tempo.ui.fragment;
 
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -29,7 +27,6 @@ import com.cappielloantonio.tempo.model.Server;
 import com.cappielloantonio.tempo.repository.SystemRepository;
 import com.cappielloantonio.tempo.ui.activity.MainActivity;
 import com.cappielloantonio.tempo.ui.dialog.ServerSignupDialog;
-import com.cappielloantonio.tempo.util.Cassette;
 import com.cappielloantonio.tempo.util.Preferences;
 import com.cappielloantonio.tempo.viewmodel.LoginViewModel;
 
@@ -72,14 +69,15 @@ public class LoginFragment extends Fragment implements ClickCallback {
     }
 
     /**
-     * The Cassette door: sign in with the Cassette account in the browser; the
-     * cloud redirects back to cassette://auth/callback (PairCallbackActivity)
-     * with a bearer token and the phone pairs itself. The manual add-server
-     * dialog stays available under + as the dev/self-host door.
+     * The Cassette door: sign in with the Cassette account in a Custom Tab over the
+     * app; the cloud sends the sign-in back to cassette://auth/callback
+     * (PairCallbackActivity), which takes it only when it answers this sign-in
+     * (CassettePairing, BUG-938). The manual add-server dialog stays available
+     * under + as the dev/self-host door.
      */
     private void initCassetteSignIn() {
         bind.cassetteSignInButton.setOnClickListener(v ->
-                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(Cassette.pairingUrl()))));
+                com.cappielloantonio.tempo.util.CassettePairing.start(requireContext()));
     }
 
     @Override

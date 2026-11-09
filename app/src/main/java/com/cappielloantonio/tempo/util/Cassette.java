@@ -65,11 +65,16 @@ public final class Cassette {
                 || fingerprint.contains("sdk_gphone"));
     }
 
-    /** The browser URL that starts the sign-in + pairing flow. */
-    public static String pairingUrl() {
+    /**
+     * The page that starts the sign-in, with this sign-in's one-time code and public key
+     * (CassettePairing, security design rule 3). Both are base64url, safe in an address as is.
+     */
+    public static String pairingUrl(String state, String key) {
         try {
             return BASE_URL + "/auth/player?client=" + CLIENT_ID
-                    + "&redirect_uri=" + URLEncoder.encode(REDIRECT_URI, "UTF-8");
+                    + "&redirect_uri=" + URLEncoder.encode(REDIRECT_URI, "UTF-8")
+                    + "&state=" + URLEncoder.encode(state, "UTF-8")
+                    + "&key=" + URLEncoder.encode(key, "UTF-8");
         } catch (UnsupportedEncodingException e) {
             throw new AssertionError(e); // UTF-8 always exists
         }
@@ -100,13 +105,24 @@ public final class Cassette {
         public final String subsonicPassword;
         /** The account's cross-device skin (users.theme_id); null on older clouds. */
         public final String themeId;
+        /**
+         * The computer's key (SHA-256 of its public key, base64), or null until the cloud has
+         * one: the phone then talks to the computer encrypted and to that key only
+         * (CassetteHubTrust, security design rule 2).
+         */
+        public final String lanTlsPin;
 
         PlayerConfig(String lanHostname, int lanPort, String subsonicUsername, String subsonicPassword, String themeId) {
+            this(lanHostname, lanPort, subsonicUsername, subsonicPassword, themeId, null);
+        }
+
+        PlayerConfig(String lanHostname, int lanPort, String subsonicUsername, String subsonicPassword, String themeId, String lanTlsPin) {
             this.lanHostname = lanHostname;
             this.lanPort = lanPort;
             this.subsonicUsername = subsonicUsername;
             this.subsonicPassword = subsonicPassword;
             this.themeId = themeId;
+            this.lanTlsPin = lanTlsPin;
         }
 
         public String address() {
@@ -167,12 +183,17 @@ public final class Cassette {
                     ? json.get("themeId").getAsString()
                     : null;
 
+            String lanTlsPin = json.has("lanTlsPin") && !json.get("lanTlsPin").isJsonNull()
+                    ? json.get("lanTlsPin").getAsString()
+                    : null;
+
             return new PlayerConfig(
                     lanHostname,
                     port,
                     json.get("subsonicUsername").getAsString(),
                     json.get("subsonicPassword").getAsString(),
-                    themeId);
+                    themeId,
+                    lanTlsPin);
         }
     }
 }

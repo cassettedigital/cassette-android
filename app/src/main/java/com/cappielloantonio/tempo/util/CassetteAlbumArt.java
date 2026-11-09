@@ -133,7 +133,8 @@ public final class CassetteAlbumArt {
                 .readTimeout(60, TimeUnit.SECONDS)
                 .build();
 
-        try (Response response = client.newCall(new Request.Builder().url(url).get().build()).execute()) {
+        // the computer's covers through the door that checks its key (CassetteHubTrust, design rule 2)
+        try (Response response = CassetteHubTrust.callFactory(client).newCall(new Request.Builder().url(url).get().build()).execute()) {
             if (!response.isSuccessful() || response.body() == null) {
                 Log.w(TAG, "cover fetch failed: HTTP " + response.code() + " for " + coverArtId);
                 return false;

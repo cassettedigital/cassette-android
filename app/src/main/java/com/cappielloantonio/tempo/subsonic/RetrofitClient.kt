@@ -3,6 +3,7 @@ package com.cappielloantonio.tempo.subsonic
 import com.cappielloantonio.tempo.App
 import com.cappielloantonio.tempo.BuildConfig
 import com.cappielloantonio.tempo.subsonic.utils.CacheUtil
+import com.cappielloantonio.tempo.util.CassetteHubTrust
 import com.google.gson.GsonBuilder
 import okhttp3.Cache
 import okhttp3.OkHttpClient
@@ -19,7 +20,8 @@ class RetrofitClient(subsonic: Subsonic) {
             .baseUrl(subsonic.url)
             .addConverterFactory(GsonConverterFactory.create(GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss").create()))
             .addConverterFactory(GsonConverterFactory.create(GsonBuilder().setLenient().create()))
-            .client(getOkHttpClient())
+            // cassette (security design rule 2): to the computer encrypted, its key only, when known
+            .callFactory(CassetteHubTrust.callFactory(getOkHttpClient()))
             .build()
     }
 

@@ -18,15 +18,19 @@ import com.cappielloantonio.tempo.repository.ServerRepository;
 import com.cappielloantonio.tempo.repository.SystemRepository;
 import com.cappielloantonio.tempo.util.Cassette;
 import com.cappielloantonio.tempo.util.CassetteComputerLogin;
+import com.cappielloantonio.tempo.util.CassettePairing;
 import com.cappielloantonio.tempo.util.Preferences;
 
 import java.util.UUID;
 
 /**
- * Lands the cassette://auth/callback?token=… redirect from the Cassette
- * sign-in flow (or ?error=cancelled, the pairing page's Cancel). Exchanges the bearer token at /api/player/me for the hub's
- * LAN address + Subsonic credential, saves it as the active server (exactly
- * like tapping a saved server on the login screen), and enters the app.
+ * Lands the cassette://auth/callback redirect from the Cassette sign-in flow
+ * (or ?error=cancelled, the pairing page's Cancel). Takes the sign-in only when
+ * it answers the sign-in this phone started, by its one-time code, and opens it
+ * with this phone's key when the cloud sealed it (CassettePairing, BUG-938);
+ * anything else is dropped and changes nothing. Exchanges the bearer token at
+ * /api/player/me for the hub's LAN address + Subsonic credential, saves it as
+ * the active server, and enters the app.
  */
 public class PairCallbackActivity extends AppCompatActivity {
 
@@ -45,14 +49,20 @@ public class PairCallbackActivity extends AppCompatActivity {
             finish();
             return;
         }
-        String token = data != null ? data.getQueryParameter("token") : null;
-
-        if (token == null || token.isEmpty()) {
-            fail(getString(R.string.cassette_pairing_failed));
-            return;
+        CassettePairing.Result answer = CassettePairing.accept(data);
+        switch (answer.outcome) {
+            case SIGN_IN:
+                pair(answer.token);
+                break;
+            case NOT_ASKED:
+                fail(getString(R.string.cassette_pairing_not_asked));
+                break;
+            case EXPIRED:
+                fail(getString(R.string.cassette_pairing_expired));
+                break;
+            default:
+                fail(getString(R.string.cassette_pairing_failed));
         }
-
-        pair(token);
     }
 
     private void pair(String token) {

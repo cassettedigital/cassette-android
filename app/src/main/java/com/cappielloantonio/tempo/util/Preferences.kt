@@ -87,34 +87,36 @@ object Preferences {
         App.getInstance().preferences.edit().putString(USER, user).apply()
     }
 
+    // cassette: the music-server password and the login made from it (token + salt, which
+    // replay as the password) are sealed to this phone (CassetteSecureStore, design rule 1).
     @JvmStatic
     fun getPassword(): String? {
-        return App.getInstance().preferences.getString(PASSWORD, null)
+        return CassetteSecureStore.getString(PASSWORD)
     }
 
     @JvmStatic
     fun setPassword(password: String?) {
-        App.getInstance().preferences.edit().putString(PASSWORD, password).apply()
+        CassetteSecureStore.setString(PASSWORD, password)
     }
 
     @JvmStatic
     fun getToken(): String? {
-        return App.getInstance().preferences.getString(TOKEN, null)
+        return CassetteSecureStore.getString(TOKEN)
     }
 
     @JvmStatic
     fun setToken(token: String?) {
-        App.getInstance().preferences.edit().putString(TOKEN, token).apply()
+        CassetteSecureStore.setString(TOKEN, token)
     }
 
     @JvmStatic
     fun getSalt(): String? {
-        return App.getInstance().preferences.getString(SALT, null)
+        return CassetteSecureStore.getString(SALT)
     }
 
     @JvmStatic
     fun setSalt(salt: String?) {
-        App.getInstance().preferences.edit().putString(SALT, salt).apply()
+        CassetteSecureStore.setString(SALT, salt)
     }
 
     @JvmStatic
@@ -352,13 +354,14 @@ object Preferences {
     @JvmStatic
     fun getCassetteBearerToken(): String? {
         // cassette: the pairing bearer token — lets the app re-read
-        // /api/player/me (skin changes, hub address drift) after pairing.
-        return App.getInstance().preferences.getString("cassette_bearer_token", null)
+        // /api/player/me (skin changes, hub address drift) after pairing. Sealed to this
+        // phone (CassetteSecureStore, design rule 1).
+        return CassetteSecureStore.getString("cassette_bearer_token")
     }
 
     @JvmStatic
     fun setCassetteBearerToken(token: String?) {
-        App.getInstance().preferences.edit().putString("cassette_bearer_token", token).apply()
+        CassetteSecureStore.setString("cassette_bearer_token", token)
     }
 
     @JvmStatic

@@ -34,13 +34,17 @@ public final class CassetteComputerLogin {
      * Save a computer (or the stand-in) as this phone's server and make it the one in use.
      * Re-pairing REPLACES the same row (Room insert is REPLACE on the primary key): play
      * history, downloads and the queue are keyed to it.
+     *
+     * The row keeps no password (security design rule 1): the password is sealed to this phone
+     * in CassetteSecureStore, and the saved-server table is a plain database file. The computer's
+     * key, when the cloud has one, is recorded with it (CassetteHubTrust, rule 2).
      */
     public static Server save(Cassette.PlayerConfig config) {
         Server server = new Server(
                 "cassette-" + config.subsonicUsername,
                 "Cassette",
                 config.subsonicUsername,
-                config.subsonicPassword,
+                "",
                 config.address(),
                 null,
                 System.currentTimeMillis(),
@@ -50,10 +54,35 @@ public final class CassetteComputerLogin {
         Preferences.setServer(server.getAddress());
         Preferences.setLocalAddress(null);
         Preferences.setUser(server.getUsername());
-        Preferences.setPassword(server.getPassword());
+        Preferences.setPassword(config.subsonicPassword);
         Preferences.setLowSecurity(false);
+        CassetteHubTrust.record(config);
         App.getSubsonicClientInstance(true);
         return server;
+    }
+
+    /**
+     * One-time, off the main thread: phones that signed in before rule 1 kept the computer's
+     * password in the saved-server table too. Seal it (if the settings file somehow lost its own
+     * copy) and empty the table's. Cheap and idempotent, so it simply runs at every start.
+     */
+    public static void sealSavedPasswords() {
+        new Thread(() -> {
+            try {
+                com.cappielloantonio.tempo.database.dao.ServerDao dao =
+                        com.cappielloantonio.tempo.database.AppDatabase.getInstance().serverDao();
+                for (Server s : dao.getAllSync()) {
+                    if (!s.getServerId().startsWith("cassette-") || s.getPassword().isEmpty()) continue;
+                    if (s.getServerId().equals(Preferences.getServerId()) && Preferences.getPassword() == null) {
+                        Preferences.setPassword(s.getPassword());
+                    }
+                    dao.forgetPassword(s.getServerId());
+                    Log.i(TAG, "the saved computer password now lives only in the sealed store");
+                }
+            } catch (Exception e) {
+                Log.w(TAG, "couldn't seal the saved computer password", e);
+            }
+        }, "cassette-seal-saved").start();
     }
 
     /** Ask whether the account's computer has signed in yet; [onConnected] on the main thread when it has. */

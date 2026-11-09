@@ -140,7 +140,8 @@ public final class CassetteArtistArt {
                 .build();
 
         File tmp = new File(target.getPath() + ".tmp");
-        try (Response response = client.newCall(new Request.Builder().url(imageUrl).get().build()).execute()) {
+        // the computer's pictures through the door that checks its key (CassetteHubTrust, design rule 2)
+        try (Response response = CassetteHubTrust.callFactory(client).newCall(new Request.Builder().url(imageUrl).get().build()).execute()) {
             if (!response.isSuccessful() || response.body() == null) {
                 Log.w(TAG, "artist image fetch failed: HTTP " + response.code());
                 return false;
