@@ -111,7 +111,8 @@ public class HomeTabMusicFragment extends Fragment implements ClickCallback {
         // discovery mixes, radio, best-of, flashback, top songs, shares,
         // most played, new releases) are simply never initialized; their
         // sectors default to gone in the layout. Re-enable = re-add a call.
-        initGreeting();
+        // cassette: no clock greeting (the iPhone cut it as sprawl on 10-20)
+        bind.homeGreetingSector.setVisibility(View.GONE);
         initSyncBanner();
         initResumeCard();
         // cassette: no recently-played-TRACKS shelf. iOS Home is all album
@@ -121,6 +122,7 @@ public class HomeTabMusicFragment extends Fragment implements ClickCallback {
         initRecentAddedAlbumView();
         initRecentlyPlayedArtistsView();
         initPinnedPlaylistsView();
+        loadCloudHome();
 
         // cassette: no Reorganize, and no reorder(). The Home order is fixed
         // (moving toward iOS's fixed shelf set), so the user-rearrangement
@@ -184,6 +186,8 @@ public class HomeTabMusicFragment extends Fragment implements ClickCallback {
     // cassette play spine (Phase B): a play made on another surface, resolved local.
     private com.cappielloantonio.tempo.subsonic.models.Child resumeFromRemote;
     private long resumeFromRemoteTs;
+    // cassette (One Home): the cloud's Resume, the record last played on any device.
+    private com.cappielloantonio.tempo.subsonic.models.Child resumeFromCloud;
 
     private void initResumeCard() {
         homeViewModel.getLastPlayedSong().observe(getViewLifecycleOwner(), items -> {
@@ -226,10 +230,8 @@ public class HomeTabMusicFragment extends Fragment implements ClickCallback {
         // sync status flips (see initSyncBanner) so the card returns when it ends.
         com.cappielloantonio.tempo.util.CassetteSyncStatus.Snapshot sync =
                 com.cappielloantonio.tempo.util.CassetteSyncStatus.live().getValue();
-        if (sync != null && sync.active) {
-            bind.homeResumeCard.setVisibility(View.GONE);
-            return;
-        }
+        // cassette: Home holds still (iPhone 316d011a): the banner sits above
+        // Resume while a sync moves; it no longer hides it.
 
         // Pick the newest actual play across this device (history) and other
         // surfaces (remote); the persisted queue is only a fallback when there is
@@ -244,6 +246,7 @@ public class HomeTabMusicFragment extends Fragment implements ClickCallback {
             track = resumeFromRemote;
             best = resumeFromRemoteTs;
         }
+        if (resumeFromCloud != null) track = resumeFromCloud;
         if (track == null) track = resumeFromQueue;
 
         if (track == null) {
@@ -327,6 +330,7 @@ public class HomeTabMusicFragment extends Fragment implements ClickCallback {
         // fragment create — so a play made on iOS while this app was backgrounded
         // never appeared until the process was killed and relaunched.
         com.cappielloantonio.tempo.util.CassettePlayPull.pullAsync(this::reloadCrossDeviceRecents);
+        loadCloudHome();
     }
 
     /**
@@ -400,8 +404,124 @@ public class HomeTabMusicFragment extends Fragment implements ClickCallback {
         bind.homeSwipeRefresh.setOnRefreshListener(() ->
                 com.cappielloantonio.tempo.util.CassettePlayPull.pullAsync(() -> {
                     reloadCrossDeviceRecents();
+                    loadCloudHome();
                     if (bind != null) bind.homeSwipeRefresh.setRefreshing(false);
                 }));
+    }
+
+    // ---- One Home ----
+
+    private void loadCloudHome() {
+        if (bind == null) return;
+        com.cappielloantonio.tempo.util.CassetteHome.load(requireContext(), this::drawCloudHome);
+    }
+
+    /**
+     * cassette: the cloud's rows, in its order, from what this phone holds. When
+     * the phone can draw any of them, they replace the stand-in rows (Recent,
+     * Albums, Artists, Playlists), which stay only for a first launch offline.
+     */
+    private void drawCloudHome(java.util.List<com.cappielloantonio.tempo.util.CassetteHome.DrawnRow> rows) {
+        if (bind == null || !isAdded()) return;
+        android.widget.LinearLayout container = bind.homeCloudRows;
+        container.removeAllViews();
+        int drawn = 0;
+        LayoutInflater inflater = LayoutInflater.from(requireContext());
+        int answerColor = androidx.core.content.ContextCompat.getColor(requireContext(), R.color.cs_accent_text);
+        resumeFromCloud = null;
+        for (com.cappielloantonio.tempo.util.CassetteHome.DrawnRow row : rows) {
+            if (!row.isFilled()) continue;
+            if ("resume".equals(row.getKind())) {
+                resumeFromCloud = row.getSong();
+                continue;
+            }
+            java.util.List<com.cappielloantonio.tempo.ui.adapter.CassetteTileAdapter.Tile> tiles = tilesFor(row);
+            if (tiles.isEmpty()) continue;
+            com.cappielloantonio.tempo.databinding.ItemHomeRowBinding rowBind =
+                    com.cappielloantonio.tempo.databinding.ItemHomeRowBinding.inflate(inflater, container, false);
+            com.cappielloantonio.tempo.util.CassetteType.twoVoice(rowBind.homeRowHeading, row.getShout(), row.getAnswer(), answerColor);
+            rowBind.homeRowTiles.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
+            com.cappielloantonio.tempo.ui.adapter.CassetteTileAdapter adapter = new com.cappielloantonio.tempo.ui.adapter.CassetteTileAdapter();
+            rowBind.homeRowTiles.setAdapter(adapter);
+            adapter.setItems(tiles);
+            container.addView(rowBind.getRoot());
+            drawn++;
+        }
+        boolean cloud = drawn > 0;
+        container.setVisibility(cloud ? View.VISIBLE : View.GONE);
+        int standIn = cloud ? View.GONE : View.VISIBLE;
+        bind.homeRecentlyPlayedAlbumsSector.setVisibility(standIn);
+        bind.homeRecentlyAddedAlbumsSector.setVisibility(standIn);
+        bind.homeRecentlyPlayedArtistsSector.setVisibility(standIn);
+        bind.pinnedPlaylistsSector.setVisibility(standIn);
+        applyResumeCard();
+    }
+
+    private java.util.List<com.cappielloantonio.tempo.ui.adapter.CassetteTileAdapter.Tile> tilesFor(
+            com.cappielloantonio.tempo.util.CassetteHome.DrawnRow row) {
+        java.util.List<com.cappielloantonio.tempo.ui.adapter.CassetteTileAdapter.Tile> tiles = new java.util.ArrayList<>();
+        for (com.cappielloantonio.tempo.util.CassetteHome.DrawnMix mix : row.getMixes()) {
+            int n = mix.getSongs().size();
+            String cover = mix.getCoverUrl() != null ? mix.getCoverUrl() : mix.getSongs().get(0).getCoverArtId();
+            tiles.add(new com.cappielloantonio.tempo.ui.adapter.CassetteTileAdapter.Tile(
+                    mix.getTitle(), getResources().getQuantityString(R.plurals.cassette_song_count, n, n), cover,
+                    mix.getCoverUrl() != null ? CustomGlideRequest.ResourceType.Playlist : CustomGlideRequest.ResourceType.Album,
+                    false,
+                    () -> {
+                        Bundle bundle = new Bundle();
+                        bundle.putString(MixPageFragment.ARG_MIX_ID, mix.getId());
+                        activity.navController.navigate(R.id.mixPageFragment, bundle);
+                    },
+                    () -> {
+                        MediaManager.startQueue(mediaBrowserListenableFuture, new java.util.ArrayList<>(mix.getSongs()), 0);
+                        activity.setBottomSheetInPeek(true);
+                    }));
+        }
+        for (com.cappielloantonio.tempo.subsonic.models.AlbumID3 album : row.getAlbums()) {
+            tiles.add(new com.cappielloantonio.tempo.ui.adapter.CassetteTileAdapter.Tile(
+                    album.getName(), album.getArtist(), album.getCoverArtId(), CustomGlideRequest.ResourceType.Album, false,
+                    () -> {
+                        Bundle bundle = new Bundle();
+                        bundle.putParcelable(Constants.ALBUM_OBJECT, album);
+                        activity.navController.navigate(R.id.albumPageFragment, bundle);
+                    },
+                    () -> {
+                        MediaManager.playAlbum(mediaBrowserListenableFuture, album.getId(), false);
+                        activity.setBottomSheetInPeek(true);
+                    }));
+        }
+        for (com.cappielloantonio.tempo.subsonic.models.ArtistID3 artist : row.getArtists()) {
+            tiles.add(new com.cappielloantonio.tempo.ui.adapter.CassetteTileAdapter.Tile(
+                    artist.getName(), null, artist.getCoverArtId(), CustomGlideRequest.ResourceType.Artist, true,
+                    () -> {
+                        Bundle bundle = new Bundle();
+                        bundle.putParcelable(Constants.ARTIST_OBJECT, artist);
+                        activity.navController.navigate(R.id.artistPageFragment, bundle);
+                    },
+                    () -> {
+                        MediaManager.playArtist(mediaBrowserListenableFuture, artist.getId());
+                        activity.setBottomSheetInPeek(true);
+                    }));
+        }
+        for (com.cappielloantonio.tempo.subsonic.models.Playlist playlist : row.getPlaylists()) {
+            int n = playlist.getSongCount();
+            tiles.add(new com.cappielloantonio.tempo.ui.adapter.CassetteTileAdapter.Tile(
+                    playlist.getName(), getResources().getQuantityString(R.plurals.cassette_song_count, n, n),
+                    playlist.getCoverArtId(), CustomGlideRequest.ResourceType.Playlist, false,
+                    () -> {
+                        Bundle bundle = new Bundle();
+                        bundle.putParcelable(Constants.PLAYLIST_OBJECT, playlist);
+                        activity.navController.navigate(R.id.playlistPageFragment, bundle);
+                    },
+                    () -> new com.cappielloantonio.tempo.repository.PlaylistRepository().getPlaylistSongs(playlist.getId())
+                            .observe(getViewLifecycleOwner(), songs -> {
+                                if (songs == null || songs.isEmpty()) return;
+                                MediaManager.startQueue(mediaBrowserListenableFuture, songs, 0);
+                                com.cappielloantonio.tempo.repository.PlaylistRepository.notePlayed(playlist.getId());
+                                activity.setBottomSheetInPeek(true);
+                            })));
+        }
+        return tiles;
     }
 
     private void initRecentPlayedAlbumView() {

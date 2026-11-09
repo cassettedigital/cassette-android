@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- cassette: one of the cloud's Home rows: its name in two voices (the answer in
+     orange, on Home only), then a row of tiles. No reason line under it. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/home_row_heading"
+        style="@style/Cassette.Role.Shout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="20dp"
+        android:paddingTop="28dp"
+        android:paddingEnd="20dp"
+        android:paddingBottom="12dp" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/home_row_tiles"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clipToPadding="false"
+        android:nestedScrollingEnabled="false"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp" />
+</LinearLayout>

@@ -267,6 +267,11 @@
             app:destination="@id/albumListPageFragment" />
     </fragment>
     <fragment
+        android:id="@+id/mixPageFragment"
+        android:name="com.cappielloantonio.tempo.ui.fragment.MixPageFragment"
+        android:label="MixPageFragment"
+        tools:layout="@layout/fragment_playlist_page" />
+    <fragment
         android:id="@+id/playlistPageFragment"
         android:name="com.cappielloantonio.tempo.ui.fragment.PlaylistPageFragment"
         android:label="PlaylistPageFragment"

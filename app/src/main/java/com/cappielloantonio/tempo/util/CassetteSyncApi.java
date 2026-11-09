@@ -85,6 +85,31 @@ public final class CassetteSyncApi {
     }
 
     // ------------------------------------------------------------------
+    // One Home: the cloud's Home for this listener's zone (apps/cassette/src/lib/home/types.ts).
+
+    @Nullable
+    public static String getHome(String bearerToken, String timeZone) throws IOException {
+        Request req = request("/api/sync/home?tz=" + java.net.URLEncoder.encode(timeZone, "UTF-8"), bearerToken)
+                .get()
+                .build();
+        try (Response response = client().newCall(req).execute()) {
+            if (response.code() == 401) CassetteSession.cloudRefusedToken();
+            if (!response.isSuccessful() || response.body() == null) return null;
+            return response.body().string();
+        }
+    }
+
+    /** A playlist started playing (any device's Playlists row and Resume order by it). */
+    public static void playlistPlayed(String bearerToken, String playlistId) throws IOException {
+        Request req = request("/api/sync/playlists/" + playlistId + "/played", bearerToken)
+                .post(RequestBody.create("{}", JSON))
+                .build();
+        try (Response response = client().newCall(req).execute()) {
+            if (response.code() == 401) CassetteSession.cloudRefusedToken();
+        }
+    }
+
+    // ------------------------------------------------------------------
     // Sign out (BUG-937): ends exactly this phone's sign-in on the cloud.
 
     public static void signOut(String bearerToken) throws IOException {

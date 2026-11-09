@@ -252,6 +252,22 @@ public class PlaylistRepository {
         });
     }
 
+    /**
+     * cassette (One Home): tell the cloud a playlist started playing, so every
+     * device's Playlists row leads with it and Resume can name it. Best effort.
+     */
+    public static void notePlayed(String playlistId) {
+        String bearer = Preferences.getCassetteBearerToken();
+        if (bearer == null || bearer.isEmpty() || playlistId == null) return;
+        EXEC.execute(() -> {
+            try {
+                CassetteSyncApi.playlistPlayed(bearer, playlistId);
+            } catch (Exception e) {
+                Log.w(TAG, "playlist played note failed", e);
+            }
+        });
+    }
+
     public void deletePlaylist(String playlistId) {
         EXEC.execute(() -> {
             String bearer = Preferences.getCassetteBearerToken();

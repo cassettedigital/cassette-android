@@ -273,6 +273,19 @@ public class MediaManager {
         }, "cassette-play-album").start();
     }
 
+    /** cassette: an artist tile's disc shuffles their songs on this phone. */
+    public static void playArtist(ListenableFuture<MediaBrowser> mediaBrowserListenableFuture, String artistId) {
+        if (mediaBrowserListenableFuture == null || artistId == null) return;
+        new Thread(() -> {
+            List<Child> songs = new java.util.ArrayList<>(com.cappielloantonio.tempo.database.AppDatabase
+                    .getInstance().downloadDao().getArtistSync(artistId));
+            if (songs.isEmpty()) return;
+            java.util.Collections.shuffle(songs);
+            androidx.core.os.HandlerCompat.createAsync(android.os.Looper.getMainLooper())
+                    .post(() -> startQueue(mediaBrowserListenableFuture, songs, 0));
+        }, "cassette-play-artist").start();
+    }
+
     public static void startRadio(ListenableFuture<MediaBrowser> mediaBrowserListenableFuture, InternetRadioStation internetRadioStation) {
         if (mediaBrowserListenableFuture != null) {
             mediaBrowserListenableFuture.addListener(() -> {

@@ -179,6 +179,7 @@ public class PlaylistPageFragment extends Fragment implements ClickCallback {
                     MediaManager.togglePlayPause(mediaBrowserListenableFuture);
                 } else {
                     MediaManager.startQueue(mediaBrowserListenableFuture, new java.util.ArrayList<>(playlistSongs), 0);
+                    com.cappielloantonio.tempo.repository.PlaylistRepository.notePlayed(playlistPageViewModel.getPlaylist().getId());
                 }
                 activity.setBottomSheetInPeek(true);
             });
@@ -187,6 +188,7 @@ public class PlaylistPageFragment extends Fragment implements ClickCallback {
                 java.util.List<com.cappielloantonio.tempo.subsonic.models.Child> shuffled = new java.util.ArrayList<>(playlistSongs);
                 Collections.shuffle(shuffled);
                 MediaManager.startQueue(mediaBrowserListenableFuture, shuffled, 0);
+                com.cappielloantonio.tempo.repository.PlaylistRepository.notePlayed(playlistPageViewModel.getPlaylist().getId());
                 activity.setBottomSheetInPeek(true);
             });
         });

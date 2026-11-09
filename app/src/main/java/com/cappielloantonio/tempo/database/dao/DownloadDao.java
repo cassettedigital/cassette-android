@@ -32,6 +32,10 @@ public interface DownloadDao {
     @Query("SELECT * FROM download WHERE download_state = 1 AND artist_id = :artistId ORDER BY album, disc_number, track ASC")
     List<Download> getArtistSync(String artistId);
 
+    // cassette: One Home finds the cloud's records, artists and mixes by their songs' Cassette ids.
+    @Query("SELECT * FROM download WHERE download_state = 1 AND cassette_local_id IN (:ids)")
+    List<Download> getByCassetteLocalIds(List<String> ids);
+
     @Query("SELECT * FROM download WHERE cassette_local_id = :cassetteLocalId LIMIT 1")
     Download getByCassetteLocalId(String cassetteLocalId);
 
