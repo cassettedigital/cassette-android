@@ -613,6 +613,15 @@ public final class CassetteSyncEngine {
     // ------------------------------------------------------------------
     // Inventory
 
+    /** cassette: after a Put back, say what is here now so the cloud queues the album again (iPhone reportInventoryNow). Off the main thread. */
+    public static void reportInventoryNow(Context context) {
+        String token = Preferences.getCassetteBearerToken();
+        if (token == null) return;
+        lastFullInventoryAt = 0;
+        reportFullInventoryIfDue(token);
+        kick(context);
+    }
+
     private static void reportFullInventoryIfDue(String token) {
         long now = System.currentTimeMillis();
         if (now - lastFullInventoryAt < FULL_INVENTORY_MIN_INTERVAL_MS) return;

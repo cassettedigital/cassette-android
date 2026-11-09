@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- cassette: This phone, from Settings (iPhone ThisPhoneView, e080d4c0). What is
+     here and what it weighs, biggest first, because the reason to open it is
+     room. "ON THIS PHONE", "163 albums", "1,999 songs · 12 GB"; a card with the
+     download quality and the room left; KEPT OFF *this phone*, tap a record to put
+     it back; BIGGEST *first*, long-press a record to remove it ("It stays on your
+     computer."). No hairlines. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/cs_bg">
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/this_phone_scroll"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingTop="?attr/actionBarSize"
+            android:paddingBottom="@dimen/global_padding_bottom">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingStart="22dp"
+                android:paddingTop="8dp"
+                android:paddingEnd="22dp"
+                android:paddingBottom="28dp">
+
+                <TextView
+                    style="@style/Cassette.Role.Kicker"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:drawablePadding="6dp"
+                    android:gravity="center_vertical"
+                    android:text="@string/cassette_on_this_phone"
+                    android:textAllCaps="true"
+                    android:textColor="@color/cs_ink2"
+                    app:drawableStartCompat="@drawable/ic_lucide_smartphone"
+                    app:drawableTint="@color/cs_ink2" />
+
+                <TextView
+                    android:id="@+id/this_phone_title"
+                    style="@style/Cassette.Role.PageTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    tools:text="163 albums" />
+
+                <TextView
+                    android:id="@+id/this_phone_meta"
+                    style="@style/Cassette.Role.Meta"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    tools:text="1,999 songs · 12 GB" />
+            </LinearLayout>
+
+            <!-- the card: download quality, the room left -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:background="@drawable/cs_card"
+                android:orientation="vertical"
+                android:paddingStart="16dp"
+                android:paddingTop="4dp"
+                android:paddingEnd="16dp"
+                android:paddingBottom="4dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/Cassette.Role.TileLabel"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/settings_download_quality_title"
+                        android:textSize="17sp" />
+
+                    <TextView
+                        android:id="@+id/this_phone_quality"
+                        style="@style/LabelCardSubtitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        tools:text="High" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/this_phone_free_row"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/Cassette.Role.TileLabel"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/cassette_free_on_phone"
+                        android:textSize="17sp" />
+
+                    <TextView
+                        android:id="@+id/this_phone_free"
+                        style="@style/LabelCardSubtitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        tools:text="41 GB" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- KEPT OFF this phone: tap one to put it back -->
+            <LinearLayout
+                android:id="@+id/this_phone_kept_off"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone"
+                tools:visibility="visible">
+
+                <TextView
+                    android:id="@+id/this_phone_kept_off_heading"
+                    style="@style/Cassette.Role.Shout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="20dp"
+                    android:paddingTop="28dp"
+                    android:paddingEnd="20dp"
+                    android:paddingBottom="12dp"
+                    tools:text="KEPT OFF this phone" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/this_phone_kept_off_records"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:clipToPadding="false"
+                    android:nestedScrollingEnabled="false"
+                    android:paddingStart="20dp"
+                    android:paddingEnd="20dp" />
+
+                <TextView
+                    android:id="@+id/this_phone_put_back_failed"
+                    style="@style/LabelCardSubtitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="20dp"
+                    android:paddingTop="8dp"
+                    android:paddingEnd="20dp"
+                    android:text="@string/cassette_put_back_failed"
+                    android:visibility="gone" />
+            </LinearLayout>
+
+            <!-- BIGGEST first: long-press one to remove it -->
+            <TextView
+                android:id="@+id/this_phone_biggest_heading"
+                style="@style/Cassette.Role.Shout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="20dp"
+                android:paddingTop="28dp"
+                android:paddingEnd="20dp"
+                android:paddingBottom="8dp"
+                android:visibility="gone"
+                tools:text="BIGGEST first"
+                tools:visibility="visible" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/this_phone_albums"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false" />
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <View
+        android:id="@+id/this_phone_bar_backdrop"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:layout_gravity="top"
+        android:alpha="0"
+        android:background="@color/cs_bg" />
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/this_phone_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:layout_gravity="top"
+        android:background="@android:color/transparent"
+        app:navigationIcon="@drawable/ic_arrow_back"
+        app:titleTextAppearance="@style/Cassette.Text.BarTitle" />
+</FrameLayout>

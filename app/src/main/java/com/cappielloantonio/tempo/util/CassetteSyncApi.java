@@ -157,6 +157,36 @@ public final class CassetteSyncApi {
                 .build());
     }
 
+    /**
+     * This phone as the cloud sees it (GET /api/player/devices/{this phone}): the albums kept off it,
+     * with the exclusion marks that put each back. Null when the cloud doesn't know this phone yet (404).
+     * Never cached: Put back acts on these ids, so they must be fresh.
+     */
+    @Nullable
+    public static String getThisDevice(String bearerToken) throws IOException {
+        String deviceId = URLEncoder.encode(Preferences.getCassetteDeviceId(), "UTF-8");
+        Request req = request("/api/player/devices/" + deviceId, bearerToken).get().build();
+        try (Response response = client().newCall(req).execute()) {
+            if (response.code() == 401) CassetteSession.cloudRefusedToken();
+            if (response.code() == 404) return null;
+            if (!response.isSuccessful() || response.body() == null) throw new IOException("Cassette sync: HTTP " + response.code());
+            return response.body().string();
+        }
+    }
+
+    /** Put albums back on this phone: clear their exclusion marks (DELETE /api/sync/marks/exclude). */
+    public static void putBack(String bearerToken, java.util.List<String> targetIds) throws IOException {
+        if (targetIds.isEmpty()) return;
+        JsonObject body = new JsonObject();
+        body.addProperty("device_id", Preferences.getCassetteDeviceId());
+        JsonArray ids = new JsonArray();
+        for (String id : targetIds) ids.add(id);
+        body.add("target_ids", ids);
+        execute(request("/api/sync/marks/exclude", bearerToken)
+                .delete(RequestBody.create(body.toString(), JSON))
+                .build());
+    }
+
     /** The account's crash-report choice (PATCH /api/account/diagnostics), for every device. */
     public static void setDiagnosticsConsent(String bearerToken, boolean consent) throws IOException {
         JsonObject body = new JsonObject();

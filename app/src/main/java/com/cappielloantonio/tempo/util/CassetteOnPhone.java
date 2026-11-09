@@ -50,4 +50,41 @@ public final class CassetteOnPhone {
         }
         return -1;
     }
+    /**
+     * Remove a record from this phone and keep it off (the album menu's Remove from This
+     * Phone, and This phone's BIGGEST list): tell the cloud first (POST marks/exclude) so the
+     * sync does not bring it straight back, then delete its files. Offline, nothing is
+     * removed and the person is told why. It stays on the computer. [onRemoved] runs on the
+     * main thread once the files are gone.
+     */
+    public static void removeAlbum(android.content.Context context, String albumId, @androidx.annotation.Nullable Runnable onRemoved) {
+        android.content.Context app = context.getApplicationContext();
+        new Thread(() -> {
+            List<com.cappielloantonio.tempo.model.Download> songs =
+                    com.cappielloantonio.tempo.database.AppDatabase.getInstance().downloadDao().getAlbumSync(albumId);
+            List<String> ids = new ArrayList<>();
+            for (com.cappielloantonio.tempo.model.Download d : songs) if (d.getCassetteLocalId() != null) ids.add(d.getCassetteLocalId());
+            boolean marked = false;
+            String bearer = Preferences.getCassetteBearerToken();
+            if (bearer != null && !ids.isEmpty()) {
+                try {
+                    CassetteSyncApi.keepOff(bearer, ids);
+                    marked = true;
+                } catch (Exception e) {
+                    android.util.Log.w("CassetteOnPhone", "keep-off failed", e);
+                }
+            }
+            if (marked) {
+                for (com.cappielloantonio.tempo.model.Download d : songs) {
+                    DownloadUtil.getDownloadTracker(app).removeById(d.getId());
+                }
+            }
+            final boolean done = marked;
+            new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
+                android.widget.Toast.makeText(app, done ? com.cappielloantonio.tempo.R.string.cassette_removed
+                        : com.cappielloantonio.tempo.R.string.cassette_remove_offline, android.widget.Toast.LENGTH_SHORT).show();
+                if (done && onRemoved != null) onRemoved.run();
+            });
+        }, "cassette-remove-from-phone").start();
+    }
 }

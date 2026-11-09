@@ -238,31 +238,7 @@ public class AlbumBottomSheetDialog extends BottomSheetDialogFragment implements
     }
 
     private void removeFromPhone(String albumId) {
-        android.content.Context app = requireContext().getApplicationContext();
-        new Thread(() -> {
-            java.util.List<com.cappielloantonio.tempo.model.Download> songs =
-                    com.cappielloantonio.tempo.database.AppDatabase.getInstance().downloadDao().getAlbumSync(albumId);
-            java.util.List<String> ids = new java.util.ArrayList<>();
-            for (com.cappielloantonio.tempo.model.Download d : songs) if (d.getCassetteLocalId() != null) ids.add(d.getCassetteLocalId());
-            boolean marked = false;
-            String bearer = com.cappielloantonio.tempo.util.Preferences.getCassetteBearerToken();
-            if (bearer != null && !ids.isEmpty()) {
-                try {
-                    com.cappielloantonio.tempo.util.CassetteSyncApi.keepOff(bearer, ids);
-                    marked = true;
-                } catch (Exception e) {
-                    android.util.Log.w("AlbumBottomSheet", "keep-off failed", e);
-                }
-            }
-            if (marked) {
-                for (com.cappielloantonio.tempo.model.Download d : songs) {
-                    DownloadUtil.getDownloadTracker(app).removeById(d.getId());
-                }
-            }
-            final boolean done = marked;
-            new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> android.widget.Toast.makeText(app,
-                    done ? R.string.cassette_removed : R.string.cassette_remove_offline, android.widget.Toast.LENGTH_SHORT).show());
-        }, "cassette-remove-from-phone").start();
+        com.cappielloantonio.tempo.util.CassetteOnPhone.removeAlbum(requireContext(), albumId, null);
         dismissBottomSheet();
     }
 

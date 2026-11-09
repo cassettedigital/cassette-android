@@ -341,6 +341,12 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         if (emailRow != null) emailRow.setSummary(email);
 
         Preference help = findPreference("help");
+        // THIS PHONE: what is here and what it weighs, biggest first, and what is kept off
+        Preference phoneAlbums = findPreference("phone_albums");
+        if (phoneAlbums != null) phoneAlbums.setOnPreferenceClickListener(p -> {
+            androidx.navigation.fragment.NavHostFragment.findNavController(this).navigate(R.id.thisPhoneFragment);
+            return true;
+        });
         if (help != null) help.setOnPreferenceClickListener(p -> {
             startActivity(new Intent(Intent.ACTION_VIEW, android.net.Uri.parse("https://cassette.digital/help")));
             return true;

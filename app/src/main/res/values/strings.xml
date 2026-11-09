@@ -544,6 +544,16 @@
     <string name="cassette_account_email">Email</string>
     <string name="cassette_your_computer">Your computer</string>
     <string name="cassette_this_phone">This phone</string>
+    <string name="cassette_on_this_phone">On this phone</string>
+    <string name="cassette_albums_on_phone">Albums on this phone</string>
+    <string name="cassette_free_on_phone">Free on this phone</string>
+    <string name="cassette_kept_off">Kept off</string>
+    <string name="cassette_kept_off_answer">this phone</string>
+    <string name="cassette_put_back">Put back</string>
+    <string name="cassette_put_back_a11y">Put back %1$s</string>
+    <string name="cassette_put_back_failed">Couldn’t put it back.</string>
+    <string name="cassette_biggest">Biggest</string>
+    <string name="cassette_biggest_answer">first</string>
     <string name="cassette_resync">Resync Library</string>
     <string name="cassette_music">Music</string>
     <string name="cassette_help">Help</string>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- cassette: one record kept off this phone (iPhone KeptOffShelf): its cover, its
+     name and "Put back". Not on the phone, so nothing here plays; the tile puts it back. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="@dimen/kit_tile_width"
+    android:layout_height="wrap_content"
+    android:layout_marginEnd="@dimen/kit_tile_gap"
+    android:background="?attr/selectableItemBackground"
+    android:orientation="vertical">
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/kept_off_cover"
+        android:layout_width="@dimen/kit_tile_width"
+        android:layout_height="@dimen/kit_tile_width"
+        android:background="@color/cs_elevated"
+        android:importantForAccessibility="no"
+        android:scaleType="centerCrop"
+        app:shapeAppearanceOverlay="@style/CassetteArtworkTile" />
+
+    <TextView
+        android:id="@+id/kept_off_name"
+        style="@style/Cassette.Role.TileLabel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textSize="16sp"
+        tools:text="Nevermind" />
+
+    <TextView
+        style="@style/LabelCardSubtitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:maxLines="1"
+        android:text="@string/cassette_put_back" />
+</LinearLayout>

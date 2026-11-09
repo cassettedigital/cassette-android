@@ -61,6 +61,10 @@
             android:key="phone_music"
             app:selectable="false"
             app:title="@string/cassette_music" />
+
+        <Preference
+            android:key="phone_albums"
+            app:title="@string/cassette_albums_on_phone" />
     </PreferenceCategory>
 
     <PreferenceCategory app:key="cat_values">
