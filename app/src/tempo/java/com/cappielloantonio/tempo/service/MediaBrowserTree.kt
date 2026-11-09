@@ -1,5 +1,6 @@
 package com.cappielloantonio.tempo.service
 
+import com.cappielloantonio.tempo.util.CassetteCar
 import android.net.Uri
 import androidx.lifecycle.LifecycleOwner
 import androidx.media3.common.MediaItem
@@ -158,9 +159,13 @@ object MediaBrowserTree {
                 )
             )
 
-        treeNodes[ROOT_ID]!!.addChild(HOME_ID)
-        treeNodes[ROOT_ID]!!.addChild(LIBRARY_ID)
-        treeNodes[ROOT_ID]!!.addChild(OTHER_ID)
+        // cassette: the car's four tabs, the iPhone's CarPlay: Home, Albums, Artists and
+        // Playlists, each holding only what is on this phone (CassetteCar). Tempo's own
+        // Home / Library / Other browsed the computer's whole library and its podcasts.
+        treeNodes[CassetteCar.HOME] = MediaItemNode(CassetteCar.folder("Home", CassetteCar.HOME))
+        treeNodes[CassetteCar.ALBUMS] = MediaItemNode(CassetteCar.folder("Albums", CassetteCar.ALBUMS))
+        treeNodes[CassetteCar.ARTISTS] = MediaItemNode(CassetteCar.folder("Artists", CassetteCar.ARTISTS))
+        treeNodes[CassetteCar.PLAYLISTS] = MediaItemNode(CassetteCar.folder("Playlists", CassetteCar.PLAYLISTS))
 
         // Second level HOME_ID
 
@@ -326,6 +331,11 @@ object MediaBrowserTree {
 
         treeNodes[OTHER_ID]!!.addChild(PODCAST_ID)
         treeNodes[OTHER_ID]!!.addChild(RADIO_ID)
+
+        treeNodes[ROOT_ID]!!.addChild(CassetteCar.HOME)
+        treeNodes[ROOT_ID]!!.addChild(CassetteCar.ALBUMS)
+        treeNodes[ROOT_ID]!!.addChild(CassetteCar.ARTISTS)
+        treeNodes[ROOT_ID]!!.addChild(CassetteCar.PLAYLISTS)
     }
 
     fun getRootItem(): MediaItem {
@@ -335,6 +345,9 @@ object MediaBrowserTree {
     fun getChildren(
         id: String
     ): ListenableFuture<LibraryResult<ImmutableList<MediaItem>>> {
+        if (CassetteCar.owns(id)) {
+            return CassetteCar.children(com.cappielloantonio.tempo.App.getContext(), id, automotiveRepository)
+        }
         return when (id) {
             ROOT_ID -> treeNodes[ROOT_ID]?.getChildren()!!
             HOME_ID -> treeNodes[HOME_ID]?.getChildren()!!
@@ -434,10 +447,11 @@ object MediaBrowserTree {
                 }
 
                 if (id.startsWith(PLAYLIST_ID)) {
-                    return automotiveRepository.getPlaylistSongs(
-                        id.removePrefix(
-                            PLAYLIST_ID
-                        )
+                    // cassette: only the playlist's songs on this phone, the ones the car can play
+                    return com.google.common.util.concurrent.Futures.transform(
+                        automotiveRepository.getPlaylistSongs(id.removePrefix(PLAYLIST_ID)),
+                        { result -> phoneOnly(result) },
+                        com.google.common.util.concurrent.MoreExecutors.directExecutor()
                     )
                 }
 
@@ -505,11 +519,15 @@ object MediaBrowserTree {
         return updatedMediaItems
     }
 
+    private fun phoneOnly(result: LibraryResult<ImmutableList<MediaItem>>): LibraryResult<ImmutableList<MediaItem>> {
+        val items = result.value ?: return result
+        if (!com.cappielloantonio.tempo.util.Preferences.isOfflineFirst()) return result
+        val tracker = com.cappielloantonio.tempo.util.DownloadUtil.getDownloadTracker(com.cappielloantonio.tempo.App.getContext())
+        return LibraryResult.ofItemList(ImmutableList.copyOf(items.filter { tracker.isCompleted(it.mediaId) }), result.params)
+    }
+
     fun search(query: String): ListenableFuture<LibraryResult<ImmutableList<MediaItem>>> {
-        return automotiveRepository.search(
-            query,
-            ALBUM_ID,
-            ARTIST_ID
-        )
+        // cassette: the car searches what is on this phone, like the phone's own Search (BUG-940)
+        return CassetteCar.search(query, automotiveRepository)
     }
 }

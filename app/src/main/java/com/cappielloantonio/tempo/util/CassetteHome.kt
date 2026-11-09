@@ -120,6 +120,22 @@ object CassetteHome {
         }
     }
 
+    /**
+     * The car's Home (Android Auto, iPhone One Home in CarPlay 10-28): the held answer's
+     * rows as the phone draws them, only those holding something here. Off the main thread.
+     * Asks the cloud for a fresh answer when one is due, for next time.
+     */
+    @JvmStatic
+    fun rowsNow(context: Context): List<DrawnRow> {
+        val app = context.applicationContext
+        val held = readHeld(app) ?: ask(app).also { lastAsk = System.currentTimeMillis() } ?: return emptyList()
+        if (System.currentTimeMillis() - lastAsk >= MIN_GAP_MS) io.execute {
+            lastAsk = System.currentTimeMillis()
+            ask(app)
+        }
+        return resolve(held, playlistsOnPhone(app), dial(app)).filter { it.isFilled }
+    }
+
     private fun ask(context: Context): Answer? {
         val bearer = Preferences.getCassetteBearerToken()
         if (bearer.isNullOrEmpty()) return null
