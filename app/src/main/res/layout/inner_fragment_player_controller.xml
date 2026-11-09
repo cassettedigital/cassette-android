@@ -1,10 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- cassette: the cream disc carries our own play and pause marks; Media3's are
+     circled, which drew a dark disc inside the cream one. -->
 <androidx.media3.ui.PlayerControlView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/now_playing_media_controller_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:controller_layout_id="@layout/inner_fragment_player_controller_layout"
+    app:pause_icon="@drawable/cs_pause_glyph"
+    app:play_icon="@drawable/cs_play_glyph"
     app:repeat_toggle_modes="all|one"
     app:show_shuffle_button="true"
     app:show_rewind_button="false"

@@ -45,6 +45,8 @@ object CassetteRadioLive {
     class Live(
         val song: Song? = null,
         val show: String? = null,
+        /** Who is on, when the station names them; the line under the show when no song is named. */
+        val host: String? = null,
         val until: Long? = null,
         val next: String? = null,
         val nextStarts: Long? = null,
@@ -111,6 +113,7 @@ object CassetteRadioLive {
         return Live(
             song = song,
             show = show?.str("name"),
+            host = show?.str("host"),
             until = show?.str("until")?.let(::millis),
             next = next,
             nextStarts = nextStarts,
@@ -212,7 +215,10 @@ object CassetteRadioLive {
             val live = cloud
             val song = live?.song ?: stream
             val title = song?.title ?: live?.show ?: station
-            val artist = song?.artist?.takeIf { it.isNotBlank() } ?: station
+            // the song's artist; with no song, who is on (never the station twice where a host is named)
+            val artist = song?.artist?.takeIf { it.isNotBlank() }
+                ?: live?.host?.takeIf { song == null && it.isNotBlank() }
+                ?: station
             val picture = live?.artwork ?: stationImage
             val then = live?.let { whenLine(it, System.currentTimeMillis(), clock) }
             val line = listOfNotNull(live?.show?.takeIf { song != null }, then).joinToString(" · ").ifEmpty { null }

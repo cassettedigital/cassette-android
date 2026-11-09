@@ -123,8 +123,11 @@ class MediaService : MediaLibraryService(), SessionAvailabilityListener {
                         .build()
     }
 
+    private lateinit var sessionCallback: MediaLibrarySessionCallback
+
     private fun createLibrarySessionCallback(): MediaLibrarySession.Callback {
-        return MediaLibrarySessionCallback(this, automotiveRepository)
+        sessionCallback = MediaLibrarySessionCallback(this, automotiveRepository)
+        return sessionCallback
     }
 
     private fun initializePlayerListener() {
@@ -134,6 +137,10 @@ class MediaService : MediaLibraryService(), SessionAvailabilityListener {
 
         player.addListener(object : Player.Listener {
             override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
+                // a station's notification has no shuffle key; music's does (BUG-955)
+                if (this@MediaService::sessionCallback.isInitialized && this@MediaService::mediaLibrarySession.isInitialized) {
+                    sessionCallback.refreshLayout(mediaLibrarySession)
+                }
                 if (mediaItem == null) return
 
                 if (reason == Player.MEDIA_ITEM_TRANSITION_REASON_SEEK || reason == Player.MEDIA_ITEM_TRANSITION_REASON_AUTO) {

@@ -188,6 +188,10 @@ public class PlayerControllerFragment extends Fragment {
         radioSlug = id.startsWith("cassette-radio-") ? id.substring("cassette-radio-".length()) : null;
         String station = extras.getString(CassetteRadioLive.STATION, extras.getString("title", ""));
         stationLine.setText(station);
+        // the station's mark already sits above: never its name twice
+        if (meta.artist != null && station.equalsIgnoreCase(String.valueOf(meta.artist))) {
+            playerArtistNameLabel.setVisibility(View.GONE);
+        }
         stationLine.setOnClickListener(v -> {
             if (radioSlug == null) return;
             Bundle bundle = new Bundle();

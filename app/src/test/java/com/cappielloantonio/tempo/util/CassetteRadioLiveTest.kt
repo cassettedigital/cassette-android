@@ -41,7 +41,7 @@ class CassetteRadioLiveTest {
     fun theCloudsAnswerPrefersTheRecordWeCarry() {
         val live = CassetteRadioLive.parseNowPlaying("""
             {"station":"kexp","fetchedAt":"2026-11-09T18:00:00Z",
-             "show":{"name":"The Morning Show","until":"2026-11-09T19:00:00Z","image":"https://x/show.jpg"},
+             "show":{"name":"The Morning Show","host":"John Richards","until":"2026-11-09T19:00:00Z","image":"https://x/show.jpg"},
              "track":{"artist":"Big Thief","title":"Vampire Empire","coverUrl":"https://x/kexp.jpg"},
              "match":{"albumSlug":"big-thief-vampire-empire","title":"Vampire Empire","artistName":"Big Thief","coverUrl":"https://x/small.webp","coverFullUrl":"https://x/full.webp","exact":true},
              "next":[{"name":"Midday","starts":"2026-11-09T19:00:00Z"}]}
@@ -50,6 +50,7 @@ class CassetteRadioLiveTest {
         assertEquals("https://x/full.webp", live.artwork)
         assertEquals("big-thief-vampire-empire", live.albumSlug)
         assertEquals("The Morning Show", live.show)
+        assertEquals("John Richards", live.host)
         assertEquals("Midday", live.next)
     }
 

@@ -54,6 +54,28 @@ open class MediaLibrarySessionCallback(
                 }
             }.build()
 
+    /**
+     * cassette (BUG-955): the notification, lock screen and car get the shuffle key only for
+     * music; a station is one live thing (Play/Pause), as the phone's own players already show.
+     */
+    @OptIn(UnstableApi::class)
+    private fun layoutFor(session: MediaSession): ImmutableList<CommandButton> {
+        val type = session.player.currentMediaItem?.mediaMetadata?.extras?.getString("type")
+        if (type == com.cappielloantonio.tempo.util.Constants.MEDIA_TYPE_RADIO) return ImmutableList.of()
+        return ImmutableList.of(customLayoutCommandButtons[if (session.player.shuffleModeEnabled) 1 else 0])
+    }
+
+    /** The keys again for the playing item: called as the item changes. */
+    @OptIn(UnstableApi::class)
+    fun refreshLayout(session: MediaSession) {
+        val layout = layoutFor(session)
+        for (controller in session.connectedControllers) {
+            if (session.isMediaNotificationController(controller) || session.isAutomotiveController(controller) ||
+                session.isAutoCompanionController(controller)
+            ) session.setCustomLayout(controller, layout)
+        }
+    }
+
     @OptIn(UnstableApi::class)
     override fun onConnect(
         session: MediaSession, controller: MediaSession.ControllerInfo
@@ -62,12 +84,9 @@ open class MediaLibrarySessionCallback(
                 controller
             ) || session.isAutoCompanionController(controller)
         ) {
-            val customLayout =
-                customLayoutCommandButtons[if (session.player.shuffleModeEnabled) 1 else 0]
-
             return MediaSession.ConnectionResult.AcceptedResultBuilder(session)
                 .setAvailableSessionCommands(mediaNotificationSessionCommands)
-                .setCustomLayout(ImmutableList.of(customLayout)).build()
+                .setCustomLayout(layoutFor(session)).build()
         }
 
         return MediaSession.ConnectionResult.AcceptedResultBuilder(session).build()
