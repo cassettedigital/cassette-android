@@ -132,7 +132,15 @@ public final class CassetteOfflineLibrary {
 
         List<AlbumID3> result = new ArrayList<>(byAlbum.values());
         Collator collator = Collator.getInstance(Locale.getDefault());
-        result.sort((a, b) -> collator.compare(nullToEmpty(a.getName()), nullToEmpty(b.getName())));
+        // cassette: filed the Library's way ("The Bends" with the B's, "#" first)
+        result.sort((a, b) -> {
+            String ka = CassetteLetters.sortKey(a.getName());
+            String kb = CassetteLetters.sortKey(b.getName());
+            boolean ha = "#".equals(CassetteLetters.letterForKey(ka));
+            boolean hb = "#".equals(CassetteLetters.letterForKey(kb));
+            if (ha != hb) return ha ? -1 : 1;
+            return collator.compare(ka, kb);
+        });
         return result;
     }
 

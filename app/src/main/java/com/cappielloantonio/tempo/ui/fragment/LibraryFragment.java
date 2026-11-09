@@ -14,6 +14,7 @@ import androidx.media3.common.util.UnstableApi;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.cappielloantonio.tempo.R;
 import com.cappielloantonio.tempo.databinding.FragmentLibraryBinding;
@@ -102,6 +103,8 @@ public class LibraryFragment extends Fragment implements ClickCallback {
     }
 
     private int albumCount = -1, artistCount = -1, playlistCount = -1, songsSeen = -1, stationCount = -1;
+    private com.cappielloantonio.tempo.ui.adapter.CassetteLetteredAlbumAdapter letteredAlbums;
+    private boolean showingLetters = false;
     private static final String CATEGORY_RADIO = "radio";
     private com.cappielloantonio.tempo.ui.adapter.CassetteRadioAdapter radio;
     private com.google.common.util.concurrent.ListenableFuture<androidx.media3.session.MediaBrowser> radioBrowser;
@@ -229,6 +232,7 @@ public class LibraryFragment extends Fragment implements ClickCallback {
 
     private void initAdapters() {
         albumAdapter = new AlbumCatalogueAdapter(this, true);
+        letteredAlbums = new com.cappielloantonio.tempo.ui.adapter.CassetteLetteredAlbumAdapter(this);
         artistAdapter = new ArtistCatalogueAdapter(this);
         playlistAdapter = new PlaylistHorizontalAdapter(this);
     }
@@ -238,7 +242,15 @@ public class LibraryFragment extends Fragment implements ClickCallback {
         artistCatalogueViewModel.loadArtists();
 
         albumCatalogueViewModel.getAlbumList().observe(getViewLifecycleOwner(), albums -> {
-            if (albums != null) albumAdapter.setItems(albums);
+            albumCount = albums != null ? albums.size() : -1;
+            if (albums != null) {
+                albumAdapter.setItems(albums);
+                letteredAlbums.setItems(albums);
+                boolean lettered = albums.size() > com.cappielloantonio.tempo.util.CassetteLetters.THRESHOLD;
+                if (lettered != showingLetters && CATEGORY_ALBUMS.equals(Preferences.getLibraryLastCategory())) {
+                    applyCategory(CATEGORY_ALBUMS);
+                }
+            }
             albumCount = albums != null ? albums.size() : -1;
             refreshCountLine();
         });
@@ -346,13 +358,31 @@ public class LibraryFragment extends Fragment implements ClickCallback {
             default:
                 category = CATEGORY_ALBUMS;
                 pushPickerToToolbar(R.string.library_title_album);
-                bind.libraryCatalogueRecyclerView.setLayoutManager(new GridLayoutManager(requireContext(), GRID_COLUMNS));
-                applyGridSpacing(GRID_COLUMNS);
-                bind.libraryCatalogueRecyclerView.setAdapter(albumAdapter);
+                // past 60 records the grid files by letter, with the # to Z index (iPhone 42a38ecb)
+                showingLetters = albumCount > com.cappielloantonio.tempo.util.CassetteLetters.THRESHOLD;
+                GridLayoutManager grid = new GridLayoutManager(requireContext(), GRID_COLUMNS);
+                if (showingLetters) grid.setSpanSizeLookup(letteredAlbums.spans(GRID_COLUMNS));
+                bind.libraryCatalogueRecyclerView.setLayoutManager(grid);
+                applyGridSpacing(showingLetters ? 1 : GRID_COLUMNS);
+                if (showingLetters) {
+                    bind.libraryCatalogueRecyclerView.addItemDecoration(new com.cappielloantonio.tempo.helper.recyclerview.CassetteLetteredGridSpacing(
+                            GRID_COLUMNS, Math.round(16 * getResources().getDisplayMetrics().density)));
+                }
+                bind.libraryCatalogueRecyclerView.setAdapter(showingLetters ? letteredAlbums : albumAdapter);
                 break;
         }
 
         Preferences.setLibraryLastCategory(category);
+        boolean index = CATEGORY_ALBUMS.equals(category) && showingLetters;
+        bind.libraryLetterIndex.setVisibility(index ? View.VISIBLE : View.GONE);
+        int end = Math.round((index ? 30 : 16) * getResources().getDisplayMetrics().density);
+        bind.libraryCatalogueRecyclerView.setPadding(bind.libraryCatalogueRecyclerView.getPaddingLeft(),
+                bind.libraryCatalogueRecyclerView.getPaddingTop(), end, bind.libraryCatalogueRecyclerView.getPaddingBottom());
+        bind.libraryLetterIndex.setOnLetter(letter -> {
+            int at = letteredAlbums.positionFor(letter);
+            RecyclerView.LayoutManager lm = bind.libraryCatalogueRecyclerView.getLayoutManager();
+            if (at >= 0 && lm instanceof GridLayoutManager) ((GridLayoutManager) lm).scrollToPositionWithOffset(at, 0);
+        });
         refreshCountLine();
     }
 

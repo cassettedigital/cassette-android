@@ -55,13 +55,28 @@
         android:id="@+id/library_empty"
         layout="@layout/view_empty_state" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/library_catalogue_recycler_view"
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:clipToPadding="false"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        android:paddingBottom="@dimen/global_padding_bottom" />
+        android:layout_weight="1">
+
+    <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/library_catalogue_recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="@dimen/global_padding_bottom" />
+
+        <!-- the # to Z index, shown with the lettered album grid -->
+        <com.cappielloantonio.tempo.ui.view.CassetteLetterIndex
+            android:id="@+id/library_letter_index"
+            android:layout_width="22dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="end"
+            android:paddingTop="8dp"
+            android:paddingBottom="@dimen/global_padding_bottom"
+            android:visibility="gone" />
+    </FrameLayout>
 </LinearLayout>

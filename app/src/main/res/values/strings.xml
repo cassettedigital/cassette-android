@@ -564,4 +564,5 @@
         <item quantity="other">%d stations</item>
     </plurals>
     <string name="cassette_stations">Stations</string>
+    <string name="cassette_letter_index">Jump to a letter</string>
 </resources>
