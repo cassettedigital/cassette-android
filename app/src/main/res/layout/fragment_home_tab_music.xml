@@ -109,6 +109,60 @@
             </LinearLayout>
         </LinearLayout>
 
+        <!-- cassette: the computer card (iPhone ComputerCard, BUG-899): Home leads with it
+             until the music is in. One headline, one line, and a button only where the
+             person can act. -->
+        <LinearLayout
+            android:id="@+id/home_computer_card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/cs_lit_card"
+            android:orientation="vertical"
+            android:padding="20dp"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/home_computer_kicker"
+                style="@style/Cassette.Role.Kicker"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawablePadding="6dp"
+                android:gravity="center_vertical"
+                android:text="@string/cassette_your_computer"
+                android:textAllCaps="true"
+                android:textColor="@color/cs_ink2"
+                app:drawableStartCompat="@drawable/ic_lucide_laptop"
+                app:drawableTint="@color/cs_ink2" />
+
+            <TextView
+                android:id="@+id/home_computer_headline"
+                style="@style/Cassette.Role.CardTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textAllCaps="true" />
+
+            <TextView
+                android:id="@+id/home_computer_body"
+                style="@style/LabelCardSubtitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/home_computer_action"
+                style="@style/Cassette.Pill.Play"
+                app:icon="@null"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:visibility="gone" />
+        </LinearLayout>
+
         <!-- cassette: Resume card (iOS hero) — last played track, one tap back in -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/home_resume_card"

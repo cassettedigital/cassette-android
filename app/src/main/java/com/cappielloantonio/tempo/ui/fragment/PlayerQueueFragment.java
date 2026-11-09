@@ -184,12 +184,13 @@ public class PlayerQueueFragment extends Fragment implements ClickCallback {
                 com.cappielloantonio.tempo.util.CassetteKeepPlaying.setOn(!com.cappielloantonio.tempo.util.CassetteKeepPlaying.isOn());
             }
             paintHead(mediaBrowser);
+            paintThen();
         });
-        com.cappielloantonio.tempo.util.CassetteKeepPlaying.heading().observe(getViewLifecycleOwner(), words -> {
-            if (bind == null) return;
-            bind.queueThen.setVisibility(words == null || words.isEmpty() ? View.GONE : View.VISIBLE);
-            if (words != null) bind.queueThen.setText(getString(R.string.cassette_then, words));
-        });
+        // THEN: the held pick as one card after the queue; Swap walks the cloud's records
+        com.cappielloantonio.tempo.util.CassetteKeepPlaying.heading().observe(getViewLifecycleOwner(), words -> paintThen());
+        com.cappielloantonio.tempo.util.CassetteKeepPlaying.pick().observe(getViewLifecycleOwner(), p -> paintThen());
+        bind.queueThenSwap.setOnClickListener(v -> com.cappielloantonio.tempo.util.CassetteKeepPlaying.swap());
+        bind.queueThenCard.setOnClickListener(v -> com.cappielloantonio.tempo.util.CassetteKeepPlaying.playNow());
         bind.queueRepeat.setOnClickListener(v -> {
             int next = mediaBrowser.getRepeatMode() == androidx.media3.common.Player.REPEAT_MODE_OFF
                     ? androidx.media3.common.Player.REPEAT_MODE_ALL
@@ -213,6 +214,27 @@ public class PlayerQueueFragment extends Fragment implements ClickCallback {
         });
         com.cappielloantonio.tempo.util.CoverTint.nowPlaying().observe(getViewLifecycleOwner(), t -> paintHead(mediaBrowser));
         paintHead(mediaBrowser);
+    }
+
+    private void paintThen() {
+        if (bind == null) return;
+        com.cappielloantonio.tempo.util.CassetteKeepPlaying.Pick p = com.cappielloantonio.tempo.util.CassetteKeepPlaying.pick().getValue();
+        boolean show = p != null && com.cappielloantonio.tempo.util.CassetteKeepPlaying.isOn();
+        bind.queueThen.setVisibility(show ? View.VISIBLE : View.GONE);
+        bind.queueThenCard.setVisibility(show ? View.VISIBLE : View.GONE);
+        if (!show) return;
+        String words = com.cappielloantonio.tempo.util.CassetteKeepPlaying.heading().getValue();
+        int tint = com.cappielloantonio.tempo.util.CoverTint.nowPlaying().getValue() != null
+                ? com.cappielloantonio.tempo.util.CoverTint.nowPlaying().getValue().text(requireContext())
+                : androidx.core.content.ContextCompat.getColor(requireContext(), R.color.cs_ink2);
+        com.cappielloantonio.tempo.util.CassetteType.twoVoice(bind.queueThen, getString(R.string.cassette_then_shout), words, tint);
+        int n = p.getSongs().size();
+        bind.queueThenTitle.setText(p.getTitle() != null ? p.getTitle() : getResources().getQuantityString(R.plurals.cassette_song_count, n, n));
+        bind.queueThenArtist.setText(p.getArtist());
+        bind.queueThenArtist.setTextColor(tint);
+        bind.queueThenSwap.setVisibility(p.getCanSwap() ? View.VISIBLE : View.GONE);
+        com.cappielloantonio.tempo.glide.CustomGlideRequest.Builder.from(requireContext(), p.getCoverArtId(),
+                com.cappielloantonio.tempo.glide.CustomGlideRequest.ResourceType.Album).build().into(bind.queueThenCover);
     }
 
     private void paintHead(MediaBrowser player) {

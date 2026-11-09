@@ -28,8 +28,10 @@ import java.util.concurrent.Executors
  * contract: monorepo apps/cassette/src/lib/keep-playing/contract.ts): a record
  * that started with a record carries on with another record, anything else with
  * songs. The phone keeps the switch (on by default), sends its queue as Cassette
- * song ids as the last song starts, and plays the answer when the queue runs out,
- * only ever music on this phone. Repeat wins: with repeat on, keep playing waits.
+ * song ids as the last song starts, and holds the answer under THEN in the queue as one
+ * card (iPhone KeepPlayingAlbumCell): Swap moves to the next record the cloud named, a tap
+ * plays it now, and it plays on its own when the queue runs out (`takePick`, from the
+ * service). Only ever music on this phone. Repeat wins: with repeat on, keep playing waits.
  * Offline, a record carries on with another record by the same artist here.
  */
 object CassetteKeepPlaying {
@@ -38,6 +40,44 @@ object CassetteKeepPlaying {
     private val io = Executors.newSingleThreadExecutor()
     private val main = Handler(Looper.getMainLooper())
     private val heading = MutableLiveData<String?>(null)
+
+    /** What carries on: a record (or songs), held until the queue runs out. */
+    class Pick(val songs: List<Child>, val isRecord: Boolean, val canSwap: Boolean) {
+        val title: String? get() = if (isRecord) songs.firstOrNull()?.album else null
+        val artist: String? get() = songs.firstOrNull()?.artist
+        val coverArtId: String? get() = songs.firstOrNull()?.coverArtId
+    }
+
+    private val pick = MutableLiveData<Pick?>(null)
+    /** Every record the cloud named that is on this phone, in its order; Swap walks it. */
+    @Volatile private var records: List<List<Child>> = emptyList()
+    @Volatile private var at = 0
+
+    /** The held pick, for the queue's THEN card. */
+    @JvmStatic
+    fun pick(): LiveData<Pick?> = pick
+
+    /** The next record the cloud named (round to the first after the last). */
+    @JvmStatic
+    fun swap() {
+        val all = records
+        if (all.size < 2) return
+        at = (at + 1) % all.size
+        pick.value = Pick(all[at], true, true)
+    }
+
+    /** The queue ran out (the service): what to play now, once; null when nothing is held. */
+    @JvmStatic
+    fun takePick(): List<Child>? {
+        if (!isOn()) return null
+        val p = pick.value ?: return null
+        pick.value = null
+        heading.value = null
+        records = emptyList()
+        started = localIds(p.songs.mapNotNull { it.id })
+        askedFor = null
+        return p.songs
+    }
 
     /** What the queue started from (Cassette song ids), set when a queue starts. */
     @Volatile
@@ -64,6 +104,8 @@ object CassetteKeepPlaying {
             started = localIds(songs.mapNotNull { it.id })
             askedFor = null
             heading.postValue(null)
+            records = emptyList()
+            pick.postValue(null)
         }
     }
 
@@ -82,10 +124,11 @@ object CassetteKeepPlaying {
                 val queue: List<Child> = QueueRepository().media ?: return@execute
                 val queueIds = localIds(queue.mapNotNull { it.id })
                 if (queueIds.isEmpty()) return@execute
-                val pick = askCloud(queueIds) ?: fallback(queue)
-                if (pick.isNullOrEmpty()) return@execute
-                started = localIds(pick.mapNotNull { it.id })
-                main.post { append(pick) }
+                val found = askCloud(queueIds) ?: fallback(queue)?.also { records = listOf(it) }
+                if (found.isNullOrEmpty()) return@execute
+                at = 0
+                val isRecord = records.isNotEmpty() && records[0] === found
+                pick.postValue(Pick(found, isRecord, isRecord && records.size > 1))
             } catch (e: Exception) {
                 Log.w(TAG, "keep playing failed", e)
             }
@@ -106,17 +149,18 @@ object CassetteKeepPlaying {
         fun held(ids: List<String>): List<Download> = ids.chunked(500).flatMap { dao.getByCassetteLocalIds(it) }
             .filter { CassetteOnPhone.playable(it) }
         val words = answer.getAsJsonObject("heading")?.get("answer")?.asString
+        records = emptyList()
         return when (answer.get("kind")?.asString) {
             "album" -> {
-                for (r in answer.getAsJsonArray("records") ?: JsonArray()) {
-                    val ids = r.asJsonObject.getAsJsonArray("songs")?.map { it.asString } ?: continue
-                    val songs = held(ids).sortedWith(compareBy({ it.discNumber ?: 1 }, { it.track ?: 0 }))
-                    if (songs.isNotEmpty()) {
-                        heading.postValue(words)
-                        return songs
-                    }
+                // every record it named that is here, so Swap can walk them
+                val found = (answer.getAsJsonArray("records") ?: JsonArray()).mapNotNull { r ->
+                    val ids = r.asJsonObject.getAsJsonArray("songs")?.map { it.asString } ?: return@mapNotNull null
+                    held(ids).sortedWith(compareBy({ it.discNumber ?: 1 }, { it.track ?: 0 })).takeIf { it.isNotEmpty() }
                 }
-                null
+                if (found.isEmpty()) return null
+                records = found
+                heading.postValue(words)
+                found.first()
             }
             "songs" -> {
                 val ids = answer.getAsJsonArray("songs")?.map { it.asString } ?: return null
@@ -138,9 +182,20 @@ object CassetteKeepPlaying {
         return next.sortedWith(compareBy({ it.discNumber ?: 1 }, { it.track ?: 0 }))
     }
 
-    private fun append(songs: List<Child>) {
+    /** A tap on the THEN card: play the pick now, after what is playing. */
+    @JvmStatic
+    fun playNow() {
+        val songs = pick.value?.songs ?: return
+        pick.value = null
+        heading.value = null
+        records = emptyList()
+        started = localIds(songs.mapNotNull { it.id })
+        askedFor = null
         val context = App.getContext()
         val future = MediaBrowser.Builder(context, SessionToken(context, ComponentName(context, MediaService::class.java))).buildAsync()
-        MediaManager.enqueue(future, songs, false)
+        io.execute {
+            val kept = CassetteOnPhone.keep(songs)
+            main.post { MediaManager.startQueue(future, kept, 0) }
+        }
     }
 }

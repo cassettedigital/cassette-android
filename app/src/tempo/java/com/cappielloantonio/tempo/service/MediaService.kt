@@ -177,6 +177,22 @@ class MediaService : MediaLibraryService(), SessionAvailabilityListener {
                     MediaManager.scrobble(player.currentMediaItem, true)
                     MediaManager.saveChronology(player.currentMediaItem)
                 }
+
+                // cassette: the queue ran out: Keep playing's held pick carries on (repeat wins)
+                if (playbackState == Player.STATE_ENDED && !player.hasNextMediaItem() &&
+                        player.repeatMode == Player.REPEAT_MODE_OFF &&
+                        player.mediaMetadata.extras?.getString("type") == Constants.MEDIA_TYPE_MUSIC
+                ) {
+                    val songs = com.cappielloantonio.tempo.util.CassetteKeepPlaying.takePick()
+                    val kept = songs?.let { com.cappielloantonio.tempo.util.CassetteOnPhone.keep(it) }
+                    if (!kept.isNullOrEmpty()) {
+                        val start = player.mediaItemCount
+                        player.addMediaItems(com.cappielloantonio.tempo.util.MappingUtil.mapMediaItems(kept))
+                        player.seekTo(start, 0)
+                        player.prepare()
+                        player.play()
+                    }
+                }
             }
 
             override fun onPlayerError(error: PlaybackException) {

@@ -76,6 +76,12 @@
                 </LinearLayout>
             </LinearLayout>
 
+            <!-- a shelf's made-for-you playlist, above its records -->
+            <include
+                android:id="@+id/genre_page_mix"
+                layout="@layout/item_horizontal_playlist"
+                android:visibility="gone" />
+
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/genre_page_albums"
                 android:layout_width="match_parent"

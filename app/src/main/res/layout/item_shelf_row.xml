@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- cassette: one shelf on All shelves (iPhone ShelfRowCell): three of its covers
+     overlapped, its name in two voices, how many records, and ON HOME on the one
+     Home shows. The row opens the shelf. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="88dp"
+    android:background="?attr/selectableItemBackground"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingStart="20dp"
+    android:paddingEnd="20dp">
+
+    <FrameLayout
+        android:layout_width="112dp"
+        android:layout_height="56dp">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/shelf_cover_3"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_marginStart="56dp"
+            android:scaleType="centerCrop"
+            app:shapeAppearanceOverlay="@style/CassetteArtworkRow" />
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/shelf_cover_2"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_marginStart="28dp"
+            android:elevation="2dp"
+            android:scaleType="centerCrop"
+            app:shapeAppearanceOverlay="@style/CassetteArtworkRow" />
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/shelf_cover_1"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:elevation="4dp"
+            android:scaleType="centerCrop"
+            app:shapeAppearanceOverlay="@style/CassetteArtworkRow" />
+    </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="14dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/shelf_name"
+            style="@style/Cassette.Role.TileLabel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="2"
+            tools:text="QUIET ONES you haven't played" />
+
+        <TextView
+            android:id="@+id/shelf_count"
+            style="@style/Cassette.Role.Meta"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            tools:text="10 RECORDS · ON HOME" />
+    </LinearLayout>
+</LinearLayout>

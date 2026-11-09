@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- cassette: All shelves (iPhone AllShelvesVC): every shelf made today that this
+     phone holds a record of, the one on Home first. No hairlines. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/cs_bg"
+    android:orientation="vertical">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/all_shelves_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@android:color/transparent"
+        app:navigationIcon="@drawable/ic_arrow_back"
+        app:titleTextAppearance="@style/Cassette.Text.BarTitle" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/all_shelves_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:paddingBottom="@dimen/global_padding_bottom" />
+
+    <include
+        android:id="@+id/all_shelves_empty"
+        layout="@layout/view_empty_state" />
+</LinearLayout>

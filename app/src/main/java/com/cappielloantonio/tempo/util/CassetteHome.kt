@@ -84,10 +84,27 @@ object CassetteHome {
                 "playlists" -> playlists.isNotEmpty()
                 "stations" -> stations.isNotEmpty()
                 "resume" -> song != null || resumePlaylistId != null
+                "all-shelves" -> true
                 "reach" -> albums.size >= 2 || (id.startsWith("deep-dive") && albums.isNotEmpty())
                 else -> albums.isNotEmpty()
             }
     }
+
+    /** One shelf made today (the answer's `shelves`), as the phone holds it: All shelves and a shelf's page. */
+    class DrawnShelf(val id: String, val shout: String, val answer: String?, val albums: List<AlbumID3>,
+                     val mix: DrawnMix?, val onHome: Boolean)
+
+    @Volatile private var shelvesHere: List<DrawnShelf> = emptyList()
+
+    /** Today's shelves with something on this phone, the one on Home first (after a resolve). Off the main thread. */
+    @JvmStatic
+    fun shelvesNow(context: Context): List<DrawnShelf> {
+        rowsNow(context)
+        return shelvesHere
+    }
+
+    @JvmStatic
+    fun shelf(id: String?): DrawnShelf? = shelvesHere.firstOrNull { it.id == id }
 
     fun interface Callback {
         fun onRows(rows: List<DrawnRow>)
@@ -207,6 +224,7 @@ object CassetteHome {
             wantMix(row.shelf?.mix)
             row.artists?.forEach { a -> a.songs?.let { wanted.addAll(it) } }
         }
+        answer.shelves.orEmpty().forEach { s -> s.records?.forEach { want(it) }; wantMix(s.mix) }
         val held = byLocalId(dao, wanted)
 
         fun album(r: Record): AlbumID3? {
@@ -257,6 +275,15 @@ object CassetteHome {
             }
         }
 
+        // every shelf made today that the phone holds a record of, the one on Home first
+        shelvesHere = answer.shelves.orEmpty().mapNotNull { s ->
+            val id = s.id ?: return@mapNotNull null
+            val albums = albums(s.records)
+            val mix = s.mix?.let { mix(it) }
+            if (albums.isEmpty() && mix == null) null
+            else DrawnShelf(id, s.shout ?: return@mapNotNull null, s.answer, albums, mix, s.onHome == true)
+        }.sortedByDescending { it.onHome }
+
         val out = ArrayList<DrawnRow>()
         for (row in answer.rows.orEmpty()) {
             val id = row.id ?: continue
@@ -282,7 +309,8 @@ object CassetteHome {
                 // the Radio row: the cloud's stations, found on the dial by slug
                 "stations" -> DrawnRow(id, "stations", shout, row.answer,
                     stations = row.stations.orEmpty().mapNotNull { dial[it] }.distinctBy { it.slug })
-                // all-shelves waits for its page
+                // All shelves: a plain row that opens today's shelves
+                "all-shelves" -> if (shelvesHere.isEmpty()) continue else DrawnRow(id, "all-shelves", shout, row.answer)
                 else -> continue
             }
             out.add(drawn)

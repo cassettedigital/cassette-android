@@ -457,6 +457,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             android.text.SpannableString title = new android.text.SpannableString(getString(R.string.cassette_delete_account));
             title.setSpan(new android.text.style.ForegroundColorSpan(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.cs_danger)),
                     0, title.length(), android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            // Preference ignores a title with the same words (TextUtils.equals drops spans): clear it first
+            delete.setTitle(null);
             delete.setTitle(title);
             delete.setOnPreferenceClickListener(p -> {
                 startActivity(new Intent(Intent.ACTION_VIEW, android.net.Uri.parse("https://cassette.digital/settings")));

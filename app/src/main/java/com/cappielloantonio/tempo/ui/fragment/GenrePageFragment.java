@@ -34,13 +34,16 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * cassette: one genre, from Library > Genres or Search's GENRES grid. Its
+ * cassette: one genre (Library > Genres, Search's GENRES grid) or one of today's shelves (All
+ * shelves, iPhone ShelfVC: its playlist above its records). Its
  * records on this phone in the Library's grid, with PLAY and SHUFFLE over
  * every song of it here. The genre is the file's own, else the cloud's.
  */
 @UnstableApi
 public class GenrePageFragment extends Fragment implements ClickCallback {
     public static final String GENRE_NAME = "cassette_genre_name";
+    public static final String SHELF_ID = "cassette_shelf_id";
+    @Nullable private String shelfId;
 
     private FragmentGenrePageBinding bind;
     private MainActivity activity;
@@ -55,6 +58,7 @@ public class GenrePageFragment extends Fragment implements ClickCallback {
         activity = (MainActivity) getActivity();
         bind = FragmentGenrePageBinding.inflate(inflater, container, false);
         name = getArguments() != null ? getArguments().getString(GENRE_NAME, "") : "";
+        shelfId = getArguments() != null ? getArguments().getString(SHELF_ID) : null;
         return bind.getRoot();
     }
 
@@ -93,9 +97,18 @@ public class GenrePageFragment extends Fragment implements ClickCallback {
         android.content.Context app = requireContext().getApplicationContext();
         new Thread(() -> {
             List<AlbumID3> albums = new ArrayList<>();
-            for (CassetteGenres.Genre g : CassetteGenres.genres(app)) {
+            com.cappielloantonio.tempo.util.CassetteHome.DrawnShelf shelf = null;
+            if (shelfId != null) {
+                shelf = com.cappielloantonio.tempo.util.CassetteHome.shelf(shelfId);
+                if (shelf == null) {
+                    com.cappielloantonio.tempo.util.CassetteHome.shelvesNow(app);
+                    shelf = com.cappielloantonio.tempo.util.CassetteHome.shelf(shelfId);
+                }
+                if (shelf != null) albums = shelf.getAlbums();
+            } else for (CassetteGenres.Genre g : CassetteGenres.genres(app)) {
                 if (g.getName().equalsIgnoreCase(name)) { albums = g.getAlbums(); break; }
             }
+            final com.cappielloantonio.tempo.util.CassetteHome.DrawnShelf drawnShelf = shelf;
             List<Child> found = new ArrayList<>();
             for (AlbumID3 album : albums) {
                 found.addAll(AppDatabase.getInstance().downloadDao().getAlbumSync(album.getId()));
@@ -106,6 +119,7 @@ public class GenrePageFragment extends Fragment implements ClickCallback {
                 if (bind == null) return;
                 songs.clear();
                 songs.addAll(found);
+                if (drawnShelf != null) paintShelf(drawnShelf);
                 adapter.setItems(shown);
                 bind.genrePageMeta.setText(getResources().getQuantityString(R.plurals.cassette_album_count, shown.size(), shown.size())
                         + " · " + getResources().getQuantityString(R.plurals.cassette_song_count, songs.size(), songs.size()));
@@ -113,6 +127,35 @@ public class GenrePageFragment extends Fragment implements ClickCallback {
                 bind.genrePageShuffle.setEnabled(!songs.isEmpty());
             });
         }, "cassette-genre-page").start();
+    }
+
+    /** A shelf: its name in two voices, and its playlist (when it has one) above its records. */
+    private void paintShelf(com.cappielloantonio.tempo.util.CassetteHome.DrawnShelf shelf) {
+        name = shelf.getShout();
+        bind.genrePageTitle.setAllCaps(false);
+        bind.genrePageTitle.setText(com.cappielloantonio.tempo.util.CassetteType.twoVoiceText(requireContext(),
+                shelf.getShout(), shelf.getAnswer(),
+                androidx.core.content.ContextCompat.getColor(requireContext(), R.color.cs_accent_text), 26));
+        com.cappielloantonio.tempo.util.CassetteHome.DrawnMix mix = shelf.getMix();
+        bind.genrePageMix.getRoot().setVisibility(mix != null ? View.VISIBLE : View.GONE);
+        if (mix == null) return;
+        int n = mix.getSongs().size();
+        bind.genrePageMix.playlistTitleTextView.setText(mix.getTitle());
+        bind.genrePageMix.playlistSubtitleTextView.setText(getResources().getQuantityString(R.plurals.cassette_song_count, n, n));
+        bind.genrePageMix.playlistMoreButton.setVisibility(View.GONE);
+        boolean drawn = mix.getCoverUrl() != null;
+        com.cappielloantonio.tempo.glide.CustomGlideRequest.Builder.from(requireContext(),
+                drawn ? mix.getCoverUrl() : (n > 0 ? mix.getSongs().get(0).getCoverArtId() : null),
+                drawn ? com.cappielloantonio.tempo.glide.CustomGlideRequest.ResourceType.Playlist
+                        : com.cappielloantonio.tempo.glide.CustomGlideRequest.ResourceType.Album)
+                .build().into(bind.genrePageMix.playlistCoverImageView);
+        int side = Math.round(20 * getResources().getDisplayMetrics().density);
+        bind.genrePageMix.getRoot().setPadding(side, bind.genrePageMix.getRoot().getPaddingTop(), side, bind.genrePageMix.getRoot().getPaddingBottom());
+        bind.genrePageMix.getRoot().setOnClickListener(v -> {
+            Bundle bundle = new Bundle();
+            bundle.putString(MixPageFragment.ARG_MIX_ID, mix.getId());
+            activity.navController.navigate(R.id.mixPageFragment, bundle);
+        });
     }
 
     private void play(boolean shuffle) {

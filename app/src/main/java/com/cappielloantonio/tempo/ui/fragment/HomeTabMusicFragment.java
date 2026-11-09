@@ -122,6 +122,10 @@ public class HomeTabMusicFragment extends Fragment implements ClickCallback {
         initRecentAddedAlbumView();
         initRecentlyPlayedArtistsView();
         initPinnedPlaylistsView();
+        // the computer card: until the music is in (re-decided as the sync moves)
+        paintComputerCard();
+        com.cappielloantonio.tempo.util.CassetteSyncStatus.live().observe(getViewLifecycleOwner(), snap -> paintComputerCard());
+        com.cappielloantonio.tempo.util.CassetteComputer.refresh(summary -> paintComputerCard());
         loadCloudHome();
 
         // cassette: no Reorganize, and no reorder(). The Home order is fixed
@@ -421,6 +425,52 @@ public class HomeTabMusicFragment extends Fragment implements ClickCallback {
      * the phone can draw any of them, they replace the stand-in rows (Recent,
      * Albums, Artists, Playlists), which stay only for a first launch offline.
      */
+    /** The computer card's state from what the phone knows (iPhone ComputerCardModel); gone once the music is in. */
+    private void paintComputerCard() {
+        if (bind == null) return;
+        android.content.Context app = requireContext().getApplicationContext();
+        new Thread(() -> {
+            java.util.Set<String> albums = new java.util.HashSet<>();
+            for (com.cappielloantonio.tempo.model.Download d : com.cappielloantonio.tempo.database.AppDatabase.getInstance().downloadDao().getAllDownloadedSync()) {
+                if (d.getAlbumId() != null) albums.add(d.getAlbumId());
+            }
+            int onPhone = albums.size();
+            if (getActivity() == null) return;
+            getActivity().runOnUiThread(() -> {
+                if (bind == null) return;
+                String state = com.cappielloantonio.tempo.util.CassetteComputer.state();
+                com.cappielloantonio.tempo.util.CassetteSyncStatus.Snapshot sync = com.cappielloantonio.tempo.util.CassetteSyncStatus.live().getValue();
+                boolean arriving = sync != null && sync.active && sync.albumsTotal > sync.albumsDone;
+                android.content.SharedPreferences prefs = com.cappielloantonio.tempo.App.getInstance().getPreferences();
+                // the first sync is done once music is here and nothing is on its way
+                if (onPhone > 0 && !arriving && !prefs.getBoolean("cassette_first_sync_done", false)) {
+                    prefs.edit().putBoolean("cassette_first_sync_done", true).apply();
+                }
+                com.cappielloantonio.tempo.util.CassetteComputer.Summary s = com.cappielloantonio.tempo.util.CassetteComputer.last();
+                boolean paired = !"not paired".equals(state) && com.cappielloantonio.tempo.util.Preferences.getServer() != null;
+                com.cappielloantonio.tempo.util.CassetteComputerCard.Facts facts = new com.cappielloantonio.tempo.util.CassetteComputerCard.Facts(
+                        paired, "out of reach".equals(state), arriving, onPhone,
+                        prefs.getBoolean("cassette_first_sync_done", false),
+                        s != null && s.getRegistered() ? Integer.valueOf(s.getAlbums()) : null,
+                        s != null && (s.getLastSyncAt() != null || s.getAlbums() > 0),
+                        null);
+                com.cappielloantonio.tempo.util.CassetteComputerCard.Phase phase = com.cappielloantonio.tempo.util.CassetteComputerCard.phase(facts);
+                bind.homeComputerCard.setVisibility(phase == null ? View.GONE : View.VISIBLE);
+                if (phase == null) return;
+                bind.homeComputerHeadline.setText(com.cappielloantonio.tempo.util.CassetteComputerCard.headline(phase));
+                int total = sync != null ? sync.albumsTotal : 0;
+                bind.homeComputerBody.setText(com.cappielloantonio.tempo.util.CassetteComputerCard.body(phase, onPhone, total));
+                kotlin.Pair<String, String> action = com.cappielloantonio.tempo.util.CassetteComputerCard.action(phase);
+                bind.homeComputerAction.setVisibility(action == null ? View.GONE : View.VISIBLE);
+                if (action != null) {
+                    bind.homeComputerAction.setText(action.getFirst());
+                    bind.homeComputerAction.setOnClickListener(v -> startActivity(new android.content.Intent(android.content.Intent.ACTION_VIEW,
+                            android.net.Uri.parse("https://cassette.digital" + action.getSecond()))));
+                }
+            });
+        }, "cassette-computer-card").start();
+    }
+
     private void drawCloudHome(java.util.List<com.cappielloantonio.tempo.util.CassetteHome.DrawnRow> rows) {
         if (bind == null || !isAdded()) return;
         android.widget.LinearLayout container = bind.homeCloudRows;
@@ -435,11 +485,29 @@ public class HomeTabMusicFragment extends Fragment implements ClickCallback {
                 resumeFromCloud = row.getSong();
                 continue;
             }
+            if ("all-shelves".equals(row.getKind())) {
+                // All shelves today: a plain row that opens every shelf made today
+                android.widget.TextView link = new android.widget.TextView(new android.view.ContextThemeWrapper(requireContext(), R.style.Cassette_Role_Shout));
+                float d = getResources().getDisplayMetrics().density;
+                link.setPadding(Math.round(20 * d), Math.round(28 * d), Math.round(20 * d), Math.round(12 * d));
+                android.util.TypedValue ripple = new android.util.TypedValue();
+                requireContext().getTheme().resolveAttribute(android.R.attr.selectableItemBackground, ripple, true);
+                link.setBackgroundResource(ripple.resourceId);
+                link.setGravity(android.view.Gravity.CENTER_VERTICAL);
+                com.cappielloantonio.tempo.util.CassetteType.twoVoice(link, row.getShout(), row.getAnswer(), answerColor);
+                link.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.drawable.ic_lucide_chevron_right, 0);
+                link.setOnClickListener(v -> activity.navController.navigate(R.id.allShelvesFragment));
+                container.addView(link);
+                drawn++;
+                continue;
+            }
             java.util.List<com.cappielloantonio.tempo.ui.adapter.CassetteTileAdapter.Tile> tiles = tilesFor(row);
             if (tiles.isEmpty()) continue;
             com.cappielloantonio.tempo.databinding.ItemHomeRowBinding rowBind =
                     com.cappielloantonio.tempo.databinding.ItemHomeRowBinding.inflate(inflater, container, false);
             com.cappielloantonio.tempo.util.CassetteType.twoVoice(rowBind.homeRowHeading, row.getShout(), row.getAnswer(), answerColor);
+            // the reaching row's heading opens All shelves (iPhone HomeVC)
+            if ("reach".equals(row.getKind())) rowBind.homeRowHeading.setOnClickListener(v -> activity.navController.navigate(R.id.allShelvesFragment));
             rowBind.homeRowTiles.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
             com.cappielloantonio.tempo.ui.adapter.CassetteTileAdapter adapter = new com.cappielloantonio.tempo.ui.adapter.CassetteTileAdapter();
             rowBind.homeRowTiles.setAdapter(adapter);

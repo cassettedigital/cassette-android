@@ -511,6 +511,16 @@
     <string name="cassette_catalog_artist">Artist</string>
     <string name="cassette_catalog_album">Album · %1$s</string>
     <string name="cassette_catalog_song">Song · %1$s</string>
+    <string name="cassette_swap">Swap</string>
+    <string name="cassette_then_shout">Then</string>
+    <string name="cassette_all_shelves">All shelves</string>
+    <string name="cassette_today">today</string>
+    <string name="cassette_on_home">On home</string>
+    <string name="cassette_no_shelves">No shelves today</string>
+    <plurals name="cassette_record_count">
+        <item quantity="one">%d record</item>
+        <item quantity="other">%d records</item>
+    </plurals>
     <string name="cassette_save">Save</string>
     <string name="cassette_saved">Saved</string>
     <string name="cassette_stop">Stop</string>
