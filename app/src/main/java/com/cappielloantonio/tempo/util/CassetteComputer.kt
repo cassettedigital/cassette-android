@@ -23,7 +23,15 @@ object CassetteComputer {
     private val io = Executors.newSingleThreadExecutor()
     private val main = Handler(Looper.getMainLooper())
 
-    class Summary(val hostname: String?, val lastSeenAt: Long?, val lastSyncAt: Long?, val albums: Int, val tracks: Int, val registered: Boolean)
+    /** A record newly in the library on the computer (the summary's recentItems), newest first. */
+    class Recent(val groupKey: String, val albumName: String, val artistName: String)
+
+    class Summary(val hostname: String?, val lastSeenAt: Long?, val lastSyncAt: Long?, val albums: Int, val tracks: Int, val registered: Boolean,
+                  val recent: List<Recent> = emptyList())
+
+    /** The last summary read, for a page that opens before a fresh one lands. */
+    @JvmStatic
+    fun last(): Summary? = summary
 
     @Volatile private var summary: Summary? = null
     @Volatile private var fetchedAt: Long = 0
@@ -51,6 +59,11 @@ object CassetteComputer {
                             o.get("albums")?.takeIf { !it.isJsonNull }?.asInt ?: 0,
                             o.get("tracks")?.takeIf { !it.isJsonNull }?.asInt ?: 0,
                             mac != null,
+                            o.getAsJsonArray("recentItems")?.mapNotNull { e ->
+                                val r = e.takeIf { it.isJsonObject }?.asJsonObject ?: return@mapNotNull null
+                                fun s(k: String) = r.get(k)?.takeIf { !it.isJsonNull }?.asString
+                                Recent(s("groupKey") ?: return@mapNotNull null, s("albumName") ?: "", s("artistName") ?: "")
+                            }.orEmpty(),
                         )
                         fetchedAt = System.currentTimeMillis()
                     }
@@ -97,14 +110,57 @@ object CassetteComputer {
 
     /** "Synced 5 min ago", from the computer's last full library sync. */
     @JvmStatic
-    fun syncedLine(): String? {
+    fun syncedLine(): String? = syncedAgo()?.let { "Synced $it" }
+
+    /** "5 min ago", for the computer page's Last synced. */
+    @JvmStatic
+    fun syncedAgo(): String? {
         val at = summary?.lastSyncAt ?: return null
         val mins = ((System.currentTimeMillis() - at) / 60000).coerceAtLeast(0)
         return when {
-            mins < 1 -> "Synced just now"
-            mins < 60 -> "Synced $mins min ago"
-            mins < 60 * 24 -> "Synced ${mins / 60} hr ago"
-            else -> "Synced ${mins / (60 * 24)} days ago"
+            mins < 1 -> "just now"
+            mins < 60 -> "$mins min ago"
+            mins < 60 * 24 -> "${mins / 60} hr ago"
+            else -> "${mins / (60 * 24)} days ago"
         }
+    }
+
+    /** A laptop by its name ("MacBook", "Laptop"), else a desktop: the glyph beside "Your computer". */
+    @JvmStatic
+    fun isLaptop(): Boolean = name().lowercase(Locale.ROOT).let { it.contains("book") || it.contains("laptop") }
+
+    /**
+     * The records newly in the library that are on this phone, newest first (iPhone
+     * DevicePagesModel.rebuildNewOnMac): matched by the cloud's album key, else by name.
+     * Off the main thread.
+     */
+    @JvmStatic
+    fun newOnPhone(limit: Int): List<com.cappielloantonio.tempo.subsonic.models.AlbumID3> {
+        val recent = summary?.recent.orEmpty()
+        if (recent.isEmpty()) return emptyList()
+        val byAlbum = com.cappielloantonio.tempo.database.AppDatabase.getInstance().downloadDao().getAllDownloadedSync()
+            .filter { it.albumId != null }.groupBy { it.albumId!! }
+        val byKey = HashMap<String, com.cappielloantonio.tempo.subsonic.models.AlbumID3>()
+        val byName = HashMap<String, com.cappielloantonio.tempo.subsonic.models.AlbumID3>()
+        byAlbum.forEach { (albumId, songs) ->
+            val first = songs.first()
+            val artist = CassetteAlbumGroupKey.effectiveAlbumArtist(songs.mapNotNull { it.artist })
+            val album = com.cappielloantonio.tempo.subsonic.models.AlbumID3().apply {
+                id = albumId; name = first.album; this.artist = artist.ifEmpty { first.artist }
+                artistId = first.artistId; coverArtId = first.coverArtId; year = first.year ?: 0
+            }
+            byKey[CassetteAlbumGroupKey.keyFromTracks(songs.mapNotNull { it.artist }, first.album ?: "")] = album
+            byName[CassetteAlbumGroupKey.normalizeTitle(first.album ?: "") + "\u0000" + CassetteAlbumGroupKey.normalizeArtist(album.artist ?: "")] = album
+        }
+        val out = LinkedHashMap<String, com.cappielloantonio.tempo.subsonic.models.AlbumID3>()
+        for (r in recent) {
+            // stored keys carry U+001F where the phone's key has a NUL (see CassetteGenres)
+            val album = byKey[r.groupKey.replace('\u001f', '\u0000')]
+                ?: byName[CassetteAlbumGroupKey.normalizeTitle(r.albumName) + "\u0000" + CassetteAlbumGroupKey.normalizeArtist(r.artistName)]
+                ?: continue
+            out.putIfAbsent(album.id!!, album)
+            if (out.size >= limit) break
+        }
+        return out.values.toList()
     }
 }

@@ -218,3 +218,9 @@ Samsung/Xiaomi/OnePlus hardware).
 - **One station tile**: `CassetteTileAdapter.Tile.station`, with word art on the station's own colour when it has no picture (Radio Nova was a blank square). `Station.accentColor()` is the one colour rule for the dial, tiles and pages.
 - **Sign-out forgets the account's data on the phone**: the held Home, album genres, song tags and saved stations (they belonged to the account and outlived it).
 - Checked on the founder's Pixel 8: YOUR STATIONS (their two saves), KEXP's page, MORE LIKE with word art. Not checked: the player on a playing station (no sound played unasked), Save writing to the account, a song opening its record.
+
+### 2026-11-09 – Catch-up with the iPhone: Your computer
+
+- **Your computer page** (iPhone MacDeviceView, e080d4c0, 88355575): Settings > YOUR COMPUTER > the computer's row. Three of the newest records fanned out (the newest in the middle, lifted), a laptop or desktop mark with "YOUR COMPUTER", its name, its state in one word (never a guessed "in sync"), "160 ALBUMS · 1,999 SONGS"; a card with how much of it is on this phone ("All 160 albums on this phone" / "N of M", a meter; the cloud's count on both sides, less what is kept off), Syncs (Everything / Selective, read only: it is the account's), Last synced, Resync Library; then NEW IN YOUR LIBRARY *lately*, the computer's newest records that are on this phone, each playing in one tap. `ui/fragment/ComputerPageFragment.java`, `fragment_computer_page.xml`, `ic_lucide_laptop.xml`, `ic_lucide_monitor.xml`.
+- `CassetteComputer` now keeps the summary's `recentItems` and matches them to the phone by the cloud's album key (U+001F folded to NUL, as in CassetteGenres), else by name; `syncedAgo()` gives the bare "23 min ago". Never "Mac" as the general word.
+- Checked on the founder's Pixel 8.

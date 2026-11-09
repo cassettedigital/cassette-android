@@ -45,7 +45,6 @@
 
         <Preference
             android:key="computer_row"
-            app:selectable="false"
             app:title="@string/cassette_your_computer" />
 
         <Preference

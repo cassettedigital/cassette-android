@@ -373,6 +373,13 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             });
         }
 
+        // YOUR COMPUTER: its page (name, state, how much is here, what's new)
+        Preference computer = findPreference("computer_row");
+        if (computer != null) computer.setOnPreferenceClickListener(p -> {
+            androidx.navigation.fragment.NavHostFragment.findNavController(this).navigate(R.id.computerPageFragment);
+            return true;
+        });
+
         Preference resync = findPreference("resync");
         if (resync != null) resync.setOnPreferenceClickListener(p -> {
             com.cappielloantonio.tempo.service.CassetteSyncEngine.kick(requireContext());

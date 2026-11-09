@@ -272,6 +272,11 @@
         android:label="MixPageFragment"
         tools:layout="@layout/fragment_playlist_page" />
     <fragment
+        android:id="@+id/computerPageFragment"
+        android:name="com.cappielloantonio.tempo.ui.fragment.ComputerPageFragment"
+        android:label="ComputerPageFragment"
+        tools:layout="@layout/fragment_computer_page" />
+    <fragment
         android:id="@+id/stationPageFragment"
         android:name="com.cappielloantonio.tempo.ui.fragment.StationPageFragment"
         android:label="StationPageFragment"
