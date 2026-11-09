@@ -505,6 +505,12 @@
     <string name="cassette_artist_none_here">Nothing by them on this phone</string>
     <string name="cassette_shuffle_all">Shuffle all</string>
     <string name="cassette_made_for_you">Made for you</string>
+    <string name="cassette_delete_account">Delete Account</string>
+    <string name="cassette_on_cassette">On Cassette</string>
+    <string name="cassette_not_in_library">not in your library</string>
+    <string name="cassette_catalog_artist">Artist</string>
+    <string name="cassette_catalog_album">Album · %1$s</string>
+    <string name="cassette_catalog_song">Song · %1$s</string>
     <string name="cassette_save">Save</string>
     <string name="cassette_saved">Saved</string>
     <string name="cassette_stop">Stop</string>

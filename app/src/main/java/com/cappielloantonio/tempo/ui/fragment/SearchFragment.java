@@ -232,6 +232,8 @@ public class SearchFragment extends Fragment implements ClickCallback {
     private void runSearch(String query) {
         searchViewModel.setQuery(query);
         final int ticket = ++generation;
+        main.removeCallbacks(catalogTick);
+        bind.searchCatalog.setVisibility(View.GONE);
         if (query.trim().isEmpty()) {
             bind.searchResults.setVisibility(View.GONE);
             bind.searchEmpty.emptyStateTitle.setVisibility(View.GONE);
@@ -251,7 +253,83 @@ public class SearchFragment extends Fragment implements ClickCallback {
         });
     }
 
+    // ---- ON CASSETTE: the catalog, a beat after typing stops, less what the phone already found ----
+
+    private final java.util.concurrent.ExecutorService catalogWorker = java.util.concurrent.Executors.newSingleThreadExecutor();
+    private String catalogQuery = "";
+    @Nullable private com.cappielloantonio.tempo.util.CassetteSearch.Results lastResults;
+    private final Runnable catalogTick = this::searchCatalog;
+
+    private void searchCatalog() {
+        final String query = catalogQuery.trim();
+        final int ticket = generation;
+        if (query.length() < 2) return;
+        final com.cappielloantonio.tempo.util.CassetteSearch.Results phone = lastResults;
+        // its own thread: a slow network never holds up the phone's own results
+        catalogWorker.execute(() -> {
+            java.util.List<com.cappielloantonio.tempo.util.CassetteCatalog.Hit> hits = new java.util.ArrayList<>();
+            for (com.cappielloantonio.tempo.util.CassetteCatalog.Hit h : com.cappielloantonio.tempo.util.CassetteCatalog.search(query)) {
+                if (!onPhone(h, phone)) hits.add(h);
+            }
+            main.post(() -> {
+                if (bind == null || ticket != generation) return;
+                showCatalog(hits);
+            });
+        });
+    }
+
+    /** Already among the phone's own results for this query, by name (the catalog and the phone share no ids). */
+    private static boolean onPhone(com.cappielloantonio.tempo.util.CassetteCatalog.Hit h, @Nullable com.cappielloantonio.tempo.util.CassetteSearch.Results phone) {
+        if (phone == null) return false;
+        switch (h.getKind()) {
+            case ARTIST:
+                for (com.cappielloantonio.tempo.subsonic.models.ArtistID3 a : phone.getArtists()) if (h.getTitle().equalsIgnoreCase(a.getName())) return true;
+                return false;
+            case ALBUM:
+                for (com.cappielloantonio.tempo.subsonic.models.AlbumID3 a : phone.getAlbums())
+                    if (h.getTitle().equalsIgnoreCase(a.getName()) && h.getArtistName().equalsIgnoreCase(String.valueOf(a.getArtist()))) return true;
+                return false;
+            default:
+                for (com.cappielloantonio.tempo.subsonic.models.Child s : phone.getSongs())
+                    if (h.getTitle().equalsIgnoreCase(s.getTitle()) && h.getArtistName().equalsIgnoreCase(String.valueOf(s.getArtist()))) return true;
+                return false;
+        }
+    }
+
+    private void showCatalog(java.util.List<com.cappielloantonio.tempo.util.CassetteCatalog.Hit> hits) {
+        bind.searchCatalogList.removeAllViews();
+        bind.searchCatalog.setVisibility(hits.isEmpty() ? View.GONE : View.VISIBLE);
+        if (hits.isEmpty()) return;
+        com.cappielloantonio.tempo.util.CassetteType.twoVoice(bind.searchCatalogHeading, getString(R.string.cassette_on_cassette),
+                getString(R.string.cassette_not_in_library), androidx.core.content.ContextCompat.getColor(requireContext(), R.color.cs_ink2));
+        for (com.cappielloantonio.tempo.util.CassetteCatalog.Hit h : hits) {
+            com.cappielloantonio.tempo.databinding.ItemRadioPlayBinding row =
+                    com.cappielloantonio.tempo.databinding.ItemRadioPlayBinding.inflate(getLayoutInflater(), bind.searchCatalogList, false);
+            row.playTitle.setText(h.getTitle());
+            switch (h.getKind()) {
+                case ARTIST: row.playArtist.setText(R.string.cassette_catalog_artist); break;
+                case ALBUM: row.playArtist.setText(getString(R.string.cassette_catalog_album, h.getArtistName())); break;
+                default: row.playArtist.setText(getString(R.string.cassette_catalog_song, h.getArtistName())); break;
+            }
+            row.playWhen.setVisibility(View.GONE);
+            if (h.getKind() == com.cappielloantonio.tempo.util.CassetteCatalog.Kind.ARTIST) {
+                row.playCover.setShapeAppearanceModel(row.playCover.getShapeAppearanceModel().toBuilder()
+                        .setAllCornerSizes(new com.google.android.material.shape.RelativeCornerSize(0.5f)).build());
+            }
+            com.bumptech.glide.Glide.with(this).load(h.getImageUrl()).into(row.playCover);
+            String url = h.pageUrl();
+            row.getRoot().setOnClickListener(v -> {
+                if (url != null) startActivity(new android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(url)));
+            });
+            bind.searchCatalogList.addView(row.getRoot());
+        }
+    }
+
     private void showResults(String query, com.cappielloantonio.tempo.util.CassetteSearch.Results results) {
+        lastResults = results;
+        catalogQuery = query;
+        main.removeCallbacks(catalogTick);
+        main.postDelayed(catalogTick, 350);
         String q = com.cappielloantonio.tempo.util.CassetteSearch.fold(query);
         java.util.List<com.cappielloantonio.tempo.subsonic.models.Playlist> matchedPlaylists = new java.util.ArrayList<>();
         for (com.cappielloantonio.tempo.subsonic.models.Playlist p : playlists) {

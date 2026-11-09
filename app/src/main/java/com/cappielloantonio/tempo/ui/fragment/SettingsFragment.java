@@ -451,6 +451,19 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     private void actionLogout() {
         // cassette (BUG-937): Sign out asks about the music on the phone, ends this
         // phone's sign-in on the cloud and forgets the account, the iPhone's way.
+        // Delete Account: on the website's Account page, in the danger colour
+        Preference delete = findPreference("delete_account");
+        if (delete != null) {
+            android.text.SpannableString title = new android.text.SpannableString(getString(R.string.cassette_delete_account));
+            title.setSpan(new android.text.style.ForegroundColorSpan(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.cs_danger)),
+                    0, title.length(), android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            delete.setTitle(title);
+            delete.setOnPreferenceClickListener(p -> {
+                startActivity(new Intent(Intent.ACTION_VIEW, android.net.Uri.parse("https://cassette.digital/settings")));
+                return true;
+            });
+        }
+
         findPreference("logout").setOnPreferenceClickListener(preference -> {
             new com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
                     .setTitle(getString(R.string.cassette_sign_out_title, com.cappielloantonio.tempo.util.CassetteSession.accountName()))

@@ -35,6 +35,13 @@
         <Preference
             android:key="logout"
             android:title="@string/settings_logout_title" />
+
+        <!-- cassette (BUG-884): deleting the account happens on the website's
+             Account page (iPhone c652049f); once it is gone, the phone's next call
+             is refused and it says it was signed out. -->
+        <Preference
+            android:key="delete_account"
+            android:title="@string/cassette_delete_account" />
     </PreferenceScreen>
 
     <!-- cassette: the root answers on sight (iPhone e080d4c0): your computer and

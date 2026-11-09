@@ -353,6 +353,31 @@
             <include
                 android:id="@+id/search_empty"
                 layout="@layout/view_empty_state" />
+
+            <!-- ON CASSETTE not in your library: the catalog, under the phone's own (iPhone Q17) -->
+            <LinearLayout
+                android:id="@+id/search_catalog"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/search_catalog_heading"
+                    style="@style/Cassette.Role.Shout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="20dp"
+                    android:paddingTop="26dp"
+                    android:paddingEnd="20dp"
+                    android:paddingBottom="4dp" />
+
+                <LinearLayout
+                    android:id="@+id/search_catalog_list"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
+            </LinearLayout>
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 </LinearLayout>
