@@ -316,7 +316,9 @@ public class SearchFragment extends Fragment implements ClickCallback {
                 row.playCover.setShapeAppearanceModel(row.playCover.getShapeAppearanceModel().toBuilder()
                         .setAllCornerSizes(new com.google.android.material.shape.RelativeCornerSize(0.5f)).build());
             }
-            com.bumptech.glide.Glide.with(this).load(h.getImageUrl()).into(row.playCover);
+            // the ladder's rung for the 48dp square at this screen's density, or the empty square
+            String cover = h.imageUrl(Math.round(48 * getResources().getDisplayMetrics().density));
+            if (cover != null) com.bumptech.glide.Glide.with(this).load(cover).into(row.playCover);
             String url = h.pageUrl();
             row.getRoot().setOnClickListener(v -> {
                 if (url != null) startActivity(new android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(url)));
