@@ -95,6 +95,13 @@
         <Preference
             android:key="report_problem"
             app:title="@string/settings_report_problem_title" />
+
+        <!-- cassette: the account's crash-report choice, the iPhone's switch (it follows the
+             account to every device; Report a problem is always allowed). -->
+        <SwitchPreferenceCompat
+            app:defaultValue="true"
+            app:key="cassette_diagnostics_consent"
+            app:title="@string/cassette_crash_reports" />
     </PreferenceCategory>
 
     <PreferenceScreen

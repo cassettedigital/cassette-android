@@ -565,4 +565,5 @@
     </plurals>
     <string name="cassette_stations">Stations</string>
     <string name="cassette_letter_index">Jump to a letter</string>
+    <string name="cassette_crash_reports">Send crash reports</string>
 </resources>

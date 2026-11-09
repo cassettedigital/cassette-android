@@ -135,6 +135,15 @@ public final class CassetteSyncApi {
                 .build());
     }
 
+    /** The account's crash-report choice (PATCH /api/account/diagnostics), for every device. */
+    public static void setDiagnosticsConsent(String bearerToken, boolean consent) throws IOException {
+        JsonObject body = new JsonObject();
+        body.addProperty("diagnostics_consent", consent);
+        execute(request("/api/account/diagnostics", bearerToken)
+                .patch(RequestBody.create(body.toString(), JSON))
+                .build());
+    }
+
     /** A playlist started playing (any device's Playlists row and Resume order by it). */
     public static void playlistPlayed(String bearerToken, String playlistId) throws IOException {
         Request req = request("/api/sync/playlists/" + playlistId + "/played", bearerToken)

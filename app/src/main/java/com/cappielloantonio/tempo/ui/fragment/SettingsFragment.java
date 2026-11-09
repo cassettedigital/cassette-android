@@ -350,6 +350,23 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             startActivity(new Intent(Intent.ACTION_VIEW, android.net.Uri.parse("https://github.com/CappielloAntonio/tempo")));
             return true;
         });
+        androidx.preference.SwitchPreferenceCompat crash = findPreference("cassette_diagnostics_consent");
+        if (crash != null) {
+            crash.setChecked(Preferences.getCassetteDiagnosticsConsent());
+            crash.setOnPreferenceChangeListener((p, value) -> {
+                boolean on = Boolean.TRUE.equals(value);
+                String bearer = Preferences.getCassetteBearerToken();
+                if (bearer != null) new Thread(() -> {
+                    try {
+                        com.cappielloantonio.tempo.util.CassetteSyncApi.setDiagnosticsConsent(bearer, on);
+                    } catch (Exception e) {
+                        android.util.Log.w("SettingsFragment", "diagnostics consent failed", e);
+                    }
+                }, "cassette-diagnostics-consent").start();
+                return true;
+            });
+        }
+
         Preference resync = findPreference("resync");
         if (resync != null) resync.setOnPreferenceClickListener(p -> {
             com.cappielloantonio.tempo.service.CassetteSyncEngine.kick(requireContext());
