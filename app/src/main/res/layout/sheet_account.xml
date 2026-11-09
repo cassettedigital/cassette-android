@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- cassette: the account sheet from the avatar (the iPhone's avatar menu,
+     44b73099, in Android's own bottom sheet): you on top with your computer's
+     state, then Settings, then Sign Out apart. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingBottom="24dp">
+
+    <LinearLayout
+        android:id="@+id/account_sheet_you"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackground"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="20dp"
+        android:paddingTop="20dp"
+        android:paddingEnd="20dp"
+        android:paddingBottom="16dp">
+
+        <ImageView
+            android:id="@+id/account_sheet_avatar"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:importantForAccessibility="no" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="14dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/account_sheet_name"
+                style="@style/Cassette.Role.CardTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1" />
+
+            <TextView
+                android:id="@+id/account_sheet_computer"
+                style="@style/LabelCardSubtitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/account_sheet_settings"
+        style="@style/Cassette.Role.TileLabel"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:background="?attr/selectableItemBackground"
+        android:gravity="center_vertical"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:text="@string/menu_settings_button" />
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="12dp" />
+
+    <TextView
+        android:id="@+id/account_sheet_sign_out"
+        style="@style/Cassette.Role.TileLabel"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:background="?attr/selectableItemBackground"
+        android:gravity="center_vertical"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:text="@string/settings_logout_title"
+        android:textColor="@color/cs_danger" />
+</LinearLayout>

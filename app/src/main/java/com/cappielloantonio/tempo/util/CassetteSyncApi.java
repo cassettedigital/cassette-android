@@ -112,6 +112,29 @@ public final class CassetteSyncApi {
         }
     }
 
+    /** The computer's heartbeat and library totals (GET /api/player/devices/mac). */
+    @Nullable
+    public static String getComputerSummary(String bearerToken) throws IOException {
+        Request req = request("/api/player/devices/mac", bearerToken).get().build();
+        try (Response response = client().newCall(req).execute()) {
+            if (response.code() == 401) CassetteSession.cloudRefusedToken();
+            if (!response.isSuccessful() || response.body() == null) return null;
+            return response.body().string();
+        }
+    }
+
+    /** Keep these songs' albums off this phone until someone sends them back (Remove from This Phone). */
+    public static void keepOff(String bearerToken, java.util.List<String> cassetteLocalIds) throws IOException {
+        JsonObject body = new JsonObject();
+        body.addProperty("device_id", Preferences.getCassetteDeviceId());
+        JsonArray ids = new JsonArray();
+        for (String id : cassetteLocalIds) ids.add(id);
+        body.add("cassette_local_ids", ids);
+        execute(request("/api/sync/marks/exclude", bearerToken)
+                .post(RequestBody.create(body.toString(), JSON))
+                .build());
+    }
+
     /** A playlist started playing (any device's Playlists row and Resume order by it). */
     public static void playlistPlayed(String bearerToken, String playlistId) throws IOException {
         Request req = request("/api/sync/playlists/" + playlistId + "/played", bearerToken)

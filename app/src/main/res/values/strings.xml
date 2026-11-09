@@ -176,13 +176,13 @@
     <string name="library_title_playlist">Playlists</string>
     <string name="library_title_playlist_see_all_button">See all</string>
     <string name="login_empty">No server added</string>
-    <string name="login_title">Connect to Cassette</string>
-    <string name="login_title_expanded">Connect to Cassette</string>
-    <string name="cassette_sign_in">Sign in to Cassette</string>
-    <string name="cassette_sign_in_caption">Sign in with your Cassette account and this phone pairs with your player automatically. Manual server setup is still available under +.</string>
-    <string name="cassette_pairing_progress">Pairing with your Cassette account…</string>
-    <string name="cassette_pairing_unreachable">Paired. Your player isn\'t reachable on this network yet.</string>
-    <string name="cassette_pairing_failed">Pairing failed</string>
+    <string name="login_title">Sign in with Cassette</string>
+    <string name="login_title_expanded">Sign in with Cassette</string>
+    <string name="cassette_sign_in">Sign In</string>
+    <string name="cassette_sign_in_caption">Sign in and this phone finds your computer.</string>
+    <string name="cassette_pairing_progress">Signing in…</string>
+    <string name="cassette_pairing_unreachable">Signed in. Your computer isn\'t reachable on this network yet.</string>
+    <string name="cassette_pairing_failed">Couldn’t sign in. Try again.</string>
     <string name="cassette_support_email" translatable="false">hello@cassette.digital</string>
     <string name="media_route_menu_title">Cast</string>
     <string name="menu_add_button">Add</string>
@@ -540,4 +540,20 @@
     </plurals>
     <string name="cassette_keep_playing">Keep playing</string>
     <string name="cassette_then">Then: %1$s</string>
+    <string name="cassette_account_name">Name</string>
+    <string name="cassette_account_email">Email</string>
+    <string name="cassette_your_computer">Your computer</string>
+    <string name="cassette_this_phone">This phone</string>
+    <string name="cassette_resync">Resync Library</string>
+    <string name="cassette_music">Music</string>
+    <string name="cassette_help">Help</string>
+    <string name="cassette_credit_title">Built on Tempo</string>
+    <string name="cassette_credit_summary">Free software under the GPL v3. Tap for the source.</string>
+    <string name="cassette_resync_started">Checking your computer for changes</string>
+    <string name="cassette_remove_from_phone">Remove from This Phone</string>
+    <string name="cassette_remove_title">Remove “%1$s” from this phone?</string>
+    <string name="cassette_remove_message">It stays on your computer.</string>
+    <string name="cassette_removed">Removed from this phone</string>
+    <string name="cassette_remove_offline">Can’t reach Cassette right now. Try again when you’re online.</string>
+    <string name="cassette_account">Account</string>
 </resources>

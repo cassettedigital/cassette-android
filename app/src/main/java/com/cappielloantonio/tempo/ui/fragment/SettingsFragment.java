@@ -142,6 +142,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
         actionLogout();
         actionAppearance();
+        fillAnswers();
         actionChangeStreamingCacheStorage();
         actionChangeDownloadStorage();
         actionDeleteDownloadStorage();
@@ -179,6 +180,9 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        // cassette: no hairlines between rows or groups (founder, 2026-10-21)
+        setDivider(new android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT));
+        setDividerHeight(0);
         backToRoot = new androidx.activity.OnBackPressedCallback(false) {
             @Override
             public void handleOnBackPressed() {
@@ -315,7 +319,94 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             case "efficient": label = R.string.settings_download_quality_efficient; break;
             default: label = R.string.settings_download_quality_high; break;
         }
-        pref.setSummary(getString(label) + " · " + getString(R.string.settings_download_quality_account_note));
+        pref.setSummary(getString(label));
+    }
+
+    /**
+     * cassette: the root answers on sight (iPhone e080d4c0): who you are, your
+     * computer and its state in one word, what is on this phone. The computer's
+     * heartbeat is asked once as Settings opens, never in the background.
+     */
+    private void fillAnswers() {
+        String name = Preferences.getCassetteAccountName();
+        String email = Preferences.getCassetteAccountEmail();
+        Preference account = findPreference("screen_account");
+        if (account != null) {
+            account.setTitle(name != null && !name.isEmpty() ? name : getString(R.string.settings_screen_account));
+            account.setSummary(email);
+        }
+        Preference nameRow = findPreference("account_name");
+        if (nameRow != null) nameRow.setSummary(name);
+        Preference emailRow = findPreference("account_email");
+        if (emailRow != null) emailRow.setSummary(email);
+
+        Preference help = findPreference("help");
+        if (help != null) help.setOnPreferenceClickListener(p -> {
+            startActivity(new Intent(Intent.ACTION_VIEW, android.net.Uri.parse("https://cassette.digital/help")));
+            return true;
+        });
+        Preference credit = findPreference("credit");
+        if (credit != null) credit.setOnPreferenceClickListener(p -> {
+            startActivity(new Intent(Intent.ACTION_VIEW, android.net.Uri.parse("https://github.com/CappielloAntonio/tempo")));
+            return true;
+        });
+        Preference resync = findPreference("resync");
+        if (resync != null) resync.setOnPreferenceClickListener(p -> {
+            com.cappielloantonio.tempo.service.CassetteSyncEngine.kick(requireContext());
+            android.widget.Toast.makeText(requireContext(), R.string.cassette_resync_started, android.widget.Toast.LENGTH_SHORT).show();
+            return true;
+        });
+
+        paintComputer();
+        com.cappielloantonio.tempo.util.CassetteComputer.refresh(summary -> {
+            if (isAdded()) paintComputer();
+        });
+
+        // THIS PHONE: how many records, and how much room the music takes
+        new Thread(() -> {
+            java.util.List<com.cappielloantonio.tempo.model.Download> songs =
+                    com.cappielloantonio.tempo.database.AppDatabase.getInstance().downloadDao().getAllDownloadedSync();
+            java.util.Set<String> albums = new java.util.HashSet<>();
+            for (com.cappielloantonio.tempo.model.Download d : songs) if (d.getAlbumId() != null) albums.add(d.getAlbumId());
+            long bytes = 0;
+            java.io.File dir = com.cappielloantonio.tempo.util.DownloadUtil.getDownloadDirectory(requireContext());
+            if (dir != null) bytes = folderBytes(dir);
+            final int albumCount = albums.size();
+            final long size = bytes;
+            if (getActivity() == null) return;
+            requireActivity().runOnUiThread(() -> {
+                if (!isAdded()) return;
+                androidx.preference.PreferenceCategory phone = findPreference("cat_phone");
+                if (phone != null) phone.setTitle(com.cappielloantonio.tempo.util.CassetteType.twoVoiceText(requireContext(),
+                        getString(R.string.cassette_this_phone),
+                        getResources().getQuantityString(R.plurals.cassette_album_count, albumCount, albumCount),
+                        androidx.core.content.ContextCompat.getColor(requireContext(), R.color.cs_ink2), 18));
+                Preference music = findPreference("phone_music");
+                if (music != null) music.setSummary(android.text.format.Formatter.formatShortFileSize(requireContext(), size));
+            });
+        }, "cassette-this-phone").start();
+    }
+
+    private static long folderBytes(java.io.File f) {
+        if (f.isFile()) return f.length();
+        long total = 0;
+        java.io.File[] kids = f.listFiles();
+        if (kids != null) for (java.io.File k : kids) total += folderBytes(k);
+        return total;
+    }
+
+    /** YOUR COMPUTER *in sync*: the name, one true line, and the state in one word. */
+    private void paintComputer() {
+        androidx.preference.PreferenceCategory cat = findPreference("cat_computer");
+        Preference row = findPreference("computer_row");
+        if (cat == null || row == null) return;
+        String state = com.cappielloantonio.tempo.util.CassetteComputer.state();
+        cat.setTitle(com.cappielloantonio.tempo.util.CassetteType.twoVoiceText(requireContext(),
+                getString(R.string.cassette_your_computer), state,
+                androidx.core.content.ContextCompat.getColor(requireContext(), R.color.cs_ink2), 18));
+        row.setTitle(com.cappielloantonio.tempo.util.CassetteComputer.name());
+        com.cappielloantonio.tempo.util.CassetteSyncStatus.Snapshot sync = com.cappielloantonio.tempo.util.CassetteSyncStatus.live().getValue();
+        row.setSummary(sync != null && sync.active ? sync.detail() : com.cappielloantonio.tempo.util.CassetteComputer.syncedLine());
     }
 
     private void actionAppearance() {

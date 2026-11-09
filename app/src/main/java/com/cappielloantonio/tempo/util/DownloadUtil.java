@@ -202,7 +202,7 @@ public final class DownloadUtil {
         return streamingCacheDirectory;
     }
 
-    private static synchronized File getDownloadDirectory(Context context) {
+    public static synchronized File getDownloadDirectory(Context context) {
         if (downloadDirectory == null) {
             if (Preferences.getDownloadStoragePreference() == 0) {
                 downloadDirectory = context.getExternalFilesDirs(null)[0];

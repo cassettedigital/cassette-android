@@ -23,17 +23,49 @@
             app:title="@string/settings_language" />
 
         <Preference
+            android:key="account_name"
+            app:selectable="false"
+            app:title="@string/cassette_account_name" />
+
+        <Preference
+            android:key="account_email"
+            app:selectable="false"
+            app:title="@string/cassette_account_email" />
+
+        <Preference
             android:key="logout"
             android:title="@string/settings_logout_title" />
     </PreferenceScreen>
 
-    <PreferenceScreen
-        app:key="screen_playback"
-        app:title="@string/settings_screen_playback">
+    <!-- cassette: the root answers on sight (iPhone e080d4c0): your computer and
+         its state, what is on this phone, then the values. -->
+    <PreferenceCategory
+        app:key="cat_computer"
+        app:title="@string/cassette_your_computer">
 
-        <!-- Read-only: the download tier is set by your account (web / desktop);
-             the phone reads it. Shown here so Playback reflects it, not to edit
-             it, which would fight the account-sourced model. -->
+        <Preference
+            android:key="computer_row"
+            app:selectable="false"
+            app:title="@string/cassette_your_computer" />
+
+        <Preference
+            android:key="resync"
+            app:title="@string/cassette_resync" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:key="cat_phone"
+        app:title="@string/cassette_this_phone">
+
+        <Preference
+            android:key="phone_music"
+            app:selectable="false"
+            app:title="@string/cassette_music" />
+    </PreferenceCategory>
+
+    <PreferenceCategory app:key="cat_values">
+
+        <!-- Read-only: the account owns the download tier (it changes every device). -->
         <Preference
             android:key="download_quality_info"
             app:selectable="false"
@@ -41,9 +73,7 @@
 
         <Preference
             android:key="equalizer"
-            android:summary="@string/settings_equalizer_summary"
             android:title="@string/settings_equalizer_title" />
-    </PreferenceScreen>
 
     <!-- cassette: Appearance, the iPhone's three-way choice. Auto follows the
          phone's light or dark; the choice is this phone's own, never synced. -->
@@ -54,6 +84,18 @@
         app:key="theme"
         app:title="@string/cassette_appearance"
         app:useSimpleSummaryProvider="true" />
+    </PreferenceCategory>
+
+    <PreferenceCategory app:key="cat_support">
+
+        <Preference
+            android:key="help"
+            app:title="@string/cassette_help" />
+
+        <Preference
+            android:key="report_problem"
+            app:title="@string/settings_report_problem_title" />
+    </PreferenceCategory>
 
     <PreferenceScreen
         app:key="screen_storage"
@@ -89,10 +131,11 @@
             android:key="version"
             app:title="@string/settings_version_title" />
 
+        <!-- GPL v3: Cassette for Android is built on Tempo; the source is open. -->
         <Preference
-            android:key="report_problem"
-            app:summary="@string/settings_report_problem_summary"
-            app:title="@string/settings_report_problem_title" />
+            android:key="credit"
+            app:summary="@string/cassette_credit_summary"
+            app:title="@string/cassette_credit_title" />
     </PreferenceScreen>
 
 </PreferenceScreen>

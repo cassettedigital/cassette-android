@@ -52,7 +52,8 @@ public class ToolbarFragment extends Fragment {
 
         // cassette: the account chip is the left-hand anchor on every screen
         // that carries this bar, the way the iOS app opens with the profile.
-        bind.toolbarAvatar.setOnClickListener(v -> activity.navController.navigate(R.id.settingsFragment));
+        bind.toolbarAvatar.setOnClickListener(v -> showAccountSheet());
+        bind.toolbarAvatar.setContentDescription(getString(R.string.cassette_account));
         CassetteAvatar.apply(bind.toolbarAvatar);
         bind.toolbarTitle.setText(titleForHost());
 
@@ -64,6 +65,51 @@ public class ToolbarFragment extends Fragment {
         super.onResume();
         // Re-apply after a sync may have refreshed the account avatar.
         if (bind != null) CassetteAvatar.apply(bind.toolbarAvatar);
+    }
+
+    /** cassette: the avatar opens the account sheet: you and your computer, Settings, Sign Out. */
+    private void showAccountSheet() {
+        com.google.android.material.bottomsheet.BottomSheetDialog sheet =
+                new com.google.android.material.bottomsheet.BottomSheetDialog(requireContext());
+        View content = LayoutInflater.from(requireContext()).inflate(R.layout.sheet_account, null, false);
+        android.widget.TextView name = content.findViewById(R.id.account_sheet_name);
+        android.widget.TextView computer = content.findViewById(R.id.account_sheet_computer);
+        String person = com.cappielloantonio.tempo.util.Preferences.getCassetteAccountName();
+        name.setText(person != null && !person.isEmpty() ? person : getString(R.string.cassette_account));
+        CassetteAvatar.apply(content.findViewById(R.id.account_sheet_avatar));
+        Runnable line = () -> {
+            String state = com.cappielloantonio.tempo.util.CassetteComputer.state();
+            String hub = com.cappielloantonio.tempo.util.CassetteComputer.name();
+            computer.setText(state == null ? hub : hub + " · " + state);
+        };
+        line.run();
+        com.cappielloantonio.tempo.util.CassetteComputer.refresh(summary -> line.run());
+        content.findViewById(R.id.account_sheet_you).setOnClickListener(v -> {
+            sheet.dismiss();
+            activity.navController.navigate(R.id.settingsFragment);
+        });
+        content.findViewById(R.id.account_sheet_settings).setOnClickListener(v -> {
+            sheet.dismiss();
+            activity.navController.navigate(R.id.settingsFragment);
+        });
+        content.findViewById(R.id.account_sheet_sign_out).setOnClickListener(v -> {
+            sheet.dismiss();
+            new com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
+                    .setTitle(getString(R.string.cassette_sign_out_title, com.cappielloantonio.tempo.util.CassetteSession.accountName()))
+                    .setMessage(R.string.cassette_sign_out_message)
+                    .setPositiveButton(R.string.cassette_sign_out_keep, (d, w) -> signOut(false))
+                    .setNeutralButton(R.string.cassette_sign_out_remove, (d, w) -> signOut(true))
+                    .setNegativeButton(R.string.cassette_cancel, null)
+                    .show();
+        });
+        sheet.setContentView(content);
+        sheet.show();
+    }
+
+    private void signOut(boolean removeMusic) {
+        com.cappielloantonio.tempo.util.CassetteSession.signOut(requireContext(), removeMusic, () -> {
+            if (activity != null) activity.quit();
+        });
     }
 
     /**

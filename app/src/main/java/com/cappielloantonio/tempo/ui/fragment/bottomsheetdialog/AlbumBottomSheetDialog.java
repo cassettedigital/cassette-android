@@ -166,7 +166,12 @@ public class AlbumBottomSheetDialog extends BottomSheetDialogFragment implements
         boolean streaming = com.cappielloantonio.tempo.util.Preferences.isServerMode();
         if (!streaming) {
             downloadAll.setVisibility(View.GONE);
-            removeAll.setVisibility(View.GONE);
+            // cassette: Remove from This Phone (iPhone 41f7d64f). The files go now,
+            // and the cloud keeps the album off this phone so the next sync does
+            // not bring it straight back. It stays on the computer.
+            removeAll.setVisibility(View.VISIBLE);
+            removeAll.setText(R.string.cassette_remove_from_phone);
+            removeAll.setOnClickListener(v -> confirmRemoveFromPhone());
         } else {
             albumBottomSheetViewModel.getAlbumTracks().observe(getViewLifecycleOwner(), songs -> {
                 List<MediaItem> mediaItems = MappingUtil.mapDownloads(songs);
@@ -219,6 +224,46 @@ public class AlbumBottomSheetDialog extends BottomSheetDialogFragment implements
         }));
 
         share.setVisibility(Preferences.isSharingEnabled() ? View.VISIBLE : View.GONE);
+    }
+
+    private void confirmRemoveFromPhone() {
+        com.cappielloantonio.tempo.subsonic.models.AlbumID3 album = albumBottomSheetViewModel.getAlbum();
+        if (album == null || album.getId() == null) return;
+        new com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
+                .setTitle(getString(R.string.cassette_remove_title, album.getName()))
+                .setMessage(R.string.cassette_remove_message)
+                .setPositiveButton(R.string.cassette_sign_out_remove, (d, w) -> removeFromPhone(album.getId()))
+                .setNegativeButton(R.string.cassette_cancel, null)
+                .show();
+    }
+
+    private void removeFromPhone(String albumId) {
+        android.content.Context app = requireContext().getApplicationContext();
+        new Thread(() -> {
+            java.util.List<com.cappielloantonio.tempo.model.Download> songs =
+                    com.cappielloantonio.tempo.database.AppDatabase.getInstance().downloadDao().getAlbumSync(albumId);
+            java.util.List<String> ids = new java.util.ArrayList<>();
+            for (com.cappielloantonio.tempo.model.Download d : songs) if (d.getCassetteLocalId() != null) ids.add(d.getCassetteLocalId());
+            boolean marked = false;
+            String bearer = com.cappielloantonio.tempo.util.Preferences.getCassetteBearerToken();
+            if (bearer != null && !ids.isEmpty()) {
+                try {
+                    com.cappielloantonio.tempo.util.CassetteSyncApi.keepOff(bearer, ids);
+                    marked = true;
+                } catch (Exception e) {
+                    android.util.Log.w("AlbumBottomSheet", "keep-off failed", e);
+                }
+            }
+            if (marked) {
+                for (com.cappielloantonio.tempo.model.Download d : songs) {
+                    DownloadUtil.getDownloadTracker(app).removeById(d.getId());
+                }
+            }
+            final boolean done = marked;
+            new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> android.widget.Toast.makeText(app,
+                    done ? R.string.cassette_removed : R.string.cassette_remove_offline, android.widget.Toast.LENGTH_SHORT).show());
+        }, "cassette-remove-from-phone").start();
+        dismissBottomSheet();
     }
 
     @Override
