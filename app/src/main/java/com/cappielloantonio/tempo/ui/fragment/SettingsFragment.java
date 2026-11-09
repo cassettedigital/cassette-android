@@ -133,6 +133,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         checkEqualizer();
         checkCacheStorage();
         checkStorage();
+        checkStreamingUi();
 
         setStreamingCacheSize();
         setAppLanguage();
@@ -240,6 +241,20 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         } catch (Exception exception) {
             storage.setVisible(false);
         }
+    }
+
+    // cassette: hide the streaming-cache controls while streaming is gated off
+    // in the shipped build (BuildConfig.STREAMING_UI_ENABLED = false). Mirrors
+    // the checkEqualizer()/checkStorage() visibility pattern. Called last in
+    // onResume so this force-hide wins over checkCacheStorage()'s volume logic.
+    private void checkStreamingUi() {
+        if (BuildConfig.STREAMING_UI_ENABLED) return;
+
+        Preference cacheSize = findPreference("streaming_cache_size");
+        if (cacheSize != null) cacheSize.setVisible(false);
+
+        Preference cacheStorage = findPreference("streaming_cache_storage");
+        if (cacheStorage != null) cacheStorage.setVisible(false);
     }
 
     private void setStreamingCacheSize() {

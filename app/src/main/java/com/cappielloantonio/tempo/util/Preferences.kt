@@ -2,6 +2,7 @@ package com.cappielloantonio.tempo.util
 
 import android.util.Log
 import com.cappielloantonio.tempo.App
+import com.cappielloantonio.tempo.BuildConfig
 import com.cappielloantonio.tempo.model.HomeSector
 import com.cappielloantonio.tempo.subsonic.models.OpenSubsonicExtension
 import com.google.gson.Gson
@@ -467,6 +468,11 @@ object Preferences {
         // false (default, and when absent) = offline-first / on-device-only:
         // browse shows only synced music and non-downloaded tracks never stream.
         // true = the account opted in: full-library browse + streaming return.
+        // cassette: streaming is gated off in the shipped build. While
+        // BuildConfig.STREAMING_UI_ENABLED is false, force offline-first
+        // regardless of the account value, so no streaming path can be entered —
+        // mirrors the iOS CassetteFeatureFlags gate on currentFilter.
+        if (!BuildConfig.STREAMING_UI_ENABLED) return false
         return App.getInstance().preferences.getBoolean("cassette_server_mode", false)
     }
 

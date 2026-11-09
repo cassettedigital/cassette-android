@@ -22,6 +22,12 @@ android {
         versionCode 1
         versionName '0.1.0'
 
+        // cassette: streaming (Server Mode playback of non-downloaded tracks) is
+        // hidden + disabled in shipped builds until this flips true. Flipped in
+        // source, never from the server, so an installed build can't be toggled
+        // on by an account payload. Mirrors iOS CassetteFeatureFlags.isStreamingEnabled.
+        buildConfigField "boolean", "STREAMING_UI_ENABLED", "false"
+
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
 
         javaCompileOptions {
