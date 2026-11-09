@@ -43,8 +43,8 @@
 
                     <com.google.android.material.imageview.ShapeableImageView
                         android:id="@+id/playlist_cover_image_view"
-                        android:layout_width="240dp"
-                        android:layout_height="240dp"
+                        android:layout_width="@dimen/kit_hero_cover"
+                        android:layout_height="@dimen/kit_hero_cover"
                         android:layout_gravity="center_horizontal"
                         android:elevation="14dp"
                         android:scaleType="centerCrop"
@@ -67,7 +67,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
                         android:maxLines="4"
-                        android:textSize="20sp"
+                        android:textSize="@dimen/kit_type_answer_compact"
                         android:visibility="gone"
                         tools:text="Sunday mornings"
                         tools:visibility="visible" />

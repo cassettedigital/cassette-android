@@ -1,29 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- cassette: the kit's colour roles (packages/cassette-kit tokens.json
-         color.*.light), the same roles the iPhone and the web read. These are
-         the LIGHT paper values; values-night/colors.xml holds the dark ones, so
+    <!-- cassette: the kit's colour roles, read from res/values{,-night}/cassette_kit.xml,
+         which packages/cassette-kit/generate.mjs writes from tokens.json (light paper in
+         values/, dark in values-night/). Change a colour in tokens.json, not here. So
          every screen follows the phone's light or dark (Settings > Appearance:
          Auto, Light, Dark). Orange (cs_accent) is for live state only: progress,
          what's playing, a switch that is on. Everything pressable is ink. -->
-    <color name="cs_sunken">#E9DFCD</color>
-    <color name="cs_bg">#F3EADB</color>
-    <color name="cs_raised">#F8F1E4</color>
-    <color name="cs_elevated">#ECE3D2</color>
-    <color name="cs_hairline">#CFC5B4</color>
-    <color name="cs_ink">#15110E</color>
-    <color name="cs_ink2">#5A4E40</color>
-    <color name="cs_ink3">#6B5F51</color>
-    <color name="cs_fill">#2E241C</color>
-    <color name="cs_on_fill">#F3EADB</color>
-    <color name="cs_accent">#CC6A2A</color>
-    <color name="cs_accent_text">#A05321</color>
-    <color name="cs_danger">#B2462F</color>
-    <color name="cs_success">#37745D</color>
-    <color name="cs_warning">#836314</color>
-    <color name="cs_tint_neutral">#6B5A44</color>
-    <color name="cs_tint_neutral_glow">#A17236</color>
-    <color name="cs_tint_neutral_text">#7A5A2E</color>
+    <color name="cs_sunken">@color/kit_surface_sunken</color>
+    <color name="cs_bg">@color/kit_surface_base</color>
+    <color name="cs_raised">@color/kit_surface_raised</color>
+    <color name="cs_elevated">@color/kit_surface_elevated</color>
+    <color name="cs_hairline">@color/kit_hairline</color>
+    <color name="cs_ink">@color/kit_text_primary</color>
+    <color name="cs_ink2">@color/kit_text_secondary</color>
+    <color name="cs_ink3">@color/kit_text_tertiary</color>
+    <color name="cs_fill">@color/kit_fill_selected</color>
+    <color name="cs_on_fill">@color/kit_text_on_fill</color>
+    <color name="cs_accent">@color/kit_accent_progress</color>
+    <color name="cs_accent_text">@color/kit_accent_text</color>
+    <color name="cs_danger">@color/kit_danger</color>
+    <color name="cs_success">@color/kit_success</color>
+    <color name="cs_warning">@color/kit_warning</color>
+    <color name="cs_tint_neutral">@color/kit_tint_neutral</color>
+    <color name="cs_tint_neutral_glow">@color/kit_tint_neutral_glow</color>
+    <color name="cs_tint_neutral_text">@color/kit_tint_neutral_text</color>
     <color name="cs_glass">#80F3EADB</color>
     <!-- always dark, whatever the phone: the launch lockup -->
     <color name="cs_dark_bg">#1C1914</color>

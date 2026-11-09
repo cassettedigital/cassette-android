@@ -67,7 +67,9 @@ public class CassetteTileAdapter extends RecyclerView.Adapter<CassetteTileAdapte
         float density = holder.itemView.getResources().getDisplayMetrics().density;
         // circles for artists, squircles for stations (kit shape.station 22.5%), else 3dp
         float corner = tile.circle ? 75f * density
-                : tile.coverType == CustomGlideRequest.ResourceType.Radio ? 150f * 0.225f * density
+                : tile.coverType == CustomGlideRequest.ResourceType.Radio
+                ? holder.itemView.getResources().getDimension(com.cappielloantonio.tempo.R.dimen.kit_tile_width)
+                    * androidx.core.content.res.ResourcesCompat.getFloat(holder.itemView.getResources(), com.cappielloantonio.tempo.R.dimen.kit_shape_station)
                 : 3f * density;
         holder.bind.tileCover.setShapeAppearanceModel(ShapeAppearanceModel.builder().setAllCornerSizes(corner).build());
         if (tile.coverId != null) {

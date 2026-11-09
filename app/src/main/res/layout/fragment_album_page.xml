@@ -45,8 +45,8 @@
 
                     <com.google.android.material.imageview.ShapeableImageView
                         android:id="@+id/album_cover_image_view"
-                        android:layout_width="240dp"
-                        android:layout_height="240dp"
+                        android:layout_width="@dimen/kit_hero_cover"
+                        android:layout_height="@dimen/kit_hero_cover"
                         android:layout_gravity="center_horizontal"
                         android:elevation="14dp"
                         android:scaleType="centerCrop"

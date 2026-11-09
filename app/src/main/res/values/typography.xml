@@ -199,36 +199,36 @@
          CassetteType rather than textAllCaps, so an italic answer can sit in
          the same line in its own case. -->
     <style name="Cassette.Role.Shout" parent="CassetteDisplay">
-        <item name="android:textSize">26sp</item>
+        <item name="android:textSize">@dimen/kit_type_shout</item>
         <item name="android:textFontWeight">800</item>
-        <item name="android:letterSpacing">0.005</item>
+        <item name="android:letterSpacing">@dimen/kit_type_shout_tracking</item>
         <item name="android:textColor">@color/cs_ink</item>
         <item name="android:includeFontPadding">false</item>
     </style>
     <style name="Cassette.Role.PageTitle" parent="CassetteDisplay">
-        <item name="android:textSize">36sp</item>
+        <item name="android:textSize">@dimen/kit_type_page_title</item>
         <item name="android:textFontWeight">800</item>
-        <item name="android:letterSpacing">-0.005</item>
+        <item name="android:letterSpacing">@dimen/kit_type_page_title_tracking</item>
         <item name="android:textColor">@color/cs_ink</item>
         <item name="android:includeFontPadding">false</item>
         <item name="android:lineSpacingMultiplier">0.92</item>
     </style>
     <style name="Cassette.Role.HeroName" parent="CassetteDisplay">
-        <item name="android:textSize">46sp</item>
+        <item name="android:textSize">@dimen/kit_type_hero_name</item>
         <item name="android:textFontWeight">800</item>
-        <item name="android:letterSpacing">-0.005</item>
+        <item name="android:letterSpacing">@dimen/kit_type_hero_name_tracking</item>
         <item name="android:textColor">@color/cs_ink</item>
         <item name="android:includeFontPadding">false</item>
         <item name="android:lineSpacingMultiplier">0.9</item>
     </style>
     <style name="Cassette.Role.PlayerTitle" parent="CassetteDisplay">
-        <item name="android:textSize">34sp</item>
+        <item name="android:textSize">@dimen/kit_type_player_title</item>
         <item name="android:textFontWeight">800</item>
         <item name="android:textColor">@color/cs_ink</item>
         <item name="android:includeFontPadding">false</item>
     </style>
     <style name="Cassette.Role.CardTitle" parent="CassetteDisplay">
-        <item name="android:textSize">22sp</item>
+        <item name="android:textSize">@dimen/kit_type_card_title</item>
         <item name="android:textFontWeight">800</item>
         <item name="android:textColor">@color/cs_ink</item>
     </style>
@@ -238,30 +238,30 @@
         <item name="android:textColor">@color/cs_ink</item>
     </style>
     <style name="Cassette.Role.Pill" parent="CassetteDisplay">
-        <item name="android:textSize">16sp</item>
+        <item name="android:textSize">@dimen/kit_type_pill</item>
         <item name="android:textFontWeight">700</item>
-        <item name="android:letterSpacing">0.08</item>
+        <item name="android:letterSpacing">@dimen/kit_type_pill_tracking</item>
         <item name="android:textAllCaps">true</item>
     </style>
     <style name="Cassette.Role.Answer" parent="">
         <item name="fontFamily">@font/newsreader</item>
         <item name="android:fontFamily">@font/newsreader</item>
         <item name="android:textStyle">italic</item>
-        <item name="android:textSize">25sp</item>
-        <item name="android:letterSpacing">-0.01</item>
+        <item name="android:textSize">@dimen/kit_type_answer</item>
+        <item name="android:letterSpacing">@dimen/kit_type_answer_tracking</item>
         <item name="android:textColor">@color/cs_ink2</item>
     </style>
     <style name="Cassette.Role.Kicker" parent="CassetteMono">
-        <item name="android:textSize">13sp</item>
+        <item name="android:textSize">@dimen/kit_type_kicker</item>
         <item name="android:textFontWeight">500</item>
-        <item name="android:letterSpacing">0.15</item>
+        <item name="android:letterSpacing">@dimen/kit_type_kicker_tracking</item>
         <item name="android:textAllCaps">true</item>
         <item name="android:textColor">@color/cs_ink3</item>
     </style>
     <style name="Cassette.Role.Meta" parent="CassetteMono">
-        <item name="android:textSize">13sp</item>
+        <item name="android:textSize">@dimen/kit_type_meta</item>
         <item name="android:textFontWeight">500</item>
-        <item name="android:letterSpacing">0.13</item>
+        <item name="android:letterSpacing">@dimen/kit_type_meta_tracking</item>
         <item name="android:textAllCaps">true</item>
         <item name="android:textColor">@color/cs_ink2</item>
     </style>

@@ -120,14 +120,14 @@
          kit component.pill): a cream PLAY (PAUSE while that page plays) and a
          ghost SHUFFLE ring, both 48dp capsules in Barlow Bold capitals. -->
     <style name="Cassette.Pill" parent="Widget.Material3.Button">
-        <item name="android:minHeight">48dp</item>
+        <item name="android:minHeight">@dimen/kit_pill_height</item>
         <item name="android:insetTop">0dp</item>
         <item name="android:insetBottom">0dp</item>
         <item name="android:paddingStart">20dp</item>
         <item name="android:paddingEnd">22dp</item>
         <item name="android:textAppearance">@style/Cassette.Role.Pill</item>
-        <item name="iconSize">16dp</item>
-        <item name="iconPadding">8dp</item>
+        <item name="iconSize">@dimen/kit_pill_glyph</item>
+        <item name="iconPadding">@dimen/kit_pill_glyph_gap</item>
         <item name="iconGravity">textStart</item>
         <item name="shapeAppearanceOverlay">@style/Cassette.Shape.Button</item>
         <item name="elevation">0dp</item>
@@ -139,35 +139,35 @@
         <item name="icon">@drawable/cs_play_glyph</item>
     </style>
     <style name="Cassette.Pill.Shuffle" parent="Widget.Material3.Button.OutlinedButton">
-        <item name="android:minHeight">48dp</item>
+        <item name="android:minHeight">@dimen/kit_pill_height</item>
         <item name="android:insetTop">0dp</item>
         <item name="android:insetBottom">0dp</item>
         <item name="android:paddingStart">20dp</item>
         <item name="android:paddingEnd">22dp</item>
         <item name="android:textAppearance">@style/Cassette.Role.Pill</item>
         <item name="android:textColor">@color/cs_ink</item>
-        <item name="iconSize">16dp</item>
-        <item name="iconPadding">8dp</item>
+        <item name="iconSize">@dimen/kit_pill_glyph</item>
+        <item name="iconPadding">@dimen/kit_pill_glyph_gap</item>
         <item name="iconGravity">textStart</item>
         <item name="iconTint">@color/cs_ink</item>
         <item name="icon">@drawable/ic_lucide_shuffle</item>
         <item name="strokeColor">@color/cs_pill_ring</item>
-        <item name="strokeWidth">1.5dp</item>
+        <item name="strokeWidth">@dimen/kit_pill_stroke</item>
         <item name="shapeAppearanceOverlay">@style/Cassette.Shape.Button</item>
     </style>
 
     <!-- cassette: artwork corners from the kit (radius.artworkTile 3, artworkRow 5). -->
     <style name="CassetteArtworkTile" parent="">
         <item name="cornerFamily">rounded</item>
-        <item name="cornerSize">3dp</item>
+        <item name="cornerSize">@dimen/kit_radius_artwork_tile</item>
     </style>
     <style name="CassetteArtworkRow" parent="">
         <item name="cornerFamily">rounded</item>
-        <item name="cornerSize">5dp</item>
+        <item name="cornerSize">@dimen/kit_radius_artwork_row</item>
     </style>
     <style name="CassettePlayerArtwork" parent="">
         <item name="cornerFamily">rounded</item>
-        <item name="cornerSize">8dp</item>
+        <item name="cornerSize">@dimen/kit_radius_player_artwork</item>
     </style>
 
     <!-- cassette: stations are squircles, the kit's shape.station (22.5% of the side) -->

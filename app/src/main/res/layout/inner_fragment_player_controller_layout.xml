@@ -125,7 +125,7 @@
     <TextView
         android:id="@+id/player_artist_name_label"
         style="@style/Cassette.Role.Answer"
-        android:textSize="23sp"
+        android:textSize="@dimen/kit_type_answer_player"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
@@ -313,8 +313,8 @@
     <!-- cassette: the 78dp cream play disc (kit component.playerDisc) -->
     <ImageButton
         android:id="@id/exo_play_pause"
-        android:layout_width="78dp"
-        android:layout_height="78dp"
+        android:layout_width="@dimen/kit_player_disc_size"
+        android:layout_height="@dimen/kit_player_disc_size"
         android:background="@drawable/cs_cream_disc"
         android:contentDescription="@string/cassette_play"
         android:elevation="2dp"

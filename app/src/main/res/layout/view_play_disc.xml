@@ -4,16 +4,16 @@
      the screen stays put; the cover around it still opens the record. -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/play_disc"
-    android:layout_width="44dp"
-    android:layout_height="44dp"
+    android:layout_width="@dimen/kit_play_disc_hit"
+    android:layout_height="@dimen/kit_play_disc_hit"
     android:background="?attr/selectableItemBackgroundBorderless"
     android:clickable="true"
     android:contentDescription="@string/cassette_play"
     android:focusable="true">
 
     <ImageView
-        android:layout_width="34dp"
-        android:layout_height="34dp"
+        android:layout_width="@dimen/kit_play_disc_size"
+        android:layout_height="@dimen/kit_play_disc_size"
         android:layout_gravity="center"
         android:background="@drawable/cs_cream_disc"
         android:elevation="2dp"
