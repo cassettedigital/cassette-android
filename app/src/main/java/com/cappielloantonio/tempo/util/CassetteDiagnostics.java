@@ -58,7 +58,7 @@ import okhttp3.Response;
  *       capped at {@link #MAX_PENDING_FILES}: an early-boot crash-loop drops its
  *       oldest reports instead of filling the disk.</li>
  *   <li>Consent is OPT-OUT for crashes: reports carry
- *       <code>consent.user_consented=false</code>. There is no toggle in v1.</li>
+ *       <code>consent.user_consented=false</code>; Settings > Send crash reports turns them off.</li>
  * </ul>
  *
  * <p>Player errors are NOT auto-reported — MediaService feeds them into
@@ -240,15 +240,14 @@ public final class CassetteDiagnostics {
     }
 
     /**
-     * Whether AUTO reports (crash / hang / native) may upload. Anonymous installs
-     * are always-on; a signed-in account can opt out via the web dashboard, which
-     * lands here through {@link CassetteSyncApi.Account#diagnosticsConsent}. The
-     * server records consent verbatim and never blocks — the real stop is here,
-     * client-side, by not POSTing when this is false.
+     * Whether AUTO reports (crash / hang / native) may upload: the "Send crash reports" switch in Settings, signed
+     * in or not. Signed in, the account's choice (set here or on the website's Account page) overwrites the switch
+     * on every sync pass ({@link CassetteSyncApi.Account#diagnosticsConsent}); signed out, the switch as the person
+     * left it. It used to be always on while signed out, whatever the switch said (BUG-890, the privacy page says
+     * the switch turns crash reports off). The server records consent verbatim and never blocks; the real stop is
+     * here, client-side, by not POSTing when this is false.
      */
     private static boolean isAutoUploadEnabled() {
-        // No bearer ⇒ anonymous ⇒ always-on (the opt-out only governs the account).
-        if (Preferences.getCassetteBearerToken() == null) return true;
         return Preferences.getCassetteDiagnosticsConsent();
     }
 
