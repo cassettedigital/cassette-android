@@ -106,6 +106,39 @@ public class LibraryFragment extends Fragment implements ClickCallback {
     private com.cappielloantonio.tempo.ui.adapter.CassetteLetteredAlbumAdapter letteredAlbums;
     private boolean showingLetters = false;
     private static final String CATEGORY_RADIO = "radio";
+    private static final String CATEGORY_GENRES = "genres";
+    private int genreCount = -1;
+    private com.cappielloantonio.tempo.ui.adapter.CassetteGenreTileAdapter genres;
+
+    /** cassette: Library > Genres, the genres of the music on this phone as soft tiles, two to a row. */
+    private com.cappielloantonio.tempo.ui.adapter.CassetteGenreTileAdapter genreAdapter() {
+        if (genres == null) {
+            genres = new com.cappielloantonio.tempo.ui.adapter.CassetteGenreTileAdapter(genre -> {
+                Bundle bundle = new Bundle();
+                bundle.putString(GenrePageFragment.GENRE_NAME, genre.getName());
+                Navigation.findNavController(requireView()).navigate(R.id.genrePageFragment, bundle);
+            });
+            com.cappielloantonio.tempo.util.CassetteGenres.refreshIfDue(requireContext(), this::loadGenres);
+        }
+        loadGenres();
+        return genres;
+    }
+
+    private void loadGenres() {
+        if (bind == null || genres == null) return;
+        android.content.Context app = requireContext().getApplicationContext();
+        new Thread(() -> {
+            java.util.List<com.cappielloantonio.tempo.util.CassetteGenres.Genre> all =
+                    com.cappielloantonio.tempo.util.CassetteGenres.genres(app);
+            if (getActivity() == null) return;
+            getActivity().runOnUiThread(() -> {
+                if (bind == null || genres == null) return;
+                genres.setItems(all);
+                genreCount = all.size();
+                refreshCountLine();
+            });
+        }, "cassette-genres").start();
+    }
     private com.cappielloantonio.tempo.ui.adapter.CassetteRadioAdapter radio;
     private com.google.common.util.concurrent.ListenableFuture<androidx.media3.session.MediaBrowser> radioBrowser;
 
@@ -190,7 +223,9 @@ public class LibraryFragment extends Fragment implements ClickCallback {
         int count;
         int plural;
         int empty;
-        if (CATEGORY_RADIO.equals(category)) {
+        if (CATEGORY_GENRES.equals(category)) {
+            count = genreCount; plural = R.plurals.cassette_genre_count; empty = R.string.cassette_empty_phone;
+        } else if (CATEGORY_RADIO.equals(category)) {
             count = stationCount; plural = R.plurals.cassette_station_count; empty = R.string.cassette_empty_stations;
         } else if (CATEGORY_ARTISTS.equals(category)) {
             count = artistCount; plural = R.plurals.cassette_artist_count; empty = R.string.cassette_empty_phone;
@@ -320,6 +355,8 @@ public class LibraryFragment extends Fragment implements ClickCallback {
                     applyCategory(CATEGORY_PLAYLISTS);
                 } else if (id == R.id.library_menu_radio) {
                     applyCategory(CATEGORY_RADIO);
+                } else if (id == R.id.library_menu_genres) {
+                    applyCategory(CATEGORY_GENRES);
                 } else if (id == R.id.library_menu_downloads) {
                     // Downloads is its own screen, not a category: navigate,
                     // and keep the remembered category unchanged.
@@ -348,6 +385,15 @@ public class LibraryFragment extends Fragment implements ClickCallback {
                 bind.libraryCatalogueRecyclerView.setAdapter(radioAdapter());
                 startOnNow();
                 break;
+            case CATEGORY_GENRES: {
+                pushPickerToToolbar(R.string.cassette_genres);
+                bind.libraryCatalogueRecyclerView.setLayoutManager(new GridLayoutManager(requireContext(), 2));
+                applyGridSpacing(1);
+                bind.libraryCatalogueRecyclerView.addItemDecoration(new com.cappielloantonio.tempo.helper.recyclerview.GridItemDecoration(
+                        2, Math.round(10 * getResources().getDisplayMetrics().density), false));
+                bind.libraryCatalogueRecyclerView.setAdapter(genreAdapter());
+                break;
+            }
             case CATEGORY_PLAYLISTS:
                 pushPickerToToolbar(R.string.library_title_playlist);
                 bind.libraryCatalogueRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));

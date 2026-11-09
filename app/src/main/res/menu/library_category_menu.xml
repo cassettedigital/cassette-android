@@ -14,6 +14,10 @@
     <item
         android:id="@+id/library_menu_radio"
         android:title="@string/cassette_radio" />
+    <!-- cassette: Genres after Radio (iPhone LibraryContainerVC) -->
+    <item
+        android:id="@+id/library_menu_genres"
+        android:title="@string/cassette_genres" />
     <item
         android:id="@+id/library_menu_downloads"
         android:title="@string/library_title_download" />

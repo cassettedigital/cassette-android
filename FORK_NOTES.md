@@ -176,3 +176,10 @@ Samsung/Xiaomi/OnePlus hardware).
 
 - `MediaBrowserTree.getItems` (BUG-941): when the car taps a song, the queue rebuilt from the stored list keeps only songs on the phone, from the one tapped on, each pointed at the phone's own copy (`MappingUtil.getDownloadUri`, now public). It used to carry the computer's streaming address for every song.
 - Not yet: the car's lists still come live from the computer (Tempo's tree); Home in the car does not draw the cloud's Home; no Play/Shuffle row on album lists; radio in the car still lists the computer's stations.
+
+### 2026-11-09 – Catch-up with the iPhone: Genres
+
+- **Genres of the music on this phone** (iPhone LibraryGenres 9f605fd1 + SearchStartView GENRES): `util/CassetteGenres.kt`. A record's genre is its files' own tag, else the cloud's (`GET /api/sync/album-genres`, your own genre, else the catalog's), keyed by the album's group key. Asked at most every 12 hours; the answer is kept on the phone (`files/album-genres.json`) so Genres works offline. Spellings that differ only in case are one genre.
+- **Group-key gotcha**: the cloud's stored keys join artist and album with U+001F (Postgres text refuses NUL, `library-group-keys.ts` persistableGroupKey); the phone's `CassetteAlbumGroupKey` joins with NUL. `CassetteGenres` folds U+001F back to NUL on read. Without it only the records with file tags got a genre (4 of 163 on the founder's phone; 145 with it).
+- **One tile, two places**: `item_genre_tile.xml` / `CassetteGenreTileAdapter` (104dp, the record's hue at the shared soft tone via CoverTint.tileFill / tileInk / tileCount, the record tipped 14° into the corner, the name over it, the bare count). Library > Genres (after Radio) shows them two to a row; Search's start page shows GENRES first, then RECENT, as the iPhone does. A zero-width space after "-" and "/" lets SINGER- / SONGWRITER wrap at the hyphen; Android would otherwise split mid-word.
+- **Genre page**: `GenrePageFragment` / `fragment_genre_page.xml`, the name big in caps, "3 ALBUMS · 44 SONGS", PLAY and SHUFFLE over every song of it on the phone, then its records in the Library grid.

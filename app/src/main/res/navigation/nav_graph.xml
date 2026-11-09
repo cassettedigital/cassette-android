@@ -272,6 +272,11 @@
         android:label="MixPageFragment"
         tools:layout="@layout/fragment_playlist_page" />
     <fragment
+        android:id="@+id/genrePageFragment"
+        android:name="com.cappielloantonio.tempo.ui.fragment.GenrePageFragment"
+        android:label="GenrePageFragment"
+        tools:layout="@layout/fragment_genre_page" />
+    <fragment
         android:id="@+id/playlistPageFragment"
         android:name="com.cappielloantonio.tempo.ui.fragment.PlaylistPageFragment"
         android:label="PlaylistPageFragment"

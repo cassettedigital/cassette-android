@@ -123,6 +123,17 @@ public final class CassetteSyncApi {
         }
     }
 
+    /** Genres for your albums, keyed by group key (GET /api/sync/album-genres): your own, else the catalog's. */
+    @Nullable
+    public static String getAlbumGenres(String bearerToken) throws IOException {
+        Request req = request("/api/sync/album-genres", bearerToken).get().build();
+        try (Response response = client().newCall(req).execute()) {
+            if (response.code() == 401) CassetteSession.cloudRefusedToken();
+            if (!response.isSuccessful() || response.body() == null) return null;
+            return response.body().string();
+        }
+    }
+
     /** Keep these songs' albums off this phone until someone sends them back (Remove from This Phone). */
     public static void keepOff(String bearerToken, java.util.List<String> cassetteLocalIds) throws IOException {
         JsonObject body = new JsonObject();

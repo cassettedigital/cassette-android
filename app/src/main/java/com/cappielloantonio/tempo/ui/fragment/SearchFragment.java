@@ -122,6 +122,19 @@ public class SearchFragment extends Fragment implements ClickCallback {
         bind.searchStations.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
         bind.searchStations.setAdapter(stationTiles);
 
+        // GENRES on the start page: two to a row; a tile opens the genre's page
+        genreTiles = new com.cappielloantonio.tempo.ui.adapter.CassetteGenreTileAdapter(genre -> {
+            Bundle bundle = new Bundle();
+            bundle.putString(GenrePageFragment.GENRE_NAME, genre.getName());
+            Navigation.findNavController(requireView()).navigate(R.id.genrePageFragment, bundle);
+        });
+        bind.searchGenres.setLayoutManager(new androidx.recyclerview.widget.GridLayoutManager(requireContext(), 2));
+        bind.searchGenres.addItemDecoration(new com.cappielloantonio.tempo.helper.recyclerview.GridItemDecoration(
+                2, Math.round(10 * getResources().getDisplayMetrics().density), false));
+        bind.searchGenres.setAdapter(genreTiles);
+        com.cappielloantonio.tempo.util.CassetteGenres.refreshIfDue(requireContext(), this::loadGenres);
+        loadGenres();
+
         new com.cappielloantonio.tempo.repository.PlaylistRepository().getPinnedPlaylists()
                 .observe(getViewLifecycleOwner(), list -> playlists = list != null ? list : new java.util.ArrayList<>());
     }
@@ -169,6 +182,22 @@ public class SearchFragment extends Fragment implements ClickCallback {
             });
             bind.searchRecentList.addView(view);
         }
+    }
+
+    private com.cappielloantonio.tempo.ui.adapter.CassetteGenreTileAdapter genreTiles;
+
+    private void loadGenres() {
+        if (bind == null) return;
+        android.content.Context app = requireContext().getApplicationContext();
+        worker.execute(() -> {
+            java.util.List<com.cappielloantonio.tempo.util.CassetteGenres.Genre> all =
+                    com.cappielloantonio.tempo.util.CassetteGenres.genres(app);
+            main.post(() -> {
+                if (bind == null) return;
+                genreTiles.setItems(all);
+                bind.searchGenresHeading.setVisibility(all.isEmpty() ? View.GONE : View.VISIBLE);
+            });
+        });
     }
 
     /** As you type: what is on this phone, off the main thread, newest typing wins. */

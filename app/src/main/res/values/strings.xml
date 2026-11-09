@@ -559,6 +559,15 @@
     <string name="cassette_radio">Radio</string>
     <string name="cassette_go_to_site">Go to %1$s</string>
     <string name="cassette_support_station">Support %1$s</string>
+    <string name="cassette_genres">Genres</string>
+    <plurals name="cassette_genre_count">
+        <item quantity="one">%d genre</item>
+        <item quantity="other">%d genres</item>
+    </plurals>
+    <plurals name="cassette_genre_tile_a11y">
+        <item quantity="one">%1$s, %2$d album</item>
+        <item quantity="other">%1$s, %2$d albums</item>
+    </plurals>
     <plurals name="cassette_station_count">
         <item quantity="one">%d station</item>
         <item quantity="other">%d stations</item>

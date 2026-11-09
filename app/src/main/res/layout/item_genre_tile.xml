@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- cassette: one genre tile (iPhone GenreTileView, the soft tiles of 11-02):
+     104dp tall, filled with one record's hue at the shared pale tone, that
+     record tipped 14 degrees into the top-right corner, the genre's name in
+     caps and the bare album count at the bottom left. The whole tile opens
+     the genre. Used by Library > Genres and Search's GENRES grid. -->
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/genre_tile"
+    android:layout_width="match_parent"
+    android:layout_height="104dp"
+    android:clipToOutline="true"
+    android:foreground="?attr/selectableItemBackground">
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/genre_tile_cover"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="-8dp"
+        android:elevation="9dp"
+        android:importantForAccessibility="no"
+        android:rotation="14"
+        android:scaleType="centerCrop"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:shapeAppearanceOverlay="@style/CassetteArtworkRow" />
+
+    <TextView
+        android:id="@+id/genre_tile_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_marginBottom="4dp"
+        android:breakStrategy="simple"
+        android:elevation="10dp"
+        android:ellipsize="end"
+        android:hyphenationFrequency="none"
+        android:fontFamily="@font/barlow_condensed"
+        android:maxLines="2"
+        android:textAllCaps="true"
+        android:textFontWeight="800"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toTopOf="@id/genre_tile_count"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintWidth_percent="0.7"
+        tools:text="Indie Rock" />
+
+    <TextView
+        android:id="@+id/genre_tile_count"
+        style="@style/CassetteMono"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_marginBottom="12dp"
+        android:elevation="10dp"
+        android:textSize="@dimen/kit_type_caption"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:text="14" />
+</androidx.constraintlayout.widget.ConstraintLayout>
