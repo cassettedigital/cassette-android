@@ -101,7 +101,55 @@ public class LibraryFragment extends Fragment implements ClickCallback {
         bind = null;
     }
 
-    private int albumCount = -1, artistCount = -1, playlistCount = -1, songsSeen = -1;
+    private int albumCount = -1, artistCount = -1, playlistCount = -1, songsSeen = -1, stationCount = -1;
+    private static final String CATEGORY_RADIO = "radio";
+    private com.cappielloantonio.tempo.ui.adapter.CassetteRadioAdapter radio;
+    private com.google.common.util.concurrent.ListenableFuture<androidx.media3.session.MediaBrowser> radioBrowser;
+
+    /** cassette: the dial (Library > Radio): every station, playing from its own stream. */
+    private com.cappielloantonio.tempo.ui.adapter.CassetteRadioAdapter radioAdapter() {
+        if (radio != null) return radio;
+        com.cappielloantonio.tempo.util.CassetteRadio.refresh(requireContext().getApplicationContext());
+        radio = new com.cappielloantonio.tempo.ui.adapter.CassetteRadioAdapter(new com.cappielloantonio.tempo.ui.adapter.CassetteRadioAdapter.Listener() {
+            @Override
+            public void onTune(com.cappielloantonio.tempo.util.CassetteRadio.Station station) {
+                if (radioBrowser == null) {
+                    radioBrowser = new androidx.media3.session.MediaBrowser.Builder(requireContext(),
+                            new androidx.media3.session.SessionToken(requireContext(),
+                                    new android.content.ComponentName(requireContext(), com.cappielloantonio.tempo.service.MediaService.class))).buildAsync();
+                }
+                com.cappielloantonio.tempo.service.MediaManager.startRadio(radioBrowser, station.toInternetRadioStation());
+                radio.setOnAir("cassette-radio-" + station.getSlug());
+                activity.setBottomSheetInPeek(true);
+            }
+
+            @Override
+            public void onMenu(View anchor, com.cappielloantonio.tempo.util.CassetteRadio.Station station) {
+                PopupMenu popup = new PopupMenu(new android.view.ContextThemeWrapper(requireContext(), R.style.Cassette_NeutralTintContext), anchor);
+                popup.getMenu().add(0, 1, 0, R.string.cassette_play);
+                if (station.site() != null) popup.getMenu().add(0, 2, 1, getString(R.string.cassette_go_to_site, station.site()));
+                if (station.getSupportUrl() != null) popup.getMenu().add(0, 3, 2, getString(R.string.cassette_support_station, station.getName()));
+                popup.setOnMenuItemClickListener(item -> {
+                    if (item.getItemId() == 1) onTune(station);
+                    else if (item.getItemId() == 2) startActivity(new android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(station.getHomepage())));
+                    else if (item.getItemId() == 3) startActivity(new android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(station.getSupportUrl())));
+                    return true;
+                });
+                popup.show();
+            }
+        });
+        new Thread(() -> {
+            java.util.List<com.cappielloantonio.tempo.util.CassetteRadio.Station> stations =
+                    com.cappielloantonio.tempo.util.CassetteRadio.stations(requireContext().getApplicationContext());
+            requireActivity().runOnUiThread(() -> {
+                if (bind == null) return;
+                radio.setStations(stations);
+                stationCount = stations.size();
+                refreshCountLine();
+            });
+        }, "cassette-radio-dial").start();
+        return radio;
+    }
 
     /** "139 ALBUMS" over the list, or one plain title when there is nothing here. */
     private void refreshCountLine() {
@@ -110,7 +158,9 @@ public class LibraryFragment extends Fragment implements ClickCallback {
         int count;
         int plural;
         int empty;
-        if (CATEGORY_ARTISTS.equals(category)) {
+        if (CATEGORY_RADIO.equals(category)) {
+            count = stationCount; plural = R.plurals.cassette_station_count; empty = R.string.cassette_empty_stations;
+        } else if (CATEGORY_ARTISTS.equals(category)) {
             count = artistCount; plural = R.plurals.cassette_artist_count; empty = R.string.cassette_empty_phone;
         } else if (CATEGORY_PLAYLISTS.equals(category)) {
             count = playlistCount; plural = R.plurals.cassette_playlist_count; empty = R.string.cassette_empty_playlists;
@@ -227,6 +277,8 @@ public class LibraryFragment extends Fragment implements ClickCallback {
                     applyCategory(CATEGORY_ARTISTS);
                 } else if (id == R.id.library_menu_playlists) {
                     applyCategory(CATEGORY_PLAYLISTS);
+                } else if (id == R.id.library_menu_radio) {
+                    applyCategory(CATEGORY_RADIO);
                 } else if (id == R.id.library_menu_downloads) {
                     // Downloads is its own screen, not a category: navigate,
                     // and keep the remembered category unchanged.
@@ -247,6 +299,12 @@ public class LibraryFragment extends Fragment implements ClickCallback {
                 bind.libraryCatalogueRecyclerView.setLayoutManager(new GridLayoutManager(requireContext(), GRID_COLUMNS));
                 applyGridSpacing(GRID_COLUMNS);
                 bind.libraryCatalogueRecyclerView.setAdapter(artistAdapter);
+                break;
+            case CATEGORY_RADIO:
+                pushPickerToToolbar(R.string.cassette_radio);
+                bind.libraryCatalogueRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+                applyGridSpacing(1);
+                bind.libraryCatalogueRecyclerView.setAdapter(radioAdapter());
                 break;
             case CATEGORY_PLAYLISTS:
                 pushPickerToToolbar(R.string.library_title_playlist);

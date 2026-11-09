@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- cassette: a station on the dial (iPhone RadioStationCell, kit component.stationRow):
+     a squircle of the station's picture (or its name as word art in its own colour),
+     the name, and "Network · City". A tap tunes in; a long press has its site and
+     support, never an editor. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?attr/selectableItemBackground"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingStart="16dp"
+    android:paddingTop="12dp"
+    android:paddingEnd="16dp"
+    android:paddingBottom="12dp">
+
+    <FrameLayout
+        android:layout_width="56dp"
+        android:layout_height="56dp">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/station_art"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            app:shapeAppearanceOverlay="@style/CassetteStationShape" />
+
+        <TextView
+            android:id="@+id/station_word_art"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fontFamily="@font/barlow_condensed"
+            android:gravity="center"
+            android:maxLines="2"
+            android:padding="4dp"
+            android:textAllCaps="true"
+            android:textColor="#FFF3EADB"
+            android:textFontWeight="800"
+            android:textSize="13sp"
+            android:visibility="gone" />
+    </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="14dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/station_name"
+            style="@style/Cassette.Role.TileLabel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1" />
+
+        <TextView
+            android:id="@+id/station_label"
+            style="@style/LabelCardSubtitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1" />
+    </LinearLayout>
+</LinearLayout>

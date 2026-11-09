@@ -556,4 +556,11 @@
     <string name="cassette_removed">Removed from this phone</string>
     <string name="cassette_remove_offline">Can’t reach Cassette right now. Try again when you’re online.</string>
     <string name="cassette_account">Account</string>
+    <string name="cassette_radio">Radio</string>
+    <string name="cassette_go_to_site">Go to %1$s</string>
+    <string name="cassette_support_station">Support %1$s</string>
+    <plurals name="cassette_station_count">
+        <item quantity="one">%d station</item>
+        <item quantity="other">%d stations</item>
+    </plurals>
 </resources>

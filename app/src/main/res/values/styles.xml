@@ -170,6 +170,12 @@
         <item name="cornerSize">8dp</item>
     </style>
 
+    <!-- cassette: stations are squircles, the kit's shape.station (22.5% of the side) -->
+    <style name="CassetteStationShape" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">22.5%</item>
+    </style>
+
     <!-- cassette: perfect circle for the big album-page play button -->
     <style name="CassetteCircleFab">
         <item name="cornerFamily">rounded</item>

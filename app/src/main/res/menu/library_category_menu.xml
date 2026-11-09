@@ -10,6 +10,10 @@
     <item
         android:id="@+id/library_menu_playlists"
         android:title="@string/library_title_playlist" />
+    <!-- cassette: Radio sits after Playlists (iPhone 9f605fd1) -->
+    <item
+        android:id="@+id/library_menu_radio"
+        android:title="@string/cassette_radio" />
     <item
         android:id="@+id/library_menu_downloads"
         android:title="@string/library_title_download" />

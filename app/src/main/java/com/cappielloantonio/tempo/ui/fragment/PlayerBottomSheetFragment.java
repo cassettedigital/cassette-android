@@ -192,6 +192,12 @@ public class PlayerBottomSheetFragment extends Fragment {
                     bind.playerHeaderLayout.playerHeaderRewindMediaButton.setVisibility(View.VISIBLE);
                     bind.playerHeaderLayout.playerHeaderNextMediaButton.setVisibility(View.GONE);
                     break;
+                case Constants.MEDIA_TYPE_RADIO:
+                    // cassette: a station is one live thing: no Next (iPhone 9666b1e1)
+                    bind.playerHeaderLayout.playerHeaderFastForwardMediaButton.setVisibility(View.GONE);
+                    bind.playerHeaderLayout.playerHeaderRewindMediaButton.setVisibility(View.GONE);
+                    bind.playerHeaderLayout.playerHeaderNextMediaButton.setVisibility(View.GONE);
+                    break;
                 case Constants.MEDIA_TYPE_MUSIC:
                 default:
                     bind.playerHeaderLayout.playerHeaderFastForwardMediaButton.setVisibility(View.GONE);

@@ -164,3 +164,10 @@ Samsung/Xiaomi/OnePlus hardware).
 - **Account sheet** from the avatar (`sheet_account.xml`, `ToolbarFragment`): you and "<computer> · in sync", Settings, Sign Out apart in red.
 - **Remove from This Phone** on an album's menu: confirm ("It stays on your computer."), `POST /api/sync/marks/exclude` so the cloud keeps it off this phone, then the files go; offline it says so and removes nothing (otherwise the next sync would bring it straight back).
 - **Words**: "Sign in with Cassette", "Signing in…", "Signed in. Your computer isn't reachable on this network yet.", "Couldn't sign in. Try again."
+
+### 2026-11-09 — Catch-up with the iPhone, pass 8: Radio, the minimum lane
+
+- **Library > Radio** (after Playlists): the whole dial on every phone, not only the stations a computer holds (iPhone e0b0efab). `util/CassetteRadio.kt` reads `assets/radio-catalog.json` (a copy of monorepo `apps/cassette-player/scripts/radio-catalog.json`, the file the iPhone bundles) and refreshes it from the public `GET /api/radio/catalog` once a launch, kept in `files/radio-catalog.json`. Grouped by the registry's sections; "120 STATIONS" on the count line.
+- Each station plays straight from its own stream (`MediaManager.startRadio`); no computer involved. Rows: a squircle (`CassetteStationShape`, the kit's 22.5%) of the station's picture, or its name as word art on its own colour; the station on air in orange. A long press: Play, Go to <site>, Support <station>; never Tempo's station editor.
+- `MappingUtil.mapInternetRadioStation`: a station is never its stream address. The title is left empty so the stream's own title (the song or show) fills it; the station's name is the second line and its picture the artwork. The mini player shows no Next for a station.
+- Not yet: what's on now (`/api/radio/now-playing`, `/on-now`), Save (`/api/radio/saved`), station pages, stations in Search and on Home.

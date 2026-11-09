@@ -183,34 +183,39 @@ public class MappingUtil {
     public static MediaItem mapInternetRadioStation(InternetRadioStation internetRadioStation) {
         Uri uri = Uri.parse(internetRadioStation.getStreamUrl());
 
+        // cassette: a station is the station, never its stream address (the old
+        // artist line). The title is left empty so the stream's own title (the
+        // song or show it sends) fills it; the station's name is the second line
+        // and its picture the artwork (iPhone 8dcd3464, f3a3c506).
         Bundle bundle = new Bundle();
         bundle.putString("id", internetRadioStation.getId());
         bundle.putString("title", internetRadioStation.getName());
-        bundle.putString("artist", uri.toString());
+        bundle.putString("artist", internetRadioStation.getLabel() != null ? internetRadioStation.getLabel() : "");
         bundle.putString("uri", uri.toString());
         bundle.putString("type", Constants.MEDIA_TYPE_RADIO);
+        if (internetRadioStation.getImage() != null) bundle.putString("coverArtId", internetRadioStation.getImage());
+
+        MediaMetadata.Builder metadata = new MediaMetadata.Builder()
+                .setArtist(internetRadioStation.getName())
+                .setStation(internetRadioStation.getName())
+                .setExtras(bundle)
+                .setIsBrowsable(false)
+                .setIsPlayable(true);
+        if (internetRadioStation.getImage() != null) metadata.setArtworkUri(Uri.parse(internetRadioStation.getImage()));
 
         return new MediaItem.Builder()
                 .setMediaId(internetRadioStation.getId())
-                .setMediaMetadata(
-                        new MediaMetadata.Builder()
-                                .setTitle(internetRadioStation.getName())
-                                .setArtist(internetRadioStation.getStreamUrl())
-                                .setExtras(bundle)
-                                .setIsBrowsable(false)
-                                .setIsPlayable(true)
-                                .build()
-                )
+                .setMediaMetadata(metadata.build())
                 .setRequestMetadata(
                         new MediaItem.RequestMetadata.Builder()
                                 .setMediaUri(uri)
                                 .setExtras(bundle)
                                 .build()
                 )
-                // .setMimeType(MimeTypes.BASE_TYPE_AUDIO)
                 .setUri(uri)
                 .build();
     }
+
 
     public static MediaItem mapMediaItem(PodcastEpisode podcastEpisode) {
         Uri uri = getUri(podcastEpisode);
