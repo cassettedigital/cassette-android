@@ -66,6 +66,10 @@ public class ArtistPageFragment extends Fragment implements ClickCallback {
 
     private List<Child> librarySongs = Collections.emptyList();
     private List<Child> popularSongsFull = Collections.emptyList();
+    /** Whether the ranking for the current songs has come back (BUG-581 fallback below). */
+    private boolean popularRanked = false;
+    /** Whether this artist has a record of their own on the phone; null until known. */
+    @Nullable private Boolean hasOwnRecords = null;
     private boolean popularExpanded = false;
     /** Bumps when library songs change so a late cloud rank can't paint a stale artist. */
     private int popularRankGeneration = 0;
@@ -189,6 +193,8 @@ public class ArtistPageFragment extends Fragment implements ClickCallback {
             bind.artistInfo.setLayoutParams(lp);
         } else {
             bind.artistPhotoFrame.setVisibility(View.GONE);
+            // no photo and (until their records load) no fan: keep the name clear of the bar
+            clearTheBar(true);
         }
 
         if (artistPageViewModel.getAlbumList() != null) {
@@ -197,6 +203,24 @@ public class ArtistPageFragment extends Fragment implements ClickCallback {
                 lightFrom(albums, photo == null);
             });
         }
+    }
+
+    /**
+     * With neither a photo nor a fan above it, the name would start under the back arrow
+     * (a singer reached from a song on someone else's record has no record of their own,
+     * BUG-581). Push it down by the bar's height then; nothing when the fan is showing.
+     */
+    private void clearTheBar(boolean clear) {
+        if (bind == null) return;
+        int bar = 0;
+        android.util.TypedValue tv = new android.util.TypedValue();
+        if (clear && requireContext().getTheme().resolveAttribute(androidx.appcompat.R.attr.actionBarSize, tv, true)) {
+            bar = android.util.TypedValue.complexToDimensionPixelSize(tv.data, getResources().getDisplayMetrics());
+        }
+        ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) bind.artistInfo.getLayoutParams();
+        if (lp.topMargin == bar) return;
+        lp.topMargin = bar;
+        bind.artistInfo.setLayoutParams(lp);
     }
 
     /** Lit by their newest record; with no photo of their own, their three newest covers fan out. */
@@ -216,6 +240,7 @@ public class ArtistPageFragment extends Fragment implements ClickCallback {
         }
         if (!fan) return;
         bind.artistFan.setVisibility(View.VISIBLE);
+        clearTheBar(false); // the fan already sits below the bar
         android.widget.ImageView[] slots = {bind.artistFanCenter, bind.artistFanLeft, bind.artistFanRight};
         for (int i = 0; i < slots.length; i++) {
             if (i < albums.size()) {
@@ -334,6 +359,8 @@ public class ArtistPageFragment extends Fragment implements ClickCallback {
         if (artistPageViewModel.getAlbumList() == null) return;
         artistPageViewModel.getAlbumList().observe(getViewLifecycleOwner(), albums -> {
             if (bind == null) return;
+            hasOwnRecords = albums != null && !albums.isEmpty();
+            showSongs();
             if (albums == null || albums.isEmpty()) {
                 bind.artistPageAlbumsSector.setVisibility(View.GONE);
                 return;
@@ -361,6 +388,7 @@ public class ArtistPageFragment extends Fragment implements ClickCallback {
             librarySongs = songs != null ? songs : Collections.emptyList();
             if (bind == null) return;
             bind.artistPageTopSongsSector.setVisibility(View.GONE);
+            popularRanked = false;
             if (librarySongs.isEmpty()) return;
             final int generation = ++popularRankGeneration;
             final List<Child> snapshot = new ArrayList<>(librarySongs);
@@ -370,11 +398,35 @@ public class ArtistPageFragment extends Fragment implements ClickCallback {
                 requireActivity().runOnUiThread(() -> {
                     if (bind == null || generation != popularRankGeneration) return;
                     popularSongsFull = ranked;
-                    bind.artistPageTopSongsSector.setVisibility(ranked.isEmpty() ? View.GONE : View.VISIBLE);
-                    songHorizontalAdapter.setItems(ranked);
+                    popularRanked = true;
+                    showSongs();
                 });
             });
         });
+    }
+
+    /**
+     * MOST PLAYED when anything has been played. Otherwise, for an artist with no record of
+     * their own on the phone (a singer on a soundtrack, reached from one of their songs, now
+     * that a compilation is no longer filed under its first singer, BUG-581), their songs under
+     * SONGS, so the page isn't "1 song" over nothing. An artist with records and no plays is
+     * unchanged: their records carry the page.
+     */
+    private void showSongs() {
+        if (bind == null || songHorizontalAdapter == null || !popularRanked) return;
+        if (!popularSongsFull.isEmpty()) {
+            bind.mostPlayedHeading.setText(R.string.cassette_most_played);
+            songHorizontalAdapter.setRankMode(true);
+            songHorizontalAdapter.setItems(popularSongsFull);
+            bind.artistPageTopSongsSector.setVisibility(View.VISIBLE);
+        } else if (Boolean.FALSE.equals(hasOwnRecords) && !librarySongs.isEmpty()) {
+            bind.mostPlayedHeading.setText(R.string.cassette_songs);
+            songHorizontalAdapter.setRankMode(false);
+            songHorizontalAdapter.setItems(new ArrayList<>(librarySongs));
+            bind.artistPageTopSongsSector.setVisibility(View.VISIBLE);
+        } else {
+            bind.artistPageTopSongsSector.setVisibility(View.GONE);
+        }
     }
 
     /**
