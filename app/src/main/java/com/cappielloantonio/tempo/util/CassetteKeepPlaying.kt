@@ -74,9 +74,20 @@ object CassetteKeepPlaying {
         pick.value = null
         heading.value = null
         records = emptyList()
-        started = localIds(p.songs.mapNotNull { it.id })
+        noteStartedIds(p.songs)
         askedFor = null
         return p.songs
+    }
+
+    /**
+     * Remember what the new queue starts from, off the main thread: it reads the phone's song
+     * table, which Android refuses on the main thread. takePick runs in the player's own callback
+     * and playNow from a tap, both on the main thread, and doing it there crashed the app the
+     * moment a record ran out with a pick held (found on the Pixel 8, 2026-11-10).
+     */
+    private fun noteStartedIds(songs: List<Child>) {
+        val ids = songs.mapNotNull { it.id }
+        io.execute { started = localIds(ids) }
     }
 
     /** What the queue started from (Cassette song ids), set when a queue starts. */
@@ -189,7 +200,7 @@ object CassetteKeepPlaying {
         pick.value = null
         heading.value = null
         records = emptyList()
-        started = localIds(songs.mapNotNull { it.id })
+        noteStartedIds(songs)
         askedFor = null
         val context = App.getContext()
         val future = MediaBrowser.Builder(context, SessionToken(context, ComponentName(context, MediaService::class.java))).buildAsync()

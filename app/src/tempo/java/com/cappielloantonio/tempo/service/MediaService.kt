@@ -186,11 +186,17 @@ class MediaService : MediaLibraryService(), SessionAvailabilityListener {
                     val songs = com.cappielloantonio.tempo.util.CassetteKeepPlaying.takePick()
                     val kept = songs?.let { com.cappielloantonio.tempo.util.CassetteOnPhone.keep(it) }
                     if (!kept.isNullOrEmpty()) {
-                        val start = player.mediaItemCount
-                        player.addMediaItems(com.cappielloantonio.tempo.util.MappingUtil.mapMediaItems(kept))
-                        player.seekTo(start, 0)
+                        // The record that carries on becomes the queue, as a tap on THEN does
+                        // (MediaManager.startQueue): the player and the saved queue hold the same
+                        // songs, so UP NEXT shows them and Keep playing's next question is about
+                        // this record. Appending to the player alone left the saved queue on the
+                        // old record: UP NEXT went blank and THEN offered the record now playing.
+                        player.setMediaItems(com.cappielloantonio.tempo.util.MappingUtil.mapMediaItems(kept))
+                        player.seekTo(0, 0)
                         player.prepare()
                         player.play()
+                        Thread({ com.cappielloantonio.tempo.repository.QueueRepository().insertAll(kept, true, 0) },
+                                "cassette-keep-playing-queue").start()
                     }
                 }
             }
