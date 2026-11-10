@@ -24,7 +24,6 @@
     <string name="album_page_extra_info_button">Similaire</string>
     <string name="album_page_play_button">Lire</string>
     <string name="album_page_shuffle_button">Mélanger</string>
-    <string name="app_name">Tempo</string>
     <string name="artist_adapter_radio_station_starting">Recherche…</string>
     <string name="artist_bottom_sheet_instant_mix">Mix instantané</string>
     <string name="artist_bottom_sheet_shuffle">Mélanger</string>
@@ -129,8 +128,6 @@
     <string name="library_title_playlist">Playlists</string>
     <string name="library_title_playlist_see_all_button">Voir tout</string>
     <string name="login_empty">Aucun serveur ajouté</string>
-    <string name="login_title">Serveurs Subsonic</string>
-    <string name="login_title_expanded">Serveurs Subsonic</string>
     <string name="media_route_menu_title">Cast</string>
     <string name="menu_add_button">Ajouter</string>
     <string name="menu_download_all_button">Télécharger tout</string>
@@ -219,19 +216,15 @@
     <string name="server_unreachable_dialog_positive_button">Continuer quand même</string>
     <string name="server_unreachable_dialog_summary">Le serveur est injoignable. Si vous décidez de continuer, cette fenêtre n\'apparaîtra plus pendant une heure.</string>
     <string name="server_unreachable_dialog_title">Serveur injoignable</string>
-    <string name="settings_about_summary">Tempo est un client open source et léger pour Subsonic, développé et build nativement pour Android.</string>
     <string name="settings_about_title">À propos</string>
     <string name="settings_audio_transcode_download_format">Format de transcodage</string>
-    <string name="settings_audio_transcode_download_priority_summary">Si activé, Tempo ne forcera pas le téléchargement de la piste avec les paramètres de transcodage ci-dessous.</string>
     <string name="settings_audio_transcode_download_priority_title">Prioriser les paramètres du serveurs, utilisés pour le streaming, dans les téléchargements</string>
-    <string name="settings_audio_transcode_download_summary">Si activé, Tempo téléchargera les pistes transcodées.</string>
     <string name="settings_audio_transcode_download_title">Télécharger les pistes transcodées</string>
     <string name="settings_audio_transcode_estimate_content_length_summary">Si activé, une estimation de la durée de la piste sera demandée au serveur.</string>
     <string name="settings_audio_transcode_estimate_content_length_title">Estimer la durée du contenu</string>
     <string name="settings_audio_transcode_format_download">Format de transcodage pour les téléchargements</string>
     <string name="settings_audio_transcode_format_mobile">Format de transcodage (mobile)</string>
     <string name="settings_audio_transcode_format_wifi">Format de transcodage (Wi-Fi)</string>
-    <string name="settings_audio_transcode_priority_summary">Si activé, Tempo ne forcera pas le streaming des pistes avec les paramètres ci-dessous.</string>
     <string name="settings_audio_transcode_priority_title">Prioriser les paramètres de transcodage du serveur</string>
     <string name="settings_audio_transcode_priority_toast">La priorité au transcodage de la piste est donnée au serveur</string>
     <string name="settings_buffering_strategy">Stratégie de mise en mémoire tampon</string>
@@ -249,7 +242,6 @@
     <string name="settings_github_title">Github</string>
     <string name="settings_image_size">Définir la résolution des images</string>
     <string name="settings_language">Langue</string>
-    <string name="settings_logout_title">Se déconnecter</string>
     <string name="settings_max_bitrate_download">Bitrate pour les téléchargements</string>
     <string name="settings_max_bitrate_mobile">Bitrate en données mobile</string>
     <string name="settings_max_bitrate_wifi">Bitrate en Wi-Fi</string>
