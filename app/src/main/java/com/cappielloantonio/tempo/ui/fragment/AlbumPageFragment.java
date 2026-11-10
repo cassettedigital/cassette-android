@@ -221,10 +221,12 @@ public class AlbumPageFragment extends Fragment implements ClickCallback {
 
     private void initArtistLink() {
         bind.albumArtistLabel.setOnClickListener(v -> {
-            // cassette: a compilation's "Various Artists" is not someone to go to (BUG-581):
-            // the record has no artist id, so the tap does nothing rather than toast an error.
+            // cassette: a compilation's "Various Artists" is not someone to go to (BUG-581, the
+            // web's rule). On the phone's own copy it has no artist id; the computer's copy of
+            // the record gives it one, whose page is nearly empty. Either way the tap does nothing.
             com.cappielloantonio.tempo.subsonic.models.AlbumID3 current = albumPageViewModel.getAlbum().getValue();
             if (current == null || current.getArtistId() == null || current.getArtistId().isEmpty()) return;
+            if ("Various Artists".equalsIgnoreCase(current.getArtist() != null ? current.getArtist().trim() : "")) return;
             albumPageViewModel.getArtist().observe(getViewLifecycleOwner(), artist -> {
                 if (artist != null) {
                     Bundle bundle = new Bundle();
