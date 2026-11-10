@@ -317,7 +317,10 @@ public final class CassetteSyncApi {
      * device's own executor.
      */
     public static List<Intent> getActionableIntents(String bearerToken) throws IOException {
-        JsonObject json = execute(request("/api/sync/intents", bearerToken).get().build());
+        // Only this device's open requests, not the account's whole history on every 30-second check (BUG-886).
+        // The filter below stays, so an older website answering with the full list still works.
+        String query = "?open=1&for_device=" + java.net.URLEncoder.encode(Preferences.getCassetteDeviceId(), "UTF-8");
+        JsonObject json = execute(request("/api/sync/intents" + query, bearerToken).get().build());
         List<Intent> actionable = new ArrayList<>();
         if (!json.has("intents") || !json.get("intents").isJsonArray()) return actionable;
 
