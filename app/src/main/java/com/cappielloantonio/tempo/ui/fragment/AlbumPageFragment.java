@@ -220,14 +220,20 @@ public class AlbumPageFragment extends Fragment implements ClickCallback {
     }
 
     private void initArtistLink() {
-        bind.albumArtistLabel.setOnClickListener(v -> albumPageViewModel.getArtist().observe(getViewLifecycleOwner(), artist -> {
-            if (artist != null) {
-                Bundle bundle = new Bundle();
-                bundle.putParcelable(Constants.ARTIST_OBJECT, artist);
-                activity.navController.navigate(R.id.action_albumPageFragment_to_artistPageFragment, bundle);
-            } else
-                Toast.makeText(requireContext(), getString(R.string.album_error_retrieving_artist), Toast.LENGTH_SHORT).show();
-        }));
+        bind.albumArtistLabel.setOnClickListener(v -> {
+            // cassette: a compilation's "Various Artists" is not someone to go to (BUG-581):
+            // the record has no artist id, so the tap does nothing rather than toast an error.
+            com.cappielloantonio.tempo.subsonic.models.AlbumID3 current = albumPageViewModel.getAlbum().getValue();
+            if (current == null || current.getArtistId() == null || current.getArtistId().isEmpty()) return;
+            albumPageViewModel.getArtist().observe(getViewLifecycleOwner(), artist -> {
+                if (artist != null) {
+                    Bundle bundle = new Bundle();
+                    bundle.putParcelable(Constants.ARTIST_OBJECT, artist);
+                    activity.navController.navigate(R.id.action_albumPageFragment_to_artistPageFragment, bundle);
+                } else
+                    Toast.makeText(requireContext(), getString(R.string.album_error_retrieving_artist), Toast.LENGTH_SHORT).show();
+            });
+        });
     }
 
     private void initMusicButton() {

@@ -102,8 +102,20 @@ public final class CassetteOfflineLibrary {
     }
 
     private static List<AlbumID3> buildAlbums() {
-        List<Download> downloads = AppDatabase.getInstance().downloadDao().getAllDownloadedSync();
+        return groupAlbums(AppDatabase.getInstance().downloadDao().getAllDownloadedSync());
+    }
+
+    /**
+     * Downloaded songs grouped into albums, each named for the album's own artist (BUG-581).
+     * The phone keeps no album-artist tag, so the album artist is the one Home, the car and
+     * This phone already use: the artist most of its songs are by, else "Various Artists"
+     * (CassetteAlbumGroupKey.effectiveAlbumArtist, the web's rule). It used to be whoever
+     * sang the first downloaded song, so a soundtrack wore one of its performers.
+     * A "Various Artists" record has no artist id: it is not someone to go to.
+     */
+    static List<AlbumID3> groupAlbums(List<Download> downloads) {
         LinkedHashMap<String, AlbumID3> byAlbum = new LinkedHashMap<>();
+        LinkedHashMap<String, List<Download>> songsByAlbum = new LinkedHashMap<>();
 
         for (Download track : downloads) {
             String albumId = track.getAlbumId();
@@ -114,20 +126,37 @@ public final class CassetteOfflineLibrary {
                 album = new AlbumID3();
                 album.setId(albumId);
                 album.setName(track.getAlbum());
-                album.setArtist(track.getArtist());
-                album.setArtistId(track.getArtistId());
                 album.setCoverArtId(track.getCoverArtId());
                 if (track.getYear() != null) album.setYear(track.getYear());
                 album.setGenre(track.getGenre());
                 album.setSongCount(0);
                 byAlbum.put(albumId, album);
+                songsByAlbum.put(albumId, new ArrayList<>());
             }
+            songsByAlbum.get(albumId).add(track);
             album.setSongCount(album.getSongCount() + 1);
             // cassette: an album was added when its newest song was (BUG-944).
             if (track.getCreated() != null
                     && (album.getCreated() == null || track.getCreated().after(album.getCreated()))) {
                 album.setCreated(track.getCreated());
             }
+        }
+
+        for (AlbumID3 album : byAlbum.values()) {
+            List<Download> songs = songsByAlbum.get(album.getId());
+            List<String> names = new ArrayList<>();
+            for (Download song : songs) {
+                if (song.getArtist() != null) names.add(CassetteAlbumGroupKey.stripFeatured(song.getArtist()));
+            }
+            String artist = CassetteAlbumGroupKey.effectiveAlbumArtist(names);
+            if (artist.isEmpty()) {
+                // no names at all: keep what the first song says, as before
+                album.setArtist(songs.get(0).getArtist());
+                album.setArtistId(songs.get(0).getArtistId());
+                continue;
+            }
+            album.setArtist(artist);
+            album.setArtistId(VARIOUS_ARTISTS.equalsIgnoreCase(artist) ? null : artistIdFor(artist, songs));
         }
 
         List<AlbumID3> result = new ArrayList<>(byAlbum.values());
@@ -144,20 +173,50 @@ public final class CassetteOfflineLibrary {
         return result;
     }
 
+    private static final String VARIOUS_ARTISTS = "Various Artists";
+
+    /** The artist id the album's own artist wears most often on its songs. */
+    private static String artistIdFor(String albumArtist, List<Download> songs) {
+        LinkedHashMap<String, Integer> counts = new LinkedHashMap<>();
+        for (Download song : songs) {
+            if (song.getArtist() == null || song.getArtistId() == null) continue;
+            if (!albumArtist.equals(CassetteAlbumGroupKey.stripFeatured(song.getArtist()))) continue;
+            Integer n = counts.get(song.getArtistId());
+            counts.put(song.getArtistId(), n == null ? 1 : n + 1);
+        }
+        String best = null;
+        int most = 0;
+        for (java.util.Map.Entry<String, Integer> e : counts.entrySet()) {
+            if (e.getValue() > most) {
+                best = e.getKey();
+                most = e.getValue();
+            }
+        }
+        return best;
+    }
+
     private static List<ArtistID3> buildArtists() {
-        List<Download> downloads = AppDatabase.getInstance().downloadDao().getAllDownloadedSync();
+        return groupArtists(buildAlbums());
+    }
+
+    /**
+     * The Artists list: the artists whose records are on the phone, never everyone who sings
+     * a song on a compilation (BUG-581, the web's rule). A performer who is only on a
+     * soundtrack is still reachable from that record and its songs.
+     */
+    static List<ArtistID3> groupArtists(List<AlbumID3> albums) {
         LinkedHashMap<String, ArtistID3> byArtist = new LinkedHashMap<>();
         LinkedHashMap<String, HashSet<String>> albumsPerArtist = new LinkedHashMap<>();
 
-        for (Download track : downloads) {
-            String artistId = track.getArtistId();
+        for (AlbumID3 album : albums) {
+            String artistId = album.getArtistId();
             if (artistId == null) continue;
 
             ArtistID3 artist = byArtist.get(artistId);
             if (artist == null) {
                 artist = new ArtistID3();
                 artist.setId(artistId);
-                artist.setName(track.getArtist());
+                artist.setName(album.getArtist());
                 // cassette: use the ARTIST cover id ("ar-<id>"), not the track's
                 // album cover — CustomGlideRequest resolves this against the
                 // synced attributed artist photos (Wikidata/Commons via
@@ -168,7 +227,7 @@ public final class CassetteOfflineLibrary {
                 byArtist.put(artistId, artist);
                 albumsPerArtist.put(artistId, new HashSet<>());
             }
-            if (track.getAlbumId() != null) albumsPerArtist.get(artistId).add(track.getAlbumId());
+            albumsPerArtist.get(artistId).add(album.getId());
         }
 
         for (String artistId : byArtist.keySet()) {

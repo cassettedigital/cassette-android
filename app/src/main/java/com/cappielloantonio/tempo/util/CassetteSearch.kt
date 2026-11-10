@@ -26,11 +26,20 @@ object CassetteSearch {
     @Volatile
     private var library: List<Download>? = null
 
+    /** The phone's records by id, each under its own artist (the Library's grouping, BUG-581). */
+    @Volatile
+    private var records: Map<String, AlbumID3>? = null
+
     /** Read the phone's songs once per Search visit (off the main thread). */
     @JvmStatic
     fun warm() {
-        library = AppDatabase.getInstance().downloadDao().getAllDownloadedSync()
+        val all = AppDatabase.getInstance().downloadDao().getAllDownloadedSync()
+        library = all
+        records = recordsOf(all)
     }
+
+    private fun recordsOf(all: List<Download>): Map<String, AlbumID3> =
+        CassetteOfflineLibrary.groupAlbums(all).filter { it.id != null }.associateBy { it.id!! }
 
     @JvmStatic
     fun fold(s: String?): String = s?.let {
@@ -52,6 +61,7 @@ object CassetteSearch {
         val q = fold(query)
         val all = library ?: AppDatabase.getInstance().downloadDao().getAllDownloadedSync().also { library = it }
         if (q.isEmpty()) return Results(emptyList(), emptyList(), emptyList())
+        val byId = records ?: recordsOf(all).also { records = it }
 
         val songs = all.filter { d ->
             fold(d.title).contains(q) || fold(d.artist).contains(q) || fold(d.album).contains(q)
@@ -62,7 +72,8 @@ object CassetteSearch {
         for (d in all) {
             val albumId = d.albumId
             if (albumId != null && !albums.containsKey(albumId) && (fold(d.album).contains(q) || fold(d.artist).contains(q))) {
-                albums[albumId] = AlbumID3().apply {
+                // the record as the Library shows it: a soundtrack under its own artist, not a singer on it
+                albums[albumId] = byId[albumId] ?: AlbumID3().apply {
                     id = albumId; name = d.album; artist = d.artist; artistId = d.artistId
                     coverArtId = d.coverArtId; year = d.year ?: 0
                 }
