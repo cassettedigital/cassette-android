@@ -53,10 +53,10 @@ public class DownloaderService extends androidx.media3.exoplayer.offline.Downloa
      * in the background. At the limit Android calls this and expects the service to stop within
      * seconds; a service that doesn't (Media3 1.5.1 has no answer here) crashes the app, which is
      * what a first sync of a big library would run into. So: pause the downloads (nothing keeps
-     * going without a notification), say so, and stop. Opening Cassette picks them up again: the
-     * sync check that runs while the app is open resumes the queue whenever there is room
-     * (CassetteSyncEngine's free-space floor), and Android resets the allowance when the app comes
-     * to the front. Opening it also clears the notice ({@link #clearPausedNotice}).
+     * going without a notification), say so, and stop. Opening Cassette picks them up again at once
+     * when there is room (CassetteSyncEngine.resumeQueueIfRoom, the sync's own free-space floor),
+     * and Android resets the allowance when the app comes to the front. Opening it also clears the
+     * notice ({@link #clearPausedNotice}).
      * Nothing already downloaded is touched: Media3 keeps every finished and partial download.
      */
     @Override
@@ -89,8 +89,8 @@ public class DownloaderService extends androidx.media3.exoplayer.offline.Downloa
 
     /**
      * Opening Cassette clears the "Sync paused" notice (MainActivity.onResume). The queue itself is
-     * resumed by the sync check that runs then, which also keeps it paused while the phone is
-     * nearly full, so this never resumes it on its own.
+     * resumed beside it by CassetteSyncEngine.resumeQueueIfRoom, which keeps it paused while the
+     * phone is nearly full.
      */
     public static void clearPausedNotice(Context context) {
         NotificationUtil.setNotification(context, PAUSED_NOTIFICATION_ID, null);

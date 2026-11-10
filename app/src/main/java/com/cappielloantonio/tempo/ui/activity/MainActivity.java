@@ -130,9 +130,10 @@ public class MainActivity extends BaseActivity {
         // cassette: a phone signed in before its account had a computer asks for it on every return
         com.cappielloantonio.tempo.util.CassetteComputerLogin.connectIfReady(this::restartForComputer);
         pingServer();
-        // cassette (BUG-79): a sync paused at Android's background limit picks up again with
-        // the sync check just below; the "Sync paused" notice goes
+        // cassette (BUG-79): a sync paused at Android's background limit picks up again now
+        // (when the phone has room, the sync check's own floor) and the "Sync paused" notice goes
         com.cappielloantonio.tempo.service.DownloaderService.clearPausedNotice(this);
+        com.cappielloantonio.tempo.service.CassetteSyncEngine.resumeQueueIfRoom(this);
         cassetteSyncHandler.post(cassetteSyncTick);
         // cassette play spine (Phase B): pull other-surface plays once per
         // foreground so "recently played" reflects the whole account.

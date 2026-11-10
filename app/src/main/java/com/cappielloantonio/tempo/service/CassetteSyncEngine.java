@@ -643,6 +643,23 @@ public final class CassetteSyncEngine {
 
     // ------------------------------------------------------------------
 
+    /**
+     * Resume a paused download queue now, when the phone has room: the same floor a pass applies,
+     * without waiting for a pass to reach it (one already running can take minutes over its albums).
+     * Called when Cassette comes to the front, so a sync paused at Android's background limit
+     * (BUG-79, DownloaderService.onTimeout) picks up the moment the app opens.
+     */
+    public static void resumeQueueIfRoom(Context context) {
+        try {
+            if (!DownloadUtil.getDownloadManager(context).getDownloadsPaused()) return;
+            if (!hasFreeSpaceForDownloads(context)) return;
+            androidx.media3.exoplayer.offline.DownloadService.sendResumeDownloads(
+                    context, DownloaderService.class, false);
+        } catch (Exception e) {
+            Log.d(TAG, "queue resume on open skipped: " + e.getMessage());
+        }
+    }
+
     private static boolean hasFreeSpaceForDownloads(Context context) {
         try {
             // Same volume selection as DownloadUtil.getDownloadDirectory.
