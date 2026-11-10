@@ -55,6 +55,14 @@ public interface DownloadDao {
     @Query("UPDATE download SET content_fingerprint = NULL")
     void forgetAllContentFingerprints();
 
+    // cassette (BUG-970): the records whose songs have not been asked for their album-artist tag yet.
+    @Query("SELECT DISTINCT album_id FROM download WHERE download_state = 1 AND album_artist IS NULL AND album_id IS NOT NULL")
+    List<String> getAlbumIdsWithoutAlbumArtist();
+
+    // cassette (BUG-970): one song's album-artist tag, "" when the computer has none (so it is not asked again).
+    @Query("UPDATE download SET album_artist = :albumArtist WHERE id = :id AND album_artist IS NULL")
+    void setAlbumArtist(String id, String albumArtist);
+
     @Query("UPDATE download SET download_state = 1 WHERE id = :id")
     void update(String id);
 

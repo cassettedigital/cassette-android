@@ -60,8 +60,8 @@ public final class CassetteOnPhone {
     public static void removeAlbum(android.content.Context context, String albumId, @androidx.annotation.Nullable Runnable onRemoved) {
         android.content.Context app = context.getApplicationContext();
         new Thread(() -> {
-            List<com.cappielloantonio.tempo.model.Download> songs =
-                    com.cappielloantonio.tempo.database.AppDatabase.getInstance().downloadDao().getAlbumSync(albumId);
+            // the whole record, even a song the computer filed under another album id (BUG-979)
+            List<com.cappielloantonio.tempo.model.Download> songs = CassetteRecords.songsOf(albumId);
             List<String> ids = new ArrayList<>();
             for (com.cappielloantonio.tempo.model.Download d : songs) if (d.getCassetteLocalId() != null) ids.add(d.getCassetteLocalId());
             boolean marked = false;

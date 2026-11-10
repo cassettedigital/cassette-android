@@ -42,6 +42,14 @@ class Download(@PrimaryKey override val id: String) : Child(id) {
     @ColumnInfo(name = "content_fingerprint")
     var contentFingerprint: String? = null
 
+    // cassette (BUG-970): the song's album-artist tag as the computer reports it
+    // (OpenSubsonic displayAlbumArtist). null = not asked yet (a row from before
+    // this column; the sync fills it in); "" = asked, the computer has none. A
+    // record is named for this tag when its songs agree on it, else for the artist
+    // most of them are by, as the web does (CassetteAlbumGroupKey.effectiveAlbumArtist).
+    @ColumnInfo(name = "album_artist")
+    var albumArtist: String? = null
+
     constructor(child: Child) : this(child.id) {
         parentId = child.parentId
         isDir = child.isDir
@@ -77,6 +85,7 @@ class Download(@PrimaryKey override val id: String) : Child(id) {
         // getSong). Intent-delivered downloads set mbid from the transfer instead;
         // this covers the Subsonic-sourced path so cross-device plays resolve here.
         mbid = child.musicBrainzId
+        albumArtist = (child as? Download)?.albumArtist ?: child.displayAlbumArtist?.trim()
     }
 }
 

@@ -110,8 +110,9 @@ public class GenrePageFragment extends Fragment implements ClickCallback {
             }
             final com.cappielloantonio.tempo.util.CassetteHome.DrawnShelf drawnShelf = shelf;
             List<Child> found = new ArrayList<>();
+            List<com.cappielloantonio.tempo.model.Download> held = AppDatabase.getInstance().downloadDao().getAllDownloadedSync();
             for (AlbumID3 album : albums) {
-                found.addAll(AppDatabase.getInstance().downloadDao().getAlbumSync(album.getId()));
+                found.addAll(com.cappielloantonio.tempo.util.CassetteRecords.songsOf(held, album.getId()));
             }
             List<AlbumID3> shown = albums;
             if (getActivity() == null) return;

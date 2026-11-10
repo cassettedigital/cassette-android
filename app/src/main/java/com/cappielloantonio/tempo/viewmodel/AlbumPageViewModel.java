@@ -45,8 +45,9 @@ public class AlbumPageViewModel extends AndroidViewModel {
         if (com.cappielloantonio.tempo.util.Preferences.isOfflineFirst()) {
             MutableLiveData<List<Child>> live = new MutableLiveData<>();
             final String id = albumId;
+            // the whole record, even a song the computer filed under another album id (BUG-979)
             new Thread(() -> live.postValue(new java.util.ArrayList<>(
-                    com.cappielloantonio.tempo.database.AppDatabase.getInstance().downloadDao().getAlbumSync(id))),
+                    com.cappielloantonio.tempo.util.CassetteRecords.songsOf(id))),
                     "cassette-album-songs").start();
             songs = live;
         } else {

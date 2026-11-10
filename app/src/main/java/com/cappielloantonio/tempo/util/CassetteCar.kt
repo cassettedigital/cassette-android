@@ -108,7 +108,7 @@ object CassetteCar {
         id == ALBUMS -> phone().albums.map(::albumFolder)
         id == ARTISTS -> phone().artists.map { (key, name) -> folder(name, ARTIST + key, MediaMetadata.MEDIA_TYPE_ARTIST) }
         id.startsWith(ROW) -> rowItems(app, id.removePrefix(ROW))
-        id.startsWith(ALBUM) -> withShuffle(id, songs(repository, AppDatabase.getInstance().downloadDao().getAlbumSync(id.removePrefix(ALBUM))))
+        id.startsWith(ALBUM) -> withShuffle(id, songs(repository, CassetteRecords.songsOf(id.removePrefix(ALBUM))))
         id.startsWith(ARTIST) -> id.removePrefix(ARTIST).let { key -> withShuffle(id, phone().albums.filter { artistKey(it.artist) == key }.map(::albumFolder)) }
         id.startsWith(MIX) -> withShuffle(id, songs(repository, CassetteHome.mix(id.removePrefix(MIX))?.songs.orEmpty()))
         id == PLAYLISTS -> playlists().mapNotNull { (p, here) ->
@@ -191,9 +191,10 @@ object CassetteCar {
         val list = mediaId.removePrefix(SHUFFLE)
         val dao = AppDatabase.getInstance().downloadDao()
         val songs: List<Child> = when {
-            list.startsWith(ALBUM) -> dao.getAlbumSync(list.removePrefix(ALBUM))
+            list.startsWith(ALBUM) -> CassetteRecords.songsOf(list.removePrefix(ALBUM))
             list.startsWith(ARTIST) -> list.removePrefix(ARTIST).let { key ->
-                phone().albums.filter { artistKey(it.artist) == key }.flatMap { a -> dao.getAlbumSync(a.id!!) }
+                val held = dao.getAllDownloadedSync()
+                phone().albums.filter { artistKey(it.artist) == key }.flatMap { a -> CassetteRecords.songsOf(held, a.id!!) }
             }
             list.startsWith(MIX) -> CassetteHome.mix(list.removePrefix(MIX))?.songs.orEmpty()
             list.startsWith(PLAYLIST) -> playlists().firstOrNull { it.first.id == list.removePrefix(PLAYLIST) }?.second.orEmpty()
@@ -238,12 +239,14 @@ object CassetteCar {
 
     /** Every record on this phone, A to Z, and every artist with one, A to Z. */
     private fun phone(): Phone {
-        val byAlbum = AppDatabase.getInstance().downloadDao().getAllDownloadedSync()
+        val held = AppDatabase.getInstance().downloadDao().getAllDownloadedSync()
+        val fold = CassetteRecords.foldMap(held)
+        val byAlbum = held
             .filter { it.albumId != null }
-            .groupBy { it.albumId!! }
+            .groupBy { CassetteRecords.recordId(fold, it.albumId)!! }
         val albums = byAlbum.map { (albumId, songs) ->
-            val first = songs.first()
-            val artist = CassetteAlbumGroupKey.effectiveAlbumArtist(songs.mapNotNull { it.artist?.let(CassetteAlbumGroupKey::stripFeatured) })
+            val first = CassetteRecords.lead(songs, albumId)
+            val artist = CassetteRecords.albumArtist(songs)
             AlbumID3().apply {
                 id = albumId; name = first.album; this.artist = artist.ifEmpty { first.artist }
                 artistId = first.artistId; coverArtId = first.coverArtId; year = first.year ?: 0

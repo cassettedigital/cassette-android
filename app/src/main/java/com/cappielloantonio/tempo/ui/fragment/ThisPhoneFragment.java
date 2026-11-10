@@ -31,6 +31,7 @@ import com.cappielloantonio.tempo.subsonic.models.AlbumID3;
 import com.cappielloantonio.tempo.ui.activity.MainActivity;
 import com.cappielloantonio.tempo.util.CassetteAlbumGroupKey;
 import com.cappielloantonio.tempo.util.CassetteOnPhone;
+import com.cappielloantonio.tempo.util.CassetteRecords;
 import com.cappielloantonio.tempo.util.CassetteSyncApi;
 import com.cappielloantonio.tempo.util.CassetteType;
 import com.cappielloantonio.tempo.util.Constants;
@@ -168,11 +169,15 @@ public class ThisPhoneFragment extends Fragment {
                 }
             } catch (Exception ignored) {
             }
+            // records, not the computer's album ids: a song tagged apart is still its record (BUG-979)
+            List<Download> held = AppDatabase.getInstance().downloadDao().getAllDownloadedSync();
+            Map<String, String> fold = CassetteRecords.foldMap(held);
             LinkedHashMap<String, List<Download>> byAlbum = new LinkedHashMap<>();
-            for (Download d : AppDatabase.getInstance().downloadDao().getAllDownloadedSync()) {
-                if (d.getAlbumId() == null) continue;
-                List<Download> list = byAlbum.get(d.getAlbumId());
-                if (list == null) byAlbum.put(d.getAlbumId(), list = new ArrayList<>());
+            for (Download d : held) {
+                String recordId = CassetteRecords.recordId(fold, d.getAlbumId());
+                if (recordId == null) continue;
+                List<Download> list = byAlbum.get(recordId);
+                if (list == null) byAlbum.put(recordId, list = new ArrayList<>());
                 list.add(d);
             }
             List<PhoneAlbum> out = new ArrayList<>();
@@ -180,17 +185,15 @@ public class ThisPhoneFragment extends Fragment {
             long total = 0;
             for (Map.Entry<String, List<Download>> e : byAlbum.entrySet()) {
                 PhoneAlbum a = new PhoneAlbum();
-                Download first = e.getValue().get(0);
+                Download first = CassetteRecords.lead(e.getValue(), e.getKey());
                 a.id = e.getKey();
                 a.name = first.getAlbum();
                 a.cover = first.getCoverArtId();
-                List<String> artists = new ArrayList<>();
                 for (Download d : e.getValue()) {
-                    if (d.getArtist() != null) artists.add(CassetteAlbumGroupKey.stripFeatured(d.getArtist()));
                     Long b = stored.get(d.getId());
                     a.bytes += b != null && b > 0 ? b : (d.getSize() != null ? d.getSize() : 0);
                 }
-                a.artist = CassetteAlbumGroupKey.effectiveAlbumArtist(artists);
+                a.artist = CassetteRecords.albumArtist(e.getValue());
                 a.songs = e.getValue().size();
                 songs += a.songs;
                 total += a.bytes;

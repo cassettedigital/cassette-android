@@ -12,6 +12,7 @@ import com.cappielloantonio.tempo.database.dao.DownloadDao;
 import com.cappielloantonio.tempo.glide.CustomGlideRequest;
 import com.cappielloantonio.tempo.model.Download;
 import com.cappielloantonio.tempo.subsonic.base.ApiResponse;
+import com.cappielloantonio.tempo.subsonic.models.AlbumWithSongsID3;
 import com.cappielloantonio.tempo.subsonic.models.Child;
 import com.cappielloantonio.tempo.util.CassetteAlbumArt;
 import com.cappielloantonio.tempo.util.CassetteAlbumGroupKey;
@@ -72,6 +73,11 @@ public final class CassetteSyncEngine {
      *  pacing. */
     private static final long TRACK_FRESHNESS_SWEEP_MIN_INTERVAL_MS = 120_000;
     private static volatile long lastTrackFreshnessSweepAt = 0;
+
+    /** Album-artist backfill (BUG-970): same throttle shape, and a cap on how many records are asked per pass. */
+    private static final long ALBUM_ARTIST_BACKFILL_MIN_INTERVAL_MS = 120_000;
+    private static final int ALBUM_ARTIST_BACKFILL_PER_PASS = 40;
+    private static volatile long lastAlbumArtistBackfillAt = 0;
 
     /**
      * Stop enqueuing new downloads below this much free space. A library
@@ -224,6 +230,7 @@ public final class CassetteSyncEngine {
         reportFullInventoryIfDue(token);
         syncAlbumCoversIfDue(context, token);
         sweepTrackFreshnessIfDue(context, token);
+        backfillAlbumArtistsIfDue();
     }
 
     // ------------------------------------------------------------------
@@ -584,6 +591,66 @@ public final class CassetteSyncEngine {
             // Best-effort pass, same posture as the cover sweep: a manifest hiccup
             // must never crash the sync thread. Swallow and retry next pass.
             Log.w(TAG, "track-freshness sweep skipped: " + e);
+        }
+    }
+
+    /**
+     * Album-artist backfill (BUG-970): songs downloaded before the phone kept each song's album-artist tag have
+     * none. Ask the computer once per record (getAlbum answers for every song in it) and store what it says on
+     * each song, "" when it has none, so a record the computer tags "Various Artists" stops wearing its top
+     * singer. Writes only the phone's own copy of the song's details, never a file. The computer unreachable
+     * stops the pass, and the next one asks again; a record answered is never asked again.
+     */
+    private static void backfillAlbumArtistsIfDue() {
+        long now = System.currentTimeMillis();
+        if (now - lastAlbumArtistBackfillAt < ALBUM_ARTIST_BACKFILL_MIN_INTERVAL_MS) return;
+        lastAlbumArtistBackfillAt = now;
+
+        try {
+            DownloadDao dao = AppDatabase.getInstance().downloadDao();
+            List<String> albumIds = dao.getAlbumIdsWithoutAlbumArtist();
+            if (albumIds == null || albumIds.isEmpty()) return;
+
+            int asked = 0;
+            for (String albumId : albumIds) {
+                if (asked >= ALBUM_ARTIST_BACKFILL_PER_PASS) break;
+                Map<String, String> tags = fetchAlbumArtistTags(albumId);
+                if (tags == null) break; // the computer did not answer: try again next pass
+                asked++;
+                for (Download row : dao.getAlbumSync(albumId)) {
+                    if (row.getAlbumArtist() != null) continue;
+                    String tag = tags.get(row.getId());
+                    dao.setAlbumArtist(row.getId(), tag == null ? "" : tag);
+                }
+            }
+            if (asked > 0) Log.d(TAG, "album-artist backfill: asked the computer about " + asked + " records");
+        } catch (Throwable e) {
+            // Best-effort, same posture as the sweeps above.
+            Log.w(TAG, "album-artist backfill skipped: " + e);
+        }
+    }
+
+    /** Song id to album-artist tag ("" when it has none) for every song the computer lists in this album; null when it did not answer. */
+    private static Map<String, String> fetchAlbumArtistTags(String albumId) {
+        try {
+            Response<ApiResponse> response = App
+                    .getSubsonicClientInstance(false)
+                    .getBrowsingClient()
+                    .getAlbum(albumId)
+                    .execute();
+            if (!response.isSuccessful() || response.body() == null) return null;
+            AlbumWithSongsID3 album = response.body().getSubsonicResponse().getAlbum();
+            Map<String, String> tags = new HashMap<>();
+            if (album != null && album.getSongs() != null) {
+                for (Child song : album.getSongs()) {
+                    String tag = song.getDisplayAlbumArtist();
+                    tags.put(song.getId(), tag == null ? "" : tag.trim());
+                }
+            }
+            return tags;
+        } catch (Exception e) {
+            Log.d(TAG, "getAlbum " + albumId + " failed: " + e.getMessage());
+            return null;
         }
     }
 

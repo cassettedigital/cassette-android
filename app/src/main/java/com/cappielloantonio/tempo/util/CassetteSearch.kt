@@ -30,8 +30,8 @@ object CassetteSearch {
         val album = fold(song.album)
     }
 
-    /** One Search visit's copy of the phone: its songs, folded, and its records by id. */
-    private class Index(val entries: List<Entry>, val records: Map<String, AlbumID3>)
+    /** One Search visit's copy of the phone: its songs, folded, its records by id, and which album ids are one record. */
+    private class Index(val entries: List<Entry>, val records: Map<String, AlbumID3>, val fold: Map<String, String>)
 
     @Volatile
     private var index: Index? = null
@@ -51,6 +51,8 @@ object CassetteSearch {
         all.map { Entry(it) },
         // The phone's records by id, each under its own artist (the Library's grouping, BUG-581).
         CassetteOfflineLibrary.groupAlbums(all).filter { it.id != null }.associateBy { it.id!! },
+        // a song the computer filed under another album id is still its record (BUG-979)
+        CassetteRecords.foldMap(all),
     )
 
     private val MARKS = Regex("\\p{M}+")
@@ -85,7 +87,7 @@ object CassetteSearch {
         val artists = LinkedHashMap<String, ArtistID3>()
         for (e in idx.entries) {
             val d = e.song
-            val albumId = d.albumId
+            val albumId = CassetteRecords.recordId(idx.fold, d.albumId)
             if (albumId != null && !albums.containsKey(albumId) && (e.album.contains(q) || e.artist.contains(q))) {
                 // the record as the Library shows it: a soundtrack under its own artist, not a singer on it
                 albums[albumId] = idx.records[albumId] ?: AlbumID3().apply {

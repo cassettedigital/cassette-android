@@ -138,13 +138,14 @@ object CassetteComputer {
     fun newOnPhone(limit: Int): List<com.cappielloantonio.tempo.subsonic.models.AlbumID3> {
         val recent = summary?.recent.orEmpty()
         if (recent.isEmpty()) return emptyList()
-        val byAlbum = com.cappielloantonio.tempo.database.AppDatabase.getInstance().downloadDao().getAllDownloadedSync()
-            .filter { it.albumId != null }.groupBy { it.albumId!! }
+        val held = com.cappielloantonio.tempo.database.AppDatabase.getInstance().downloadDao().getAllDownloadedSync()
+        val fold = CassetteRecords.foldMap(held)
+        val byAlbum = held.filter { it.albumId != null }.groupBy { CassetteRecords.recordId(fold, it.albumId)!! }
         val byKey = HashMap<String, com.cappielloantonio.tempo.subsonic.models.AlbumID3>()
         val byName = HashMap<String, com.cappielloantonio.tempo.subsonic.models.AlbumID3>()
         byAlbum.forEach { (albumId, songs) ->
-            val first = songs.first()
-            val artist = CassetteAlbumGroupKey.effectiveAlbumArtist(songs.mapNotNull { it.artist })
+            val first = CassetteRecords.lead(songs, albumId)
+            val artist = CassetteRecords.albumArtist(songs)
             val album = com.cappielloantonio.tempo.subsonic.models.AlbumID3().apply {
                 id = albumId; name = first.album; this.artist = artist.ifEmpty { first.artist }
                 artistId = first.artistId; coverArtId = first.coverArtId; year = first.year ?: 0

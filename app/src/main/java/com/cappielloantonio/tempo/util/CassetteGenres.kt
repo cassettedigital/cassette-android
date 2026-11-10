@@ -64,9 +64,10 @@ object CassetteGenres {
         // one genre however its files spell it ("Indie Rock" / "indie rock"): the first spelling met names it
         val byGenre = LinkedHashMap<String, LinkedHashMap<String, AlbumID3>>()
         val names = HashMap<String, String>()
-        songs.groupBy { it.albumId }.forEach { (albumId, tracks) ->
+        val fold = CassetteRecords.foldMap(songs)
+        songs.groupBy { CassetteRecords.recordId(fold, it.albumId) }.forEach { (albumId, tracks) ->
             if (albumId == null) return@forEach
-            val first = tracks.first()
+            val first = CassetteRecords.lead(tracks, albumId)
             val own = tracks.firstNotNullOfOrNull { it.genre?.trim()?.takeIf { g -> g.isNotEmpty() } }
             val genre = own ?: fromCloud[CassetteAlbumGroupKey.keyFromTracks(tracks.mapNotNull { it.artist }, first.album ?: "")]
                 ?: return@forEach

@@ -76,34 +76,39 @@ object CassetteMoods {
         val albums: Map<String, AlbumID3>,
         val songs: Map<String, Download>,
         val songTags: Map<String, Map<String, Double>>,
+        /** album ids that are really one record (CassetteRecords.foldMap, over every song on the phone) */
+        val fold: Map<String, String>,
     )
 
     /** Every tagged song on this phone, interludes left out, summed per record. Off the main thread. */
     private fun index(context: Context): Index? {
         val tags = tags(context)
         if (tags.isEmpty()) return null
-        val rows = AppDatabase.getInstance().downloadDao().getAllDownloadedSync()
+        val held = AppDatabase.getInstance().downloadDao().getAllDownloadedSync()
+        val fold = CassetteRecords.foldMap(held) // over every song, so the record ids match the Library's
+        val rows = held
             .filter { it.albumId != null && it.cassetteLocalId != null && tags.containsKey(it.cassetteLocalId) }
             .filter { !CassetteLikeness.isInterlude(it.title, it.duration ?: 0) }
             .sortedBy { it.id } // summed tags add up the same way every time (BUG-494)
         if (rows.isEmpty()) return null
         val albums = HashMap<String, AlbumID3>()
-        val candidates = rows.groupBy { it.albumId!! }.map { (albumId, songs) ->
-            val first = songs.first()
-            val artist = CassetteAlbumGroupKey.effectiveAlbumArtist(songs.mapNotNull { it.artist?.let(CassetteAlbumGroupKey::stripFeatured) })
+        val candidates = rows.groupBy { CassetteRecords.recordId(fold, it.albumId)!! }.map { (albumId, songs) ->
+            val first = CassetteRecords.lead(songs, albumId)
+            val artist = CassetteRecords.albumArtist(songs)
             albums[albumId] = AlbumID3().apply {
                 id = albumId; name = first.album; this.artist = artist.ifEmpty { first.artist }; artistId = first.artistId
                 coverArtId = first.coverArtId; year = first.year ?: 0
             }
             CassetteLikeness.Candidate(albumId, CassetteLikeness.normalizedArtistName(artist), songs.map { tags.getValue(it.cassetteLocalId!!) })
         }.sortedBy { it.albumId }
-        return Index(candidates, albums, rows.associateBy { it.id }, tags)
+        return Index(candidates, albums, rows.associateBy { it.id }, tags, fold)
     }
 
     /** MORE LIKE *record*: other artists' records, one each, never its own artist's nor Various Artists. */
     @JvmStatic
-    fun forAlbum(context: Context, albumId: String, pageArtist: String?): List<AlbumID3> {
+    fun forAlbum(context: Context, pageAlbumId: String, pageArtist: String?): List<AlbumID3> {
         val index = index(context) ?: return emptyList()
+        val albumId = CassetteRecords.recordId(index.fold, pageAlbumId) ?: return emptyList()
         val own = index.candidates.firstOrNull { it.albumId == albumId } ?: return emptyList()
         val page = CassetteLikeness.normalizedArtistName(pageArtist ?: index.albums[albumId]?.artist)
         val excluding = HashSet<String>().apply {
@@ -132,7 +137,8 @@ object CassetteMoods {
             val song = index.songs[id] ?: continue
             CassetteLikeness.add(index.songTags.getValue(song.cassetteLocalId!!), profile)
         }
-        return CassetteLikeness.moreLike(profile, index.candidates, albumIds.toSet(), minMatch = 0.7, perArtist = 1, limit = 8)
+        val drawnFrom = albumIds.mapNotNull { CassetteRecords.recordId(index.fold, it) }.toSet()
+        return CassetteLikeness.moreLike(profile, index.candidates, drawnFrom, minMatch = 0.7, perArtist = 1, limit = 8)
             .mapNotNull { index.albums[it] }
     }
 }

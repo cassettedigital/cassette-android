@@ -399,12 +399,11 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         new Thread(() -> {
             java.util.List<com.cappielloantonio.tempo.model.Download> songs =
                     com.cappielloantonio.tempo.database.AppDatabase.getInstance().downloadDao().getAllDownloadedSync();
-            java.util.Set<String> albums = new java.util.HashSet<>();
-            for (com.cappielloantonio.tempo.model.Download d : songs) if (d.getAlbumId() != null) albums.add(d.getAlbumId());
+            // records, not the computer's album ids (BUG-979)
+            final int albumCount = com.cappielloantonio.tempo.util.CassetteRecords.recordCount(songs);
             long bytes = 0;
             java.io.File dir = com.cappielloantonio.tempo.util.DownloadUtil.getDownloadDirectory(requireContext());
             if (dir != null) bytes = folderBytes(dir);
-            final int albumCount = albums.size();
             final long size = bytes;
             if (getActivity() == null) return;
             requireActivity().runOnUiThread(() -> {

@@ -440,11 +440,9 @@ public class HomeTabMusicFragment extends Fragment implements ClickCallback {
         if (bind == null) return;
         android.content.Context app = requireContext().getApplicationContext();
         new Thread(() -> {
-            java.util.Set<String> albums = new java.util.HashSet<>();
-            for (com.cappielloantonio.tempo.model.Download d : com.cappielloantonio.tempo.database.AppDatabase.getInstance().downloadDao().getAllDownloadedSync()) {
-                if (d.getAlbumId() != null) albums.add(d.getAlbumId());
-            }
-            int onPhone = albums.size();
+            // records, not the computer's album ids (BUG-979)
+            int onPhone = com.cappielloantonio.tempo.util.CassetteRecords.recordCount(
+                    com.cappielloantonio.tempo.database.AppDatabase.getInstance().downloadDao().getAllDownloadedSync());
             if (getActivity() == null) return;
             getActivity().runOnUiThread(() -> {
                 if (bind == null) return;

@@ -238,8 +238,7 @@ public class MediaManager {
                 new Thread(() -> {
                     List<Child> record = new java.util.ArrayList<>();
                     if (song.getAlbumId() != null) {
-                        record.addAll(com.cappielloantonio.tempo.database.AppDatabase.getInstance()
-                                .downloadDao().getAlbumSync(song.getAlbumId()));
+                        record.addAll(com.cappielloantonio.tempo.util.CassetteRecords.songsOf(song.getAlbumId()));
                     }
                     int at = -1;
                     for (int i = 0; i < record.size(); i++) {
@@ -266,8 +265,7 @@ public class MediaManager {
     public static void playAlbum(ListenableFuture<MediaBrowser> mediaBrowserListenableFuture, String albumId, boolean shuffle) {
         if (mediaBrowserListenableFuture == null || albumId == null) return;
         new Thread(() -> {
-            List<Child> record = new java.util.ArrayList<>(com.cappielloantonio.tempo.database.AppDatabase
-                    .getInstance().downloadDao().getAlbumSync(albumId));
+            List<Child> record = new java.util.ArrayList<>(com.cappielloantonio.tempo.util.CassetteRecords.songsOf(albumId));
             if (record.isEmpty()) return;
             if (shuffle) java.util.Collections.shuffle(record);
             androidx.core.os.HandlerCompat.createAsync(android.os.Looper.getMainLooper())

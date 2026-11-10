@@ -37,7 +37,7 @@ public final class CassetteOfflineLibrary {
         void onResult(List<ArtistID3> artists);
     }
 
-    /** Downloaded tracks grouped into albums (by albumId), sorted by name. */
+    /** Downloaded tracks grouped into records (the computer's album ids, folded where one record was tagged apart), sorted by name. */
     public static void albums(AlbumsCallback callback) {
         new Thread(() -> {
             List<AlbumID3> result = buildAlbums();
@@ -88,17 +88,21 @@ public final class CassetteOfflineLibrary {
                 .getRecentlyPlayedAlbumIds(com.cappielloantonio.tempo.util.Preferences.getServerId(), limit);
         if (recentIds == null || recentIds.isEmpty()) return new ArrayList<>();
 
+        List<Download> downloads = AppDatabase.getInstance().downloadDao().getAllDownloadedSync();
+        java.util.Map<String, String> fold = CassetteRecords.foldMap(downloads);
         java.util.Map<String, AlbumID3> owned = new java.util.HashMap<>();
-        for (AlbumID3 album : buildAlbums()) owned.put(album.getId(), album);
+        for (AlbumID3 album : groupAlbums(downloads)) owned.put(album.getId(), album);
 
-        List<AlbumID3> result = new ArrayList<>();
+        // A play was logged under the album id its song carried; a song folded into a bigger
+        // record counts for that record, once (BUG-979).
+        java.util.LinkedHashSet<AlbumID3> result = new java.util.LinkedHashSet<>();
         for (String albumId : recentIds) {
-            AlbumID3 album = owned.get(albumId);
+            AlbumID3 album = owned.get(CassetteRecords.recordId(fold, albumId));
             // Skip plays of things no longer on the device: a shelf that opens
             // onto missing music is worse than a shorter shelf.
             if (album != null) result.add(album);
         }
-        return result;
+        return new ArrayList<>(result);
     }
 
     private static List<AlbumID3> buildAlbums() {
@@ -106,60 +110,64 @@ public final class CassetteOfflineLibrary {
     }
 
     /**
-     * Downloaded songs grouped into albums, each named for the album's own artist (BUG-581).
-     * The phone keeps no album-artist tag, so the album artist is the one Home, the car and
-     * This phone already use: the artist most of its songs are by, else "Various Artists"
-     * (CassetteAlbumGroupKey.effectiveAlbumArtist, the web's rule). It used to be whoever
-     * sang the first downloaded song, so a soundtrack wore one of its performers.
-     * A "Various Artists" record has no artist id: it is not someone to go to.
+     * Downloaded songs grouped into records, each named for the record's own artist.
+     *
+     * BUG-581: the artist is the one Home, the car and This phone already use, never whoever
+     * sang the first downloaded song, so a soundtrack no longer wears one of its performers.
+     * BUG-970: that artist is the album-artist tag the computer sent when the songs agree on it
+     * (the web's rule), else the artist most of the songs are by, else "Various Artists"
+     * (CassetteRecords.albumArtist). A "Various Artists" record has no artist id: it is not
+     * someone to go to.
+     * BUG-979: songs the computer filed under two album ids but that are one record (the same
+     * name and artist, no song slot twice, the same year) are one record here, named by the
+     * id most of its songs carry (CassetteRecords.foldMap), as the web counts it.
      */
     static List<AlbumID3> groupAlbums(List<Download> downloads) {
-        LinkedHashMap<String, AlbumID3> byAlbum = new LinkedHashMap<>();
-        LinkedHashMap<String, List<Download>> songsByAlbum = new LinkedHashMap<>();
+        java.util.Map<String, String> fold = CassetteRecords.foldMap(downloads);
+        LinkedHashMap<String, List<Download>> songsByRecord = new LinkedHashMap<>();
 
         for (Download track : downloads) {
-            String albumId = track.getAlbumId();
-            if (albumId == null) continue;
-
-            AlbumID3 album = byAlbum.get(albumId);
-            if (album == null) {
-                album = new AlbumID3();
-                album.setId(albumId);
-                album.setName(track.getAlbum());
-                album.setCoverArtId(track.getCoverArtId());
-                if (track.getYear() != null) album.setYear(track.getYear());
-                album.setGenre(track.getGenre());
-                album.setSongCount(0);
-                byAlbum.put(albumId, album);
-                songsByAlbum.put(albumId, new ArrayList<>());
-            }
-            songsByAlbum.get(albumId).add(track);
-            album.setSongCount(album.getSongCount() + 1);
-            // cassette: an album was added when its newest song was (BUG-944).
-            if (track.getCreated() != null
-                    && (album.getCreated() == null || track.getCreated().after(album.getCreated()))) {
-                album.setCreated(track.getCreated());
-            }
+            String recordId = CassetteRecords.recordId(fold, track.getAlbumId());
+            if (recordId == null) continue;
+            List<Download> songs = songsByRecord.get(recordId);
+            if (songs == null) songsByRecord.put(recordId, songs = new ArrayList<>());
+            songs.add(track);
         }
 
-        for (AlbumID3 album : byAlbum.values()) {
-            List<Download> songs = songsByAlbum.get(album.getId());
-            List<String> names = new ArrayList<>();
+        List<AlbumID3> result = new ArrayList<>();
+        for (java.util.Map.Entry<String, List<Download>> entry : songsByRecord.entrySet()) {
+            String recordId = entry.getKey();
+            List<Download> songs = entry.getValue();
+            // the record looks like the song its own id came from, not like a song folded into it
+            Download lead = CassetteRecords.lead(songs, recordId);
+
+            AlbumID3 album = new AlbumID3();
+            album.setId(recordId);
+            album.setName(lead.getAlbum());
+            album.setCoverArtId(lead.getCoverArtId());
+            if (lead.getYear() != null) album.setYear(lead.getYear());
+            album.setGenre(lead.getGenre());
+            album.setSongCount(songs.size());
             for (Download song : songs) {
-                if (song.getArtist() != null) names.add(CassetteAlbumGroupKey.stripFeatured(song.getArtist()));
+                // cassette: an album was added when its newest song was (BUG-944).
+                if (song.getCreated() != null
+                        && (album.getCreated() == null || song.getCreated().after(album.getCreated()))) {
+                    album.setCreated(song.getCreated());
+                }
             }
-            String artist = CassetteAlbumGroupKey.effectiveAlbumArtist(names);
+
+            String artist = CassetteRecords.albumArtist(songs);
             if (artist.isEmpty()) {
                 // no names at all: keep what the first song says, as before
                 album.setArtist(songs.get(0).getArtist());
                 album.setArtistId(songs.get(0).getArtistId());
-                continue;
+            } else {
+                album.setArtist(artist);
+                album.setArtistId(VARIOUS_ARTISTS.equalsIgnoreCase(artist) ? null : artistIdFor(artist, songs));
             }
-            album.setArtist(artist);
-            album.setArtistId(VARIOUS_ARTISTS.equalsIgnoreCase(artist) ? null : artistIdFor(artist, songs));
+            result.add(album);
         }
 
-        List<AlbumID3> result = new ArrayList<>(byAlbum.values());
         Collator collator = Collator.getInstance(Locale.getDefault());
         // cassette: filed the Library's way ("The Bends" with the B's, "#" first)
         result.sort((a, b) -> {
@@ -175,12 +183,28 @@ public final class CassetteOfflineLibrary {
 
     private static final String VARIOUS_ARTISTS = "Various Artists";
 
-    /** The artist id the album's own artist wears most often on its songs. */
+    /**
+     * The artist id the record's own artist wears most often on its songs. The record's artist can
+     * now come from the album-artist tag, spelled a little differently from the songs' artist
+     * names, so a match on the folded name counts too; and a record whose songs all carry one
+     * artist id belongs to that artist whatever the tag says. Else nobody: not someone to go to.
+     */
     private static String artistIdFor(String albumArtist, List<Download> songs) {
+        String best = mostCommonArtistId(songs, albumArtist, false);
+        if (best == null) best = mostCommonArtistId(songs, albumArtist, true);
+        if (best != null) return best;
+        java.util.Set<String> ids = new HashSet<>();
+        for (Download song : songs) if (song.getArtistId() != null) ids.add(song.getArtistId());
+        return ids.size() == 1 ? ids.iterator().next() : null;
+    }
+
+    private static String mostCommonArtistId(List<Download> songs, String albumArtist, boolean folded) {
+        String want = folded ? CassetteAlbumGroupKey.normalizeArtist(albumArtist) : albumArtist;
         LinkedHashMap<String, Integer> counts = new LinkedHashMap<>();
         for (Download song : songs) {
             if (song.getArtist() == null || song.getArtistId() == null) continue;
-            if (!albumArtist.equals(CassetteAlbumGroupKey.stripFeatured(song.getArtist()))) continue;
+            String name = CassetteAlbumGroupKey.stripFeatured(song.getArtist());
+            if (!want.equals(folded ? CassetteAlbumGroupKey.normalizeArtist(name) : name)) continue;
             Integer n = counts.get(song.getArtistId());
             counts.put(song.getArtistId(), n == null ? 1 : n + 1);
         }

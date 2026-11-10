@@ -14,12 +14,15 @@
 //    - apps/cassette/src/lib/dashboard/library-group-keys.ts
 //  (the same cross-language discipline as CassetteLocalId).
 //
-//  Known divergence: the phone does not persist an album_artist tag, so
-//  effectiveAlbumArtist here only runs the web's "no consistent inherited
-//  album_artist" branch (dominant track artist, else "Various Artists"). Albums
-//  the hub tagged with an explicit, differing album_artist won't match the
-//  manifest key; those fall back to a fetch-once cover with no fingerprint
-//  tracking — acceptable, and uncommon.
+//  The phone keeps each download's album-artist tag since BUG-970 (the hub's
+//  displayAlbumArtist, Download.albumArtist), so the two-argument
+//  effectiveAlbumArtist below runs the web's whole rule: the tag when every
+//  song agrees, else the dominant track artist, else "Various Artists". A row
+//  downloaded before that carries no tag until the sync fills it in, and the
+//  one-argument form (the tagless branch) stands in for it meanwhile. The
+//  artwork-manifest key (keyFromTracks) still reads track artists only: a record
+//  the hub tagged with an explicit, differing album_artist won't match it and
+//  falls back to a fetch-once cover with no fingerprint tracking.
 //
 
 package com.cappielloantonio.tempo.util
@@ -98,6 +101,20 @@ object CassetteAlbumGroupKey {
         val ranked = counts.entries.sortedByDescending { it.value }
         if (ranked.size == 1) return ranked[0].key
         return if (ranked[0].value > ranked[1].value) ranked[0].key else VARIOUS_ARTISTS
+    }
+
+    /** The web's whole rule (library-group-keys.ts effectiveAlbumArtist): the album-artist
+     *  tag when the songs that carry one all say the same thing, else the one-argument
+     *  rule over the track artists. A blank or missing tag says nothing. */
+    @JvmStatic
+    fun effectiveAlbumArtist(trackArtists: List<String>, albumArtistTags: List<String?>): String {
+        val tags = LinkedHashSet<String>()
+        for (raw in albumArtistTags) {
+            val tag = raw?.trim()
+            if (!tag.isNullOrEmpty()) tags.add(tag)
+        }
+        if (tags.size == 1) return tags.first()
+        return effectiveAlbumArtist(trackArtists)
     }
 
     /** Group key for a manifest album, whose artist_name is ALREADY the server's

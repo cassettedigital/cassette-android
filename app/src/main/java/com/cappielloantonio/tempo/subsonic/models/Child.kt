@@ -90,4 +90,12 @@ open class Child(
     @IgnoredOnParcel
     @Ignore
     var musicBrainzId: String? = null
+
+    // cassette (BUG-970): the album-artist tag OpenSubsonic sends on a song
+    // (displayAlbumArtist), in memory only like musicBrainzId; Download keeps its
+    // own persisted `album_artist` column. It lets a record the computer tags
+    // "Various Artists" stay that on the phone instead of wearing its top singer.
+    @IgnoredOnParcel
+    @Ignore
+    var displayAlbumArtist: String? = null
 }
