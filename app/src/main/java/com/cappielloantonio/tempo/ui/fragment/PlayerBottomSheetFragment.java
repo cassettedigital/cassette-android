@@ -267,6 +267,18 @@ public class PlayerBottomSheetFragment extends Fragment {
         bind.playerBodyLayout.playerBodyBottomSheetViewPager.setCurrentItem(1, true);
     }
 
+    /**
+     * cassette: Back on the queue returns to the player, one step, as the iPhone's queue does;
+     * it used to close the whole player. True when it handled Back.
+     */
+    public boolean backFromQueue() {
+        if (bind == null) return false;
+        ViewPager2 pager = bind.playerBodyLayout.playerBodyBottomSheetViewPager;
+        if (pager.getCurrentItem() == 0) return false;
+        pager.setCurrentItem(0, true);
+        return true;
+    }
+
     public void setPlayerControllerVerticalPagerDraggableState(Boolean isDraggable) {
         ViewPager2 playerControllerVerticalPager = (ViewPager2) bind.playerBodyLayout.playerBodyBottomSheetViewPager;
         playerControllerVerticalPager.setUserInputEnabled(isDraggable);

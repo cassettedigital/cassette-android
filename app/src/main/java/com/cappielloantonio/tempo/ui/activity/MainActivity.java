@@ -155,9 +155,12 @@ public class MainActivity extends BaseActivity {
 
     @Override
     public void onBackPressed() {
-        if (bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED)
+        if (bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
+            // cassette: on the queue, Back goes to the player first; on the player, it closes it
+            PlayerBottomSheetFragment player = (PlayerBottomSheetFragment) getSupportFragmentManager().findFragmentByTag("PlayerBottomSheet");
+            if (player != null && player.backFromQueue()) return;
             collapseBottomSheetDelayed();
-        else
+        } else
             super.onBackPressed();
     }
 
