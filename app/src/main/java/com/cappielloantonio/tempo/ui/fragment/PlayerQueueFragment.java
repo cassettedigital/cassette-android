@@ -43,6 +43,11 @@ public class PlayerQueueFragment extends Fragment implements ClickCallback {
 
     private PlayerSongQueueAdapter playerSongQueueAdapter;
 
+    // cassette (BUG-980): the saved queue stays in its table while a station plays; UP NEXT lists it only while songs do
+    private java.util.List<Child> savedQueue = new ArrayList<>();
+    private boolean stationLive = false;
+    private MediaBrowser queueBrowser;
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         bind = InnerFragmentPlayerQueueBinding.inflate(inflater, container, false);
@@ -86,6 +91,7 @@ public class PlayerQueueFragment extends Fragment implements ClickCallback {
     }
 
     private void releaseBrowser() {
+        queueBrowser = null;
         MediaBrowser.releaseFuture(mediaBrowserListenableFuture);
     }
 
@@ -112,7 +118,8 @@ public class PlayerQueueFragment extends Fragment implements ClickCallback {
         bind.playerQueueRecyclerView.setAdapter(playerSongQueueAdapter);
         playerBottomSheetViewModel.getQueueSong().observe(getViewLifecycleOwner(), queue -> {
             if (queue != null) {
-                playerSongQueueAdapter.setItems(queue.stream().map(item -> (Child) item).collect(Collectors.toList()));
+                savedQueue = queue.stream().map(item -> (Child) item).collect(Collectors.toList());
+                showQueue();
             }
         });
 
@@ -174,6 +181,7 @@ public class PlayerQueueFragment extends Fragment implements ClickCallback {
      * it, ink when off and orange while on (live state).
      */
     private void initQueueHead(MediaBrowser mediaBrowser) {
+        queueBrowser = mediaBrowser;
         bind.queueShuffle.setOnClickListener(v -> mediaBrowser.setShuffleModeEnabled(!mediaBrowser.getShuffleModeEnabled()));
         bind.queueKeepPlaying.setOnClickListener(v -> {
             // repeat wins: pressing keep playing while repeat is on turns repeat off
@@ -208,18 +216,49 @@ public class PlayerQueueFragment extends Fragment implements ClickCallback {
 
             @Override
             public void onMediaItemTransition(@androidx.annotation.Nullable androidx.media3.common.MediaItem item, int reason) {
+                setStationLive(isStation(item));
                 paintHead(mediaBrowser);
                 playerSongQueueAdapter.notifyDataSetChanged();
             }
+
+            @Override
+            public void onTimelineChanged(@NonNull androidx.media3.common.Timeline timeline, int reason) {
+                setStationLive(isStation(mediaBrowser.getCurrentMediaItem()));
+            }
         });
         com.cappielloantonio.tempo.util.CoverTint.nowPlaying().observe(getViewLifecycleOwner(), t -> paintHead(mediaBrowser));
+        setStationLive(isStation(mediaBrowser.getCurrentMediaItem()));
         paintHead(mediaBrowser);
+    }
+
+    private static boolean isStation(@androidx.annotation.Nullable androidx.media3.common.MediaItem item) {
+        android.os.Bundle extras = item != null ? item.mediaMetadata.extras : null;
+        return com.cappielloantonio.tempo.util.CassetteUpNext.isStation(extras != null ? extras.getString("type") : null);
+    }
+
+    private void setStationLive(boolean live) {
+        if (stationLive == live) return;
+        stationLive = live;
+        showQueue();
+    }
+
+    /** UP NEXT as it reads now: the kept songs while songs play, one line while a station is live. */
+    private void showQueue() {
+        if (bind == null) return;
+        playerSongQueueAdapter.setItems(com.cappielloantonio.tempo.util.CassetteUpNext.rows(savedQueue, stationLive));
+        int head = stationLive ? View.GONE : View.VISIBLE;
+        bind.queueShuffle.setVisibility(head);
+        bind.queueRepeat.setVisibility(head);
+        bind.queueKeepPlaying.setVisibility(head);
+        bind.queueStationLine.setVisibility(stationLive ? View.VISIBLE : View.GONE);
+        paintThen();
+        if (queueBrowser != null) paintHead(queueBrowser);
     }
 
     private void paintThen() {
         if (bind == null) return;
         com.cappielloantonio.tempo.util.CassetteKeepPlaying.Pick p = com.cappielloantonio.tempo.util.CassetteKeepPlaying.pick().getValue();
-        boolean show = p != null && com.cappielloantonio.tempo.util.CassetteKeepPlaying.isOn();
+        boolean show = p != null && com.cappielloantonio.tempo.util.CassetteKeepPlaying.isOn() && !stationLive;
         bind.queueThen.setVisibility(show ? View.VISIBLE : View.GONE);
         bind.queueThenCard.setVisibility(show ? View.VISIBLE : View.GONE);
         if (!show) return;

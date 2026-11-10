@@ -565,6 +565,7 @@
     <string name="cassette_next">Next</string>
     <string name="cassette_back_15">Back 15 seconds</string>
     <string name="cassette_up_next">Up Next</string>
+    <string name="cassette_up_next_station">A live station has nothing next.</string>
     <string name="cassette_repeat">Repeat</string>
     <string name="cassette_search_title">Search</string>
     <string name="cassette_search_hint">Search your music</string>
