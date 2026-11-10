@@ -23,63 +23,78 @@ object CassetteSearch {
         val isEmpty get() = songs.isEmpty() && albums.isEmpty() && artists.isEmpty()
     }
 
-    @Volatile
-    private var library: List<Download>? = null
-
-    /** The phone's records by id, each under its own artist (the Library's grouping, BUG-581). */
-    @Volatile
-    private var records: Map<String, AlbumID3>? = null
-
-    /** Read the phone's songs once per Search visit (off the main thread). */
-    @JvmStatic
-    fun warm() {
-        val all = AppDatabase.getInstance().downloadDao().getAllDownloadedSync()
-        library = all
-        records = recordsOf(all)
+    /** A song with its words folded once, so a keystroke only compares. */
+    private class Entry(val song: Download) {
+        val title = fold(song.title)
+        val artist = fold(song.artist)
+        val album = fold(song.album)
     }
 
-    private fun recordsOf(all: List<Download>): Map<String, AlbumID3> =
-        CassetteOfflineLibrary.groupAlbums(all).filter { it.id != null }.associateBy { it.id!! }
+    /** One Search visit's copy of the phone: its songs, folded, and its records by id. */
+    private class Index(val entries: List<Entry>, val records: Map<String, AlbumID3>)
+
+    @Volatile
+    private var index: Index? = null
+
+    /**
+     * Read the phone's songs once per Search visit (off the main thread): SearchFragment calls this
+     * as Search opens, so songs synced since the last visit are found, and no keystroke pays for the
+     * read or the folding (each keystroke used to fold every song's words again, ~4 s on a Pixel 8
+     * with 2,000 songs).
+     */
+    @JvmStatic
+    fun warm() {
+        index = indexOf(AppDatabase.getInstance().downloadDao().getAllDownloadedSync())
+    }
+
+    private fun indexOf(all: List<Download>): Index = Index(
+        all.map { Entry(it) },
+        // The phone's records by id, each under its own artist (the Library's grouping, BUG-581).
+        CassetteOfflineLibrary.groupAlbums(all).filter { it.id != null }.associateBy { it.id!! },
+    )
+
+    private val MARKS = Regex("\\p{M}+")
 
     @JvmStatic
     fun fold(s: String?): String = s?.let {
-        Normalizer.normalize(it, Normalizer.Form.NFD).replace(Regex("\\p{M}+"), "").lowercase(Locale.ROOT).trim()
+        MARKS.replace(Normalizer.normalize(it, Normalizer.Form.NFD), "").lowercase(Locale.ROOT).trim()
     } ?: ""
 
-    private fun rank(name: String?, q: String): Int {
-        val n = fold(name)
-        return when {
-            n.startsWith(q) -> 0
-            n.split(' ').any { it.startsWith(q) } -> 1
-            n.contains(q) -> 2
-            else -> 3
-        }
+    /** How well an already-folded name answers: starts with it, a word starts with it, holds it. */
+    private fun rankFolded(n: String, q: String): Int = when {
+        n.startsWith(q) -> 0
+        n.split(' ').any { it.startsWith(q) } -> 1
+        n.contains(q) -> 2
+        else -> 3
     }
+
+    private fun rank(name: String?, q: String): Int = rankFolded(fold(name), q)
 
     @JvmStatic
     fun search(query: String): Results {
         val q = fold(query)
-        val all = library ?: AppDatabase.getInstance().downloadDao().getAllDownloadedSync().also { library = it }
         if (q.isEmpty()) return Results(emptyList(), emptyList(), emptyList())
-        val byId = records ?: recordsOf(all).also { records = it }
+        val idx = index ?: indexOf(AppDatabase.getInstance().downloadDao().getAllDownloadedSync()).also { index = it }
 
-        val songs = all.filter { d ->
-            fold(d.title).contains(q) || fold(d.artist).contains(q) || fold(d.album).contains(q)
-        }.sortedWith(compareBy<Download>({ rank(it.title, q) }, { rank(it.artist, q) }, { fold(it.title) }))
+        val songs = idx.entries.filter { e ->
+            e.title.contains(q) || e.artist.contains(q) || e.album.contains(q)
+        }.sortedWith(compareBy<Entry>({ rankFolded(it.title, q) }, { rankFolded(it.artist, q) }, { it.title }))
+            .map { it.song }
 
         val albums = LinkedHashMap<String, AlbumID3>()
         val artists = LinkedHashMap<String, ArtistID3>()
-        for (d in all) {
+        for (e in idx.entries) {
+            val d = e.song
             val albumId = d.albumId
-            if (albumId != null && !albums.containsKey(albumId) && (fold(d.album).contains(q) || fold(d.artist).contains(q))) {
+            if (albumId != null && !albums.containsKey(albumId) && (e.album.contains(q) || e.artist.contains(q))) {
                 // the record as the Library shows it: a soundtrack under its own artist, not a singer on it
-                albums[albumId] = byId[albumId] ?: AlbumID3().apply {
+                albums[albumId] = idx.records[albumId] ?: AlbumID3().apply {
                     id = albumId; name = d.album; artist = d.artist; artistId = d.artistId
                     coverArtId = d.coverArtId; year = d.year ?: 0
                 }
             }
             val artistId = d.artistId
-            if (artistId != null && !artists.containsKey(artistId) && fold(d.artist).contains(q)) {
+            if (artistId != null && !artists.containsKey(artistId) && e.artist.contains(q)) {
                 artists[artistId] = ArtistID3().apply { id = artistId; name = d.artist; coverArtId = "ar-$artistId" }
             }
         }

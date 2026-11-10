@@ -48,16 +48,32 @@ object CassetteRadio {
 
         /** "kexp.org", for the menu's "Go to …". */
         fun site(): String? = homepage?.let { runCatching { java.net.URI(it).host?.removePrefix("www.") }.getOrNull() }
+
+        /** Search's folded words, worked out once per station rather than on every keystroke. */
+        internal val foldedName: String by lazy { CassetteSearch.fold(name) }
+        internal val foldedKeywords: List<String> by lazy { keywords.map { CassetteSearch.fold(it) } }
     }
+
+    /** The parsed dial and which copy it came from (the cloud's file's time, or 0 for the bundled one). */
+    private class Parsed(val source: Long, val stations: List<Station>)
+
+    @Volatile private var parsed: Parsed? = null
 
     @Volatile private var refreshed = false
 
-    /** The dial, in the registry's section order. Reads the cloud's copy when held, else the bundled one. */
+    /**
+     * The dial, in the registry's section order. Reads the cloud's copy when held, else the bundled one.
+     * Parsed once and kept until the cloud's copy changes: Search asks on every keystroke and the car
+     * on every station, and the file is 165 KB.
+     */
     @JvmStatic
     fun stations(context: Context): List<Station> {
-        val json = runCatching { File(context.filesDir, CACHE).takeIf { it.exists() }?.readText() }.getOrNull()
+        val file = File(context.filesDir, CACHE)
+        val source = runCatching { if (file.exists()) file.lastModified() else 0L }.getOrDefault(0L)
+        parsed?.takeIf { it.source == source }?.let { return it.stations }
+        val json = (if (source != 0L) runCatching { file.readText() }.getOrNull() else null)
             ?: context.assets.open("radio-catalog.json").bufferedReader().use { it.readText() }
-        return parse(json)
+        return parse(json).also { parsed = Parsed(source, it) }
     }
 
     /** Once a launch: the cloud's registry (public, no sign-in), kept for next time. */
@@ -105,11 +121,11 @@ object CassetteRadio {
         val q = CassetteSearch.fold(query)
         if (q.isEmpty()) return emptyList()
         return stations(context).map { s ->
-            val name = CassetteSearch.fold(s.name)
+            val name = s.foldedName
             val rank = when {
                 name.startsWith(q) -> 0
                 name.contains(q) -> 1
-                s.keywords.any { CassetteSearch.fold(it).contains(q) } -> 2
+                s.foldedKeywords.any { it.contains(q) } -> 2
                 else -> 3
             }
             rank to s

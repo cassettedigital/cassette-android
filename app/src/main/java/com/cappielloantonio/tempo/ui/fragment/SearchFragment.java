@@ -58,7 +58,8 @@ public class SearchFragment extends Fragment implements ClickCallback {
 
     private final android.os.Handler main = new android.os.Handler(android.os.Looper.getMainLooper());
     private final java.util.concurrent.ExecutorService worker = java.util.concurrent.Executors.newSingleThreadExecutor();
-    private int generation = 0;
+    // read on the worker to skip keystrokes already typed past
+    private volatile int generation = 0;
 
     private ListenableFuture<MediaBrowser> mediaBrowserListenableFuture;
 
@@ -87,6 +88,13 @@ public class SearchFragment extends Fragment implements ClickCallback {
     public void onStart() {
         super.onStart();
         initializeMediaBrowser();
+        // cassette: read the phone's songs and the dial once per visit, before the first
+        // keystroke, so songs synced since the last visit are found and typing only compares.
+        final android.content.Context app = requireContext().getApplicationContext();
+        worker.execute(() -> {
+            com.cappielloantonio.tempo.util.CassetteSearch.warm();
+            com.cappielloantonio.tempo.util.CassetteRadio.stations(app);
+        });
     }
 
     @Override
@@ -242,6 +250,8 @@ public class SearchFragment extends Fragment implements ClickCallback {
         }
         bind.searchStart.setVisibility(View.GONE);
         worker.execute(() -> {
+            // a newer keystroke is already queued: skip this one rather than search for it
+            if (ticket != generation) return;
             com.cappielloantonio.tempo.util.CassetteSearch.Results results = com.cappielloantonio.tempo.util.CassetteSearch.search(query);
             java.util.List<com.cappielloantonio.tempo.util.CassetteRadio.Station> stations =
                     com.cappielloantonio.tempo.util.CassetteRadio.search(activity.getApplicationContext(), query);
