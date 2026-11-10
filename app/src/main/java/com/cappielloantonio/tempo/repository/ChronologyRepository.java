@@ -12,10 +12,6 @@ import java.util.List;
 public class ChronologyRepository {
     private final ChronologyDao chronologyDao = AppDatabase.getInstance().chronologyDao();
 
-    public LiveData<List<Chronology>> getChronology(String server, long start, long end) {
-        return chronologyDao.getAllFrom(start, end, server);
-    }
-
     /** cassette: most recent plays, newest first (Resume card). */
     public LiveData<List<Chronology>> getLastPlayed(String server, int count) {
         return chronologyDao.getLastPlayed(server, count);

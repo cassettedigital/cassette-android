@@ -15,8 +15,9 @@ public interface ChronologyDao {
     @Query("SELECT * FROM chronology WHERE server == :server GROUP BY id ORDER BY timestamp DESC LIMIT :count")
     LiveData<List<Chronology>> getLastPlayed(String server, int count);
 
-    @Query("SELECT * FROM chronology WHERE timestamp >= :endDate AND timestamp < :startDate AND server == :server GROUP BY id ORDER BY COUNT(id) DESC LIMIT 20")
-    LiveData<List<Chronology>> getAllFrom(long startDate, long endDate, String server);
+    // cassette (BUG-83): the old "most played this week" query is gone. It ranked by COUNT(id)
+    // over a table keyed by the song, so every count was one and the order meant nothing, and
+    // no screen used it after One Home. Play counts live in the cloud's play history.
 
     /**
      * cassette: album ids in order of most recently played, derived from the
