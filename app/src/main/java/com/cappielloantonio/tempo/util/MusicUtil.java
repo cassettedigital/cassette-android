@@ -135,7 +135,8 @@ public class MusicUtil {
      * (SubsonicServerApi.generateUrl(forDownloadingPlayableId)); the stock
      * Tempo transcoded-download path differs by forcing a bitrate cap.
      */
-    public static Uri getCassetteTranscodedDownloadUri(String id) {
+    /** cassette: an MP3 at the account tier's ceiling (CassetteDownloadTier, BUG-529). */
+    public static Uri getCassetteTranscodedDownloadUri(String id, int maxBitRateKbps) {
         Map<String, String> params = App.getSubsonicClientInstance(false).getParams();
 
         StringBuilder uri = new StringBuilder();
@@ -157,6 +158,7 @@ public class MusicUtil {
             uri.append("&c=").append(params.get("c"));
 
         uri.append("&format=mp3");
+        uri.append("&maxBitRate=").append(maxBitRateKbps);
         uri.append("&id=").append(id);
 
         Log.d(TAG, "getCassetteTranscodedDownloadUri: " + uri);

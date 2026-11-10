@@ -165,14 +165,16 @@ public class MappingUtil {
     /**
      * cassette: paired phones follow the ACCOUNT download tier (set on the web
      * Devices page, read from /api/sync/account) — lossless pulls the original
-     * bytes, anything else the hub's mp3 transcode, exactly like iOS. The
-     * manual-server dev door keeps Tempo's stock download preferences.
+     * bytes, High an MP3 at 256 and Efficient an MP3 at 128 (BUG-529: both used
+     * to fetch the same MP3). The manual-server dev door keeps Tempo's stock
+     * download preferences.
      */
     private static Uri downloadUriFor(String id) {
         if (Preferences.getCassetteBearerToken() != null) {
-            return "lossless".equals(Preferences.getCassetteDownloadQuality())
+            String tier = Preferences.getCassetteDownloadQuality();
+            return CassetteDownloadTier.isOriginal(tier)
                     ? MusicUtil.getDownloadUri(id)
-                    : MusicUtil.getCassetteTranscodedDownloadUri(id);
+                    : MusicUtil.getCassetteTranscodedDownloadUri(id, CassetteDownloadTier.maxBitRate(tier));
         }
 
         return Preferences.preferTranscodedDownload()
