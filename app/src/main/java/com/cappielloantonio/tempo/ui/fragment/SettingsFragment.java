@@ -304,7 +304,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     }
 
     private void setVersion() {
-        findPreference("version").setSummary(BuildConfig.VERSION_NAME);
+        // BUG-311: the version moves with every build; the commit says which one
+        findPreference("version").setSummary(BuildConfig.VERSION_NAME + " (" + BuildConfig.GIT_SHA + ")");
     }
 
     // cassette: the download tier is account-sourced; show it read-only under

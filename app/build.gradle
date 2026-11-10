@@ -2,6 +2,23 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-parcelize'
 
+// cassette (BUG-311): read this repo's git once at configuration. Outside a git checkout
+// (a source archive) the build still works: version 1, sha "unknown".
+def cassetteGit = { List<String> args ->
+    try {
+        return providers.exec {
+            commandLine(['git', '-C', rootDir.absolutePath] + args)
+            ignoreExitValue = true
+        }.standardOutput.asText.get().trim()
+    } catch (Throwable ignored) {
+        return ''
+    }
+}
+def cassetteCountText = cassetteGit(['rev-list', '--count', 'HEAD'])
+def cassetteCommitCount = cassetteCountText.isInteger() ? cassetteCountText.toInteger() : 1
+def cassetteShaText = cassetteGit(['rev-parse', '--short=8', 'HEAD'])
+def cassetteGitSha = (cassetteShaText ?: 'unknown') + (cassetteGit(['status', '--porcelain', '--untracked-files=no']) ? '-dirty' : '')
+
 android {
     compileSdk 35
     buildToolsVersion = '35.0.0'
@@ -18,9 +35,13 @@ android {
         minSdkVersion 24
         targetSdk 35
 
-        // Cassette versioning (reset from upstream Tempo 3.9.0/26 at fork point 9cf62c8)
-        versionCode 1
-        versionName '0.1.0'
+        // Cassette versioning (reset from upstream Tempo 3.9.0/26 at fork point 9cf62c8).
+        // BUG-311: the version moves with every commit, so a crash report names its build.
+        // versionCode = commits on this repo's main (always grows, so `install -r` upgrades);
+        // versionName = 0.1.<that count>; GIT_SHA = the commit, "-dirty" for uncommitted work.
+        versionCode cassetteCommitCount
+        versionName "0.1.${cassetteCommitCount}"
+        buildConfigField "String", "GIT_SHA", "\"${cassetteGitSha}\""
 
         // cassette: streaming (Server Mode playback of non-downloaded tracks) is
         // hidden + disabled in shipped builds until this flips true. Flipped in

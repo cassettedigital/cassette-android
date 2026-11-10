@@ -225,7 +225,8 @@ public final class CassetteDiagnostics {
         body.addProperty("report_type", reportType);
         body.addProperty("platform", "android");
         body.addProperty("app_version", BuildConfig.VERSION_NAME);
-        body.addProperty("app_build", String.valueOf(BuildConfig.VERSION_CODE));
+        // BUG-311: the build and its commit, so a crash names the exact build it came from
+        body.addProperty("app_build", BuildConfig.VERSION_CODE + "-" + BuildConfig.GIT_SHA);
         body.addProperty("os_name", "Android");
         body.addProperty("os_version", Build.VERSION.RELEASE != null ? Build.VERSION.RELEASE : "");
         body.addProperty("device_model", Build.MODEL != null ? Build.MODEL : "Android");
