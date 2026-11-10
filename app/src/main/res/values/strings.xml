@@ -590,6 +590,8 @@
     <string name="cassette_this_phone">This phone</string>
     <string name="cassette_on_this_phone">On this phone</string>
     <string name="cassette_syncs">Syncs</string>
+    <string name="cassette_sync_paused_title">Sync paused</string>
+    <string name="cassette_sync_paused_text">Open Cassette to finish bringing your music over.</string>
     <string name="cassette_syncs_everything">Everything</string>
     <string name="cassette_syncs_selective">Selective</string>
     <string name="cassette_last_synced">Last synced</string>

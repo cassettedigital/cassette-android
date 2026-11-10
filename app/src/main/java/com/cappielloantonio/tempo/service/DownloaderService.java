@@ -45,6 +45,57 @@ public class DownloaderService extends androidx.media3.exoplayer.offline.Downloa
         return new PlatformScheduler(this, JOB_ID);
     }
 
+    /** The "Sync paused" notice, apart from the progress one so stopping the service can't take it away. */
+    private static final int PAUSED_NOTIFICATION_ID = FOREGROUND_NOTIFICATION_ID + 100;
+
+    /**
+     * cassette (BUG-79): Android 15 and up give a data-sync service 6 hours a day while the app is
+     * in the background. At the limit Android calls this and expects the service to stop within
+     * seconds; a service that doesn't (Media3 1.5.1 has no answer here) crashes the app, which is
+     * what a first sync of a big library would run into. So: pause the downloads (nothing keeps
+     * going without a notification), say so, and stop. Opening Cassette picks them up again: the
+     * sync check that runs while the app is open resumes the queue whenever there is room
+     * (CassetteSyncEngine's free-space floor), and Android resets the allowance when the app comes
+     * to the front. Opening it also clears the notice ({@link #clearPausedNotice}).
+     * Nothing already downloaded is touched: Media3 keeps every finished and partial download.
+     */
+    @Override
+    public void onTimeout(int startId, int fgsType) {
+        android.util.Log.w("DownloaderService", "the background download allowance is used up: pausing until Cassette is opened");
+        DownloadUtil.getDownloadManager(this).pauseDownloads();
+        showPausedNotice(this);
+        stopSelf();
+    }
+
+    private static void showPausedNotice(Context context) {
+        try {
+            android.content.Intent open = new android.content.Intent(context, com.cappielloantonio.tempo.ui.activity.MainActivity.class)
+                    .addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK | android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            android.app.PendingIntent tap = android.app.PendingIntent.getActivity(context, 0, open,
+                    android.app.PendingIntent.FLAG_IMMUTABLE | android.app.PendingIntent.FLAG_UPDATE_CURRENT);
+            Notification notice = new androidx.core.app.NotificationCompat.Builder(context, DownloadUtil.DOWNLOAD_NOTIFICATION_CHANNEL_ID)
+                    .setSmallIcon(R.drawable.ic_download)
+                    .setContentTitle(context.getString(R.string.cassette_sync_paused_title))
+                    .setContentText(context.getString(R.string.cassette_sync_paused_text))
+                    .setContentIntent(tap)
+                    .setAutoCancel(true)
+                    .build();
+            NotificationUtil.setNotification(context, PAUSED_NOTIFICATION_ID, notice);
+        } catch (RuntimeException e) {
+            // no notice (notifications off): the sync still resumes when Cassette is opened
+            android.util.Log.w("DownloaderService", "couldn't show the paused notice: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Opening Cassette clears the "Sync paused" notice (MainActivity.onResume). The queue itself is
+     * resumed by the sync check that runs then, which also keeps it paused while the phone is
+     * nearly full, so this never resumes it on its own.
+     */
+    public static void clearPausedNotice(Context context) {
+        NotificationUtil.setNotification(context, PAUSED_NOTIFICATION_ID, null);
+    }
+
     @NonNull
     @Override
     protected Notification getForegroundNotification(@NonNull List<Download> downloads, @Requirements.RequirementFlags int notMetRequirements) {
