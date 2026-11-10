@@ -2,6 +2,7 @@ package com.cappielloantonio.tempo.ui.adapter;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
@@ -40,10 +41,15 @@ public class InternetRadioStationAdapter extends RecyclerView.Adapter<InternetRa
         InternetRadioStation internetRadioStation = internetRadioStations.get(position);
 
         holder.item.internetRadioStationTitleTextView.setText(internetRadioStation.getName());
-        holder.item.internetRadioStationSubtitleTextView.setText(internetRadioStation.getStreamUrl());
+        // cassette: a station is its name and its picture, never its stream address (BUG-826).
+        // The stream used to be both the second line and the cover: Glide opened the audio
+        // stream as if it were a picture. Now the station's own picture, else the placeholder.
+        String label = internetRadioStation.getLabel();
+        holder.item.internetRadioStationSubtitleTextView.setText(label != null ? label : "");
+        holder.item.internetRadioStationSubtitleTextView.setVisibility(label != null && !label.isEmpty() ? View.VISIBLE : View.GONE);
 
         CustomGlideRequest.Builder
-                .from(holder.itemView.getContext(), internetRadioStation.getStreamUrl(), CustomGlideRequest.ResourceType.Radio)
+                .from(holder.itemView.getContext(), internetRadioStation.getImage(), CustomGlideRequest.ResourceType.Radio)
                 .build()
                 .into(holder.item.internetRadioStationCoverImageView);
     }

@@ -269,3 +269,9 @@ Samsung/Xiaomi/OnePlus hardware).
 - **BUG-964 (Search pictures)**: ON CASSETTE drew `/api/search`'s `coverArtUrl` as given, which for a record with no grid size is the archive's 500px copy, so the loader went to archive.org. The rows now draw only the answer's `image` (the image ladder, `{rung}` filled for a 48dp square at the screen's density, 240 on a Pixel 8); a hit with none shows the empty square. Needs the website's matching change live (it adds `image`); until then the rows show empty squares, which is why this build waits for it. `CassetteCatalogTest`.
 - **BUG-890 (crash-report switch)**: Settings > Send crash reports did nothing while signed out (automatic reports always went); it now governs them signed in or out, as the privacy page's phone section says. Signed in, the account's choice still overwrites it on each sync pass.
 - **BUG-886 (sync load)**: the 30-second check asks the cloud for only this phone's open requests (`?open=1&for_device=`) instead of the account's whole history (11,146 on the founder's account); the phone's own filter stays for an older website.
+
+### 2026-11-10 – Low-hanging bugs before launch
+
+**Type:** small Java/Kotlin and resource patches, one commit each, from the Admin board's Android cards.
+
+- **BUG-826 (a station row's picture)**: Tempo's station row (`InternetRadioStationAdapter`) handed the station's stream address to the picture loader as its cover and showed it as the second line, so the loader opened an audio stream as if it were a picture. The row now draws the station's own picture (`image`) or the empty square, and its label as the second line, never the address. The row sits on Tempo's old radio tab (`HomeTabRadioFragment`), which nothing opens since the Radio dial; fixed anyway so it can't come back broken.
