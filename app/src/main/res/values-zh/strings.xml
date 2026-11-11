@@ -246,7 +246,7 @@
     <string name="settings_download_storage_title">下载存储</string>
     <string name="settings_equalizer_summary">调整音频设置</string>
     <string name="settings_equalizer_title">均衡器</string>
-    <string name="settings_github_link">https://github.com/CappielloAntonio/tempo</string>
+    <string name="settings_github_link">https://github.com/cassettedigital/cassette-android</string>
     <string name="settings_github_summary">关注开发进展</string>
     <string name="settings_github_title">Github</string>
     <string name="settings_image_size">设置图像分辨率</string>

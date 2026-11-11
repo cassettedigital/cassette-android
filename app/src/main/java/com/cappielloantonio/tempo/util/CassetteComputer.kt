@@ -76,7 +76,7 @@ object CassetteComputer {
         }
     }
 
-    /** The computer's name from its address ("Michaels-MacBook-Pro.local" reads "Michaels MacBook Pro"). */
+    /** The computer's name from its address ("Studio-iMac.local" reads "Studio iMac"). */
     @JvmStatic
     fun name(): String {
         val host = summary?.hostname ?: hostOf(Preferences.getServer())

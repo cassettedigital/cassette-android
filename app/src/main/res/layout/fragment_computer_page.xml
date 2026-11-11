@@ -91,7 +91,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:maxLines="2"
-                    tools:text="Michaels MacBook Pro" />
+                    tools:text="Studio iMac" />
 
                 <TextView
                     android:id="@+id/computer_state"

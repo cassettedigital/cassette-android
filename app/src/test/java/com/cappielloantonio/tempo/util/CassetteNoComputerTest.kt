@@ -15,7 +15,7 @@ class CassetteNoComputerTest {
 
     @Test
     fun aRealComputerIsNotTheStandIn() {
-        assertFalse(Cassette.isNoComputer("http://michaels-MacBook-Pro.local:4533"))
+        assertFalse(Cassette.isNoComputer("http://Studio-iMac.local:4533"))
         assertFalse(Cassette.isNoComputer("http://192.168.1.20:4533"))
         assertFalse(Cassette.isNoComputer(null))
         assertFalse(Cassette.isNoComputer("not a url ::"))

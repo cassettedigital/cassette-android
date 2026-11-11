@@ -13,3 +13,15 @@
 .externalNativeBuild
 .cxx
 /.idea/
+
+# Cassette: the release key and its builds never go in the repo
+*.jks
+*.keystore
+*.apk
+*.aab
+.env*
+google-services.json
+
+# Cassette: the working notes are private (hosts, libraries and plans); this file is kept on the
+# working Mac, outside the public repo
+/FORK_NOTES.md

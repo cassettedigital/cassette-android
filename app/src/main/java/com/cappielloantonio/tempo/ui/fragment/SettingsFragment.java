@@ -349,12 +349,12 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             return true;
         });
         if (help != null) help.setOnPreferenceClickListener(p -> {
-            startActivity(new Intent(Intent.ACTION_VIEW, android.net.Uri.parse("https://cassette.digital/help/your-android")));
+            startActivity(new Intent(Intent.ACTION_VIEW, android.net.Uri.parse("https://www.cassette.digital/help/your-android")));
             return true;
         });
         Preference credit = findPreference("credit");
         if (credit != null) credit.setOnPreferenceClickListener(p -> {
-            startActivity(new Intent(Intent.ACTION_VIEW, android.net.Uri.parse("https://github.com/CappielloAntonio/tempo")));
+            startActivity(new Intent(Intent.ACTION_VIEW, android.net.Uri.parse("https://github.com/cassettedigital/cassette-android")));
             return true;
         });
         androidx.preference.SwitchPreferenceCompat crash = findPreference("cassette_diagnostics_consent");

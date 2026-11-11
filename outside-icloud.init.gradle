@@ -1,4 +1,4 @@
 // Build output outside iCloud Documents, which locks and duplicates files under app/build.
 allprojects {
-    layout.buildDirectory = new File("/Users/michael/.cache/cassette-android/out/" + project.name)
+    layout.buildDirectory = new File(System.getProperty("user.home") + "/.cache/cassette-android/out/" + project.name)
 }
