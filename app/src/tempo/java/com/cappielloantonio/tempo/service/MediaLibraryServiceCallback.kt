@@ -14,6 +14,7 @@ import androidx.media3.session.SessionCommand
 import androidx.media3.session.SessionResult
 import com.cappielloantonio.tempo.R
 import com.cappielloantonio.tempo.repository.AutomotiveRepository
+import com.cappielloantonio.tempo.util.CassetteCar
 import com.google.common.collect.ImmutableList
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
@@ -62,6 +63,28 @@ open class MediaLibrarySessionCallback(
             .setIconResId(icon).build()
     }
 
+    /**
+     * cassette: the car's menu on a cover that plays when tapped (Android Auto's custom browse
+     * actions): Open album / Open artist go to the page, so a tap can play and the page stays a
+     * step away. Shown where the car offers them.
+     */
+    val browseActions: List<CommandButton> = listOf(
+        Triple(CassetteCar.OPEN_ALBUM, "Open album", R.drawable.ic_lucide_disc),
+        Triple(CassetteCar.OPEN_ARTIST, "Open artist", R.drawable.ic_lucide_user),
+    ).map { (id, label, icon) ->
+        CommandButton.Builder()
+            .setDisplayName(label)
+            .setSessionCommand(SessionCommand(id, Bundle.EMPTY))
+            .setIconResId(icon)
+            .setIconUri(
+                android.net.Uri.Builder().scheme(android.content.ContentResolver.SCHEME_ANDROID_RESOURCE)
+                    .authority(context.resources.getResourcePackageName(icon))
+                    .appendPath(context.resources.getResourceTypeName(icon))
+                    .appendPath(context.resources.getResourceEntryName(icon)).build()
+            )
+            .build()
+    }
+
     @OptIn(UnstableApi::class)
     val mediaNotificationSessionCommands =
         MediaSession.ConnectionResult.DEFAULT_SESSION_AND_LIBRARY_COMMANDS.buildUpon()
@@ -70,6 +93,7 @@ open class MediaLibrarySessionCallback(
                     commandButton.sessionCommand?.let { builder.add(it) }
                 }
                 builder.add(SessionCommand(CUSTOM_COMMAND_REPEAT_NEXT, Bundle.EMPTY))
+                browseActions.forEach { button -> button.sessionCommand?.let { builder.add(it) } }
             }.build()
 
     /**
@@ -140,7 +164,14 @@ open class MediaLibrarySessionCallback(
                 .setCustomLayout(layoutFor(session, isCar(session, controller) || carHere(session))).build()
         }
 
-        return MediaSession.ConnectionResult.AcceptedResultBuilder(session).build()
+        // cassette: any other browser that draws the car's lists (a car's own media app, a test
+        // host) may use the Open album / Open artist actions too: they only move between pages
+        return MediaSession.ConnectionResult.AcceptedResultBuilder(session)
+            .setAvailableSessionCommands(
+                MediaSession.ConnectionResult.DEFAULT_SESSION_AND_LIBRARY_COMMANDS.buildUpon().also { builder ->
+                    browseActions.forEach { button -> button.sessionCommand?.let { builder.add(it) } }
+                }.build()
+            ).build()
     }
 
     @OptIn(UnstableApi::class)
@@ -159,6 +190,12 @@ open class MediaLibrarySessionCallback(
             session.player.shuffleModeEnabled = false
             refreshLayout(session)
             return Futures.immediateFuture(SessionResult(SessionResult.RESULT_SUCCESS))
+        } else if (CassetteCar.OPEN_ALBUM == customCommand.customAction || CassetteCar.OPEN_ARTIST == customCommand.customAction) {
+            // the car moves to the page (Android Auto reads the browse node from the result)
+            val page = CassetteCar.pageFor(args.getString(androidx.media3.session.MediaConstants.EXTRA_KEY_MEDIA_ID))
+                ?: return Futures.immediateFuture(SessionResult(SessionResult.RESULT_ERROR_BAD_VALUE))
+            val result = Bundle().apply { putString(RESULT_BROWSE_NODE, page) }
+            return Futures.immediateFuture(SessionResult(SessionResult.RESULT_SUCCESS, result))
         } else if (CUSTOM_COMMAND_REPEAT_NEXT == customCommand.customAction) {
             session.player.repeatMode = when (session.player.repeatMode) {
                 Player.REPEAT_MODE_OFF -> Player.REPEAT_MODE_ALL
@@ -183,6 +220,13 @@ open class MediaLibrarySessionCallback(
             .build()
         return Futures.immediateFuture(LibraryResult.ofItem(MediaBrowserTree.getRootItem(), root))
     }
+
+    // cassette: a page by its id, which the car asks for to follow a linked line on Now Playing
+    override fun onGetItem(
+        session: MediaLibraryService.MediaLibrarySession,
+        browser: MediaSession.ControllerInfo,
+        mediaId: String
+    ): ListenableFuture<LibraryResult<MediaItem>> = CassetteCar.itemFor(mediaId)
 
     override fun onGetChildren(
         session: MediaLibraryService.MediaLibrarySession,
@@ -236,5 +280,6 @@ open class MediaLibrarySessionCallback(
         private const val CUSTOM_COMMAND_TOGGLE_SHUFFLE_MODE_OFF =
             "android.media3.session.demo.SHUFFLE_OFF"
         private const val CUSTOM_COMMAND_REPEAT_NEXT = "digital.cassette.REPEAT_NEXT"
+        private const val RESULT_BROWSE_NODE = "androidx.media.utils.extras.KEY_CUSTOM_BROWSER_ACTION_RESULT_BROWSE_NODE"
     }
 }

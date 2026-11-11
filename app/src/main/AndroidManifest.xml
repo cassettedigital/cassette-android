@@ -23,6 +23,12 @@
         android:theme="@style/AppTheme.SplashScreen"
         android:usesCleartextTraffic="true">
 
+        <!-- cassette: the cassette mark the car shows beside Now Playing (Android Auto's attribution
+             icon). Tempo's was a sound-wave glyph (ic_graphic_eq). -->
+        <meta-data
+            android:name="androidx.car.app.TintableAttributionIcon"
+            android:resource="@drawable/ic_notification_cassette" />
+
         <!-- Declare that this session demo supports Android Auto. -->
         <meta-data
             android:name="com.google.android.gms.car.application"
@@ -31,10 +37,6 @@
         <meta-data
             android:name="com.google.android.gms.cast.framework.OPTIONS_PROVIDER_CLASS_NAME"
             android:value="androidx.media3.cast.DefaultCastOptionsProvider" />
-
-        <meta-data
-            android:name="androidx.car.app.TintableAttributionIcon"
-            android:resource="@drawable/ic_graphic_eq" />
 
         <!-- cassette: the launcher entry is SplashActivity, which plays the lockup
              reveal on an idle main thread (smooth), then hands off to MainActivity.

@@ -40,6 +40,8 @@ import java.util.concurrent.Executors
  * - A playlist: Shuffle, then its songs on this phone in order.
  * - Albums and Artists are A to Z; an artist's row is their photo when the phone has it, else
  *   their record's cover.
+ * - An album anywhere plays from the top when tapped (founder, 11-10); its page is reached from
+ *   its "Open album" action, or the album line on Now Playing, on cars that offer them.
  */
 @OptIn(UnstableApi::class)
 object CassetteCar {
@@ -143,7 +145,7 @@ object CassetteCar {
                 artwork = CassetteCarArt.web(p.coverImageUrl ?: p.derivedCoverUrl, p.name))
         }
         id == SHELVES -> shelves(app)
-        id.startsWith(SHELF) -> shelf(id.removePrefix(SHELF))
+        id.startsWith(SHELF) -> shelf(app, id.removePrefix(SHELF))
         id.startsWith(ALBUM) -> albumPage(repository, id.removePrefix(ALBUM))
         id.startsWith(ARTIST_SONGS) -> artistSongs(repository, id.removePrefix(ARTIST_SONGS))
         id.startsWith(ARTIST) -> artistPage(repository, id.removePrefix(ARTIST))
@@ -207,7 +209,7 @@ object CassetteCar {
                 val name = a.name ?: return@forEach
                 val key = artistKey(name)
                 out.add(playable(name, SHUFFLE + ARTIST + key, MediaMetadata.MEDIA_TYPE_ARTIST,
-                    artwork = artistArt(name, phone.albumsBy(key), a.id)))
+                    artwork = artistArt(name, phone.albumsBy(key), a.id), menu = listOf(OPEN_ARTIST)))
             }
         }
         row.stations.forEach { out.add(stationTile(it)) }
@@ -219,9 +221,9 @@ object CassetteCar {
         return out
     }
 
-    private fun albumTile(album: AlbumID3): MediaItem =
-        playable(album.name ?: "", PLAY + ALBUM + album.id, MediaMetadata.MEDIA_TYPE_ALBUM, album.artist,
-            CassetteCarArt.cover(album.coverArtId, album.name))
+    private fun albumTile(album: AlbumID3, subtitle: String? = album.artist): MediaItem =
+        playable(album.name ?: "", PLAY + ALBUM + album.id, MediaMetadata.MEDIA_TYPE_ALBUM, subtitle,
+            CassetteCarArt.cover(album.coverArtId, album.name), menu = listOf(OPEN_ALBUM))
 
     /** A made-for-you list: its drawn cover, else its first song's record, as the phone's tile. */
     private fun mixTile(mix: CassetteHome.DrawnMix): MediaItem =
@@ -265,8 +267,9 @@ object CassetteCar {
     }
 
     /** One shelf: its playlist first (plays), then its records (open). */
-    private fun shelf(id: String): List<MediaItem> {
-        val s = CassetteHome.shelf(id) ?: return emptyList()
+    private fun shelf(app: Context, id: String): List<MediaItem> {
+        // today's shelves are known once Home has been drawn in this run; draw it if not
+        val s = CassetteHome.shelf(id) ?: CassetteHome.shelvesNow(app).firstOrNull { it.id == id } ?: return emptyList()
         return listOfNotNull(s.mix?.let { mixTile(it) }) + s.albums.map { albumRow(it) }
     }
 
@@ -296,9 +299,16 @@ object CassetteCar {
 
     private fun artistPage(repository: AutomotiveRepository, key: String): List<MediaItem> {
         val phone = phone()
-        val albums = phone.albumsBy(key)
-        if (albums.isEmpty()) return emptyList()
         val held = AppDatabase.getInstance().downloadDao().getAllDownloadedSync()
+        // reached from a song's artist line (Now Playing): a singer filed on someone else's
+        // record still gets the records their songs are on
+        val albums = phone.albumsBy(key).ifEmpty {
+            val theirs = held.filter { artistKey(it.artist) == key }.mapNotNullTo(HashSet()) { it.albumId }
+            val fold = CassetteRecords.foldMap(held)
+            val records = theirs.mapNotNullTo(HashSet()) { CassetteRecords.recordId(fold, it) }
+            phone.albums.filter { it.id in records }
+        }
+        if (albums.isEmpty()) return emptyList()
         val songs = albums.flatMap { CassetteRecords.songsOf(held, it.id!!) }.filter { CassetteOnPhone.playable(it) }
         val out = ArrayList<MediaItem>()
         val n = albums.size
@@ -311,8 +321,7 @@ object CassetteCar {
         }
         // their albums as covers: a cover plays its album from the top
         albums.forEach { a ->
-            out.add(grouped(playable(a.name ?: "", PLAY + ALBUM + a.id, MediaMetadata.MEDIA_TYPE_ALBUM,
-                a.year.takeIf { it > 0 }?.toString(), CassetteCarArt.cover(a.coverArtId, a.name)), "Albums", single = GRID))
+            out.add(grouped(albumTile(a, a.year.takeIf { it > 0 }?.toString()), "Albums", single = GRID))
         }
         out.add(folder("All Songs", ARTIST_SONGS + key, artwork = CassetteCarArt.glyph("songs")))
         return out
@@ -444,16 +453,17 @@ object CassetteCar {
                subtitle: String? = null, artwork: Uri? = null, extras: Bundle? = null): MediaItem =
         item(title, id, type, subtitle, artwork, browsable = true, extras = extras)
 
-    /** Something the car plays at once. */
-    private fun playable(title: String, id: String, type: @MediaMetadata.MediaType Int, subtitle: String? = null, artwork: Uri? = null): MediaItem =
-        item(title, id, type, subtitle, artwork, browsable = false, extras = null)
+    /** Something the car plays at once; [menu] are its "Open album" / "Open artist" actions. */
+    private fun playable(title: String, id: String, type: @MediaMetadata.MediaType Int, subtitle: String? = null,
+                         artwork: Uri? = null, menu: List<String> = emptyList()): MediaItem =
+        item(title, id, type, subtitle, artwork, browsable = false, extras = null, menu = menu)
 
     /** Play / Shuffle / the like: a glyph and the words, played at once. */
     private fun action(title: String, id: String, glyph: String, subtitle: String? = null): MediaItem =
         playable(title, id, MediaMetadata.MEDIA_TYPE_PLAYLIST, subtitle, CassetteCarArt.glyph(glyph))
 
     private fun item(title: String, id: String, type: @MediaMetadata.MediaType Int, subtitle: String?, artwork: Uri?,
-                     browsable: Boolean, extras: Bundle?): MediaItem =
+                     browsable: Boolean, extras: Bundle?, menu: List<String> = emptyList()): MediaItem =
         MediaItem.Builder()
             .setMediaId(id)
             .setMediaMetadata(
@@ -467,15 +477,77 @@ object CassetteCar {
                     .setArtworkUri(artwork)
                     .setMediaType(type)
                     .setExtras(extras)
+                    .setSupportedCommands(menu)
                     .build()
             )
             .build()
 
-    /** An album's row: its cover, name and artist; it opens the album. */
+    /**
+     * An album's row: its cover, name and artist. A tap plays it from the top (founder, 11-10:
+     * tapping an album plays it); its page is one step away, from its "Open album" action or the
+     * album line on Now Playing, where the car offers them.
+     */
     private fun albumRow(album: AlbumID3, group: String? = null): MediaItem {
-        val row = folder(album.name ?: "", ALBUM + album.id, MediaMetadata.MEDIA_TYPE_ALBUM, album.artist,
-            CassetteCarArt.cover(album.coverArtId, album.name))
+        val row = albumTile(album)
         return if (group != null) grouped(row, group) else row
+    }
+
+    // ---- getting to a page from a tap that plays ----
+
+    /** The car's "Open album" action, on every album that plays when tapped. */
+    const val OPEN_ALBUM = "digital.cassette.car.OPEN_ALBUM"
+    /** The car's "Open artist" action, on Home's artists (which play shuffled when tapped). */
+    const val OPEN_ARTIST = "digital.cassette.car.OPEN_ARTIST"
+
+    /** The page an "Open album" / "Open artist" action on [mediaId] goes to, or null. */
+    @JvmStatic
+    fun pageFor(mediaId: String?): String? {
+        val list = mediaId?.removePrefix(PLAY)?.removePrefix(SHUFFLE) ?: return null
+        return if (list.startsWith(ALBUM) || list.startsWith(ARTIST)) list else null
+    }
+
+    private const val LINK_SUBTITLE = "androidx.car.app.mediaextensions.KEY_SUBTITLE_LINK_MEDIA_ID"
+    private const val LINK_DESCRIPTION = "androidx.car.app.mediaextensions.KEY_DESCRIPTION_LINK_MEDIA_ID"
+
+    /**
+     * A song the car starts, with its artist line linked to the artist's page and its album line
+     * to the album's page, for cars that let Now Playing's lines be tapped (Android's car
+     * extensions). The words shown don't change: the artist stays the second line.
+     */
+    @JvmStatic
+    fun linked(item: MediaItem): MediaItem {
+        val extras = item.mediaMetadata.extras ?: return item
+        if (extras.getString("type") != Constants.MEDIA_TYPE_MUSIC) return item
+        val albumId = extras.getString("albumId")
+        val artist = extras.getString("artist")
+        val out = Bundle(extras)
+        if (!artist.isNullOrBlank()) out.putString(LINK_SUBTITLE, ARTIST + artistKey(artist))
+        if (!albumId.isNullOrBlank()) out.putString(LINK_DESCRIPTION, ALBUM + albumId)
+        val m = item.mediaMetadata.buildUpon().setExtras(out)
+        if (!artist.isNullOrBlank()) m.setSubtitle(artist)
+        item.mediaMetadata.albumTitle?.let { m.setDescription(it) }
+        return item.buildUpon().setMediaMetadata(m.build()).build()
+    }
+
+    /** One of the car's pages by id, for a linked line on Now Playing (the car asks for it by id). */
+    @JvmStatic
+    fun itemFor(mediaId: String): ListenableFuture<LibraryResult<MediaItem>> = later {
+        val page: MediaItem? = when {
+            mediaId.startsWith(ALBUM) -> {
+                val songs = CassetteRecords.songsOf(mediaId.removePrefix(ALBUM))
+                songs.firstOrNull()?.let { lead ->
+                    folder(lead.album ?: "", mediaId, MediaMetadata.MEDIA_TYPE_ALBUM,
+                        CassetteRecords.albumArtist(songs).ifEmpty { lead.artist ?: "" }.ifEmpty { null },
+                        CassetteCarArt.cover(lead.coverArtId, lead.album))
+                }
+            }
+            mediaId.startsWith(ARTIST) -> {
+                val key = mediaId.removePrefix(ARTIST)
+                phone().artists.firstOrNull { it.first == key }?.let { (_, name) -> folder(name, mediaId, MediaMetadata.MEDIA_TYPE_ARTIST) }
+            }
+            else -> null
+        }
+        if (page != null) LibraryResult.ofItem(page, null) else LibraryResult.ofError(LibraryResult.RESULT_ERROR_BAD_VALUE)
     }
 
     /**

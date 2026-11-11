@@ -486,7 +486,7 @@ object MediaBrowserTree {
             // cassette: the car's own Shuffle rows and stations
             val own = CassetteCar.resolve(com.cappielloantonio.tempo.App.getContext(), it.mediaId)
             if (own != null) {
-                updatedMediaItems.addAll(own)
+                updatedMediaItems.addAll(own.map(CassetteCar::linked))
                 return@forEach
             }
             if (it.localConfiguration?.uri != null) {
@@ -518,7 +518,8 @@ object MediaBrowserTree {
                         }
                     }
 
-                    updatedMediaItems.addAll(toAdd)
+                    // cassette: the artist and album lines link to their pages, where the car allows
+                    updatedMediaItems.addAll(toAdd.map(CassetteCar::linked))
                 }
             }
         }

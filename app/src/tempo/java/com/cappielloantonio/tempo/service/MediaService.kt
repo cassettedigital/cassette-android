@@ -120,6 +120,8 @@ class MediaService : MediaLibraryService(), SessionAvailabilityListener {
                         // and offline, matching iOS. Wrapped in CacheBitmapLoader so
                         // same-album tracks reuse the decoded bitmap (no blink).
                         .setBitmapLoader(CacheBitmapLoader(CassetteBitmapLoader(this)))
+                        // cassette: the car's Open album / Open artist menu (CassetteCar)
+                        .setCommandButtonsForMediaItems(sessionCallback.browseActions)
                         .build()
     }
 
