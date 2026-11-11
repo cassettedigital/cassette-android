@@ -76,6 +76,7 @@ class MediaService : MediaLibraryService(), SessionAvailabilityListener {
     }
 
     override fun onDestroy() {
+        com.cappielloantonio.tempo.util.CassetteKeepPlaying.removeListener(keepPlayingChanged)
         releasePlayer()
         super.onDestroy()
     }
@@ -132,7 +133,15 @@ class MediaService : MediaLibraryService(), SessionAvailabilityListener {
         return sessionCallback
     }
 
+    // cassette: the car's ∞ key follows keep playing however it is switched (the queue head too)
+    private val keepPlayingChanged = Runnable {
+        if (this::sessionCallback.isInitialized && this::mediaLibrarySession.isInitialized) {
+            android.os.Handler(android.os.Looper.getMainLooper()).post { sessionCallback.refreshLayout(mediaLibrarySession) }
+        }
+    }
+
     private fun initializePlayerListener() {
+        com.cappielloantonio.tempo.util.CassetteKeepPlaying.addListener(keepPlayingChanged)
         // cassette: a station's song, show and picture, kept current on the playing item
         val clock = android.text.format.DateFormat.getTimeFormat(this)
         player.addListener(com.cappielloantonio.tempo.util.CassetteRadioLive.Follower(player) { t -> clock.format(java.util.Date(t)) })

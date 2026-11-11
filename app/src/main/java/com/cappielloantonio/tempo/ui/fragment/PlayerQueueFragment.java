@@ -184,13 +184,8 @@ public class PlayerQueueFragment extends Fragment implements ClickCallback {
         queueBrowser = mediaBrowser;
         bind.queueShuffle.setOnClickListener(v -> mediaBrowser.setShuffleModeEnabled(!mediaBrowser.getShuffleModeEnabled()));
         bind.queueKeepPlaying.setOnClickListener(v -> {
-            // repeat wins: pressing keep playing while repeat is on turns repeat off
-            if (mediaBrowser.getRepeatMode() != androidx.media3.common.Player.REPEAT_MODE_OFF) {
-                mediaBrowser.setRepeatMode(androidx.media3.common.Player.REPEAT_MODE_OFF);
-                com.cappielloantonio.tempo.util.CassetteKeepPlaying.setOn(true);
-            } else {
-                com.cappielloantonio.tempo.util.CassetteKeepPlaying.setOn(!com.cappielloantonio.tempo.util.CassetteKeepPlaying.isOn());
-            }
+            // repeat wins: pressing keep playing while repeat is on turns repeat off (the car's ∞ too)
+            com.cappielloantonio.tempo.util.CassetteKeepPlaying.press(mediaBrowser);
             paintHead(mediaBrowser);
             paintThen();
         });

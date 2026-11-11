@@ -102,6 +102,38 @@ object CassetteKeepPlaying {
     @JvmStatic
     fun setOn(on: Boolean) {
         App.getInstance().preferences.edit().putBoolean(PREF, on).apply()
+        listeners.forEach { it.run() }
+    }
+
+    /**
+     * The one press rule (the queue head's ∞ and the car's): while repeat is on, pressing turns
+     * repeat off and keep playing on (repeat wins until then); otherwise it flips keep playing.
+     */
+    @JvmStatic
+    fun press(player: androidx.media3.common.Player) {
+        if (player.repeatMode != androidx.media3.common.Player.REPEAT_MODE_OFF) {
+            player.repeatMode = androidx.media3.common.Player.REPEAT_MODE_OFF
+            setOn(true)
+        } else {
+            setOn(!isOn())
+        }
+    }
+
+    /** Whether keep playing acts now: on, and repeat off (what the car's key shows lit). */
+    @JvmStatic
+    fun isActive(repeatMode: Int): Boolean = isOn() && repeatMode == androidx.media3.common.Player.REPEAT_MODE_OFF
+
+    private val listeners = java.util.concurrent.CopyOnWriteArrayList<Runnable>()
+
+    /** Told when keep playing is switched, wherever from (the car's key follows the phone's). */
+    @JvmStatic
+    fun addListener(listener: Runnable) {
+        listeners.add(listener)
+    }
+
+    @JvmStatic
+    fun removeListener(listener: Runnable) {
+        listeners.remove(listener)
     }
 
     /** The cloud's words for what comes next ("a record like it"), for the queue's THEN. */

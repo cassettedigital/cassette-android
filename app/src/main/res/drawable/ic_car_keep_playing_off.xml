@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- cassette: the car's Keep playing key, off (Lucide "infinity"). The car draws its keys in
+     one colour, so off is the same mark faint, as Media3's own shuffle and repeat keys are. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="32dp"
+    android:height="32dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:pathData="M12,12c-2,-2.67 -4,-4 -6,-4a4,4 0,1 0,0 8c2,0 4,-1.33 6,-4zM12,12c2,2.67 4,4 6,4a4,4 0,0 0,0 -8c-2,0 -4,1.33 -6,4z"
+        android:strokeWidth="2"
+        android:strokeColor="#4EFFFFFF"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+</vector>

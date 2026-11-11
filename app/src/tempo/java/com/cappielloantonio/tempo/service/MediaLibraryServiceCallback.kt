@@ -15,6 +15,7 @@ import androidx.media3.session.SessionResult
 import com.cappielloantonio.tempo.R
 import com.cappielloantonio.tempo.repository.AutomotiveRepository
 import com.cappielloantonio.tempo.util.CassetteCar
+import com.cappielloantonio.tempo.util.CassetteKeepPlaying
 import com.google.common.collect.ImmutableList
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
@@ -64,6 +65,19 @@ open class MediaLibrarySessionCallback(
     }
 
     /**
+     * cassette: Keep playing (∞) beside Shuffle and Repeat in the car, as the queue head has it.
+     * Lit while it acts (on, repeat off); faint when off or waiting on repeat.
+     */
+    private val keepPlayingButtons: List<CommandButton> = listOf(
+        R.drawable.ic_car_keep_playing_off, R.drawable.ic_car_keep_playing_on,
+    ).map { icon ->
+        CommandButton.Builder()
+            .setDisplayName("Keep playing")
+            .setSessionCommand(SessionCommand(CUSTOM_COMMAND_KEEP_PLAYING, Bundle.EMPTY))
+            .setIconResId(icon).build()
+    }
+
+    /**
      * cassette: the car's menu on a cover that plays when tapped (Android Auto's custom browse
      * actions): Open album / Open artist go to the page, so a tap can play and the page stays a
      * step away. Shown where the car offers them.
@@ -93,13 +107,15 @@ open class MediaLibrarySessionCallback(
                     commandButton.sessionCommand?.let { builder.add(it) }
                 }
                 builder.add(SessionCommand(CUSTOM_COMMAND_REPEAT_NEXT, Bundle.EMPTY))
+                builder.add(SessionCommand(CUSTOM_COMMAND_KEEP_PLAYING, Bundle.EMPTY))
                 browseActions.forEach { button -> button.sessionCommand?.let { builder.add(it) } }
             }.build()
 
     /**
      * cassette (BUG-955): the notification, lock screen and car get the shuffle key only for
      * music; a station is one live thing (Play/Pause), as the phone's own players already show.
-     * With a car connected Repeat joins Shuffle (CarPlay's Now Playing); otherwise Shuffle alone.
+     * With a car connected Repeat and Keep playing join Shuffle (CarPlay's Now Playing); otherwise
+     * Shuffle alone.
      */
     @OptIn(UnstableApi::class)
     private fun layoutFor(session: MediaSession, car: Boolean): ImmutableList<CommandButton> {
@@ -112,7 +128,8 @@ open class MediaLibrarySessionCallback(
             Player.REPEAT_MODE_ONE -> repeatButtons[2]
             else -> repeatButtons[0]
         }
-        return ImmutableList.of(shuffle, repeat)
+        val keep = keepPlayingButtons[if (CassetteKeepPlaying.isActive(session.player.repeatMode)) 1 else 0]
+        return ImmutableList.of(shuffle, repeat, keep)
     }
 
     @OptIn(UnstableApi::class)
@@ -196,6 +213,11 @@ open class MediaLibrarySessionCallback(
                 ?: return Futures.immediateFuture(SessionResult(SessionResult.RESULT_ERROR_BAD_VALUE))
             val result = Bundle().apply { putString(RESULT_BROWSE_NODE, page) }
             return Futures.immediateFuture(SessionResult(SessionResult.RESULT_SUCCESS, result))
+        } else if (CUSTOM_COMMAND_KEEP_PLAYING == customCommand.customAction) {
+            // the queue head's rule: while repeat is on, ∞ turns repeat off and takes over
+            CassetteKeepPlaying.press(session.player)
+            refreshLayout(session)
+            return Futures.immediateFuture(SessionResult(SessionResult.RESULT_SUCCESS))
         } else if (CUSTOM_COMMAND_REPEAT_NEXT == customCommand.customAction) {
             session.player.repeatMode = when (session.player.repeatMode) {
                 Player.REPEAT_MODE_OFF -> Player.REPEAT_MODE_ALL
@@ -280,6 +302,7 @@ open class MediaLibrarySessionCallback(
         private const val CUSTOM_COMMAND_TOGGLE_SHUFFLE_MODE_OFF =
             "android.media3.session.demo.SHUFFLE_OFF"
         private const val CUSTOM_COMMAND_REPEAT_NEXT = "digital.cassette.REPEAT_NEXT"
+        private const val CUSTOM_COMMAND_KEEP_PLAYING = "digital.cassette.KEEP_PLAYING"
         private const val RESULT_BROWSE_NODE = "androidx.media.utils.extras.KEY_CUSTOM_BROWSER_ACTION_RESULT_BROWSE_NODE"
     }
 }
