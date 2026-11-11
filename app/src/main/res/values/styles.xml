@@ -74,8 +74,8 @@
         <item name="textAppearanceLabelMedium">@style/Cassette.Text.LabelMedium</item>
         <item name="textAppearanceLabelSmall">@style/Cassette.Text.LabelSmall</item>
 
-        <!-- keep the window out of Android 15's forced edge-to-edge -->
-        <item name="android:windowOptOutEdgeToEdgeEnforcement">true</item>
+        <!-- edge to edge: each screen keeps clear of the bars itself and paints these two colours
+             behind them (util/CassetteInsets); Android 16 ignores an opt-out once the app targets it -->
 
         <item name="popupMenuStyle">@style/Cassette.PopupMenu</item>
         <item name="android:popupMenuStyle">@style/Cassette.PopupMenu</item>

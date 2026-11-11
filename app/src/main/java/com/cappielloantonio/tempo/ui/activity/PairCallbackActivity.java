@@ -20,6 +20,7 @@ import com.cappielloantonio.tempo.repository.ServerRepository;
 import com.cappielloantonio.tempo.repository.SystemRepository;
 import com.cappielloantonio.tempo.util.Cassette;
 import com.cappielloantonio.tempo.util.CassetteComputerLogin;
+import com.cappielloantonio.tempo.util.CassetteInsets;
 import com.cappielloantonio.tempo.util.CassettePairing;
 import com.cappielloantonio.tempo.util.Preferences;
 
@@ -41,6 +42,7 @@ public class PairCallbackActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pair_callback);
+        CassetteInsets.keepClearOfBars(this);
 
         Uri data = getIntent() != null ? getIntent().getData() : null;
         // Cancel on the pairing page comes back as error=cancelled (BUG-642): back to the

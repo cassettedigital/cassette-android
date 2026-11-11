@@ -35,6 +35,8 @@ import com.cappielloantonio.tempo.util.Preferences;
 import com.cappielloantonio.tempo.viewmodel.MainViewModel;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import androidx.activity.OnBackPressedCallback;
+import com.cappielloantonio.tempo.util.CassetteInsets;
 import com.google.android.material.color.DynamicColors;
 import com.google.common.util.concurrent.MoreExecutors;
 
@@ -84,6 +86,7 @@ public class MainActivity extends BaseActivity {
         bind = ActivityMainBinding.inflate(getLayoutInflater());
         View view = bind.getRoot();
         setContentView(view);
+        CassetteInsets.keepClearOfBars(this);
 
         mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
 
@@ -153,15 +156,26 @@ public class MainActivity extends BaseActivity {
         bind = null;
     }
 
-    @Override
-    public void onBackPressed() {
-        if (bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
-            // cassette: on the queue, Back goes to the player first; on the player, it closes it
+    // cassette: on the queue, Back goes to the player first; on the player, it closes it. A callback, not
+    // onBackPressed: an app that targets Android 16 never gets onBackPressed there (predictive back).
+    // Enabled only while the player is open, and added again each time it opens, because the newest
+    // callback answers first: the open player outranks a screen's own Back (Settings, Downloads).
+    private final OnBackPressedCallback playerBack = new OnBackPressedCallback(false) {
+        @Override
+        public void handleOnBackPressed() {
             PlayerBottomSheetFragment player = (PlayerBottomSheetFragment) getSupportFragmentManager().findFragmentByTag("PlayerBottomSheet");
             if (player != null && player.backFromQueue()) return;
             collapseBottomSheetDelayed();
-        } else
-            super.onBackPressed();
+        }
+    };
+
+    private void playerBackFollows(int state) {
+        boolean open = state == BottomSheetBehavior.STATE_EXPANDED;
+        if (open && !playerBack.isEnabled()) {
+            playerBack.remove();
+            getOnBackPressedDispatcher().addCallback(this, playerBack);
+        }
+        playerBack.setEnabled(open);
     }
 
     public void init() {
@@ -229,6 +243,7 @@ public class MainActivity extends BaseActivity {
                 @Override
                 public void onStateChanged(@NonNull View view, int state) {
                     PlayerBottomSheetFragment playerBottomSheetFragment = (PlayerBottomSheetFragment) getSupportFragmentManager().findFragmentByTag("PlayerBottomSheet");
+                    playerBackFollows(state);
 
                     switch (state) {
                         case BottomSheetBehavior.STATE_HIDDEN:

@@ -1,14 +1,12 @@
-Tempo is an open-source and lightweight music client for Subsonic, designed and built natively for Android. It provides a seamless and intuitive music streaming experience, allowing you to access and play your Subsonic music library directly from your Android device.
+Cassette plays the music you own.
 
-Features
+Choose records from the music on your own computer, and Cassette carries them to your phone over Wi-Fi. From then on they play straight from the phone, with or without signal, on the lock screen and in Android Auto.
 
-- Subsonic Integration: Tempo seamlessly integrates with your Subsonic server, providing you with easy access to your entire music collection on the go.
-- Sleek and Intuitive UI: Enjoy a clean and user-friendly interface designed to enhance your music listening experience, tailored to your preferences and listening history.
-- Browse and Search: Easily navigate through your music library using various browsing and searching options, including artists, albums, genres, playlists, decades and more.
-- Streaming and Offline Mode: Stream music directly from your Subsonic server. Offline mode is currently under active development and may have limitations when using multiple servers.
-- Playlist Management: Create, edit, and manage playlists to curate your perfect music collection.
-- Gapless Playback: Experience uninterrupted playback with gapless listening mode.
-- Chromecast Support: Stream your music to Chromecast devices. The support is currently in a rudimentary state.
-- Play History: The tracks you play are recorded on your own Subsonic server, so play counts and recently played follow you between devices. Nothing is sent to outside services.
-- Podcasts and Radio: If your Subsonic server supports it, listen to podcasts and radio shows directly within Tempo, expanding your audio entertainment options.
-- Transcoding Support: Activate transcoding of tracks on your Subsonic server, allowing you to set a transcoding profile for optimized streaming directly from the app. This feature requires support from your Subsonic server.
+It also tunes in to Cassette's dial of real radio stations.
+
+You'll need
+• A Cassette account. Cassette is in beta: ask for a spot at www.cassette.digital.
+• The Cassette app on your computer, where your music lives. Until it's set up, the radio still plays.
+
+Open source
+Cassette for Android is a modified version of Tempo, the open-source music player by Antonio Cappiello and its contributors. Its code is public at github.com/cassettedigital/cassette-android under the GPL v3. Thank you to the Tempo project for the foundation.

@@ -1,5 +1,6 @@
 #!/bin/bash
-# Build the Cassette release APK that cassette.digital hands out, signed with the release key.
+# Build the Cassette release, signed with the release key: the APK cassette.digital hands out (Setup) and the
+# bundle (AAB) uploaded to Google Play. Both come from the same commit with the same version.
 #
 # The key lives outside this repo and outside iCloud:
 #   ~/Library/Application Support/Cassette/android/cassette-release.jks  (alias "cassette")
@@ -10,7 +11,8 @@
 # A release is built from a commit: it stops on uncommitted changes, so the version (0.1.<commit count>)
 # and the build's GIT_SHA always name real source.
 #
-#   scripts/build-release.sh          -> ~/.cache/cassette-android/out/app/outputs/apk/tempo/release/Cassette-0.1.N.apk
+#   scripts/build-release.sh   -> ~/.cache/cassette-android/out/app/outputs/apk/tempo/release/Cassette-0.1.N.apk
+#                                 ~/.cache/cassette-android/out/app/outputs/bundle/tempoRelease/Cassette-0.1.N.aab
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -27,11 +29,17 @@ fi
 CASSETTE_ANDROID_KEYSTORE_PASSWORD="$(security find-generic-password -s cassette-android-release -a cassette -w)"
 export CASSETTE_ANDROID_KEYSTORE="$KEYSTORE" CASSETTE_ANDROID_KEYSTORE_PASSWORD
 
-./gradlew -I outside-icloud.init.gradle --no-daemon assembleTempoRelease
+./gradlew -I outside-icloud.init.gradle --no-daemon assembleTempoRelease bundleTempoRelease
 
-OUT="$HOME/.cache/cassette-android/out/app/outputs/apk/tempo/release"
-APK="$OUT/app-tempo-release.apk"
+VERSION="0.1.$(git rev-list --count HEAD)"
+OUT="$HOME/.cache/cassette-android/out/app/outputs"
+APK="$OUT/apk/tempo/release/app-tempo-release.apk"
+AAB="$OUT/bundle/tempoRelease/app-tempo-release.aab"
 "$SDK/build-tools/35.0.0/apksigner" verify --verbose "$APK" | grep -E '^Verified using v[23]'
-NAMED="$OUT/Cassette-0.1.$(git rev-list --count HEAD).apk"
-cp "$APK" "$NAMED"
-echo "$NAMED  (built from $(git rev-parse --short=8 HEAD))"
+# a bundle is jar-signed; Google Play re-signs what it hands out (Play App Signing)
+"$JAVA_HOME/bin/jarsigner" -verify "$AAB" | grep -q 'jar verified' || { echo "build-release: the bundle isn't signed" >&2; exit 1; }
+cp "$APK" "$OUT/apk/tempo/release/Cassette-$VERSION.apk"
+cp "$AAB" "$OUT/bundle/tempoRelease/Cassette-$VERSION.aab"
+echo "$OUT/apk/tempo/release/Cassette-$VERSION.apk"
+echo "$OUT/bundle/tempoRelease/Cassette-$VERSION.aab"
+echo "(built from $(git rev-parse --short=8 HEAD))"

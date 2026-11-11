@@ -20,7 +20,7 @@ def cassetteShaText = cassetteGit(['rev-parse', '--short=8', 'HEAD'])
 def cassetteGitSha = (cassetteShaText ?: 'unknown') + (cassetteGit(['status', '--porcelain', '--untracked-files=no']) ? '-dirty' : '')
 
 android {
-    compileSdk 35
+    compileSdk 36
     buildToolsVersion = '35.0.0'
 
     lint {
@@ -33,7 +33,8 @@ android {
 
     defaultConfig {
         minSdkVersion 24
-        targetSdk 35
+        // Google Play takes new apps and updates only at API 36 (Android 16) since 2026-08-31
+        targetSdk 36
 
         // Cassette versioning (reset from upstream Tempo 3.9.0/26 at fork point 9cf62c8).
         // BUG-311: the version moves with every commit, so a crash report names its build.
