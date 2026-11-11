@@ -160,12 +160,12 @@ object MediaBrowserTree {
             )
 
         // cassette: the car's four tabs, the iPhone's CarPlay: Home, Albums, Artists and
-        // Playlists, each holding only what is on this phone (CassetteCar). Tempo's own
-        // Home / Library / Other browsed the computer's whole library and its podcasts.
-        treeNodes[CassetteCar.HOME] = MediaItemNode(CassetteCar.folder("Home", CassetteCar.HOME))
-        treeNodes[CassetteCar.ALBUMS] = MediaItemNode(CassetteCar.folder("Albums", CassetteCar.ALBUMS))
-        treeNodes[CassetteCar.ARTISTS] = MediaItemNode(CassetteCar.folder("Artists", CassetteCar.ARTISTS))
-        treeNodes[CassetteCar.PLAYLISTS] = MediaItemNode(CassetteCar.folder("Playlists", CassetteCar.PLAYLISTS))
+        // Playlists, each with its glyph and holding only what is on this phone (CassetteCar).
+        // Tempo's own Home / Library / Other browsed the computer's whole library and its podcasts.
+        treeNodes[CassetteCar.HOME] = MediaItemNode(CassetteCar.tab("Home", CassetteCar.HOME, "home"))
+        treeNodes[CassetteCar.ALBUMS] = MediaItemNode(CassetteCar.tab("Albums", CassetteCar.ALBUMS, "albums"))
+        treeNodes[CassetteCar.ARTISTS] = MediaItemNode(CassetteCar.tab("Artists", CassetteCar.ARTISTS, "artists"))
+        treeNodes[CassetteCar.PLAYLISTS] = MediaItemNode(CassetteCar.tab("Playlists", CassetteCar.PLAYLISTS, "playlists"))
 
         // Second level HOME_ID
 
@@ -478,6 +478,7 @@ object MediaBrowserTree {
     }
 
     // https://github.com/androidx/media/issues/156
+    // cassette: called off the main thread (CassetteCar.later): it reads the phone's database
     fun getItems(mediaItems: List<MediaItem>): List<MediaItem> {
         val updatedMediaItems = ArrayList<MediaItem>()
 

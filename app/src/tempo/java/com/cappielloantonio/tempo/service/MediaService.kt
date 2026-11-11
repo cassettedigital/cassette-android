@@ -136,6 +136,19 @@ class MediaService : MediaLibraryService(), SessionAvailabilityListener {
         player.addListener(com.cappielloantonio.tempo.util.CassetteRadioLive.Follower(player) { t -> clock.format(java.util.Date(t)) })
 
         player.addListener(object : Player.Listener {
+            // cassette: the car's Shuffle and Repeat keys show what the phone's player set too
+            override fun onShuffleModeEnabledChanged(shuffleModeEnabled: Boolean) {
+                if (this@MediaService::sessionCallback.isInitialized && this@MediaService::mediaLibrarySession.isInitialized) {
+                    sessionCallback.refreshLayout(mediaLibrarySession)
+                }
+            }
+
+            override fun onRepeatModeChanged(repeatMode: Int) {
+                if (this@MediaService::sessionCallback.isInitialized && this@MediaService::mediaLibrarySession.isInitialized) {
+                    sessionCallback.refreshLayout(mediaLibrarySession)
+                }
+            }
+
             override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
                 // a station's notification has no shuffle key; music's does (BUG-955)
                 if (this@MediaService::sessionCallback.isInitialized && this@MediaService::mediaLibrarySession.isInitialized) {

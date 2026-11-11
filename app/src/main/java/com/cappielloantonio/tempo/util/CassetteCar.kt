@@ -2,33 +2,44 @@ package com.cappielloantonio.tempo.util
 
 import android.content.Context
 import android.net.Uri
+import android.os.Bundle
 import androidx.annotation.OptIn
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.LibraryResult
 import com.cappielloantonio.tempo.database.AppDatabase
-import com.cappielloantonio.tempo.glide.CustomGlideRequest
+import com.cappielloantonio.tempo.model.Download
 import com.cappielloantonio.tempo.repository.AutomotiveRepository
 import com.cappielloantonio.tempo.subsonic.models.AlbumID3
 import com.cappielloantonio.tempo.subsonic.models.Child
 import com.google.common.collect.ImmutableList
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.SettableFuture
+import java.util.concurrent.Callable
 import java.util.concurrent.Executors
 
 /**
- * cassette: what the car shows (Android Auto), the iPhone's CarPlay (One Home, 10-28):
- * Home, Albums, Artists and Playlists, and every one of them holds only what is on this
- * phone, because the car plays the phone's own copies (BUG-941) and nothing else.
+ * cassette: what the car shows (Android Auto), scene for scene the iPhone's CarPlay, in Android
+ * Auto's own parts. Every list holds only what is on this phone, because the car plays the
+ * phone's own copies (BUG-941) and nothing else. Every picture comes from the phone
+ * (CassetteCarArt), so the car shows covers with no signal, as CarPlay does.
  *
- * Home is the cloud's Home, the same rows in the same order and under the same names as
- * the phone (CassetteHome), each row holding what the phone holds. Resume has no card in
- * the car: its record rides as the first tile of On repeat. The Radio row's stations play
- * straight from their own streams. Every record, artist, playlist and made-for-you list starts
- * with Shuffle (CarPlay's header).
- * Albums are A to Z; Artists are grouped by name ("feat." set aside), each opening their
- * records here. A record opens to its songs here; a tap plays from that song on.
+ * - Tabs: Home, Albums, Artists, Playlists, each with its glyph.
+ * - Home: the cloud's Home, the same rows in the same order and under the same names as the
+ *   phone (CassetteHome), each row a titled shelf of covers in one line of words ("On Repeat
+ *   Lately"). A cover plays at once (an album from the top, an artist shuffled, a made-for-you
+ *   list, a playlist, a station) and the car opens Now Playing: one tap to music behind the wheel.
+ *   Resume rides as the first record of On repeat. All shelves is a plain row at the end.
+ *   (CarPlay's row title also opens the row as a list; Android Auto's shelf titles can't be
+ *   tapped, so a shelf shows up to [HOME_TILES] covers instead of one strip.)
+ * - An album: Play (with "Artist · Year") and Shuffle, then its songs, each with its track number
+ *   and length (the iPhone's album header and rows).
+ * - An artist: Shuffle ("N albums"), Most Played (five at most), their albums as covers that play,
+ *   then All Songs.
+ * - A playlist: Shuffle, then its songs on this phone in order.
+ * - Albums and Artists are A to Z; an artist's row is their photo when the phone has it, else
+ *   their record's cover.
  */
 @OptIn(UnstableApi::class)
 object CassetteCar {
@@ -37,149 +48,309 @@ object CassetteCar {
     const val ARTISTS = "[carArtists]"
     const val PLAYLISTS = "[carPlaylists]"
     private const val PLAYLIST = "[carPlaylist]"
-    private const val ROW = "[carRow]"
     private const val ALBUM = "[carAlbum]"
     private const val ARTIST = "[carArtist]"
+    private const val ARTIST_SONGS = "[carArtistSongs]"
+    private const val SHELVES = "[carShelves]"
+    private const val SHELF = "[carShelf]"
     private const val MIX = "[carMix]"
+    /** A list played in order: PLAY + ALBUM/MIX/PLAYLIST + id. */
+    private const val PLAY = "[carPlay]"
+    /** A list played shuffled: SHUFFLE + ALBUM/ARTIST/MIX/PLAYLIST + id. */
     private const val SHUFFLE = "[carShuffle]"
     private const val STATION = "cassette-radio-"
+
+    /** Covers a Home shelf shows. */
+    private const val HOME_TILES = 8
+    private const val TOP_SONGS = 5
+
+    // Android Auto's content style hints (androidx.media.utils.MediaConstants)
+    private const val STYLE_BROWSABLE = "android.media.browse.CONTENT_STYLE_BROWSABLE_HINT"
+    private const val STYLE_PLAYABLE = "android.media.browse.CONTENT_STYLE_PLAYABLE_HINT"
+    private const val STYLE_SINGLE = "android.media.browse.CONTENT_STYLE_SINGLE_ITEM_HINT"
+    private const val GROUP_TITLE = "android.media.browse.CONTENT_STYLE_GROUP_TITLE_HINT"
+    private const val LIST = 1
+    private const val GRID = 2
 
     private val io = Executors.newSingleThreadExecutor()
 
     /** Whether [id] is one of the car's own lists. */
     @JvmStatic
     fun owns(id: String): Boolean =
-        id == HOME || id == ALBUMS || id == ARTISTS || id == PLAYLISTS || id.startsWith(PLAYLIST) ||
-            id.startsWith(ROW) || id.startsWith(ALBUM) || id.startsWith(ARTIST) || id.startsWith(MIX)
+        id == HOME || id == ALBUMS || id == ARTISTS || id == PLAYLISTS || id == SHELVES ||
+            listOf(PLAYLIST, ALBUM, ARTIST, ARTIST_SONGS, SHELF).any { id.startsWith(it) }
 
-    /** A folder the car can open. */
+    /** What the car is told at the root: lists by default (the iPhone's rows). */
     @JvmStatic
-    @JvmOverloads
-    fun folder(title: String, id: String, type: @MediaMetadata.MediaType Int = MediaMetadata.MEDIA_TYPE_FOLDER_MIXED,
-               subtitle: String? = null, artwork: Uri? = null): MediaItem =
-        MediaItem.Builder()
-            .setMediaId(id)
-            .setMediaMetadata(
-                MediaMetadata.Builder()
-                    .setTitle(title)
-                    .setSubtitle(subtitle)
-                    .setArtist(subtitle)
-                    .setIsBrowsable(true)
-                    .setIsPlayable(false)
-                    .setArtworkUri(artwork)
-                    .setMediaType(type)
-                    .build()
-            )
-            .setUri("")
-            .build()
+    fun rootStyle(): Bundle = Bundle().apply {
+        putInt(STYLE_BROWSABLE, LIST)
+        putInt(STYLE_PLAYABLE, LIST)
+    }
+
+    /** One of the four tabs, with its glyph. Home's covers are a grid, its All shelves row a list. */
+    @JvmStatic
+    fun tab(title: String, id: String, glyph: String): MediaItem = folder(
+        title, id, artwork = CassetteCarArt.glyph(glyph, tab = true),
+        extras = if (id == HOME) Bundle().apply { putInt(STYLE_PLAYABLE, GRID); putInt(STYLE_BROWSABLE, LIST) } else null,
+    )
 
     /** One of the car's lists, built off the main thread. */
     @JvmStatic
     fun children(context: Context, id: String, repository: AutomotiveRepository): ListenableFuture<LibraryResult<ImmutableList<MediaItem>>> {
         val app = context.applicationContext
-        val future = SettableFuture.create<LibraryResult<ImmutableList<MediaItem>>>()
-        io.execute {
-            future.set(
-                try {
-                    LibraryResult.ofItemList(ImmutableList.copyOf(build(app, id, repository)), null)
-                } catch (e: Exception) {
-                    android.util.Log.w("CassetteCar", "list $id failed", e)
-                    LibraryResult.ofError(LibraryResult.RESULT_ERROR_UNKNOWN)
-                }
-            )
+        return later {
+            try {
+                LibraryResult.ofItemList(ImmutableList.copyOf(build(app, id, repository)), null)
+            } catch (e: Exception) {
+                android.util.Log.w("CassetteCar", "list $id failed", e)
+                LibraryResult.ofError(LibraryResult.RESULT_ERROR_UNKNOWN)
+            }
         }
-        return future
     }
 
     /** Search in the car: what is on this phone (CassetteSearch), records first, then songs. */
     @JvmStatic
-    fun search(query: String, repository: AutomotiveRepository): ListenableFuture<LibraryResult<ImmutableList<MediaItem>>> {
-        val future = SettableFuture.create<LibraryResult<ImmutableList<MediaItem>>>()
+    fun search(query: String, repository: AutomotiveRepository): ListenableFuture<LibraryResult<ImmutableList<MediaItem>>> = later {
+        val found = CassetteSearch.search(query)
+        val here = found.songs.filter { CassetteOnPhone.playable(it) }
+        if (here.isNotEmpty()) repository.setChildrenMetadata(here)
+        val items = found.albums.map { albumRow(it, group = "Albums") } +
+            here.map { songRow(it, it.artist, CassetteCarArt.cover(it.coverArtId, it.album), group = "Songs") }
+        LibraryResult.ofItemList(ImmutableList.copyOf(items), null)
+    }
+
+    /** Work the car waits on (lists, and what a tap plays), off the main thread: it reads the phone's database. */
+    @JvmStatic
+    fun <T> later(work: Callable<T>): ListenableFuture<T> {
+        val future = SettableFuture.create<T>()
         io.execute {
-            val found = CassetteSearch.search(query)
-            val items = found.albums.map(::albumFolder) + songs(repository, found.songs)
-            future.set(LibraryResult.ofItemList(ImmutableList.copyOf(items), null))
+            try {
+                future.set(work.call())
+            } catch (e: Throwable) {
+                future.setException(e)
+            }
         }
         return future
     }
 
     private fun build(app: Context, id: String, repository: AutomotiveRepository): List<MediaItem> = when {
-        id == HOME -> homeRows(app).map { row -> folder(row.shout, ROW + row.id, subtitle = row.answer?.takeIf { it.isNotBlank() }) }
-        id == ALBUMS -> phone().albums.map(::albumFolder)
-        id == ARTISTS -> phone().artists.map { (key, name) -> folder(name, ARTIST + key, MediaMetadata.MEDIA_TYPE_ARTIST) }
-        id.startsWith(ROW) -> rowItems(app, id.removePrefix(ROW))
-        id.startsWith(ALBUM) -> withShuffle(id, songs(repository, CassetteRecords.songsOf(id.removePrefix(ALBUM))))
-        id.startsWith(ARTIST) -> id.removePrefix(ARTIST).let { key -> withShuffle(id, phone().albums.filter { artistKey(it.artist) == key }.map(::albumFolder)) }
-        id.startsWith(MIX) -> withShuffle(id, songs(repository, CassetteHome.mix(id.removePrefix(MIX))?.songs.orEmpty()))
+        id == HOME -> home(app)
+        id == ALBUMS -> phone().albums.map { albumRow(it) }
+        id == ARTISTS -> phone().let { p -> p.artists.map { (key, name) -> artistRow(key, name, p.albumsBy(key)) } }
         id == PLAYLISTS -> playlists().mapNotNull { (p, here) ->
             if (here.isEmpty()) null
             else folder(p.name, PLAYLIST + p.id, MediaMetadata.MEDIA_TYPE_PLAYLIST,
-                app.resources.getQuantityString(com.cappielloantonio.tempo.R.plurals.cassette_song_count, here.size, here.size),
-                cover(p.coverImageUrl ?: p.derivedCoverUrl))
+                artwork = CassetteCarArt.web(p.coverImageUrl ?: p.derivedCoverUrl, p.name))
         }
+        id == SHELVES -> shelves(app)
+        id.startsWith(SHELF) -> shelf(id.removePrefix(SHELF))
+        id.startsWith(ALBUM) -> albumPage(repository, id.removePrefix(ALBUM))
+        id.startsWith(ARTIST_SONGS) -> artistSongs(repository, id.removePrefix(ARTIST_SONGS))
+        id.startsWith(ARTIST) -> artistPage(repository, id.removePrefix(ARTIST))
         id.startsWith(PLAYLIST) -> id.removePrefix(PLAYLIST).let { pid ->
-            withShuffle(id, songs(repository, playlists().firstOrNull { it.first.id == pid }?.second.orEmpty()))
+            val songs = playlists().firstOrNull { it.first.id == pid }?.second.orEmpty()
+            if (songs.isEmpty()) emptyList()
+            else {
+                repository.setChildrenMetadata(songs)
+                listOf(action("Shuffle", SHUFFLE + PLAYLIST + pid, "shuffle")) +
+                    songs.map { songRow(it, it.artist, CassetteCarArt.cover(it.coverArtId, it.album)) }
+            }
         }
         else -> emptyList()
     }
 
     // ---- Home ----
 
-    /** The rows, with Resume folded into On repeat as its first record. */
+    private fun home(app: Context): List<MediaItem> {
+        val out = ArrayList<MediaItem>()
+        var allShelves: MediaItem? = null
+        for (row in homeRows(app)) {
+            val title = titleCase(listOfNotNull(row.shout, row.answer).filter { it.isNotBlank() }.joinToString(" "))
+            // (the row is only drawn when today has a shelf the phone holds records of)
+            if (row.kind == "all-shelves") {
+                allShelves = folder(title, SHELVES)
+                continue
+            }
+            tiles(row).take(HOME_TILES).forEach { out.add(grouped(it, title)) }
+        }
+        allShelves?.let { out.add(it) }
+        return out
+    }
+
+    /** The rows, with Resume folded into On repeat as its first record (Resume alone keeps its own row). */
     private fun homeRows(app: Context): List<CassetteHome.DrawnRow> {
         val rows = CassetteHome.rowsNow(app)
-        val resume = rows.firstOrNull { it.kind == "resume" }?.albums?.firstOrNull()
-        return rows.filter { it.kind != "resume" }.map { row ->
-            if (resume != null && row.kind == "records" && row === rows.first { it.kind == "records" }) {
-                CassetteHome.DrawnRow(row.id, row.kind, row.shout, row.answer,
-                    albums = listOf(resume) + row.albums.filter { it.id != resume.id })
-            } else row
+        val resume = rows.firstOrNull { it.kind == "resume" }
+        val repeat = rows.firstOrNull { it.kind == "records" }
+        val record = resume?.albums?.firstOrNull()
+        if (resume == null || repeat == null || record == null) return rows.filter { it.kind != "resume" || it.albums.isNotEmpty() }
+        return rows.filter { it !== resume }.map { row ->
+            if (row !== repeat) row
+            else CassetteHome.DrawnRow(row.id, row.kind, row.shout, row.answer,
+                albums = listOf(record) + row.albums.filter { it.id != record.id })
         }
     }
 
-    private fun rowItems(app: Context, rowId: String): List<MediaItem> {
-        val row = homeRows(app).firstOrNull { it.id == rowId } ?: return emptyList()
-        val out = ArrayList<MediaItem>()
-        row.albums.forEach { out.add(albumFolder(it)) }
-        row.mixes.forEach { m ->
-            out.add(folder(m.title, MIX + m.id, MediaMetadata.MEDIA_TYPE_PLAYLIST, m.subtitle, m.coverUrl?.let(Uri::parse)))
+    /** A Home row's covers, each one tap from playing, as the phone's row draws them. */
+    private fun tiles(row: CassetteHome.DrawnRow): List<MediaItem> {
+        // the reaching row: its playlist first, then its records (a deep dive: the one record)
+        if (row.kind == "reach") {
+            if (row.id.startsWith("deep-dive")) return row.albums.take(1).map { albumTile(it) }
+            return row.mixes.map { mixTile(it) } + row.albums.map { albumTile(it) }
         }
+        val out = ArrayList<MediaItem>()
+        row.mixes.forEach { out.add(mixTile(it)) }
+        row.albums.forEach { out.add(albumTile(it)) }
+        if (row.artists.isNotEmpty()) {
+            val phone = phone()
+            row.artists.forEach { a ->
+                val name = a.name ?: return@forEach
+                val key = artistKey(name)
+                out.add(playable(name, SHUFFLE + ARTIST + key, MediaMetadata.MEDIA_TYPE_ARTIST,
+                    artwork = artistArt(name, phone.albumsBy(key), a.id)))
+            }
+        }
+        row.stations.forEach { out.add(stationTile(it)) }
         // your playlists by the cloud's id (the computer doesn't know it): their songs on this phone
         row.playlists.forEach { p ->
-            out.add(folder(p.name ?: "", PLAYLIST + p.id, MediaMetadata.MEDIA_TYPE_PLAYLIST, artwork = cover(p.coverArtId)))
-        }
-        // the Radio row: each station plays from its own stream
-        // (the playing item leaves its title to the live song; the car's list names the station)
-        row.stations.forEach { s ->
-            val item = MappingUtil.mapInternetRadioStation(s.toInternetRadioStation())
-            out.add(item.buildUpon().setMediaMetadata(item.mediaMetadata.buildUpon()
-                .setTitle(s.name).setSubtitle(s.label).setArtist(s.label)
-                .setMediaType(MediaMetadata.MEDIA_TYPE_RADIO_STATION).build()).build())
-        }
-        row.artists.forEach { a ->
-            val name = a.name ?: return@forEach
-            out.add(folder(name, ARTIST + artistKey(name), MediaMetadata.MEDIA_TYPE_ARTIST))
+            out.add(playable(p.name ?: "", PLAY + PLAYLIST + p.id, MediaMetadata.MEDIA_TYPE_PLAYLIST,
+                artwork = CassetteCarArt.web(p.coverArtId, p.name)))
         }
         return out
     }
 
-    // ---- Shuffle first, and what a tapped Shuffle or station means ----
+    private fun albumTile(album: AlbumID3): MediaItem =
+        playable(album.name ?: "", PLAY + ALBUM + album.id, MediaMetadata.MEDIA_TYPE_ALBUM, album.artist,
+            CassetteCarArt.cover(album.coverArtId, album.name))
 
-    /** A list that plays, with Shuffle at its head (nothing to shuffle, no Shuffle). */
-    private fun withShuffle(listId: String, items: List<MediaItem>): List<MediaItem> {
-        if (items.isEmpty()) return items
-        val shuffle = MediaItem.Builder()
-            .setMediaId(SHUFFLE + listId)
-            .setMediaMetadata(MediaMetadata.Builder().setTitle("Shuffle").setIsBrowsable(false).setIsPlayable(true)
-                .setMediaType(MediaMetadata.MEDIA_TYPE_MUSIC).build())
-            .build()
-        return listOf(shuffle) + items
-    }
+    /** A made-for-you list: its drawn cover, else its first song's record, as the phone's tile. */
+    private fun mixTile(mix: CassetteHome.DrawnMix): MediaItem =
+        playable(mix.title, PLAY + MIX + mix.id, MediaMetadata.MEDIA_TYPE_PLAYLIST, "Playlist",
+            if (mix.coverUrl != null) CassetteCarArt.web(mix.coverUrl, mix.title)
+            else CassetteCarArt.cover(mix.songs.firstOrNull()?.coverArtId, mix.title))
 
     /**
-     * What the car asked to play, when it is one of the car's own items: a Shuffle (the list's
-     * songs on this phone, shuffled, as the phone's own copies) or a station (its own stream).
-     * Null for anything else, which the session's stored lists answer.
+     * A station plays from its own stream: its name, its network (or "Live" when the network is
+     * the station), its logo or its name on its colour. The playing item leaves its title to the
+     * live song; the car's list names the station.
+     */
+    private fun stationTile(s: CassetteRadio.Station): MediaItem {
+        val item = MappingUtil.mapInternetRadioStation(s.toInternetRadioStation())
+        val line = if (s.label.isNotBlank() && s.label != s.name) s.label else "Live"
+        val art = if (s.image.isNullOrEmpty()) CassetteCarArt.word(s.name, s.accentColor()) else CassetteCarArt.web(s.image, s.name)
+        return item.buildUpon().setMediaMetadata(item.mediaMetadata.buildUpon()
+            .setTitle(s.name).setDisplayTitle(s.name).setSubtitle(line).setArtist(line)
+            .setArtworkUri(art).setExtras(null)
+            .setMediaType(MediaMetadata.MEDIA_TYPE_RADIO_STATION).build()).build()
+    }
+
+    /** "On Repeat Lately", "Weekday Evenings Around Now": the row's two voices in one line, in title case. */
+    private fun titleCase(text: String): String = text.split(" ").filter { it.isNotEmpty() }.mapIndexed { i, word ->
+        val lower = word.lowercase()
+        if (i > 0 && lower in SMALL_WORDS) lower else word.replaceFirstChar { it.uppercaseChar() }
+    }.joinToString(" ")
+
+    private val SMALL_WORDS = setOf("a", "an", "and", "at", "by", "for", "in", "of", "on", "the", "to")
+
+    // ---- All shelves ----
+
+    /** Today's shelves, the one on Home first: a shelf opens as a list of its records. */
+    private fun shelves(app: Context): List<MediaItem> = CassetteHome.shelvesNow(app).map { s ->
+        val title = titleCase(listOfNotNull(s.shout, s.answer).filter { it.isNotBlank() }.joinToString(" "))
+        val n = s.albums.size
+        val count = if (n == 1) "1 album" else "$n albums"
+        folder(title, SHELF + s.id, MediaMetadata.MEDIA_TYPE_FOLDER_ALBUMS,
+            if (s.onHome) "On Home" else if (s.mix == null) count else "A playlist and $count",
+            CassetteCarArt.cover(s.albums.firstOrNull()?.coverArtId, title))
+    }
+
+    /** One shelf: its playlist first (plays), then its records (open). */
+    private fun shelf(id: String): List<MediaItem> {
+        val s = CassetteHome.shelf(id) ?: return emptyList()
+        return listOfNotNull(s.mix?.let { mixTile(it) }) + s.albums.map { albumRow(it) }
+    }
+
+    // ---- an album ----
+
+    private fun albumPage(repository: AutomotiveRepository, albumId: String): List<MediaItem> {
+        val songs = CassetteRecords.songsOf(albumId).filter { CassetteOnPhone.playable(it) }
+        if (songs.isEmpty()) return emptyList()
+        repository.setChildrenMetadata(songs)
+        val lead = CassetteRecords.lead(songs, albumId)
+        val artist = CassetteRecords.albumArtist(songs).ifEmpty { lead.artist ?: "" }
+        val line = listOfNotNull(artist.takeIf { it.isNotBlank() }, lead.year?.takeIf { it > 0 }?.toString()).joinToString(" · ")
+        return listOf(
+            action("Play", PLAY + ALBUM + albumId, "play", line.ifEmpty { null }),
+            action("Shuffle", SHUFFLE + ALBUM + albumId, "shuffle"),
+        ) + songs.mapIndexed { i, s -> songRow(s, length(s), CassetteCarArt.number(s.track?.takeIf { it > 0 } ?: (i + 1))) }
+    }
+
+    private fun length(song: Child): String? {
+        val seconds = song.duration ?: return null
+        if (seconds <= 0) return null
+        return if (seconds >= 3600) String.format("%d:%02d:%02d", seconds / 3600, seconds % 3600 / 60, seconds % 60)
+        else String.format("%d:%02d", seconds / 60, seconds % 60)
+    }
+
+    // ---- an artist ----
+
+    private fun artistPage(repository: AutomotiveRepository, key: String): List<MediaItem> {
+        val phone = phone()
+        val albums = phone.albumsBy(key)
+        if (albums.isEmpty()) return emptyList()
+        val held = AppDatabase.getInstance().downloadDao().getAllDownloadedSync()
+        val songs = albums.flatMap { CassetteRecords.songsOf(held, it.id!!) }.filter { CassetteOnPhone.playable(it) }
+        val out = ArrayList<MediaItem>()
+        val n = albums.size
+        out.add(action("Shuffle", SHUFFLE + ARTIST + key, "shuffle", if (n == 1) "1 album" else "$n albums"))
+        // Most Played: the songs played most, from the phone's own counts; a tap plays from it on
+        val top = songs.filter { (it.playCount ?: 0L) > 0L }.sortedByDescending { it.playCount ?: 0L }.take(TOP_SONGS)
+        if (top.isNotEmpty()) {
+            repository.setChildrenMetadata(top)
+            top.forEach { out.add(songRow(it, it.album, CassetteCarArt.cover(it.coverArtId, it.album), group = "Most Played")) }
+        }
+        // their albums as covers: a cover plays its album from the top
+        albums.forEach { a ->
+            out.add(grouped(playable(a.name ?: "", PLAY + ALBUM + a.id, MediaMetadata.MEDIA_TYPE_ALBUM,
+                a.year.takeIf { it > 0 }?.toString(), CassetteCarArt.cover(a.coverArtId, a.name)), "Albums", single = GRID))
+        }
+        out.add(folder("All Songs", ARTIST_SONGS + key, artwork = CassetteCarArt.glyph("songs")))
+        return out
+    }
+
+    /** All of an artist's songs on this phone, A to Z, Shuffle first. */
+    private fun artistSongs(repository: AutomotiveRepository, key: String): List<MediaItem> {
+        val held = AppDatabase.getInstance().downloadDao().getAllDownloadedSync()
+        val songs = phone().albumsBy(key).flatMap { CassetteRecords.songsOf(held, it.id!!) }
+            .filter { CassetteOnPhone.playable(it) }
+            .sortedBy { CassetteLetters.sortKey(it.title) }
+        if (songs.isEmpty()) return emptyList()
+        repository.setChildrenMetadata(songs)
+        return listOf(action("Shuffle", SHUFFLE + ARTIST + key, "shuffle")) +
+            songs.map { songRow(it, it.album, CassetteCarArt.cover(it.coverArtId, it.album)) }
+    }
+
+    /** An artist's row: their photo when the phone has it (in a circle), else their record's cover. */
+    private fun artistRow(key: String, name: String, albums: List<AlbumID3>): MediaItem =
+        folder(name, ARTIST + key, MediaMetadata.MEDIA_TYPE_ARTIST, artwork = artistArt(name, albums))
+
+    /**
+     * An artist's picture, as the iPhone's artist page: their own photo in a circle when the
+     * phone holds it, else the record that lights their page (their newest with a cover),
+     * square, else their initial in a circle.
+     */
+    private fun artistArt(name: String, albums: List<AlbumID3>, artistId: String? = null): Uri? {
+        val lead = albums.filter { it.coverArtId != null }.maxByOrNull { it.year }
+        val photo = (artistId ?: albums.firstNotNullOfOrNull { it.artistId })?.let { "ar-$it" }
+        return CassetteCarArt.cover(photo, name, circle = true, alt = lead?.coverArtId)
+    }
+
+    // ---- what a tap plays ----
+
+    /**
+     * What the car asked to play, when it is one of the car's own items: a list (Play, a Home
+     * cover, Shuffle) as the phone's own copies, or a station (its own stream). Null for anything
+     * else, which the session's stored lists answer. Off the main thread (it reads the database).
      */
     @JvmStatic
     fun resolve(context: Context, mediaId: String): List<MediaItem>? {
@@ -187,20 +358,27 @@ object CassetteCar {
             val station = CassetteRadio.bySlug(context, mediaId.removePrefix(STATION)) ?: return emptyList()
             return listOf(MappingUtil.mapInternetRadioStation(station.toInternetRadioStation()))
         }
-        if (!mediaId.startsWith(SHUFFLE)) return null
-        val list = mediaId.removePrefix(SHUFFLE)
-        val dao = AppDatabase.getInstance().downloadDao()
+        val shuffled = mediaId.startsWith(SHUFFLE)
+        if (!shuffled && !mediaId.startsWith(PLAY)) return null
+        val list = mediaId.removePrefix(if (shuffled) SHUFFLE else PLAY)
         val songs: List<Child> = when {
             list.startsWith(ALBUM) -> CassetteRecords.songsOf(list.removePrefix(ALBUM))
             list.startsWith(ARTIST) -> list.removePrefix(ARTIST).let { key ->
-                val held = dao.getAllDownloadedSync()
-                phone().albums.filter { artistKey(it.artist) == key }.flatMap { a -> CassetteRecords.songsOf(held, a.id!!) }
+                val held = AppDatabase.getInstance().downloadDao().getAllDownloadedSync()
+                phone().albumsBy(key).flatMap { a -> CassetteRecords.songsOf(held, a.id!!) }
             }
-            list.startsWith(MIX) -> CassetteHome.mix(list.removePrefix(MIX))?.songs.orEmpty()
+            // a made-for-you list is known once Home has been drawn in this run; draw it if not
+            list.startsWith(MIX) -> list.removePrefix(MIX).let { id ->
+                (CassetteHome.mix(id) ?: CassetteHome.rowsNow(context).let { CassetteHome.mix(id) })?.songs.orEmpty()
+            }
             list.startsWith(PLAYLIST) -> playlists().firstOrNull { it.first.id == list.removePrefix(PLAYLIST) }?.second.orEmpty()
             else -> emptyList()
         }
-        return MappingUtil.mapDownloads(songs.filter { CassetteOnPhone.playable(it) }.shuffled())
+        val here = songs.filter { CassetteOnPhone.playable(it) }
+        // the player's own items (the phone's copy, with the song's details the player reads),
+        // never the downloader's (mapDownloads carries no details: the player crashed on the
+        // first song, reading its id to log the play)
+        return MappingUtil.mapMediaItems(if (shuffled) here.shuffled() else here)
     }
 
     // ---- playlists: yours, from the cloud, each with its songs on this phone in order ----
@@ -225,21 +403,15 @@ object CassetteCar {
         }
     }
 
-    /** A cover address the car can fetch: the site's own paths made whole. */
-    private fun cover(url: String?): Uri? = when {
-        url.isNullOrEmpty() -> null
-        url.startsWith("/") -> Uri.parse("https://cassette.digital$url")
-        url.startsWith("http") -> Uri.parse(url)
-        else -> Uri.parse(CustomGlideRequest.createUrl(url, Preferences.getImageSize()))
-    }
-
     // ---- what is on this phone ----
 
-    private class Phone(val albums: List<AlbumID3>, val artists: List<Pair<String, String>>)
+    private class Phone(val albums: List<AlbumID3>, val artists: List<Pair<String, String>>) {
+        fun albumsBy(key: String): List<AlbumID3> = albums.filter { artistKey(it.artist) == key }
+    }
 
     /** Every record on this phone, A to Z, and every artist with one, A to Z. */
     private fun phone(): Phone {
-        val held = AppDatabase.getInstance().downloadDao().getAllDownloadedSync()
+        val held: List<Download> = AppDatabase.getInstance().downloadDao().getAllDownloadedSync()
         val fold = CassetteRecords.foldMap(held)
         val byAlbum = held
             .filter { it.albumId != null }
@@ -263,15 +435,66 @@ object CassetteCar {
 
     private fun artistKey(name: String?): String = CassetteLikeness.normalizedArtistName(name)
 
-    private fun albumFolder(album: AlbumID3): MediaItem =
-        folder(album.name ?: "", ALBUM + album.id, MediaMetadata.MEDIA_TYPE_ALBUM, album.artist,
-            album.coverArtId?.let { Uri.parse(CustomGlideRequest.createUrl(it, Preferences.getImageSize())) })
+    // ---- the car's rows ----
 
-    /** Songs the car can play: only those on this phone, remembered so a tap plays from it on. */
-    private fun songs(repository: AutomotiveRepository, list: List<Child>): List<MediaItem> {
-        val here = list.filter { CassetteOnPhone.playable(it) }
-        if (here.isEmpty()) return emptyList()
-        repository.setChildrenMetadata(here)
-        return MappingUtil.mapDownloads(here)
+    /** A folder the car can open. */
+    @JvmStatic
+    @JvmOverloads
+    fun folder(title: String, id: String, type: @MediaMetadata.MediaType Int = MediaMetadata.MEDIA_TYPE_FOLDER_MIXED,
+               subtitle: String? = null, artwork: Uri? = null, extras: Bundle? = null): MediaItem =
+        item(title, id, type, subtitle, artwork, browsable = true, extras = extras)
+
+    /** Something the car plays at once. */
+    private fun playable(title: String, id: String, type: @MediaMetadata.MediaType Int, subtitle: String? = null, artwork: Uri? = null): MediaItem =
+        item(title, id, type, subtitle, artwork, browsable = false, extras = null)
+
+    /** Play / Shuffle / the like: a glyph and the words, played at once. */
+    private fun action(title: String, id: String, glyph: String, subtitle: String? = null): MediaItem =
+        playable(title, id, MediaMetadata.MEDIA_TYPE_PLAYLIST, subtitle, CassetteCarArt.glyph(glyph))
+
+    private fun item(title: String, id: String, type: @MediaMetadata.MediaType Int, subtitle: String?, artwork: Uri?,
+                     browsable: Boolean, extras: Bundle?): MediaItem =
+        MediaItem.Builder()
+            .setMediaId(id)
+            .setMediaMetadata(
+                MediaMetadata.Builder()
+                    // the display title is what makes the car show the subtitle as written
+                    .setTitle(title)
+                    .setDisplayTitle(title)
+                    .setSubtitle(subtitle)
+                    .setIsBrowsable(browsable)
+                    .setIsPlayable(!browsable)
+                    .setArtworkUri(artwork)
+                    .setMediaType(type)
+                    .setExtras(extras)
+                    .build()
+            )
+            .build()
+
+    /** An album's row: its cover, name and artist; it opens the album. */
+    private fun albumRow(album: AlbumID3, group: String? = null): MediaItem {
+        val row = folder(album.name ?: "", ALBUM + album.id, MediaMetadata.MEDIA_TYPE_ALBUM, album.artist,
+            CassetteCarArt.cover(album.coverArtId, album.name))
+        return if (group != null) grouped(row, group) else row
+    }
+
+    /**
+     * One song the car plays from, then on through its list (the list it was registered with in
+     * the session's store). The row's second line and picture are the list's own: a track number
+     * and length on an album, a cover and artist elsewhere. Nothing of the song rides in the row
+     * but its id; the store holds what plays.
+     */
+    private fun songRow(song: Child, line: String?, artwork: Uri?, group: String? = null): MediaItem {
+        val row = playable(song.title ?: "", song.id ?: "", MediaMetadata.MEDIA_TYPE_MUSIC, line, artwork)
+        return if (group != null) grouped(row, group) else row
+    }
+
+    /** [item] under a titled group (a Home shelf, Most Played, Albums), drawn as [single] when given. */
+    private fun grouped(item: MediaItem, title: String, single: Int? = null): MediaItem {
+        val extras = Bundle(item.mediaMetadata.extras ?: Bundle()).apply {
+            putString(GROUP_TITLE, title)
+            if (single != null) putInt(STYLE_SINGLE, single)
+        }
+        return item.buildUpon().setMediaMetadata(item.mediaMetadata.buildUpon().setExtras(extras).build()).build()
     }
 }

@@ -98,6 +98,13 @@
                 android:resource="@xml/share_paths" />
         </provider>
 
+        <!-- cassette: the car's pictures (Android Auto takes only on-phone addresses): read only,
+             covers from the phone and pictures made for the car (util/CassetteCarArt) -->
+        <provider
+            android:name=".util.CassetteCarArt"
+            android:authorities="${applicationId}.carart"
+            android:exported="true" />
+
         <service
             android:name=".service.MediaService"
             android:exported="true"
