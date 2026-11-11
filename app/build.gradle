@@ -80,8 +80,24 @@ android {
         }
     }
 
+    // cassette: a release build is signed only when the release key is handed in (scripts/build-release.sh reads
+    // it from the Keychain of the Mac that holds it). Without it a release build comes out unsigned, so the
+    // source still builds anywhere, and no key or password ever sits in this repo.
+    def releaseKeystore = System.getenv('CASSETTE_ANDROID_KEYSTORE')
+    signingConfigs {
+        if (releaseKeystore) {
+            release {
+                storeFile file(releaseKeystore)
+                storePassword System.getenv('CASSETTE_ANDROID_KEYSTORE_PASSWORD')
+                keyAlias System.getenv('CASSETTE_ANDROID_KEY_ALIAS') ?: 'cassette'
+                keyPassword System.getenv('CASSETTE_ANDROID_KEYSTORE_PASSWORD')
+            }
+        }
+    }
+
     buildTypes {
         release {
+            if (releaseKeystore) signingConfig signingConfigs.release
             shrinkResources true
             minifyEnabled true
             debuggable false
