@@ -105,12 +105,11 @@ public class LoginFragment extends Fragment implements ClickCallback {
         serverAdapter = new ServerAdapter(this);
         bind.serverListRecyclerView.setAdapter(serverAdapter);
         loginViewModel.getServerList().observe(getViewLifecycleOwner(), servers -> {
+            // cassette: an empty list just stays hidden; Tempo's "No server added" is gone (sign-in is the button above)
             if (!servers.isEmpty()) {
-                if (bind != null) bind.noServerAddedTextView.setVisibility(View.GONE);
                 if (bind != null) bind.serverListRecyclerView.setVisibility(View.VISIBLE);
                 serverAdapter.setItems(servers);
             } else {
-                if (bind != null) bind.noServerAddedTextView.setVisibility(View.VISIBLE);
                 if (bind != null) bind.serverListRecyclerView.setVisibility(View.GONE);
             }
         });

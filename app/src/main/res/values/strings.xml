@@ -183,6 +183,7 @@
     <string name="cassette_pairing_progress">Signing in…</string>
     <string name="cassette_pairing_unreachable">Signed in. Your computer isn\'t reachable on this network yet.</string>
     <string name="cassette_pairing_failed">Couldn’t sign in. Try again.</string>
+    <string name="cassette_pairing_back">Back to Cassette</string>
     <!-- cassette (BUG-938): a sign-in this phone didn't start, or one that waited too long -->
     <string name="cassette_pairing_not_asked">This sign-in didn’t start on this phone, so nothing changed. To sign in, tap Sign in in Cassette.</string>
     <string name="cassette_pairing_expired">That sign-in took too long. Tap Sign in to start again.</string>

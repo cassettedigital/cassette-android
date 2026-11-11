@@ -153,6 +153,11 @@ public final class Cassette {
                 .build();
 
         try (Response response = client.newCall(request).execute()) {
+            // No computer on the account yet: the cloud answers 404, the iPhone reads that as
+            // "none" (LoginVC.fetch), and so does this: sign in to the stand-in, Home shows Not set up.
+            if (response.code() == 404) {
+                return PlayerConfig.noComputer(null);
+            }
             if (!response.isSuccessful() || response.body() == null) {
                 throw new IOException("Cassette sign-in failed (HTTP " + response.code() + ")");
             }

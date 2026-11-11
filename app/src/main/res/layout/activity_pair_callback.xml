@@ -20,4 +20,13 @@
         android:gravity="center"
         android:paddingTop="24dp"
         android:text="@string/cassette_pairing_progress" />
+
+    <!-- cassette: a failed sign-in always has a way back to the sign-in screen -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/pairing_back_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="@string/cassette_pairing_back"
+        android:visibility="gone" />
 </LinearLayout>

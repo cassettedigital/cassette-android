@@ -3,7 +3,9 @@ package com.cappielloantonio.tempo.ui.activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -33,6 +35,7 @@ import java.util.UUID;
  * the active server, and enters the app.
  */
 public class PairCallbackActivity extends AppCompatActivity {
+    private static final String TAG = "PairCallbackActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,10 +78,9 @@ public class PairCallbackActivity extends AppCompatActivity {
                 Preferences.setCassetteThemeId(config.themeId);
                 runOnUiThread(() -> activate(config));
             } catch (Exception exception) {
-                String message = exception.getMessage() != null
-                        ? exception.getMessage()
-                        : getString(R.string.cassette_pairing_failed);
-                runOnUiThread(() -> fail(message));
+                // The detail goes to the log; the person gets a plain line and a way back.
+                Log.w(TAG, "sign-in: couldn't read the account's computer", exception);
+                runOnUiThread(() -> fail(getString(R.string.cassette_pairing_failed)));
             }
         }).start();
     }
@@ -121,6 +123,13 @@ public class PairCallbackActivity extends AppCompatActivity {
         TextView statusTextView = findViewById(R.id.pairing_status_text_view);
         progressBar.setVisibility(View.GONE);
         statusTextView.setText(message);
-        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+        Button back = findViewById(R.id.pairing_back_button);
+        back.setVisibility(View.VISIBLE);
+        back.setOnClickListener(v -> {
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(intent);
+            finish();
+        });
     }
 }
