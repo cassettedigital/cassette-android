@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import androidx.annotation.Keep
 import com.cappielloantonio.tempo.database.AppDatabase
 import com.cappielloantonio.tempo.model.Download
 import com.cappielloantonio.tempo.subsonic.models.AlbumID3
@@ -44,20 +45,22 @@ object CassetteHome {
     private var lastAsk = 0L
 
     // ---- the answer, as the cloud sends it (camelCase JSON) ----
+    // @Keep: Gson fills these by their field names. Without it the release build's shrinking renamed
+    // them and made Answer abstract, so Home from the cloud never drew on a shipped phone (BUG-1000).
 
-    data class Record(val key: String?, val title: String?, val artist: String?, val year: Int?, val songs: List<String>?)
-    data class Artist(val key: String?, val name: String?, val songs: List<String>?)
-    data class Cover(val key: String?, val variant: String?, val url: String?)
-    data class Mix(val id: String?, val kind: String?, val title: String?, val subtitle: String?, val color: String?, val cover: Cover?, val songs: List<String>?, val artists: Int?)
-    data class HomePlaylist(val id: String?, val name: String?, val songs: Int?, val cover: String?, val lastPlayedAt: String?)
-    data class Shelf(val id: String?, val kind: String?, val shout: String?, val answer: String?, val records: List<Record>?, val mix: Mix?, val onHome: Boolean?)
-    data class Row(
+    @Keep data class Record(val key: String?, val title: String?, val artist: String?, val year: Int?, val songs: List<String>?)
+    @Keep data class Artist(val key: String?, val name: String?, val songs: List<String>?)
+    @Keep data class Cover(val key: String?, val variant: String?, val url: String?)
+    @Keep data class Mix(val id: String?, val kind: String?, val title: String?, val subtitle: String?, val color: String?, val cover: Cover?, val songs: List<String>?, val artists: Int?)
+    @Keep data class HomePlaylist(val id: String?, val name: String?, val songs: Int?, val cover: String?, val lastPlayedAt: String?)
+    @Keep data class Shelf(val id: String?, val kind: String?, val shout: String?, val answer: String?, val records: List<Record>?, val mix: Mix?, val onHome: Boolean?)
+    @Keep data class Row(
         val id: String?, val kind: String?, val shout: String?, val answer: String?,
         val record: Record?, val song: String?, val playlist: String?,
         val records: List<Record>?, val mixes: List<Mix>?, val playlists: List<HomePlaylist>?,
         val stations: List<String>?, val shelf: Shelf?, val artists: List<Artist>?, val count: Int?,
     )
-    data class Answer(val version: Int?, val madeAt: String?, val day: String?, val slot: String?, val madeOn: String?, val rows: List<Row>?, val shelves: List<Shelf>?)
+    @Keep data class Answer(val version: Int?, val madeAt: String?, val day: String?, val slot: String?, val madeOn: String?, val rows: List<Row>?, val shelves: List<Shelf>?)
 
     // ---- what the phone draws ----
 
