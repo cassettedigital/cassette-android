@@ -1,47 +1,92 @@
-<!-- cassette: adaptive-icon foreground. A crisp vector of the cassette mark in the
-     warm CassetteIcon2 orange (#FA6219) over the dark warm-brown gradient
-     background layer (@mipmap/ic_launcher_background), scaled to ~59% of the 108
-     canvas and centered so it sits well inside the adaptive safe zone instead of
-     crowding the corners the way the old full-bleed raster foreground did.
+<!-- cassette: adaptive-icon foreground, the CassetteIcon2 mark as on the iPhone, Mac and
+     web icons (apps/cassette/src/app/apple-icon.tsx): one orange gradient #f97408 ->
+     #fb4f29 running down the whole mark from the frame's top (grid y 8) to its foot
+     (grid y 24), over the warm-brown tile in @mipmap/ic_launcher_background.
+
+     The mark's 32-unit box is 0.88 of the visible 72 dp tile (scale 1.98), centred
+     (translate 18 + 0.06 * 72 = 22.32), so it sits inside the adaptive safe zone.
+     Every path carries the same gradient in its own path coordinates; the group
+     transform applies to the gradient too, so the four strokes read as one gradient.
+     Gradients on a vector need API 24, which is minSdk.
      Referenced by mipmap-anydpi-v26/ic_launcher.xml. The legacy raster mipmaps
-     (ic_launcher.png / _round, regenerated to the same look) own the pre-26 icon;
-     this vector owns the modern icon. -->
+     (ic_launcher.png / _round) own the pre-26 icon and are drawn to the same look. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
     <group
-        android:scaleX="2.0"
-        android:scaleY="2.0"
-        android:translateX="22"
-        android:translateY="22">
+        android:scaleX="1.98"
+        android:scaleY="1.98"
+        android:translateX="22.32"
+        android:translateY="22.32">
         <path
             android:pathData="M29,11.5L29,20.5C29,22.432 27.432,24 25.5,24L6.5,24C4.568,24 3,22.432 3,20.5L3,11.5C3,9.568 4.568,8 6.5,8L25.5,8C27.432,8 29,9.568 29,11.5Z"
             android:fillColor="#00000000"
-            android:strokeColor="#FA6219"
             android:strokeWidth="2.2"
             android:strokeLineJoin="round"
-            android:strokeLineCap="round" />
+            android:strokeLineCap="round">
+            <aapt:attr name="android:strokeColor">
+                <gradient
+                    android:type="linear"
+                    android:startX="16"
+                    android:startY="8"
+                    android:endX="16"
+                    android:endY="24"
+                    android:startColor="#FFF97408"
+                    android:endColor="#FFFB4F29" />
+            </aapt:attr>
+        </path>
         <path
             android:pathData="M8.5,16 a3,3 0 1,1 6,0 a3,3 0 1,1 -6,0 Z"
             android:fillColor="#00000000"
-            android:strokeColor="#FA6219"
             android:strokeWidth="2.2"
             android:strokeLineJoin="round"
-            android:strokeLineCap="round" />
+            android:strokeLineCap="round">
+            <aapt:attr name="android:strokeColor">
+                <gradient
+                    android:type="linear"
+                    android:startX="16"
+                    android:startY="8"
+                    android:endX="16"
+                    android:endY="24"
+                    android:startColor="#FFF97408"
+                    android:endColor="#FFFB4F29" />
+            </aapt:attr>
+        </path>
         <path
             android:pathData="M17.5,16 a3,3 0 1,1 6,0 a3,3 0 1,1 -6,0 Z"
             android:fillColor="#00000000"
-            android:strokeColor="#FA6219"
             android:strokeWidth="2.2"
             android:strokeLineJoin="round"
-            android:strokeLineCap="round" />
+            android:strokeLineCap="round">
+            <aapt:attr name="android:strokeColor">
+                <gradient
+                    android:type="linear"
+                    android:startX="16"
+                    android:startY="8"
+                    android:endX="16"
+                    android:endY="24"
+                    android:startColor="#FFF97408"
+                    android:endColor="#FFFB4F29" />
+            </aapt:attr>
+        </path>
         <path
             android:pathData="M11.798,13.012 L20.213,13.012"
             android:fillColor="#00000000"
-            android:strokeColor="#FA6219"
             android:strokeWidth="2.2"
-            android:strokeLineCap="round" />
+            android:strokeLineCap="round">
+            <aapt:attr name="android:strokeColor">
+                <gradient
+                    android:type="linear"
+                    android:startX="16"
+                    android:startY="8"
+                    android:endX="16"
+                    android:endY="24"
+                    android:startColor="#FFF97408"
+                    android:endColor="#FFFB4F29" />
+            </aapt:attr>
+        </path>
     </group>
 </vector>
