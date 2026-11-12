@@ -36,20 +36,28 @@ Play Console > **Create app**:
 Play signs what it hands out (Play App Signing). There are two ways to set it up, and the choice is
 permanent.
 
-**Recommended: give Play our own key.** Then the app from Play and the APK from Setup are the same
-app, and either one updates the other. In **Test and release > App integrity > App signing**, choose to
-use your own key: **Export and upload a key from Java keystore**. Console gives you two downloads,
-`pepk.jar` and an encryption key file. Put them in `~/Downloads` and ask a session to run the export:
+**Done 2026-11-11: Play signs with our own key** (SHA-256 `53:E6:77:CE:...:60:2B:88:E7`, the same as
+the Setup APK). The app from Play and the APK from Setup are the same app, and either one updates the
+other. The same key is also the upload key.
+
+How it went, for the next app or a redo. Console makes a Google key the moment the app is created, so
+"use your own key" is **Change key** on **Protected with Play > App signing**. That's free only before
+the first bundle is uploaded. Then pick **Export and upload a key from Java keystore** and download the
+encryption key file and `pepk.jar` (the pane blocks the jar's new tab; it's at
+`https://www.gstatic.com/play-apps-publisher-rapid/signing-tool/prod/pepk.jar`). pepk reads both
+passwords from a terminal prompt (`System.console()`), so a session runs it under `script` and feeds the
+Keychain password twice:
 
 ```
-java -jar ~/Downloads/pepk.jar --keystore="$HOME/Library/Application Support/Cassette/android/cassette-release.jks" \
+{ sleep 4; security find-generic-password -s cassette-android-release -a cassette -w; sleep 3; \
+  security find-generic-password -s cassette-android-release -a cassette -w; sleep 8; } | \
+script -q /dev/null java -jar pepk.jar --keystore="$HOME/Library/Application Support/Cassette/android/cassette-release.jks" \
   --alias=cassette --output=$HOME/Downloads/cassette-play-key.zip --include-cert --rsa-aes-encryption \
   --encryption-key-path=$HOME/Downloads/encryption_public_key.pem
 ```
 
-Console shows its own copy of this command, and that one wins if the two differ. It asks for the key's
-password, which is in the Keychain ("Cassette Android release key") and in the backup folder. Upload
-`cassette-play-key.zip` where Console asks. The same key also serves as the upload key.
+Check `certificate.pem` in the zip has our fingerprint before uploading it. A person picks the file in
+the upload box (a session can't open a file picker), then Save.
 
 **The other way: let Google make a new key.** It's simpler, but anyone who installed the APK from Setup
 has to uninstall it before the Play version will install. Uninstalling removes the music on the phone.
@@ -119,6 +127,10 @@ These answers follow the phone section of the privacy page. Change one and you c
 
 ## 6. The first release
 
+**Done 2026-11-11:** 0.1.117 (cbd316a5) is live on internal testing. Until the listing and the App
+content forms above are done and Google has reviewed them, testers see the temporary name
+"digital.cassette.player (unreviewed)" instead of Cassette.
+
 1. On this Mac: `apps/cassette-player-android/scripts/build-release.sh`. It prints the `.aab` path.
 2. Play Console > **Test and release > Testing > Internal testing > Create new release**.
 3. Upload `Cassette-0.1.<n>.aab`. Release notes: `fastlane/metadata/android/en-US/changelogs/default.txt`.
@@ -129,7 +141,8 @@ These answers follow the phone section of the privacy page. Change one and you c
 1. **Internal testing > Testers**: create an email list ("Cassette beta") and add each tester's Google
    account email. That's the address their phone's Play Store uses, which isn't always the address of
    their Cassette account.
-2. Copy the **opt-in link**. A tester opens it on their phone, taps **Become a tester**, then **Download
+2. The **opt-in link** is `https://play.google.com/apps/internaltest/4700900819225663298`. It only lets
+   in addresses on the list. A tester opens it on their phone, taps **Become a tester**, then **Download
    it on Google Play**.
 3. When the link exists, ask a session to point Setup's Android button at it. Until then Setup keeps
    handing out the APK.
