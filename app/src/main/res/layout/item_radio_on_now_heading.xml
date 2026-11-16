@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- cassette: "ON NOW" over the Radio page's cards (the kit's Heading shout, as on the Mac and the website) -->
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/Cassette.Role.Shout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:accessibilityHeading="true"
+    android:paddingStart="4dp"
+    android:paddingTop="8dp"
+    android:paddingEnd="4dp"
+    android:paddingBottom="12dp"
+    android:text="@string/cassette_on_now"
+    android:textAllCaps="true" />

@@ -123,6 +123,41 @@ object CassetteRadioLive {
         )
     }
 
+    /**
+     * What's on a station as an On now card says it (the Mac's Radio page, components/radio/RadioDial
+     * OnAirCard): the song ("Artist · Title") or else the show, when the show ends, and the picture of
+     * what's playing (the record we carry, the station's cover for the song, the show's own picture), with
+     * its address on the image ladder (`{rung}` to fill) when the cloud sent one.
+     */
+    class OnAir(val now: String?, val until: Long?, val cover: String?, val coverSrc: String?)
+
+    /** The cloud's now-playing answer as a card reads it, or null when it says nothing. */
+    @JvmStatic
+    fun parseOnAir(json: String): OnAir? {
+        val root = runCatching { JsonParser.parseString(json) }.getOrNull()?.takeIf { it.isJsonObject } ?: return null
+        val o = root.asJsonObject
+        val track = o.obj("track")
+        val show = o.obj("show")
+        val match = o.obj("match")
+        val song = listOfNotNull(track?.str("artist"), track?.str("title")).joinToString(" · ").ifEmpty { null }
+        val now = song ?: show?.str("name")
+        val picture = listOf(Triple(match, "coverUrl", "coverRef"), Triple(track, "coverUrl", "coverRef"), Triple(show, "image", "imageRef"))
+            .firstNotNullOfOrNull { (from, key, ref) -> from?.str(key)?.let { it to from.obj(ref)?.str("src") } }
+        val until = show?.str("until")?.let(::millis)
+        if (now == null && picture == null && until == null) return null
+        return OnAir(now, until, picture?.first, picture?.second)
+    }
+
+    /** One read of what's on, for On now (the route the website's cards read). Null when the cloud can't say. Off the main thread. */
+    @JvmStatic
+    fun onAir(slug: String): OnAir? = try {
+        client.newCall(Request.Builder().url(Cassette.BASE_URL + "/api/radio/now-playing?station=" + Uri.encode(slug)).build())
+            .execute().use { r -> r.body?.string()?.takeIf { r.isSuccessful }?.let(::parseOnAir) }
+    } catch (e: Exception) {
+        Log.w("CassetteRadioLive", "on air failed", e)
+        null
+    }
+
     private fun millis(iso: String): Long? = runCatching { Instant.parse(iso).toEpochMilli() }.getOrNull()
     private fun JsonObject.obj(key: String): JsonObject? = get(key)?.takeIf { it.isJsonObject }?.asJsonObject
     private fun JsonObject.str(key: String): String? = get(key)?.takeIf { it.isJsonPrimitive }?.asString?.trim()?.takeIf { it.isNotEmpty() }

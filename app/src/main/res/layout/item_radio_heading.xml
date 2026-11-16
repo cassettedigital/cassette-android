@@ -1,10 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- cassette: a part of the dial, as a quiet mono heading -->
+<!-- cassette: a section's name on the dial (RadioDial.module.css .sectionLabel): the display face's small
+     capitals in the quietest ink, with the section's room above it -->
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
-    style="@style/Cassette.Role.Kicker"
+    style="@style/LabelExtraSmall"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingStart="16dp"
-    android:paddingTop="24dp"
-    android:paddingEnd="16dp"
-    android:paddingBottom="4dp" />
+    android:accessibilityHeading="true"
+    android:letterSpacing="0.108"
+    android:paddingStart="4dp"
+    android:paddingTop="26dp"
+    android:paddingEnd="4dp"
+    android:paddingBottom="4dp"
+    android:textAllCaps="true"
+    android:textColor="@color/cs_ink3" />

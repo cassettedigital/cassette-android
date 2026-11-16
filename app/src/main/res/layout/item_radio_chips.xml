@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- cassette: the row of section chips under On now (RadioDial.module.css .dialRail): one per section of the
+     dial, a tap jumps to it. Once it scrolls up past the top, the Library's own copy stays there instead. -->
+<HorizontalScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:clipToPadding="false"
+    android:overScrollMode="never"
+    android:paddingStart="4dp"
+    android:paddingTop="22dp"
+    android:paddingEnd="4dp"
+    android:paddingBottom="8dp"
+    android:scrollbars="none">
+
+    <LinearLayout
+        android:id="@+id/radio_chips"
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
+        android:orientation="horizontal" />
+</HorizontalScrollView>

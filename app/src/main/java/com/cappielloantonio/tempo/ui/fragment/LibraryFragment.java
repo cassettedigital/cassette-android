@@ -102,8 +102,10 @@ public class LibraryFragment extends Fragment implements ClickCallback {
     public void onDestroyView() {
         super.onDestroyView();
         bind = null;
-        // the dial watches the view's life (saved stations): build it again with the next view
+        // the dial watches the view's life (saved stations, what's playing): build it again with the next view
+        if (radio != null) radio.release();
         radio = null;
+        radioListener = null;
         genres = null;
         mixes = null;
     }
@@ -171,56 +173,46 @@ public class LibraryFragment extends Fragment implements ClickCallback {
         }, "cassette-genres").start();
     }
     private com.cappielloantonio.tempo.ui.adapter.CassetteRadioAdapter radio;
+    private com.cappielloantonio.tempo.ui.adapter.CassetteRadioAdapter.Listener radioListener;
     private com.google.common.util.concurrent.ListenableFuture<androidx.media3.session.MediaBrowser> radioBrowser;
-
-    // what's on at each station, read every 30 seconds while the dial is on screen
-    private final android.os.Handler onNowHandler = new android.os.Handler(android.os.Looper.getMainLooper());
-    private final Runnable onNowTick = new Runnable() {
-        @Override
-        public void run() {
-            if (bind == null || radio == null || !CATEGORY_RADIO.equals(Preferences.getLibraryLastCategory())) return;
-            com.cappielloantonio.tempo.util.CassetteRadio.onNow(lines -> { if (radio != null) radio.setOnNow(lines); });
-            onNowHandler.postDelayed(this, 30_000);
-        }
-    };
-
-    private void startOnNow() {
-        onNowHandler.removeCallbacks(onNowTick);
-        onNowHandler.post(onNowTick);
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        onNowHandler.removeCallbacks(onNowTick);
-    }
 
     @Override
     public void onResume() {
         super.onResume();
-        if (radio != null && CATEGORY_RADIO.equals(Preferences.getLibraryLastCategory())) startOnNow();
+        // back on the Radio page after a while: On now asks what's on again
+        if (radio != null && CATEGORY_RADIO.equals(Preferences.getLibraryLastCategory())) radio.rereadIfStale(60_000);
     }
 
-    /** cassette: the dial (Library > Radio): every station, playing from its own stream. */
+    private com.google.common.util.concurrent.ListenableFuture<androidx.media3.session.MediaBrowser> radioBrowser() {
+        if (radioBrowser == null) {
+            radioBrowser = new androidx.media3.session.MediaBrowser.Builder(requireContext(),
+                    new androidx.media3.session.SessionToken(requireContext(),
+                            new android.content.ComponentName(requireContext(), com.cappielloantonio.tempo.service.MediaService.class))).buildAsync();
+        }
+        return radioBrowser;
+    }
+
+    /**
+     * cassette: the Radio page (Library > Radio), the one the Mac app and the website draw: On now, the section
+     * chips, then every station on the dial in its section, each playing from its own stream.
+     */
     private com.cappielloantonio.tempo.ui.adapter.CassetteRadioAdapter radioAdapter() {
         if (radio != null) return radio;
         com.cappielloantonio.tempo.util.CassetteRadio.refresh(requireContext().getApplicationContext());
-        radio = new com.cappielloantonio.tempo.ui.adapter.CassetteRadioAdapter(new com.cappielloantonio.tempo.ui.adapter.CassetteRadioAdapter.Listener() {
+        radioListener = new com.cappielloantonio.tempo.ui.adapter.CassetteRadioAdapter.Listener() {
             @Override
             public void onOpen(com.cappielloantonio.tempo.util.CassetteRadio.Station station) {
                 StationPageFragment.open(LibraryFragment.this, station.getSlug());
             }
 
             @Override
-            public void onTune(com.cappielloantonio.tempo.util.CassetteRadio.Station station) {
-                if (radioBrowser == null) {
-                    radioBrowser = new androidx.media3.session.MediaBrowser.Builder(requireContext(),
-                            new androidx.media3.session.SessionToken(requireContext(),
-                                    new android.content.ComponentName(requireContext(), com.cappielloantonio.tempo.service.MediaService.class))).buildAsync();
+            public void onDisc(com.cappielloantonio.tempo.util.CassetteRadio.Station station, boolean on) {
+                // a live stream has no pause: the station that's on stops; any other tunes in
+                if (on) {
+                    com.cappielloantonio.tempo.service.MediaManager.togglePlayPause(radioBrowser());
+                    return;
                 }
-                com.cappielloantonio.tempo.service.MediaManager.startRadio(radioBrowser, station.toInternetRadioStation());
-                radio.setOnAir("cassette-radio-" + station.getSlug());
-                activity.setBottomSheetInPeek(true);
+                tune(station);
             }
 
             @Override
@@ -232,7 +224,7 @@ public class LibraryFragment extends Fragment implements ClickCallback {
                 if (station.site() != null) popup.getMenu().add(0, 2, 2, getString(R.string.cassette_go_to_site, station.site()));
                 if (station.getSupportUrl() != null) popup.getMenu().add(0, 3, 3, getString(R.string.cassette_support_station, station.getName()));
                 popup.setOnMenuItemClickListener(item -> {
-                    if (item.getItemId() == 1) onTune(station);
+                    if (item.getItemId() == 1) tune(station);
                     else if (item.getItemId() == 4) {
                         android.content.Context app = requireContext().getApplicationContext();
                         com.cappielloantonio.tempo.util.CassetteRadioSaved.set(requireContext(), station.getSlug(), !saved, ok -> {
@@ -245,22 +237,72 @@ public class LibraryFragment extends Fragment implements ClickCallback {
                 });
                 popup.show();
             }
-        });
-        startOnNow();
+
+            @Override
+            public void onJump(int section) {
+                jumpToSection(section);
+            }
+        };
+        radio = new com.cappielloantonio.tempo.ui.adapter.CassetteRadioAdapter(requireContext(), radioListener);
         com.cappielloantonio.tempo.util.CassetteRadioSaved.refresh(requireContext());
         com.cappielloantonio.tempo.util.CassetteRadioSaved.saved(requireContext()).observe(getViewLifecycleOwner(),
-                slugs -> { if (radio != null) radio.setSaved(slugs, getString(R.string.cassette_your_stations)); });
+                slugs -> { if (radio != null) radio.setSaved(slugs); });
+        // On now's ring and the dial's waveform follow what's actually playing
+        com.cappielloantonio.tempo.util.CassetteNowPlaying.live().observe(getViewLifecycleOwner(),
+                state -> { if (radio != null) radio.setNowPlaying(state.mediaId, state.isPlaying); });
+        // the section chips stay under the top once the dial's own row of them scrolls past it
+        bind.libraryCatalogueRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                holdRadioChips();
+            }
+        });
         new Thread(() -> {
             java.util.List<com.cappielloantonio.tempo.util.CassetteRadio.Station> stations =
                     com.cappielloantonio.tempo.util.CassetteRadio.stations(requireContext().getApplicationContext());
             requireActivity().runOnUiThread(() -> {
-                if (bind == null) return;
+                if (bind == null || radio == null) return;
                 radio.setStations(stations);
                 stationCount = stations.size();
                 refreshCountLine();
+                holdRadioChips();
             });
         }, "cassette-radio-dial").start();
         return radio;
+    }
+
+    private void tune(com.cappielloantonio.tempo.util.CassetteRadio.Station station) {
+        com.cappielloantonio.tempo.service.MediaManager.startRadio(radioBrowser(), station.toInternetRadioStation());
+        activity.setBottomSheetInPeek(true);
+    }
+
+    /** The held row of chips shows on the Radio page once the dial's own row has scrolled above the top. */
+    private void holdRadioChips() {
+        if (bind == null) return;
+        boolean onRadio = radio != null && CATEGORY_RADIO.equals(Preferences.getLibraryLastCategory())
+                && bind.libraryCatalogueRecyclerView.getAdapter() == radio;
+        int at = onRadio ? radio.chipsPosition() : -1;
+        boolean hold = false;
+        if (at >= 0 && bind.libraryCatalogueRecyclerView.getLayoutManager() instanceof LinearLayoutManager) {
+            LinearLayoutManager lm = (LinearLayoutManager) bind.libraryCatalogueRecyclerView.getLayoutManager();
+            View row = lm.findViewByPosition(at);
+            // held once its chips (below the row's own room above them) would pass under the top
+            int room = Math.round(14 * getResources().getDisplayMetrics().density);
+            hold = row != null ? row.getTop() + room < 0 : lm.findFirstVisibleItemPosition() > at;
+        }
+        if (hold) {
+            com.cappielloantonio.tempo.ui.adapter.CassetteRadioAdapter.fillChips(bind.libraryRadioChipRow, radio.getSectionTitles(), radioListener);
+        }
+        bind.libraryRadioChips.setVisibility(hold ? View.VISIBLE : View.GONE);
+    }
+
+    /** A chip: the section's name lands just under the held chips, with its own room above it. */
+    private void jumpToSection(int section) {
+        if (bind == null || radio == null) return;
+        int at = radio.sectionStart(section);
+        if (at < 0 || !(bind.libraryCatalogueRecyclerView.getLayoutManager() instanceof LinearLayoutManager)) return;
+        int held = Math.round(46 * getResources().getDisplayMetrics().density);
+        ((LinearLayoutManager) bind.libraryCatalogueRecyclerView.getLayoutManager()).scrollToPositionWithOffset(at, held);
     }
 
     /** "139 ALBUMS" over the list, or one plain title when there is nothing here. */
@@ -442,7 +484,6 @@ public class LibraryFragment extends Fragment implements ClickCallback {
                 bind.libraryCatalogueRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
                 applyGridSpacing(1);
                 bind.libraryCatalogueRecyclerView.setAdapter(radioAdapter());
-                startOnNow();
                 break;
             case CATEGORY_GENRES: {
                 pushPickerToToolbar(R.string.cassette_genres);
@@ -491,6 +532,8 @@ public class LibraryFragment extends Fragment implements ClickCallback {
             if (at >= 0 && lm instanceof LinearLayoutManager) ((LinearLayoutManager) lm).scrollToPositionWithOffset(at, 0);
         });
         refreshCountLine();
+        // the Radio page's held chips belong to it alone
+        holdRadioChips();
     }
 
     @Override

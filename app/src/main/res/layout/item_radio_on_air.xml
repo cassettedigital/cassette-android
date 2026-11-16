@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- cassette: one card in On now, the top of the Radio page (the Mac's and the website's, components/radio/
+     RadioDial OnAirCard): the station's mark, or what it's playing with the mark as a badge on its corner
+     (CassetteOnAirArt); the station's name, the show or song in the italic, a meta line ("until 3:00 PM"),
+     and a play disc. A tap opens the station's page; only the disc tunes in, or stops the one that's on. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingStart="4dp"
+    android:paddingEnd="4dp"
+    android:paddingBottom="12dp">
+
+    <LinearLayout
+        android:id="@+id/on_air_card"
+        android:layout_width="match_parent"
+        android:layout_height="112dp"
+        android:background="@drawable/cs_on_air_card"
+        android:clickable="true"
+        android:focusable="true"
+        android:foreground="?attr/selectableItemBackground"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <com.cappielloantonio.tempo.ui.view.CassetteOnAirArt
+            android:id="@+id/on_air_art"
+            android:layout_width="112dp"
+            android:layout_height="112dp" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="12dp"
+            android:layout_weight="1"
+            android:importantForAccessibility="no"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/on_air_station"
+                style="@style/Cassette.Role.TileLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1" />
+
+            <TextView
+                android:id="@+id/on_air_now"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:ellipsize="end"
+                android:fontFamily="@font/newsreader"
+                android:maxLines="2"
+                android:textColor="@color/cs_ink"
+                android:textSize="17sp"
+                android:textStyle="italic" />
+
+            <TextView
+                android:id="@+id/on_air_meta"
+                style="@style/LabelCardSubtitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:ellipsize="end"
+                android:maxLines="1" />
+        </LinearLayout>
+
+        <!-- the disc, 40dp on a 44dp touch, the card's own size of it -->
+        <FrameLayout
+            android:id="@+id/on_air_play"
+            android:layout_width="@dimen/kit_play_disc_hit"
+            android:layout_height="@dimen/kit_play_disc_hit"
+            android:layout_marginEnd="14dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:focusable="true">
+
+            <ImageView
+                android:id="@+id/on_air_play_glyph"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="center"
+                android:background="@drawable/cs_cream_disc"
+                android:elevation="2dp"
+                android:importantForAccessibility="no"
+                android:padding="11dp"
+                android:paddingStart="12dp"
+                android:src="@drawable/cs_play_glyph"
+                app:tint="@color/cs_on_fill" />
+        </FrameLayout>
+    </LinearLayout>
+</FrameLayout>

@@ -33,7 +33,27 @@ object CassetteRadio {
         val accent: String?,
         /** genres, moods, eras and cities, for Search */
         val keywords: List<String> = emptyList(),
+        /**
+         * The line under the name on the dial, the Mac's kicker (apps/cassette/src/lib/radio/dial.ts):
+         * the network unless it is the station's own name, its city, and "Live" for a station with a
+         * schedule and hosts ("KUSC 91.5 · Los Angeles · Live").
+         */
+        val kicker: String = label,
+        /** The network On now's meta line names ("KUSC 91.5"); empty when it is the station's own name. */
+        val network: String = "",
+        /** What it sounds like, in its own words: the dial's row says it under the kicker. */
+        val description: String = "",
+        /** It publishes what's on (a show or a song), so On now can say. */
+        val live: Boolean = false,
+        /** A station with a schedule and hosts, not a channel. */
+        val isStation: Boolean = false,
+        /** Its mark on the image ladder, `{rung}` to fill (lib/radio/picture-refs.ts); the bundled copy has none. */
+        val imageSrc: String? = null,
     ) {
+        /** Its mark for a frame `px` pixels across: the ladder's rung when the cloud sent one, else the plain address. */
+        fun imageUrl(px: Int): String? =
+            CassetteImageLadder.rungUrl(imageSrc, CassetteImageLadder.ladderSize(px)) ?: image
+
         fun toInternetRadioStation(): InternetRadioStation = InternetRadioStation().apply {
             id = "cassette-radio-$slug"
             name = this@Station.name
@@ -110,9 +130,69 @@ object CassetteRadio {
             val words = listOf("genres", "moods", "eras", "cityLabels").flatMap { k ->
                 o.getAsJsonArray(k)?.mapNotNull { runCatching { it.asString }.getOrNull() }.orEmpty()
             } + listOfNotNull(o.str("sourceLabel"), o.str("section"))
-            Station(slug, name, label, o.str("section") ?: "", stream, o.str("homepage"), o.str("supportUrl"), o.str("image"), o.str("accent"), words)
+            val isStation = o.str("kind") == "station"
+            val kicker = listOfNotNull(network, cities.firstOrNull(), "Live".takeIf { isStation }).joinToString(" · ")
+            val live = o.get("hasNowPlaying")?.takeIf { it.isJsonPrimitive }?.let { runCatching { it.asBoolean }.getOrNull() } ?: false
+            val imageSrc = o.get("imageRef")?.takeIf { it.isJsonObject }?.asJsonObject?.str("src")
+            Station(slug, name, label, o.str("section") ?: "", stream, o.str("homepage"), o.str("supportUrl"), o.str("image"), o.str("accent"), words,
+                kicker = kicker, network = network ?: "", description = o.str("description") ?: "", live = live,
+                isStation = isStation, imageSrc = imageSrc)
         }.orEmpty()
         return out.sortedBy { order.indexOf(it.section).let { i -> if (i < 0) Int.MAX_VALUE else i } }
+    }
+
+    /**
+     * The dial as the Mac's Radio page lays it out (apps/cassette/src/lib/radio/dial.ts): the saved stations
+     * first, newest saved first, then the rest in the dial's own order (by section, the registry's order
+     * inside each). A section comes in where its first station does, so the sections holding saved
+     * stations lead.
+     */
+    @JvmStatic
+    fun dial(stations: List<Station>, saved: List<String>): List<Station> {
+        val savedAt = HashMap<String, Int>()
+        saved.forEachIndexed { i, slug -> savedAt.putIfAbsent(slug, i) }
+        return stations.withIndex()
+            .sortedWith(compareBy<IndexedValue<Station>>({ savedAt[it.value.slug] ?: Int.MAX_VALUE }, { it.index }))
+            .map { it.value }
+    }
+
+    /** The day the web turns On now by: whole days since 1970, in UTC. */
+    @JvmStatic
+    fun today(): Long = Math.floorDiv(System.currentTimeMillis(), 86_400_000L)
+
+    /**
+     * A station's place in today's order: the same all day, different the next. The web's own small steady
+     * hash (apps/cassette/src/lib/radio/daily-turn.ts) on the same day number, so On now leads with the same
+     * live stations on the phone as on the Mac and the website.
+     */
+    @JvmStatic
+    fun dailyTurn(day: Long, slug: String): Long {
+        val s = "$day|$slug"
+        var h = 2166136261L.toInt()
+        var i = 0
+        while (i < s.length) {
+            // the web reads each character's first UTF-16 unit (`charCodeAt(0)`)
+            h = h xor s[i].code
+            h *= 16777619
+            i += Character.charCount(s.codePointAt(i))
+        }
+        return h.toLong() and 0xFFFFFFFFL
+    }
+
+    /**
+     * On now's stations (components/radio/RadioDial): the saved ones, newest saved first, then the live
+     * stations that publish what's on and have a mark of their own, in today's turn so the same few don't
+     * lead for weeks (the founder, 2026-11-07); six at most.
+     */
+    @JvmStatic
+    @JvmOverloads
+    fun onNowStations(stations: List<Station>, saved: List<String>, day: Long = today()): List<Station> {
+        val bySlug = stations.associateBy { it.slug }
+        val mine = saved.distinct().mapNotNull { bySlug[it] }
+        val live = stations
+            .filter { it.slug !in saved && it.live && it.isStation && !it.image.isNullOrEmpty() }
+            .sortedBy { dailyTurn(day, it.slug) }
+        return (mine + live).take(6)
     }
 
     /** Stations matching what was typed, by name, network, city, mood, era or genre (iPhone e0b0efab). */
@@ -130,48 +210,6 @@ object CassetteRadio {
             }
             rank to s
         }.filter { it.first < 3 }.sortedBy { it.first }.map { it.second }.take(5)
-    }
-
-    fun interface OnNow {
-        fun onNow(lines: Map<String, String>)
-    }
-
-    /**
-     * What's on at every station whose feed the cloud reads (`GET /api/radio/on-now`,
-     * public), as one line per slug: "Title · Artist", or the show. Read only while a
-     * screen with stations is up.
-     */
-    @JvmStatic
-    fun onNow(callback: OnNow) {
-        Thread({
-            val lines = HashMap<String, String>()
-            try {
-                val client = OkHttpClient.Builder().callTimeout(10, TimeUnit.SECONDS).build()
-                client.newCall(Request.Builder().url(Cassette.BASE_URL + "/api/radio/on-now").build()).execute().use { r ->
-                    val body = r.body?.string()
-                    if (r.isSuccessful && body != null) {
-                        val stations = JsonParser.parseString(body).asJsonObject.getAsJsonObject("stations")
-                        stations?.entrySet()?.forEach { (slug, v) ->
-                            if (!v.isJsonObject) return@forEach
-                            val o = v.asJsonObject
-                            val title = o.str("title")
-                            val artist = o.str("artist")
-                            val show = o.str("show")
-                            val line = when {
-                                title != null && artist != null -> "$title · $artist"
-                                title != null -> title
-                                show != null -> show
-                                else -> null
-                            }
-                            if (line != null) lines[slug] = line
-                        }
-                    }
-                }
-            } catch (e: Exception) {
-                Log.w(TAG, "on-now failed", e)
-            }
-            android.os.Handler(android.os.Looper.getMainLooper()).post { callback.onNow(lines) }
-        }, "cassette-radio-on-now").start()
     }
 
     /** One song a station played (lib/radio/types.ts RadioPlay), with the record on Cassette it matched. */

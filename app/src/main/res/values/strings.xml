@@ -533,6 +533,11 @@
     <string name="cassette_now">Now</string>
     <string name="cassette_live">LIVE</string>
     <string name="cassette_your_stations">Your stations</string>
+    <!-- the Radio page's top, as on the Mac and the website -->
+    <string name="cassette_on_now">On now</string>
+    <string name="cassette_tune_in_to">Tune in to %1$s</string>
+    <string name="cassette_stop_station">Stop %1$s</string>
+    <string name="cassette_until">until %1$s</string>
     <string name="cassette_remove_from_your_stations">Remove from Your Stations</string>
     <string name="cassette_save_failed">Couldn’t save that. Try again when you’re online.</string>
     <string name="cassette_copy_song">Copy Song and Artist</string>

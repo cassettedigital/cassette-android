@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- cassette: a section chip's words, up to the full ink while pressed -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:color="@color/cs_ink" android:state_pressed="true" />
+    <item android:color="@color/cs_ink2" />
+</selector>

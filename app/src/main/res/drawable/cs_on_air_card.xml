@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- cassette: an On now card on the Radio page (RadioDial.module.css .onAir): the raised surface at the
+     kit's card corners, which also round the station's mark in its picture square. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="@color/cs_raised" />
+    <corners android:radius="@dimen/kit_radius_card" />
+</shape>

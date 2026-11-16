@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- cassette: a station on the dial (iPhone RadioStationCell, kit component.stationRow):
-     a squircle of the station's picture (or its name as word art in its own colour),
-     the name, and what's on (else "Network · City"). A tap opens its page; the
-     disc tunes in; a long press has Play, Save, its site and support, never an
-     editor. -->
+<!-- cassette: a station on the dial, the Mac's station row (the kit's StationRow, components/radio/RadioDial):
+     its mark shaped like an app icon (the kit's shape.station), or its name as word art in its own colour;
+     the name; where it's from ("Seattle · Live"); what it sounds like, in its own words; then the play disc,
+     or the waveform while it plays. A tap opens its page; the disc tunes in; a long press has Play, Save,
+     its site and support, never an editor. What's on now is On now's to say, at the top of the page. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -11,14 +11,14 @@
     android:background="?attr/selectableItemBackground"
     android:gravity="center_vertical"
     android:orientation="horizontal"
-    android:paddingStart="16dp"
-    android:paddingTop="12dp"
-    android:paddingEnd="16dp"
-    android:paddingBottom="12dp">
+    android:paddingStart="4dp"
+    android:paddingTop="@dimen/kit_station_row_pad_y"
+    android:paddingEnd="4dp"
+    android:paddingBottom="@dimen/kit_station_row_pad_y">
 
     <FrameLayout
-        android:layout_width="56dp"
-        android:layout_height="56dp">
+        android:layout_width="@dimen/kit_station_row_logo"
+        android:layout_height="@dimen/kit_station_row_logo">
 
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/station_art"
@@ -57,18 +57,55 @@
             android:ellipsize="end"
             android:maxLines="1" />
 
+        <!-- the kicker, in the kit's metadata role -->
         <TextView
             android:id="@+id/station_label"
-            style="@style/LabelCardSubtitle"
+            style="@style/CassetteMono"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/kit_station_row_gap"
             android:ellipsize="end"
-            android:maxLines="1" />
+            android:maxLines="1"
+            android:textColor="@color/cs_ink2"
+            android:textFontWeight="500"
+            android:textSize="13sp" />
+
+        <!-- what it sounds like, in the kit's body face (.stDesc). The platform's own TextView on purpose: AppCompat's
+             text helper hands every TextView the theme's display face from a callback that lands after inflation,
+             over any face the layout or the code gives it. -->
+        <android.widget.TextView
+            android:id="@+id/station_description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/kit_station_row_gap"
+            android:ellipsize="end"
+            android:fontFamily="sans-serif"
+            android:lineSpacingMultiplier="1.1"
+            android:maxLines="2"
+            android:textColor="@color/cs_ink3"
+            android:textSize="13sp" />
     </LinearLayout>
-    <include
-        android:id="@+id/station_play"
-        layout="@layout/view_play_disc"
-        android:layout_width="@dimen/kit_play_disc_hit"
-        android:layout_height="@dimen/kit_play_disc_hit"
-        android:layout_marginStart="8dp" />
+
+    <FrameLayout
+        android:layout_width="56dp"
+        android:layout_height="wrap_content"
+        android:paddingEnd="4dp">
+
+        <include
+            android:id="@+id/station_play"
+            layout="@layout/view_play_disc"
+            android:layout_width="@dimen/kit_play_disc_hit"
+            android:layout_height="@dimen/kit_play_disc_hit"
+            android:layout_gravity="center" />
+
+        <ImageView
+            android:id="@+id/station_wave"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:layout_gravity="center"
+            android:contentDescription="@string/cassette_on_air"
+            android:src="@drawable/ic_graphic_eq"
+            android:visibility="gone"
+            app:tint="@color/cs_accent_text" />
+    </FrameLayout>
 </LinearLayout>

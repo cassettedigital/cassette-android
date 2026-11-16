@@ -69,6 +69,30 @@
             android:paddingEnd="16dp"
             android:paddingBottom="@dimen/global_padding_bottom" />
 
+        <!-- Radio: the section chips, held under the top once the dial's own row of them scrolls past it
+             (RadioDial.module.css .dialRail is sticky), on the page's colour so the rows pass under unseen -->
+        <HorizontalScrollView
+            android:id="@+id/library_radio_chips"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top"
+            android:background="@color/cs_bg"
+            android:clipToPadding="false"
+            android:overScrollMode="never"
+            android:paddingStart="20dp"
+            android:paddingTop="8dp"
+            android:paddingEnd="20dp"
+            android:paddingBottom="8dp"
+            android:scrollbars="none"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:id="@+id/library_radio_chip_row"
+                android:layout_width="wrap_content"
+                android:layout_height="30dp"
+                android:orientation="horizontal" />
+        </HorizontalScrollView>
+
         <!-- the # to Z index, shown with the lettered album grid -->
         <com.cappielloantonio.tempo.ui.view.CassetteLetterIndex
             android:id="@+id/library_letter_index"

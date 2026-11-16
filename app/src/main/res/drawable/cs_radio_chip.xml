@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- cassette: a section chip under On now (RadioDial.module.css .dialChip): a raised pill that lifts a step
+     while pressed. -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_pressed="true">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/cs_elevated" />
+            <corners android:radius="@dimen/kit_radius_pill" />
+        </shape>
+    </item>
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/cs_raised" />
+            <corners android:radius="@dimen/kit_radius_pill" />
+        </shape>
+    </item>
+</selector>

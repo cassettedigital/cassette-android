@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- cassette: an On now card whose station is playing, ringed in the live orange (.onAir[data-on]). -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="@android:color/transparent" />
+    <stroke
+        android:width="1.5dp"
+        android:color="@color/cs_accent" />
+    <corners android:radius="@dimen/kit_radius_card" />
+</shape>
