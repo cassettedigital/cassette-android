@@ -190,10 +190,12 @@
         <item name="cornerSize">@dimen/kit_radius_player_artwork</item>
     </style>
 
-    <!-- cassette: stations are squircles, the kit's shape.station (22.5% of the side) -->
+    <!-- cassette: a station's mark takes an app icon's corners, the kit's shape.station (18% of the side,
+         eased from 22.5% on 2026-11-16). A percent can't point at a dimen, so this one is kept by hand:
+         change it with packages/cassette-kit/tokens.json. -->
     <style name="CassetteStationShape" parent="">
         <item name="cornerFamily">rounded</item>
-        <item name="cornerSize">22.5%</item>
+        <item name="cornerSize">18%</item>
     </style>
 
     <!-- cassette: perfect circle for the big album-page play button -->

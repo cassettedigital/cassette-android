@@ -181,5 +181,5 @@
     <dimen name="kit_type_meta">13sp</dimen>
     <integer name="kit_type_meta_weight">500</integer>
     <item name="kit_type_meta_tracking" format="float" type="dimen">0.131</item>
-    <item name="kit_shape_station" format="float" type="dimen">0.225</item>
+    <item name="kit_shape_station" format="float" type="dimen">0.18</item>
 </resources>

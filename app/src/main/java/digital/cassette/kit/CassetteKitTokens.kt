@@ -64,7 +64,7 @@ object CassetteKitTokens {
     }
     /** A corner as a share of the side: multiply by the part's width. */
     object Shape {
-        const val station: Float = 0.225f
+        const val station: Float = 0.18f
     }
     object Space {
         const val xs: Float = 4f
