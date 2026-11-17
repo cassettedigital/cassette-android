@@ -108,11 +108,6 @@
         "blurb": "WFMU across the river, WFUV in the Bronx."
       },
       {
-        "id": "philadelphia",
-        "label": "Philadelphia",
-        "blurb": "WXPN."
-      },
-      {
         "id": "new-orleans",
         "label": "New Orleans",
         "blurb": "WWOZ."
@@ -133,9 +128,14 @@
         "blurb": "WMBR, across the river in Cambridge."
       },
       {
+        "id": "princeton",
+        "label": "Princeton",
+        "blurb": "WPRB."
+      },
+      {
         "id": "paris",
         "label": "Paris",
-        "blurb": "FIP, Radio Nova, TSF Jazz."
+        "blurb": "FIP."
       },
       {
         "id": "brussels",
@@ -150,12 +150,7 @@
       {
         "id": "oslo",
         "label": "Oslo",
-        "blurb": "NRK P13."
-      },
-      {
-        "id": "stockholm",
-        "label": "Stockholm",
-        "blurb": "Sveriges Radio P3."
+        "blurb": "NRK P3 Musikk."
       },
       {
         "id": "copenhagen",
@@ -196,7 +191,7 @@
       "homepage": "https://www.kexp.org/",
       "supportUrl": "https://www.kexp.org/donate/",
       "description": "Seattle's listener-powered station. Real DJs, real shows, and the record named on every play.",
-      "image": "https://cassette.digital/radio-art/kexp.jpg",
+      "image": "https://www.cassette.digital/radio-art/kexp.jpg",
       "accent": "#f26522",
       "moods": [],
       "eras": [],
@@ -217,12 +212,12 @@
       "hasNowPlaying": true,
       "hasRecentPlays": true,
       "similar": [
-        "kcrw",
-        "radio-nova",
-        "kcrw-eclectic24",
         "dr-p6-beat",
-        "nrk-p13",
-        "the-current"
+        "the-current",
+        "wfuv",
+        "fip-rock",
+        "radioparadise-main",
+        "dublab"
       ],
       "about": {
         "text": "KEXP is a non-commercial radio station in Seattle, Washington, United States, specializing in indie music programmed by its disc jockeys. The station is operated by the non-profit entity Friends of KEXP, an affiliate of the University of Washington.",
@@ -241,7 +236,7 @@
       "homepage": "https://www.nts.live/1",
       "supportUrl": "https://www.nts.live/supporters",
       "description": "NTS's first channel, live from London. A different show and a different host every hour or two.",
-      "image": "https://cassette.digital/radio-art/nts.png",
+      "image": "https://www.cassette.digital/radio-art/nts.png",
       "accent": "#d7263d",
       "moods": [],
       "eras": [],
@@ -264,9 +259,9 @@
         "kiosk-radio",
         "soho-radio",
         "fip",
-        "radio-nova",
-        "kcrw",
-        "nts-2"
+        "nts-2",
+        "wkcr",
+        "dublab"
       ],
       "about": {
         "text": "NTS Radio is a music radio platform founded in 2011 in Hackney, London by Femi Adeyemi \"for an international community of music lovers\". The platform prioritises showcasing niche artists in its radio programming and live events. NTS Radio's tagline is \"Don't Assume\".",
@@ -285,7 +280,7 @@
       "homepage": "https://www.nts.live/2",
       "supportUrl": "https://www.nts.live/supporters",
       "description": "NTS's second channel, live from Los Angeles. Funk, boogie, ambient, whatever the host brought.",
-      "image": "https://cassette.digital/radio-art/nts.png",
+      "image": "https://www.cassette.digital/radio-art/nts.png",
       "accent": "#1b998b",
       "moods": [],
       "eras": [],
@@ -306,11 +301,11 @@
       "hasRecentPlays": false,
       "similar": [
         "soho-radio",
-        "radio-nova",
         "dublab",
         "fip",
         "kexp",
-        "kiosk-radio"
+        "kiosk-radio",
+        "nts-1"
       ],
       "about": {
         "text": "NTS Radio is a music radio platform founded in 2011 in Hackney, London by Femi Adeyemi \"for an international community of music lovers\". The platform prioritises showcasing niche artists in its radio programming and live events. NTS Radio's tagline is \"Don't Assume\".",
@@ -329,7 +324,7 @@
       "homepage": "https://wfmu.org/",
       "supportUrl": "https://wfmu.org/pledge",
       "description": "Freeform radio from Jersey City since 1958. The DJs play whatever they want, and it is never the same twice.",
-      "image": "https://cassette.digital/radio-art/wfmu.jpg",
+      "image": "https://www.cassette.digital/radio-art/wfmu.jpg",
       "accent": "#e63946",
       "moods": [
         "late-night"
@@ -352,10 +347,10 @@
       "similar": [
         "kalx",
         "wprb",
-        "kcrw-eclectic24",
         "new-sounds",
         "nts-1",
-        "wkcr"
+        "wkcr",
+        "kfjc"
       ],
       "about": {
         "text": "WFMU is a non-commercial, listener-supported, independent community radio station licensed to East Orange, New Jersey, with studios in Jersey City. It is owned by Auricle Communications, broadcasting a free-form radio format.",
@@ -372,9 +367,9 @@
       "kind": "station",
       "streamUrl": "https://dublab.out.airtime.pro/dublab_a",
       "homepage": "https://www.dublab.com/",
-      "supportUrl": "https://www.dublab.com/donate",
+      "supportUrl": "https://www.dublab.com/support/memberships",
       "description": "Los Angeles' non-profit radio collective. Future roots since 1999.",
-      "image": "https://cassette.digital/radio-art/dublab.jpg",
+      "image": "https://www.cassette.digital/radio-art/dublab.jpg",
       "accent": "#ffb703",
       "moods": [
         "chill"
@@ -396,11 +391,11 @@
       "hasRecentPlays": false,
       "similar": [
         "fip",
-        "kcrw-eclectic24",
         "nts-2",
         "kiosk-radio",
         "kexp",
-        "radio-nova"
+        "somafm-fluid",
+        "somafm-groovesalad"
       ],
       "about": {
         "text": "dublab is a non-profit music public broadcasting internet radio station based in Los Angeles. They have also been involved with art exhibitions, film projects, event production, and record releases. dublab was founded in 1999 by Jonathan Buck, Mark McNeill and fellow students from KSCR Radio at the University of Southern California.",
@@ -419,7 +414,7 @@
       "homepage": "https://wfuv.org/",
       "supportUrl": null,
       "description": "Fordham's public radio in the Bronx. Singer-songwriters, adult alternative, and the live sessions New York musicians stop by for.",
-      "image": "https://cassette.digital/radio-art/wfuv.jpg",
+      "image": "https://www.cassette.digital/radio-art/wfuv.jpg",
       "accent": "#8d99ae",
       "moods": [],
       "eras": [],
@@ -440,60 +435,16 @@
       "hasRecentPlays": false,
       "similar": [
         "the-current",
-        "wxpn",
         "kexp",
         "dr-p6-beat",
-        "nrk-p13",
-        "fip-rock"
+        "fip-rock",
+        "radioparadise-main",
+        "kalx"
       ],
       "about": {
         "text": "WFUV is a non-commercial radio station licensed to New York, New York. WFUV first went on the air in 1947. It became a professional public radio station in 1990 and is one of three NPR member stations in New York City. Its on-air staff has included Dennis Elsas, Vin Scelsa, Pete Fornatale, and Rita Houston.",
         "source": "Wikipedia",
         "url": "https://en.wikipedia.org/wiki/WFUV",
-        "license": "CC BY-SA 4.0, shortened"
-      }
-    },
-    {
-      "slug": "wxpn",
-      "name": "WXPN",
-      "source": "wxpn",
-      "sourceLabel": "WXPN",
-      "kind": "station",
-      "streamUrl": "https://wxpnhi.xpn.org/xpnhi",
-      "homepage": "https://xpn.org/",
-      "supportUrl": null,
-      "description": "Philadelphia's public radio for music lovers, home of World Cafe.",
-      "image": "https://cassette.digital/radio-art/wxpn.jpg",
-      "accent": "#1d3557",
-      "moods": [],
-      "eras": [],
-      "genres": [
-        "indie",
-        "rock",
-        "folk",
-        "soul"
-      ],
-      "cities": [
-        "philadelphia"
-      ],
-      "cityLabels": [
-        "Philadelphia"
-      ],
-      "section": "Live · United States",
-      "hasNowPlaying": true,
-      "hasRecentPlays": true,
-      "similar": [
-        "the-current",
-        "wfuv",
-        "kexp",
-        "dr-p6-beat",
-        "nrk-p13",
-        "fip-rock"
-      ],
-      "about": {
-        "text": "WXPN is a non-commercial radio station licensed to the Trustees of the University of Pennsylvania in Philadelphia, Pennsylvania, that airs an adult album alternative (AAA) format. WXPN produces World Cafe, a music program distributed by NPR to non-commercial stations in the United States.",
-        "source": "Wikipedia",
-        "url": "https://en.wikipedia.org/wiki/WXPN",
         "license": "CC BY-SA 4.0, shortened"
       }
     },
@@ -507,7 +458,7 @@
       "homepage": "https://radioparadise.com/",
       "supportUrl": "https://radioparadise.com/support",
       "description": "Eclectic, hand-picked rock and beyond, mixed by two people in Paradise, California since 2000. No ads.",
-      "image": "https://cassette.digital/radio-art/radioparadise-main.jpg",
+      "image": "https://www.cassette.digital/radio-art/radioparadise-main.jpg",
       "accent": "#3a6ea5",
       "moods": [],
       "eras": [],
@@ -525,10 +476,10 @@
       "similar": [
         "kexp",
         "fip",
-        "kcrw",
         "the-current",
         "wfuv",
-        "wxpn"
+        "fip-rock",
+        "radioparadise-global"
       ],
       "about": {
         "text": "Radio Paradise is a non-commercial, listener-supported Internet radio station. The station is based in the United States, has a user base of thousands of simultaneous listeners, and a broad international audience.",
@@ -547,7 +498,7 @@
       "homepage": "https://radioparadise.com/",
       "supportUrl": "https://radioparadise.com/support",
       "description": "The same hands, the volume down: the quieter end of the Radio Paradise library.",
-      "image": "https://cassette.digital/radio-art/radioparadise-mellow.jpg",
+      "image": "https://www.cassette.digital/radio-art/radioparadise-mellow.jpg",
       "accent": "#6b8e9f",
       "moods": [
         "chill",
@@ -565,12 +516,12 @@
       "hasNowPlaying": true,
       "hasRecentPlays": false,
       "similar": [
-        "kcrw-eclectic24",
         "somafm-dronezone",
         "somafm-folkfwd",
         "nts-slow-focus",
         "dublab",
-        "fip"
+        "fip",
+        "new-sounds"
       ],
       "about": {
         "text": "Radio Paradise is a non-commercial, listener-supported Internet radio station. The station is based in the United States, has a user base of thousands of simultaneous listeners, and a broad international audience.",
@@ -589,7 +540,7 @@
       "homepage": "https://radioparadise.com/",
       "supportUrl": "https://radioparadise.com/support",
       "description": "Radio Paradise with the guitars turned up.",
-      "image": "https://cassette.digital/radio-art/radioparadise-rock.jpg",
+      "image": "https://www.cassette.digital/radio-art/radioparadise-rock.jpg",
       "accent": "#b23a48",
       "moods": [],
       "eras": [],
@@ -626,7 +577,7 @@
       "homepage": "https://radioparadise.com/",
       "supportUrl": "https://radioparadise.com/support",
       "description": "Radio Paradise's passport: music from everywhere, mixed by hand.",
-      "image": "https://cassette.digital/radio-art/radioparadise-global.jpg",
+      "image": "https://www.cassette.digital/radio-art/radioparadise-global.jpg",
       "accent": "#2a9d8f",
       "moods": [
         "sunny"
@@ -642,12 +593,12 @@
       "hasNowPlaying": true,
       "hasRecentPlays": false,
       "similar": [
-        "radio-nova",
         "radioparadise-main",
         "fip",
-        "kcrw",
         "somafm-bossa",
-        "fip-monde"
+        "fip-monde",
+        "nts-sweat",
+        "somafm-suburbsofgoa"
       ],
       "about": {
         "text": "Radio Paradise is a non-commercial, listener-supported Internet radio station. The station is based in the United States, has a user base of thousands of simultaneous listeners, and a broad international audience.",
@@ -827,9 +778,9 @@
         "somafm-groovesalad",
         "somafm-missioncontrol",
         "ambient-sleeping-pill",
-        "kcrw-eclectic24",
         "nts-field-recordings",
-        "nts-labyrinth"
+        "nts-labyrinth",
+        "radioparadise-mellow"
       ],
       "about": {
         "text": "SomaFM is a multi-channel Internet radio station supported with donations without advertisements. The station takes its name from Soma, the fictional drug from Aldous Huxley's 1932 novel Brave New World and the South of Market neighborhood of San Francisco, known colloquially as SoMa.",
@@ -965,12 +916,12 @@
       "hasNowPlaying": true,
       "hasRecentPlays": true,
       "similar": [
-        "kcrw-eclectic24",
         "somafm-beatblender",
         "somafm-digitalis",
         "nightride-fm",
         "nightwave-plaza",
-        "fip"
+        "fip",
+        "kiosk-radio"
       ],
       "about": {
         "text": "SomaFM is a multi-channel Internet radio station supported with donations without advertisements. The station takes its name from Soma, the fictional drug from Aldous Huxley's 1932 novel Brave New World and the South of Market neighborhood of San Francisco, known colloquially as SoMa.",
@@ -1015,9 +966,9 @@
         "netil-radio",
         "somafm-groovesalad",
         "fip-electro",
-        "kcrw-eclectic24",
         "somafm-fluid",
-        "kiosk-radio"
+        "kiosk-radio",
+        "nightride-fm"
       ],
       "about": {
         "text": "SomaFM is a multi-channel Internet radio station supported with donations without advertisements. The station takes its name from Soma, the fictional drug from Aldous Huxley's 1932 novel Brave New World and the South of Market neighborhood of San Francisco, known colloquially as SoMa.",
@@ -1152,7 +1103,7 @@
         "radio-swiss-pop",
         "somafm-insound",
         "somafm-digitalis",
-        "sr-p3"
+        "0n-60s"
       ],
       "about": {
         "text": "SomaFM is a multi-channel Internet radio station supported with donations without advertisements. The station takes its name from Soma, the fictional drug from Aldous Huxley's 1932 novel Brave New World and the South of Market neighborhood of San Francisco, known colloquially as SoMa.",
@@ -1197,7 +1148,7 @@
         "nightride-datawave",
         "fip-electro",
         "nts-4-to-the-floor",
-        "kcrw-eclectic24"
+        "kiosk-radio"
       ],
       "about": {
         "text": "SomaFM is a multi-channel Internet radio station supported with donations without advertisements. The station takes its name from Soma, the fictional drug from Aldous Huxley's 1932 novel Brave New World and the South of Market neighborhood of San Francisco, known colloquially as SoMa.",
@@ -1524,7 +1475,7 @@
         "fip-jazz",
         "nts-expansions",
         "radio-swiss-jazz",
-        "jazz-groove-mix1"
+        "wkcr"
       ],
       "about": {
         "text": "SomaFM is a multi-channel Internet radio station supported with donations without advertisements. The station takes its name from Soma, the fictional drug from Aldous Huxley's 1932 novel Brave New World and the South of Market neighborhood of San Francisco, known colloquially as SoMa.",
@@ -1568,10 +1519,10 @@
       "similar": [
         "nts-100-percent-hip-hop",
         "somafm-beatblender",
-        "kcrw-eclectic24",
         "kexp",
-        "radio-nova",
-        "fip-hiphop"
+        "fip-hiphop",
+        "dublab",
+        "somafm-groovesalad"
       ],
       "about": {
         "text": "SomaFM is a multi-channel Internet radio station supported with donations without advertisements. The station takes its name from Soma, the fictional drug from Aldous Huxley's 1932 novel Brave New World and the South of Market neighborhood of San Francisco, known colloquially as SoMa.",
@@ -1616,7 +1567,7 @@
         "fip-electro",
         "kiosk-radio",
         "netil-radio",
-        "kcrw-eclectic24"
+        "nightride-fm"
       ],
       "about": {
         "text": "SomaFM is a multi-channel Internet radio station supported with donations without advertisements. The station takes its name from Soma, the fictional drug from Aldous Huxley's 1932 novel Brave New World and the South of Market neighborhood of San Francisco, known colloquially as SoMa.",
@@ -1659,9 +1610,9 @@
         "somafm-groovesalad",
         "somafm-synphaera",
         "fip-electro",
-        "kcrw-eclectic24",
         "nightride-fm",
-        "nightwave-plaza"
+        "nightwave-plaza",
+        "nts-labyrinth"
       ],
       "about": {
         "text": "SomaFM is a multi-channel Internet radio station supported with donations without advertisements. The station takes its name from Soma, the fictional drug from Aldous Huxley's 1932 novel Brave New World and the South of Market neighborhood of San Francisco, known colloquially as SoMa.",
@@ -1701,12 +1652,12 @@
       "hasNowPlaying": true,
       "hasRecentPlays": true,
       "similar": [
-        "radio-nova",
         "somafm-bossa",
         "fip",
-        "kcrw",
         "fip-monde",
-        "nts-sweat"
+        "nts-sweat",
+        "radioparadise-global",
+        "soho-radio"
       ],
       "about": {
         "text": "SomaFM is a multi-channel Internet radio station supported with donations without advertisements. The station takes its name from Soma, the fictional drug from Aldous Huxley's 1932 novel Brave New World and the South of Market neighborhood of San Francisco, known colloquially as SoMa.",
@@ -1749,11 +1700,11 @@
       "hasRecentPlays": true,
       "similar": [
         "fip",
-        "radio-nova",
         "wmbr",
         "radio-swiss-jazz",
-        "jazz-groove-mix1",
-        "jazz-groove-mix2"
+        "kiosk-radio",
+        "soho-radio",
+        "somafm-suburbsofgoa"
       ],
       "about": {
         "text": "SomaFM is a multi-channel Internet radio station supported with donations without advertisements. The station takes its name from Soma, the fictional drug from Aldous Huxley's 1932 novel Brave New World and the South of Market neighborhood of San Francisco, known colloquially as SoMa.",
@@ -1791,11 +1742,11 @@
       "hasRecentPlays": true,
       "similar": [
         "fip-nouveautes",
-        "kcrw-eclectic24",
         "radioparadise-main",
         "fip",
-        "kcrw",
-        "kexp"
+        "kexp",
+        "soho-radio",
+        "wfmu"
       ],
       "about": {
         "text": "SomaFM is a multi-channel Internet radio station supported with donations without advertisements. The station takes its name from Soma, the fictional drug from Aldous Huxley's 1932 novel Brave New World and the South of Market neighborhood of San Francisco, known colloquially as SoMa.",
@@ -2244,8 +2195,8 @@
         "somafm-indiepop",
         "radio-swiss-pop",
         "somafm-insound",
-        "sr-p3",
-        "kcrw-eclectic24"
+        "0n-60s",
+        "fip"
       ],
       "about": {
         "text": "NTS Radio is a music radio platform founded in 2011 in Hackney, London by Femi Adeyemi \"for an international community of music lovers\". The platform prioritises showcasing niche artists in its radio programming and live events. NTS Radio's tagline is \"Don't Assume\".",
@@ -2287,7 +2238,7 @@
         "ambient-sleeping-pill",
         "nts-field-recordings",
         "nts-sheet-music",
-        "sr-p2-musik"
+        "radioparadise-mellow"
       ],
       "about": {
         "text": "NTS Radio is a music radio platform founded in 2011 in Hackney, London by Femi Adeyemi \"for an international community of music lovers\". The platform prioritises showcasing niche artists in its radio programming and live events. NTS Radio's tagline is \"Don't Assume\".",
@@ -2328,8 +2279,8 @@
         "fip-hiphop",
         "nts-rap-house",
         "somafm-beatblender",
-        "kcrw-eclectic24",
-        "kexp"
+        "kexp",
+        "radioparadise-mellow"
       ],
       "about": {
         "text": "NTS Radio is a music radio platform founded in 2011 in Hackney, London by Femi Adeyemi \"for an international community of music lovers\". The platform prioritises showcasing niche artists in its radio programming and live events. NTS Radio's tagline is \"Don't Assume\".",
@@ -2374,7 +2325,7 @@
         "somafm-7soul",
         "soul-radio-classics",
         "somafm-insound",
-        "wxpn"
+        "radioparadise-mellow"
       ],
       "about": {
         "text": "NTS Radio is a music radio platform founded in 2011 in Hackney, London by Femi Adeyemi \"for an international community of music lovers\". The platform prioritises showcasing niche artists in its radio programming and live events. NTS Radio's tagline is \"Don't Assume\".",
@@ -2534,11 +2485,11 @@
       "hasRecentPlays": false,
       "similar": [
         "nts-slow-focus",
-        "sr-p2-musik",
         "radio-swiss-classic",
         "kusc",
         "new-sounds",
-        "wfmt"
+        "wfmt",
+        "wqxr"
       ],
       "about": {
         "text": "NTS Radio is a music radio platform founded in 2011 in Hackney, London by Femi Adeyemi \"for an international community of music lovers\". The platform prioritises showcasing niche artists in its radio programming and live events. NTS Radio's tagline is \"Don't Assume\".",
@@ -2624,8 +2575,8 @@
         "radio-swiss-jazz",
         "somafm-secretagent",
         "somafm-sonicuniverse",
-        "jazz-groove-mix1",
-        "jazz-groove-mix2"
+        "kcsm",
+        "wkcr"
       ],
       "about": {
         "text": "NTS Radio is a music radio platform founded in 2011 in Hackney, London by Femi Adeyemi \"for an international community of music lovers\". The platform prioritises showcasing niche artists in its radio programming and live events. NTS Radio's tagline is \"Don't Assume\".",
@@ -2666,7 +2617,6 @@
         "somafm-fluid",
         "nts-100-percent-hip-hop",
         "kexp",
-        "radio-nova",
         "rinse-fm"
       ],
       "about": {
@@ -2706,10 +2656,10 @@
       "similar": [
         "somafm-beatblender",
         "fip-electro",
-        "kcrw-eclectic24",
         "nightride-fm",
         "somafm-spacestation",
-        "netil-radio"
+        "netil-radio",
+        "rinse-fm"
       ],
       "about": {
         "text": "NTS Radio is a music radio platform founded in 2011 in Hackney, London by Femi Adeyemi \"for an international community of music lovers\". The platform prioritises showcasing niche artists in its radio programming and live events. NTS Radio's tagline is \"Don't Assume\".",
@@ -2750,8 +2700,8 @@
         "fip-monde",
         "radioparadise-global",
         "somafm-suburbsofgoa",
-        "radio-nova",
-        "fip-groove"
+        "fip-groove",
+        "radioparadise-main"
       ],
       "about": {
         "text": "NTS Radio is a music radio platform founded in 2011 in Hackney, London by Femi Adeyemi \"for an international community of music lovers\". The platform prioritises showcasing niche artists in its radio programming and live events. NTS Radio's tagline is \"Don't Assume\".",
@@ -2811,7 +2761,7 @@
       "homepage": "https://www.nts.live/infinite-mixtapes/the-pit",
       "supportUrl": "https://www.nts.live/supporters",
       "description": "Heavy sludge dirges, black metal, frenetic thrash and everything in between.",
-      "image": "https://cassette.digital/radio-art/nts-the-pit.jpg",
+      "image": "https://www.cassette.digital/radio-art/nts-the-pit.jpg",
       "accent": "#540b0e",
       "moods": [
         "heavy"
@@ -2853,7 +2803,7 @@
       "homepage": "https://www.nts.live/infinite-mixtapes/field-recordings",
       "supportUrl": "https://www.nts.live/supporters",
       "description": "Natural ambience recorded by NTS listeners around the world.",
-      "image": "https://cassette.digital/radio-art/nts-field-recordings.jpg",
+      "image": "https://www.cassette.digital/radio-art/nts-field-recordings.jpg",
       "accent": "#588157",
       "moods": [
         "focus",
@@ -3220,12 +3170,12 @@
       "hasNowPlaying": false,
       "hasRecentPlays": false,
       "similar": [
-        "radio-nova",
         "soho-radio",
         "somafm-bossa",
         "fip",
         "kcsm",
-        "kiosk-radio"
+        "kiosk-radio",
+        "nts-1"
       ],
       "about": {
         "text": "WWOZ is a non-profit community-supported radio station in New Orleans. It is owned by the New Orleans Jazz & Heritage Foundation. The station specializes in music from or relating to the cultural heritage of New Orleans and the surrounding region of Louisiana. The playlist includes jazz, blues, local, regional and world music.",
@@ -3267,8 +3217,8 @@
         "wfmt",
         "nts-sheet-music",
         "nts-slow-focus",
-        "sr-p2-musik",
-        "radio-swiss-classic"
+        "radio-swiss-classic",
+        "fip"
       ],
       "about": {
         "text": "WQXR-FM is an American non-commercial classical radio station, licensed to Newark, New Jersey, and serving the North Jersey and New York City area. It is owned by the nonprofit organization New York Public Radio (NYPR), which also operates WNYC (AM), WNYC-FM and the four-station New Jersey Public Radio group. The station is the core audio service for NYPR's WQXR brand.",
@@ -3285,7 +3235,7 @@
       "kind": "station",
       "streamUrl": "https://stream.wqxr.org/q2",
       "homepage": "https://www.newsounds.org/",
-      "supportUrl": "https://www.newsounds.org/support",
+      "supportUrl": "https://nypublicradio.org/support/",
       "description": "John Schaefer's New Sounds: new music from everywhere, ambient to avant-garde, chosen by hand in New York.",
       "image": "https://media.wnyc.org/i/600/600/l/80/1/ns_showcard-newsounds-radio-1.jpg",
       "accent": "#3a506b",
@@ -3334,7 +3284,7 @@
       "homepage": "https://kcsm.org/",
       "supportUrl": "https://kcsm.org/support",
       "description": "The Bay Area's jazz station, listener-supported and hosted around the clock.",
-      "image": "https://cassette.digital/radio-art/kcsm.jpg",
+      "image": "https://www.cassette.digital/radio-art/kcsm.jpg",
       "accent": "#2c6e91",
       "moods": [
         "late-night"
@@ -3355,10 +3305,10 @@
       "similar": [
         "somafm-secretagent",
         "somafm-sonicuniverse",
-        "tsf-jazz",
         "wkcr",
         "wmbr",
-        "fip-jazz"
+        "fip-jazz",
+        "nts-expansions"
       ],
       "about": {
         "text": "KCSM is an FM radio station in San Mateo, California. The station broadcasts jazz music, 24 hours a day, commercial-free. The radio station is not-for-profit, and listener-supported. The broadcast is mirrored as streaming media on the World Wide Web, extending the station's audience far beyond the San Francisco Bay Area.",
@@ -3377,7 +3327,7 @@
       "homepage": "https://www.wfmt.com/",
       "supportUrl": "https://www.wfmt.com/support/",
       "description": "Chicago's classical and fine-arts station since 1951, hosted live.",
-      "image": "https://cassette.digital/radio-art/wfmt.jpg",
+      "image": "https://www.cassette.digital/radio-art/wfmt.jpg",
       "accent": "#8b1e3f",
       "moods": [
         "focus"
@@ -3400,103 +3350,13 @@
         "wqxr",
         "nts-sheet-music",
         "nts-slow-focus",
-        "sr-p2-musik",
-        "radio-swiss-classic"
+        "radio-swiss-classic",
+        "fip"
       ],
       "about": {
         "text": "WFMT is a commercial FM radio station in Chicago, Illinois, with a classical music radio format. It is part of Window to the World Communications, Inc, in the same company as Chicago's PBS member station WTTW.",
         "source": "Wikipedia",
         "url": "https://en.wikipedia.org/wiki/WFMT",
-        "license": "CC BY-SA 4.0, shortened"
-      }
-    },
-    {
-      "slug": "kcrw",
-      "name": "KCRW",
-      "source": "kcrw",
-      "sourceLabel": "KCRW",
-      "kind": "station",
-      "streamUrl": "https://streams.kcrw.com/kcrw_mp3",
-      "homepage": "https://www.kcrw.com/",
-      "supportUrl": "https://www.kcrw.com/join",
-      "description": "Santa Monica's public station: Morning Becomes Eclectic and DJs whose playlists name every record.",
-      "image": "https://cassette.digital/radio-art/kcrw.jpg",
-      "accent": "#e63946",
-      "moods": [],
-      "eras": [],
-      "genres": [
-        "eclectic",
-        "indie",
-        "electronic",
-        "world"
-      ],
-      "cities": [
-        "los-angeles"
-      ],
-      "cityLabels": [
-        "Los Angeles"
-      ],
-      "section": "Live · United States",
-      "hasNowPlaying": true,
-      "hasRecentPlays": true,
-      "similar": [
-        "kcrw-eclectic24",
-        "fip",
-        "kexp",
-        "radio-nova",
-        "kiosk-radio",
-        "netil-radio"
-      ],
-      "about": {
-        "text": "KCRW is an NPR member station in Santa Monica, California. KCRW airs original news and music programming in addition to programming from NPR and other affiliates. It is one of two full NPR members in the Los Angeles area; Pasadena-based KPCC is the other.",
-        "source": "Wikipedia",
-        "url": "https://en.wikipedia.org/wiki/KCRW",
-        "license": "CC BY-SA 4.0, shortened"
-      }
-    },
-    {
-      "slug": "kcrw-eclectic24",
-      "name": "KCRW Eclectic 24",
-      "source": "kcrw",
-      "sourceLabel": "KCRW",
-      "kind": "channel",
-      "streamUrl": "https://streams.kcrw.com/e24_mp3",
-      "homepage": "https://www.kcrw.com/music/shows/eclectic24",
-      "supportUrl": "https://www.kcrw.com/join",
-      "description": "KCRW's all-music stream, around the clock: the Morning Becomes Eclectic sound without the talk.",
-      "image": "https://cassette.digital/radio-art/kcrw.jpg",
-      "accent": "#c1121f",
-      "moods": [
-        "chill",
-        "late-night"
-      ],
-      "eras": [],
-      "genres": [
-        "eclectic",
-        "indie",
-        "electronic"
-      ],
-      "cities": [
-        "los-angeles"
-      ],
-      "cityLabels": [
-        "Los Angeles"
-      ],
-      "section": "Chill",
-      "hasNowPlaying": true,
-      "hasRecentPlays": true,
-      "similar": [
-        "kcrw",
-        "kexp",
-        "fip",
-        "kiosk-radio",
-        "netil-radio",
-        "somafm-beatblender"
-      ],
-      "about": {
-        "text": "KCRW is an NPR member station in Santa Monica, California. KCRW airs original news and music programming in addition to programming from NPR and other affiliates. It is one of two full NPR members in the Los Angeles area; Pasadena-based KPCC is the other.",
-        "source": "Wikipedia",
-        "url": "https://en.wikipedia.org/wiki/KCRW",
         "license": "CC BY-SA 4.0, shortened"
       }
     },
@@ -3508,9 +3368,9 @@
       "kind": "station",
       "streamUrl": "https://current.stream.publicradio.org/current.mp3",
       "homepage": "https://www.thecurrent.org/",
-      "supportUrl": "https://www.thecurrent.org/support",
+      "supportUrl": "https://support.mpr.org/current-web",
       "description": "Minnesota Public Radio's music station: indie, local bands, live sessions, hosted all day.",
-      "image": "https://cassette.digital/radio-art/the-current.png",
+      "image": "https://www.cassette.digital/radio-art/the-current-square.png",
       "accent": "#00a3e0",
       "moods": [],
       "eras": [],
@@ -3530,11 +3390,11 @@
       "hasRecentPlays": true,
       "similar": [
         "wfuv",
-        "wxpn",
         "kexp",
         "dr-p6-beat",
-        "nrk-p13",
-        "fip-rock"
+        "fip-rock",
+        "radioparadise-main",
+        "kalx"
       ],
       "about": {
         "text": "KCMP is a radio station owned by Minnesota Public Radio (MPR) that airs an adult album alternative (AAA) music format, including a significant rotation of songs by local artists.",
@@ -3545,13 +3405,13 @@
     },
     {
       "slug": "kusc",
-      "name": "Classical KUSC",
+      "name": "Classical California",
       "source": "public",
       "sourceLabel": "KUSC 91.5",
       "kind": "station",
       "streamUrl": "https://playerservices.streamtheworld.com/api/livestream-redirect/KUSCMP128.mp3",
-      "homepage": "https://www.kusc.org/",
-      "supportUrl": "https://www.kusc.org/support/",
+      "homepage": "https://www.classicalcalifornia.org/",
+      "supportUrl": "https://www.classicalcalifornia.org/give",
       "description": "Los Angeles' classical station, the largest in the country, hosted live.",
       "image": "https://upload.wikimedia.org/wikipedia/commons/e/e2/KUSC_Logo.jpg",
       "accent": "#1d3557",
@@ -3576,8 +3436,8 @@
         "wqxr",
         "nts-sheet-music",
         "nts-slow-focus",
-        "sr-p2-musik",
-        "radio-swiss-classic"
+        "radio-swiss-classic",
+        "fip"
       ],
       "about": {
         "text": "KUSC is a non-commercial radio station in Los Angeles, California, United States, broadcasting a classical music format. It is owned by the University of Southern California (USC) and is part of its Classical California network.",
@@ -3622,8 +3482,8 @@
         "fip",
         "nts-1",
         "kcsm",
-        "tsf-jazz",
-        "wmbr"
+        "wmbr",
+        "fip-jazz"
       ],
       "about": {
         "text": "WKCR-FM is a radio station licensed to New York, New York. The station is owned by Columbia University and serves the New York metropolitan area. Founded in 1941, the station traces its history back to 1908 with the first operations of the Columbia University Radio Club (CURC). In 1956, it became one of the first college radio stations to adopt FM broadcasting, which had been invented two decades earlier by Professor Edwin Howard Armstrong.",
@@ -3636,13 +3496,13 @@
       "slug": "wprb",
       "name": "WPRB",
       "source": "public",
-      "sourceLabel": "WPRB 103.3 · Princeton",
+      "sourceLabel": "WPRB 103.3",
       "kind": "station",
       "streamUrl": "https://wprb.streamguys1.com/live",
       "homepage": "https://wprb.com/",
-      "supportUrl": "https://wprb.com/support/",
+      "supportUrl": "https://pledge.wprb.com/",
       "description": "Princeton's freeform college station: indie, experimental, jazz, whatever the DJ carried in.",
-      "image": "https://cassette.digital/radio-art/wprb.jpg",
+      "image": "https://www.cassette.digital/radio-art/wprb.jpg",
       "accent": "#ff6b35",
       "moods": [
         "late-night"
@@ -3654,9 +3514,13 @@
         "jazz",
         "freeform"
       ],
-      "cities": [],
-      "cityLabels": [],
-      "section": "Live radio",
+      "cities": [
+        "princeton"
+      ],
+      "cityLabels": [
+        "Princeton"
+      ],
+      "section": "Live · United States",
       "hasNowPlaying": false,
       "hasRecentPlays": false,
       "similar": [
@@ -3684,7 +3548,7 @@
       "homepage": "https://kalx.berkeley.edu/",
       "supportUrl": null,
       "description": "Berkeley's student-and-community station: freeform, deep, and allergic to playlists.",
-      "image": "https://kalx.berkeley.edu/wp-content/uploads/2023/07/kalx-logo.png",
+      "image": "https://www.cassette.digital/radio-art/kalx.png",
       "accent": "#003262",
       "moods": [
         "late-night"
@@ -3711,7 +3575,7 @@
         "kxlu",
         "wmbr",
         "wfmu",
-        "kcrw-eclectic24"
+        "new-sounds"
       ],
       "about": {
         "text": "KALX is a radio station that broadcasts from the University of California, Berkeley in Berkeley, California, United States. The station employs three full-time paid staff members, but is largely run by its nearly 300 volunteers, including Berkeley students and other members of the local community.",
@@ -3728,9 +3592,9 @@
       "kind": "station",
       "streamUrl": "https://netcast.kfjc.org/kfjc-128k-mp3",
       "homepage": "https://kfjc.org/",
-      "supportUrl": "https://kfjc.org/support",
+      "supportUrl": "https://donate.kfjc.org/",
       "description": "Foothill College's freeform station in the hills above Silicon Valley, strange and beloved since 1959.",
-      "image": "https://cassette.digital/radio-art/kfjc.jpg",
+      "image": "https://www.cassette.digital/radio-art/kfjc.jpg",
       "accent": "#6a994e",
       "moods": [
         "late-night"
@@ -3776,7 +3640,7 @@
       "homepage": "https://kxlu.com/",
       "supportUrl": null,
       "description": "Loyola Marymount's station: LA's underground, punk to Latin to noise, since 1957.",
-      "image": "https://kxlu.com/wp-content/uploads/2019/02/kxlusplatblack-125x125.png",
+      "image": "https://www.cassette.digital/radio-art/kxlu.png",
       "accent": "#c9184a",
       "moods": [
         "heavy"
@@ -3801,9 +3665,9 @@
         "kalx",
         "kfjc",
         "wprb",
-        "kcrw",
-        "kcrw-eclectic24",
-        "dr-p6-beat"
+        "dr-p6-beat",
+        "kexp",
+        "the-current"
       ],
       "about": {
         "text": "KXLU is a non-commercial, free-form, college and community radio station broadcasting out of Loyola Marymount University in southwest Los Angeles, California.",
@@ -3822,7 +3686,7 @@
       "homepage": "https://wmbr.org/",
       "supportUrl": null,
       "description": "MIT's station in Cambridge: freeform, deep genre shows, a schedule you can set your week by.",
-      "image": "https://cassette.digital/radio-art/wmbr.jpg",
+      "image": "https://www.cassette.digital/radio-art/wmbr.jpg",
       "accent": "#a31f34",
       "moods": [
         "late-night"
@@ -3847,9 +3711,9 @@
         "wprb",
         "kalx",
         "fip",
-        "kcrw",
-        "radio-nova",
-        "somafm-bossa"
+        "somafm-bossa",
+        "kcsm",
+        "wkcr"
       ],
       "about": {
         "text": "WMBR is the Massachusetts Institute of Technology's student-run college radio station, licensed to Cambridge, Massachusetts, and broadcasting on 88.1 FM. Both students and community members can apply for positions, and like many college radio stations, WMBR offers diverse programming that includes a broad range of musical genres as well as talk shows.",
@@ -3868,7 +3732,7 @@
       "homepage": "https://www.wsou.net/",
       "supportUrl": null,
       "description": "Seton Hall's Pirate Radio: hard rock and metal, student-run since 1986.",
-      "image": "https://cassette.digital/radio-art/wsou.jpg",
+      "image": "https://www.cassette.digital/radio-art/wsou.jpg",
       "accent": "#b22222",
       "moods": [
         "heavy"
@@ -3912,7 +3776,7 @@
       "homepage": "https://www.rinse.fm/",
       "supportUrl": null,
       "description": "London's pirate turned institution: grime, garage, drum and bass, and whatever the city invents next.",
-      "image": "https://cassette.digital/radio-art/rinse-fm.jpg",
+      "image": "https://www.cassette.digital/radio-art/rinse-fm.jpg",
       "accent": "#e5383b",
       "moods": [
         "dance",
@@ -3940,7 +3804,7 @@
         "fip-electro",
         "kiosk-radio",
         "somafm-fluid",
-        "kcrw-eclectic24"
+        "nightride-fm"
       ],
       "about": {
         "text": "Rinse FM is a London-based community radio station, licensed for \"young people living and/or working within the central, east and south London areas\". It plays garage, grime, dubstep, house, jungle, UK funky and other dance music genres popular in the United Kingdom.",
@@ -3981,12 +3845,12 @@
       "hasNowPlaying": false,
       "hasRecentPlays": false,
       "similar": [
-        "radio-nova",
         "fip",
         "nts-1",
         "kiosk-radio",
         "nts-2",
-        "kcrw"
+        "kexp",
+        "netil-radio"
       ],
       "about": {
         "text": "Soho Radio is an independent radio station that broadcasts online from London and from New York, as well as on DAB in London. It was founded May 2014, with the New York branch opening in November 2020.",
@@ -4003,9 +3867,9 @@
       "kind": "station",
       "streamUrl": "https://stream.resonance.fm/resonance",
       "homepage": "https://www.resonancefm.com/",
-      "supportUrl": "https://www.resonancefm.com/support",
+      "supportUrl": "https://www.resonancefm.com/donate",
       "description": "London's art radio since 2002: sound art, improvised music, radio made by artists.",
-      "image": "https://cassette.digital/radio-art/resonance-fm.jpg",
+      "image": "https://www.cassette.digital/radio-art/resonance-fm.jpg",
       "accent": "#6d597a",
       "moods": [
         "cosmic",
@@ -4051,7 +3915,7 @@
       "homepage": "https://netilradio.com/",
       "supportUrl": null,
       "description": "A shipping-container studio on a rooftop in Hackney, with East London's DJs on rotation.",
-      "image": "https://cassette.digital/radio-art/netil-radio.png",
+      "image": "https://www.cassette.digital/radio-art/netil-radio-square.png",
       "accent": "#9d4edd",
       "moods": [
         "dance",
@@ -4076,9 +3940,9 @@
         "somafm-beatblender",
         "kiosk-radio",
         "radio-raheem",
-        "kcrw-eclectic24",
         "nts-1",
-        "fip-electro"
+        "fip-electro",
+        "dublab"
       ],
       "about": null
     },
@@ -4092,7 +3956,7 @@
       "homepage": "https://kioskradio.com/",
       "supportUrl": null,
       "description": "A wooden kiosk in a Brussels park, broadcasting the city's DJs every day.",
-      "image": "https://kioskradio.com/favicon.png",
+      "image": "https://www.cassette.digital/radio-art/kiosk-radio.png",
       "accent": "#2a9d8f",
       "moods": [
         "chill",
@@ -4116,10 +3980,10 @@
       "similar": [
         "fip",
         "nts-1",
-        "radio-nova",
         "soho-radio",
         "netil-radio",
-        "kcrw-eclectic24"
+        "somafm-beatblender",
+        "dublab"
       ],
       "about": null
     },
@@ -4133,7 +3997,7 @@
       "homepage": "https://www.radioraheem.it/",
       "supportUrl": null,
       "description": "Milan's community station: DJs from the city's clubs, labels and record shops.",
-      "image": "https://cassette.digital/radio-art/radio-raheem.jpg",
+      "image": "https://www.cassette.digital/radio-art/radio-raheem.jpg",
       "accent": "#ff5d8f",
       "moods": [
         "dance"
@@ -4156,10 +4020,10 @@
       "similar": [
         "kiosk-radio",
         "netil-radio",
-        "kcrw",
         "nts-1",
-        "kcrw-eclectic24",
-        "somafm-beatblender"
+        "somafm-beatblender",
+        "dublab",
+        "fip"
       ],
       "about": null
     },
@@ -4196,12 +4060,12 @@
       "hasNowPlaying": false,
       "hasRecentPlays": false,
       "similar": [
-        "radio-nova",
         "kiosk-radio",
         "soho-radio",
-        "kcrw",
         "nts-1",
-        "dublab"
+        "dublab",
+        "somafm-bossa",
+        "wmbr"
       ],
       "about": {
         "text": "FIP is a French radio network founded in 1971. It is part of the Radio France group.",
@@ -4237,10 +4101,10 @@
       "similar": [
         "dr-p6-beat",
         "kexp",
-        "nrk-p13",
         "the-current",
         "wfuv",
-        "wxpn"
+        "radioparadise-main",
+        "somafm-digitalis"
       ],
       "about": {
         "text": "FIP is a French radio network founded in 1971. It is part of the Radio France group.",
@@ -4278,8 +4142,8 @@
         "radio-swiss-jazz",
         "somafm-secretagent",
         "somafm-sonicuniverse",
-        "jazz-groove-mix1",
-        "jazz-groove-mix2"
+        "kcsm",
+        "wkcr"
       ],
       "about": {
         "text": "FIP is a French radio network founded in 1971. It is part of the Radio France group.",
@@ -4359,8 +4223,8 @@
         "nts-sweat",
         "radioparadise-global",
         "somafm-suburbsofgoa",
-        "radio-nova",
-        "radioparadise-main"
+        "radioparadise-main",
+        "fip"
       ],
       "about": {
         "text": "FIP is a French radio network founded in 1971. It is part of the Radio France group.",
@@ -4394,11 +4258,11 @@
       "hasRecentPlays": false,
       "similar": [
         "somafm-covers",
-        "kcrw-eclectic24",
         "radioparadise-main",
         "fip",
-        "kcrw",
-        "kexp"
+        "kexp",
+        "soho-radio",
+        "wfmu"
       ],
       "about": {
         "text": "FIP is a French radio network founded in 1971. It is part of the Radio France group.",
@@ -4475,9 +4339,9 @@
         "somafm-beatblender",
         "netil-radio",
         "rinse-fm",
-        "kcrw-eclectic24",
         "nightride-fm",
-        "nts-labyrinth"
+        "nts-labyrinth",
+        "somafm-thetrip"
       ],
       "about": {
         "text": "FIP is a French radio network founded in 1971. It is part of the Radio France group.",
@@ -4556,8 +4420,8 @@
         "nts-poolside",
         "radio-swiss-pop",
         "somafm-insound",
-        "sr-p3",
-        "0n-60s"
+        "0n-60s",
+        "soho-radio"
       ],
       "about": {
         "text": "FIP is a French radio network founded in 1971. It is part of the Radio France group.",
@@ -4595,7 +4459,6 @@
         "nts-100-percent-hip-hop",
         "nts-rap-house",
         "kexp",
-        "radio-nova",
         "rinse-fm"
       ],
       "about": {
@@ -4603,96 +4466,6 @@
         "source": "Wikipedia",
         "url": "https://en.wikipedia.org/wiki/FIP_(radio_station)",
         "license": "CC BY-SA 4.0"
-      }
-    },
-    {
-      "slug": "radio-nova",
-      "name": "Radio Nova",
-      "source": "independent",
-      "sourceLabel": "Radio Nova",
-      "kind": "station",
-      "streamUrl": "https://novazz.ice.infomaniak.ch/novazz-128.mp3",
-      "homepage": "https://www.nova.fr/",
-      "supportUrl": null,
-      "description": "Paris' Grand Mix since 1981: hip-hop, world, electronic and jazz in one breath, with hosts who collect.",
-      "image": "https://www.nova.fr/wp-content/uploads/sites/2/2021/02/cropped-favicon.png",
-      "accent": "#ff8500",
-      "moods": [
-        "sunny"
-      ],
-      "eras": [],
-      "genres": [
-        "eclectic",
-        "hip-hop",
-        "world",
-        "electronic",
-        "jazz"
-      ],
-      "cities": [
-        "paris"
-      ],
-      "cityLabels": [
-        "Paris"
-      ],
-      "section": "Live · Europe",
-      "hasNowPlaying": false,
-      "hasRecentPlays": false,
-      "similar": [
-        "fip",
-        "soho-radio",
-        "kexp",
-        "kiosk-radio",
-        "nts-1",
-        "somafm-bossa"
-      ],
-      "about": {
-        "text": "Radio Nova is a radio station broadcast from Paris, created in 1981 by Jean-François Bizot. Its playlist is characterized by non-mainstream or underground artists of various music genres, such as electro, new wave, reggae, jazz, hip hop and world music.",
-        "source": "Wikipedia",
-        "url": "https://en.wikipedia.org/wiki/Radio_Nova_(France)",
-        "license": "CC BY-SA 4.0"
-      }
-    },
-    {
-      "slug": "tsf-jazz",
-      "name": "TSF Jazz",
-      "source": "independent",
-      "sourceLabel": "TSF Jazz",
-      "kind": "station",
-      "streamUrl": "https://tsfjazz.ice.infomaniak.ch/tsfjazz-high.mp3",
-      "homepage": "https://www.tsfjazz.com/",
-      "supportUrl": null,
-      "description": "Paris' all-jazz station: live hosts, live sessions, since 1999.",
-      "image": "https://cassette.digital/radio-art/tsf-jazz.png",
-      "accent": "#003049",
-      "moods": [
-        "late-night"
-      ],
-      "eras": [],
-      "genres": [
-        "jazz"
-      ],
-      "cities": [
-        "paris"
-      ],
-      "cityLabels": [
-        "Paris"
-      ],
-      "section": "Live · Europe",
-      "hasNowPlaying": false,
-      "hasRecentPlays": false,
-      "similar": [
-        "kcsm",
-        "wkcr",
-        "wmbr",
-        "fip-jazz",
-        "nts-expansions",
-        "radio-swiss-jazz"
-      ],
-      "about": {
-        "text": "TSF Jazz, previously known as TSF 89.9, is a jazz radio station in Paris, France, that was started in 1999 and owned by Nova Press. TSF, the acronym of the station, stands for Télégraphie Sans Fil and means \"Wireless Telegraphy\", an archaic French term for \"radio\".",
-        "source": "Wikipedia",
-        "url": "https://en.wikipedia.org/wiki/TSF_Jazz",
-        "license": "CC BY-SA 4.0, shortened"
       }
     },
     {
@@ -4705,7 +4478,7 @@
       "homepage": "https://www.radioswissjazz.ch/",
       "supportUrl": null,
       "description": "Swiss public radio's jazz channel: no ads, no talk, a title on every song.",
-      "image": "https://cassette.digital/radio-art/radio-swiss-jazz.jpg",
+      "image": "https://www.cassette.digital/radio-art/radio-swiss-jazz.jpg",
       "accent": "#c1121f",
       "moods": [
         "late-night",
@@ -4721,12 +4494,12 @@
       "hasNowPlaying": false,
       "hasRecentPlays": false,
       "similar": [
-        "jazz-groove-mix1",
-        "jazz-groove-mix2",
         "somafm-bossa",
         "fip-jazz",
         "nts-expansions",
-        "somafm-secretagent"
+        "somafm-secretagent",
+        "fip",
+        "kcsm"
       ],
       "about": null
     },
@@ -4740,7 +4513,7 @@
       "homepage": "https://www.radioswissclassic.ch/",
       "supportUrl": null,
       "description": "Swiss public radio's classical channel: no ads, no talk.",
-      "image": "https://cassette.digital/radio-art/radio-swiss-classic.jpg",
+      "image": "https://www.cassette.digital/radio-art/radio-swiss-classic.jpg",
       "accent": "#1d3557",
       "moods": [
         "focus"
@@ -4757,10 +4530,10 @@
       "similar": [
         "nts-sheet-music",
         "nts-slow-focus",
-        "sr-p2-musik",
         "kusc",
         "wfmt",
-        "wqxr"
+        "wqxr",
+        "fip"
       ],
       "about": null
     },
@@ -4774,7 +4547,7 @@
       "homepage": "https://www.radioswisspop.ch/",
       "supportUrl": null,
       "description": "Swiss public radio's pop channel: melodic pop and soft rock, no ads.",
-      "image": "https://cassette.digital/radio-art/radio-swiss-pop.jpg",
+      "image": "https://www.cassette.digital/radio-art/radio-swiss-pop.jpg",
       "accent": "#f4a261",
       "moods": [
         "sunny"
@@ -4794,30 +4567,26 @@
         "somafm-indiepop",
         "nts-poolside",
         "somafm-seventies",
-        "sr-p3",
-        "0n-60s"
+        "0n-60s",
+        "soho-radio"
       ],
       "about": null
     },
     {
       "slug": "nrk-p13",
-      "name": "NRK P13",
+      "name": "NRK P3 Musikk",
       "source": "broadcaster",
       "sourceLabel": "NRK",
       "kind": "station",
       "streamUrl": "https://lyd.nrk.no/nrk_radio_p13_mp3_h",
-      "homepage": "https://radio.nrk.no/direkte/p13",
+      "homepage": "https://radio.nrk.no/direkte/p3musikk",
       "supportUrl": null,
-      "description": "Norway's public rock and alternative channel, hosted from Oslo.",
-      "image": "https://cassette.digital/radio-art/nrk-p13.png",
+      "description": "The music channel from NRK P3, Norway's public broadcaster.",
+      "image": null,
       "accent": "#0a4c8c",
       "moods": [],
       "eras": [],
-      "genres": [
-        "rock",
-        "indie",
-        "alternative"
-      ],
+      "genres": [],
       "cities": [
         "oslo"
       ],
@@ -4827,98 +4596,8 @@
       "section": "Live · Europe",
       "hasNowPlaying": false,
       "hasRecentPlays": false,
-      "similar": [
-        "dr-p6-beat",
-        "kexp",
-        "fip-rock",
-        "the-current",
-        "wfuv",
-        "wxpn"
-      ],
+      "similar": [],
       "about": null
-    },
-    {
-      "slug": "sr-p3",
-      "name": "Sveriges Radio P3",
-      "source": "broadcaster",
-      "sourceLabel": "Sveriges Radio",
-      "kind": "station",
-      "streamUrl": "https://live1.sr.se/p3-aac-320",
-      "homepage": "https://sverigesradio.se/p3",
-      "supportUrl": null,
-      "description": "Sweden's public channel for the young: new Swedish music, hosted all day.",
-      "image": "https://cassette.digital/radio-art/sr-p3.jpg",
-      "accent": "#0066cc",
-      "moods": [],
-      "eras": [],
-      "genres": [
-        "pop",
-        "indie",
-        "hip-hop"
-      ],
-      "cities": [
-        "stockholm"
-      ],
-      "cityLabels": [
-        "Stockholm"
-      ],
-      "section": "Live · Europe",
-      "hasNowPlaying": true,
-      "hasRecentPlays": false,
-      "similar": [
-        "kexp",
-        "dr-p6-beat",
-        "kalx",
-        "kcrw",
-        "kxlu",
-        "nrk-p13"
-      ],
-      "about": {
-        "text": "P3 is a semi-mainstream CHR/CHR Alternative-formatted station operated by Sweden's national publicly funded radio broadcasting organization Sveriges Radio. The P in P3 originally stood for Program (Programme) but today has no official meaning and is simply a name. P3 was officially similar and related to BBC Radio 1.",
-        "source": "Wikipedia",
-        "url": "https://en.wikipedia.org/wiki/Sveriges_Radio_P3",
-        "license": "CC BY-SA 4.0"
-      }
-    },
-    {
-      "slug": "sr-p2-musik",
-      "name": "P2 Musik",
-      "source": "broadcaster",
-      "sourceLabel": "Sveriges Radio",
-      "kind": "channel",
-      "streamUrl": "https://live1.sr.se/p2musik-aac-320",
-      "homepage": "https://sverigesradio.se/p2",
-      "supportUrl": null,
-      "description": "Sweden's public classical and jazz music stream, around the clock.",
-      "image": "https://cassette.digital/radio-art/sr-p2-musik.jpg",
-      "accent": "#3a506b",
-      "moods": [
-        "focus"
-      ],
-      "eras": [],
-      "genres": [
-        "classical",
-        "jazz"
-      ],
-      "cities": [],
-      "cityLabels": [],
-      "section": "Focus",
-      "hasNowPlaying": true,
-      "hasRecentPlays": false,
-      "similar": [
-        "fip",
-        "nts-sheet-music",
-        "nts-slow-focus",
-        "radio-swiss-classic",
-        "kusc",
-        "wfmt"
-      ],
-      "about": {
-        "text": "P2 is one of the four main radio channels operated by Sweden's national publicly funded radio broadcasting organization Sveriges Radio (SR). It broadcasts music and also carries educational programming as well as programmes in minority languages. P2 was officially similar and related to BBC Radio 3.",
-        "source": "Wikipedia",
-        "url": "https://en.wikipedia.org/wiki/Sveriges_Radio_P2",
-        "license": "CC BY-SA 4.0"
-      }
     },
     {
       "slug": "dr-p6-beat",
@@ -4949,12 +4628,12 @@
       "hasNowPlaying": false,
       "hasRecentPlays": false,
       "similar": [
-        "nrk-p13",
         "kexp",
         "fip-rock",
         "the-current",
         "wfuv",
-        "wxpn"
+        "radioparadise-main",
+        "kalx"
       ],
       "about": {
         "text": "DR P6 Beat is one of DR's digital radio stations in Denmark. It launched on 11 April 2011 as the second of five new digital-only stations.",
@@ -4997,8 +4676,8 @@
         "nightride-chillsynth",
         "nightride-datawave",
         "fip-electro",
-        "kcrw-eclectic24",
-        "somafm-lush"
+        "somafm-lush",
+        "nightwave-plaza"
       ],
       "about": null
     },
@@ -5033,8 +4712,8 @@
         "somafm-lush",
         "somafm-spacestation",
         "nightride-datawave",
-        "kcrw-eclectic24",
-        "nightwave-plaza"
+        "nightwave-plaza",
+        "nts-slow-focus"
       ],
       "about": null
     },
@@ -5120,7 +4799,7 @@
       "homepage": "https://ambientsleepingpill.com/",
       "supportUrl": null,
       "description": "Ambient for sleeping and not-quite-sleeping. Listener-supported, no beats, no ads.",
-      "image": "https://ambientsleepingpill.com/wp-content/uploads/cropped-asp-small-logo-512-trans-192x192.png",
+      "image": "https://www.cassette.digital/radio-art/ambient-sleeping-pill.png",
       "accent": "#5e81ac",
       "moods": [
         "focus",
@@ -5176,7 +4855,7 @@
         "nightride-fm",
         "nts-otaku",
         "fip-electro",
-        "kcrw-eclectic24"
+        "nts-labyrinth"
       ],
       "about": null
     },
@@ -5190,7 +4869,7 @@
       "homepage": "https://rainwave.cc/",
       "supportUrl": null,
       "description": "Video game soundtracks chosen by the listeners, around the clock.",
-      "image": "https://cassette.digital/radio-art/rainwave-game.png",
+      "image": "https://www.cassette.digital/radio-art/rainwave-game.png",
       "accent": "#48cae4",
       "moods": [
         "dreamy",
@@ -5208,76 +4887,6 @@
       "hasRecentPlays": false,
       "similar": [
         "nts-otaku",
-        "somafm-secretagent"
-      ],
-      "about": null
-    },
-    {
-      "slug": "jazz-groove-mix1",
-      "name": "The Jazz Groove",
-      "source": "independent",
-      "sourceLabel": "The Jazz Groove",
-      "kind": "channel",
-      "streamUrl": "https://west-mp3-128.streamthejazzgroove.com/stream",
-      "homepage": "https://jazzgroove.org/",
-      "supportUrl": "https://jazzgroove.org/support/",
-      "description": "Laid-back jazz, listener-supported and ad-free, for late nights and long mornings.",
-      "image": "https://assets.jazzgroove.org/logo-circle-white1-no-org.png",
-      "accent": "#2b2d42",
-      "moods": [
-        "chill",
-        "late-night"
-      ],
-      "eras": [],
-      "genres": [
-        "jazz"
-      ],
-      "cities": [],
-      "cityLabels": [],
-      "section": "Chill",
-      "hasNowPlaying": false,
-      "hasRecentPlays": false,
-      "similar": [
-        "radio-swiss-jazz",
-        "jazz-groove-mix2",
-        "somafm-bossa",
-        "fip-jazz",
-        "nts-expansions",
-        "somafm-secretagent"
-      ],
-      "about": null
-    },
-    {
-      "slug": "jazz-groove-mix2",
-      "name": "The Jazz Groove Mix 2",
-      "source": "independent",
-      "sourceLabel": "The Jazz Groove",
-      "kind": "channel",
-      "streamUrl": "https://east-mp3-128.streamthejazzgroove.com/stream",
-      "homepage": "https://jazzgroove.org/",
-      "supportUrl": "https://jazzgroove.org/support/",
-      "description": "The Jazz Groove's second mix: the same calm, a different hour.",
-      "image": "https://assets.jazzgroove.org/logo-circle-white1-no-org.png",
-      "accent": "#8d99ae",
-      "moods": [
-        "chill",
-        "late-night"
-      ],
-      "eras": [],
-      "genres": [
-        "jazz"
-      ],
-      "cities": [],
-      "cityLabels": [],
-      "section": "Chill",
-      "hasNowPlaying": false,
-      "hasRecentPlays": false,
-      "similar": [
-        "radio-swiss-jazz",
-        "jazz-groove-mix1",
-        "somafm-bossa",
-        "fip-jazz",
-        "nts-expansions",
         "somafm-secretagent"
       ],
       "about": null
