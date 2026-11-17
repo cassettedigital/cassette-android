@@ -617,7 +617,7 @@
       "homepage": "https://somafm.com/groovesalad/",
       "supportUrl": "https://somafm.com/support/",
       "description": "A nicely chilled plate of ambient and downtempo beats and grooves.",
-      "image": "https://api.somafm.com/logos/256/groovesalad256.png",
+      "image": "https://api.somafm.com/logos/512/groovesalad512.png",
       "accent": "#7fb069",
       "moods": [
         "chill",
@@ -663,7 +663,7 @@
       "homepage": "https://somafm.com/dronezone/",
       "supportUrl": "https://somafm.com/support/",
       "description": "Atmospheric textures with minimal beats. Served best chilled.",
-      "image": null,
+      "image": "https://api.somafm.com/logos/512/dronezone512.png",
       "accent": "#4a6fa5",
       "moods": [
         "focus",
@@ -709,7 +709,7 @@
       "homepage": "https://somafm.com/deepspaceone/",
       "supportUrl": "https://somafm.com/support/",
       "description": "Deep ambient electronic, experimental and space music.",
-      "image": null,
+      "image": "https://api.somafm.com/logos/512/deepspaceone512.png",
       "accent": "#3b4a7a",
       "moods": [
         "cosmic",
@@ -754,7 +754,7 @@
       "homepage": "https://somafm.com/spacestation/",
       "supportUrl": "https://somafm.com/support/",
       "description": "Tune in, turn on, space out. Spaced-out ambient and mid-tempo electronica.",
-      "image": "https://api.somafm.com/logos/256/spacestation256.png",
+      "image": "https://api.somafm.com/logos/512/spacestation512.png",
       "accent": "#5a7fb5",
       "moods": [
         "cosmic",
@@ -799,7 +799,7 @@
       "homepage": "https://somafm.com/secretagent/",
       "supportUrl": "https://somafm.com/support/",
       "description": "The soundtrack for your stylish, mysterious, dangerous life. For spies and PIs too.",
-      "image": "https://api.somafm.com/logos/256/secretagent256.png",
+      "image": "https://api.somafm.com/logos/512/secretagent512.png",
       "accent": "#b5533c",
       "moods": [
         "vintage",
@@ -847,7 +847,7 @@
       "homepage": "https://somafm.com/illstreet/",
       "supportUrl": "https://somafm.com/support/",
       "description": "Classic bachelor pad, playful exotica and vintage music of tomorrow.",
-      "image": "https://api.somafm.com/logos/256/illstreet256.jpg",
+      "image": "https://api.somafm.com/logos/512/illstreet512.png",
       "accent": "#c97b3a",
       "moods": [
         "vintage"
@@ -894,7 +894,7 @@
       "homepage": "https://somafm.com/lush/",
       "supportUrl": "https://somafm.com/support/",
       "description": "Sensuous and mellow vocals, many with an electronic influence.",
-      "image": "https://api.somafm.com/logos/256/lush256.png",
+      "image": "https://api.somafm.com/logos/512/lush512.png",
       "accent": "#a35c8f",
       "moods": [
         "chill",
@@ -940,7 +940,7 @@
       "homepage": "https://somafm.com/beatblender/",
       "supportUrl": "https://somafm.com/support/",
       "description": "A late night blend of deep-house and downtempo chill.",
-      "image": null,
+      "image": "https://api.somafm.com/logos/512/beatblender512.png",
       "accent": "#4f7f9f",
       "moods": [
         "late-night",
@@ -987,7 +987,7 @@
       "homepage": "https://somafm.com/bootliquor/",
       "supportUrl": "https://somafm.com/support/",
       "description": "Americana roots music for cowhands, cowpokes and cowtippers.",
-      "image": "https://api.somafm.com/logos/256/bootliquor256.png",
+      "image": "https://api.somafm.com/logos/512/bootliquor512.png",
       "accent": "#a0522d",
       "moods": [
         "sunny"
@@ -1031,7 +1031,7 @@
       "homepage": "https://somafm.com/folkfwd/",
       "supportUrl": "https://somafm.com/support/",
       "description": "Indie folk, alt-folk and the occasional folk classic.",
-      "image": "https://api.somafm.com/logos/256/folkfwd256.png",
+      "image": "https://api.somafm.com/logos/512/folkfwd512.png",
       "accent": "#8a9a5b",
       "moods": [
         "sunny",
@@ -1077,7 +1077,7 @@
       "homepage": "https://somafm.com/indiepop/",
       "supportUrl": "https://somafm.com/support/",
       "description": "New and classic favorite indie pop tracks.",
-      "image": null,
+      "image": "https://api.somafm.com/logos/512/indiepop512.png",
       "accent": "#d94f70",
       "moods": [
         "sunny"
@@ -1122,7 +1122,7 @@
       "homepage": "https://somafm.com/poptron/",
       "supportUrl": "https://somafm.com/support/",
       "description": "Electropop and indie dance rock with sparkle and pop.",
-      "image": "https://api.somafm.com/logos/256/poptron256.png",
+      "image": "https://api.somafm.com/logos/512/poptron512.png",
       "accent": "#e0558c",
       "moods": [
         "dance"
@@ -1167,7 +1167,7 @@
       "homepage": "https://somafm.com/u80s/",
       "supportUrl": "https://somafm.com/support/",
       "description": "Early 80s UK synthpop and a bit of new wave.",
-      "image": "https://api.somafm.com/logos/256/u80s256.png",
+      "image": "https://api.somafm.com/logos/512/u80s512.png",
       "accent": "#7b5ea7",
       "moods": [
         "dance"
@@ -1214,7 +1214,7 @@
       "homepage": "https://somafm.com/seventies/",
       "supportUrl": "https://somafm.com/support/",
       "description": "Mellow album rock from the seventies. Yacht not required.",
-      "image": "https://api.somafm.com/logos/256/seventies256.jpg",
+      "image": "https://api.somafm.com/logos/512/seventies512.jpg",
       "accent": "#d9a441",
       "moods": [
         "sunny"
@@ -1261,7 +1261,7 @@
       "homepage": "https://somafm.com/7soul/",
       "supportUrl": "https://somafm.com/support/",
       "description": "Vintage soul tracks from the original 45 RPM vinyl.",
-      "image": "https://api.somafm.com/logos/256/7soul256.png",
+      "image": "https://api.somafm.com/logos/512/7soul512.png",
       "accent": "#c4552d",
       "moods": [
         "vintage"
@@ -1309,7 +1309,7 @@
       "homepage": "https://somafm.com/insound/",
       "supportUrl": "https://somafm.com/support/",
       "description": "60s and 70s hipster Euro pop, where psychedelic melodies meet groovy vibes.",
-      "image": "https://api.somafm.com/logos/256/insound256.jpg",
+      "image": "https://api.somafm.com/logos/512/insound-512.jpg",
       "accent": "#e07a3f",
       "moods": [
         "vintage",
@@ -1358,7 +1358,7 @@
       "homepage": "https://somafm.com/metal/",
       "supportUrl": "https://somafm.com/support/",
       "description": "From black to doom, prog to sludge, thrash to post, stoner to crossover, punk to industrial.",
-      "image": null,
+      "image": "https://api.somafm.com/logos/512/metal512.png",
       "accent": "#8b1e1e",
       "moods": [
         "heavy"
@@ -1403,7 +1403,7 @@
       "homepage": "https://somafm.com/reggae/",
       "supportUrl": "https://somafm.com/support/",
       "description": "Reggae, ska, rocksteady: classic and deep tracks.",
-      "image": "https://api.somafm.com/logos/256/reggae256.png",
+      "image": "https://api.somafm.com/logos/512/reggae512.png",
       "accent": "#2e8b57",
       "moods": [
         "sunny"
@@ -1449,7 +1449,7 @@
       "homepage": "https://somafm.com/sonicuniverse/",
       "supportUrl": "https://somafm.com/support/",
       "description": "Transcending the world of jazz with eclectic, avant-garde takes on tradition.",
-      "image": null,
+      "image": "https://api.somafm.com/logos/512/sonicuniverse512.png",
       "accent": "#3f6b8e",
       "moods": [
         "late-night"
@@ -1494,7 +1494,7 @@
       "homepage": "https://somafm.com/fluid/",
       "supportUrl": "https://somafm.com/support/",
       "description": "Drown in the electronic sound of instrumental hip-hop, future soul and liquid trap.",
-      "image": null,
+      "image": "https://api.somafm.com/logos/512/fluid512.jpg",
       "accent": "#3a8f8f",
       "moods": [
         "chill",
@@ -1541,7 +1541,7 @@
       "homepage": "https://somafm.com/thetrip/",
       "supportUrl": "https://somafm.com/support/",
       "description": "Progressive house and trance. Tip top tunes.",
-      "image": "https://api.somafm.com/logos/256/thetrip256.jpg",
+      "image": "https://api.somafm.com/logos/512/thetrip512.jpg",
       "accent": "#4b6ccc",
       "moods": [
         "dance"
@@ -1586,7 +1586,7 @@
       "homepage": "https://somafm.com/cliqhop/",
       "supportUrl": "https://somafm.com/support/",
       "description": "Blips and beeps backed mostly with beats. Intelligent dance music.",
-      "image": null,
+      "image": "https://api.somafm.com/logos/512/cliqhop512.png",
       "accent": "#5b8c5a",
       "moods": [
         "focus"
@@ -1631,7 +1631,7 @@
       "homepage": "https://somafm.com/suburbsofgoa/",
       "supportUrl": "https://somafm.com/support/",
       "description": "Desi-influenced Asian world beats and beyond.",
-      "image": "https://api.somafm.com/logos/256/suburbsofgoa256.png",
+      "image": "https://api.somafm.com/logos/512/suburbsofgoa512.png",
       "accent": "#c0392b",
       "moods": [
         "sunny"
@@ -1676,7 +1676,7 @@
       "homepage": "https://somafm.com/bossa/",
       "supportUrl": "https://somafm.com/support/",
       "description": "Silky, laid-back Brazilian rhythms: bossa nova, samba and beyond.",
-      "image": "https://api.somafm.com/logos/256/bossa256.jpg",
+      "image": "https://api.somafm.com/logos/512/bossa-512.jpg",
       "accent": "#2a9d8f",
       "moods": [
         "sunny",
@@ -1723,7 +1723,7 @@
       "homepage": "https://somafm.com/covers/",
       "supportUrl": "https://somafm.com/support/",
       "description": "Just covers. Songs you know by artists you don't.",
-      "image": "https://api.somafm.com/logos/256/covers256.png",
+      "image": "https://api.somafm.com/logos/512/covers512.png",
       "accent": "#6c757d",
       "moods": [],
       "eras": [],
@@ -1765,7 +1765,7 @@
       "homepage": "https://somafm.com/digitalis/",
       "supportUrl": "https://somafm.com/support/",
       "description": "Digitally affected analog rock to calm the agitated heart.",
-      "image": "https://api.somafm.com/logos/256/digitalis256.png",
+      "image": "https://api.somafm.com/logos/512/digitalis512.png",
       "accent": "#556b2f",
       "moods": [
         "dreamy"
@@ -1810,7 +1810,7 @@
       "homepage": "https://somafm.com/doomed/",
       "supportUrl": "https://somafm.com/support/",
       "description": "Where every day is Halloween: dark industrial and ambient music for tortured souls.",
-      "image": null,
+      "image": "https://api.somafm.com/logos/512/doomed512.png",
       "accent": "#3d2b3d",
       "moods": [
         "heavy",
@@ -1855,7 +1855,7 @@
       "homepage": "https://somafm.com/darkzone/",
       "supportUrl": "https://somafm.com/support/",
       "description": "The darker side of deep ambient. Music for staring into the abyss.",
-      "image": null,
+      "image": "https://api.somafm.com/logos/512/darkzone512.jpg",
       "accent": "#2f2f3f",
       "moods": [
         "late-night",
@@ -1900,7 +1900,7 @@
       "homepage": "https://somafm.com/tikitime/",
       "supportUrl": "https://somafm.com/support/",
       "description": "Classic tiki music and vintage island rhythms to sip cocktails by.",
-      "image": "https://api.somafm.com/logos/256/tikitime256.jpg",
+      "image": "https://api.somafm.com/logos/512/tikitime512.jpg",
       "accent": "#e76f51",
       "moods": [
         "vintage",
@@ -1949,7 +1949,7 @@
       "homepage": "https://somafm.com/thistle/",
       "supportUrl": "https://somafm.com/support/",
       "description": "Exploring music from Celtic roots and branches, with Fiona Ritchie.",
-      "image": "https://api.somafm.com/logos/256/thistle256.jpg",
+      "image": "https://api.somafm.com/logos/512/thistle512.jpg",
       "accent": "#2d6a4f",
       "moods": [],
       "eras": [],
@@ -1992,7 +1992,7 @@
       "homepage": "https://somafm.com/vaporwaves/",
       "supportUrl": "https://somafm.com/support/",
       "description": "All vaporwave. All the time.",
-      "image": "https://api.somafm.com/logos/256/vaporwaves256.png",
+      "image": "https://api.somafm.com/logos/512/vaporwaves512.png",
       "accent": "#c77dff",
       "moods": [
         "dreamy"
@@ -2036,7 +2036,7 @@
       "homepage": "https://somafm.com/dubstep/",
       "supportUrl": "https://somafm.com/support/",
       "description": "Dubstep, dub and deep bass. May damage speakers at high volume.",
-      "image": null,
+      "image": "https://api.somafm.com/logos/512/dubstep512.png",
       "accent": "#1f4e79",
       "moods": [
         "heavy",
@@ -2083,7 +2083,7 @@
       "homepage": "https://somafm.com/synphaera/",
       "supportUrl": "https://somafm.com/support/",
       "description": "An independent label's catalog of modern electronic ambient and space music.",
-      "image": "https://api.somafm.com/logos/256/synphaera256.jpg",
+      "image": "https://api.somafm.com/logos/512/synphaera512.jpg",
       "accent": "#4361ee",
       "moods": [
         "cosmic",
@@ -2129,7 +2129,7 @@
       "homepage": "https://somafm.com/missioncontrol/",
       "supportUrl": "https://somafm.com/support/",
       "description": "Ambient music mixed with the voices of NASA and space explorers everywhere.",
-      "image": "https://api.somafm.com/logos/256/missioncontrol256.png",
+      "image": "https://api.somafm.com/logos/512/missioncontrol512.jpg",
       "accent": "#495057",
       "moods": [
         "cosmic"
@@ -2844,7 +2844,7 @@
       "homepage": null,
       "supportUrl": null,
       "description": "Rock 'n' roll and classic hits from the fifties and sixties, all day.",
-      "image": null,
+      "image": "https://www.cassette.digital/radio-art/fifties-sixties-retro-hits.jpg",
       "accent": "#e76f51",
       "moods": [
         "vintage"
@@ -2883,7 +2883,7 @@
       "homepage": null,
       "supportUrl": null,
       "description": "The fifties, start to finish: rock 'n' roll, crooners, early rhythm and blues.",
-      "image": null,
+      "image": "https://www.cassette.digital/radio-art/0n-50s.jpg",
       "accent": "#bc6c25",
       "moods": [
         "vintage"
@@ -2919,7 +2919,7 @@
       "homepage": null,
       "supportUrl": null,
       "description": "The sixties on a loop: beat groups, Motown, and the summer of love.",
-      "image": null,
+      "image": "https://www.cassette.digital/radio-art/0n-60s.jpg",
       "accent": "#dda15e",
       "moods": [
         "vintage"
@@ -2957,7 +2957,7 @@
       "homepage": null,
       "supportUrl": null,
       "description": "Big bands, crooners and the wireless as it sounded in the forties and early fifties.",
-      "image": null,
+      "image": "https://www.cassette.digital/radio-art/1940s-radio.jpg",
       "accent": "#8a5a44",
       "moods": [
         "vintage"
@@ -2995,7 +2995,7 @@
       "homepage": null,
       "supportUrl": null,
       "description": "Only classic soul, from the fifties through the seventies.",
-      "image": null,
+      "image": "https://www.cassette.digital/radio-art/soul-radio-classics.jpg",
       "accent": "#9b2226",
       "moods": [
         "vintage"
@@ -3035,7 +3035,7 @@
       "homepage": null,
       "supportUrl": null,
       "description": "Rockabilly, rock 'n' roll and jukebox hits of the fifties.",
-      "image": null,
+      "image": "https://www.cassette.digital/radio-art/dagnys-jukebox.png",
       "accent": "#d62828",
       "moods": [
         "vintage"
@@ -3071,7 +3071,7 @@
       "homepage": null,
       "supportUrl": null,
       "description": "Only funk music, sixties and seventies.",
-      "image": null,
+      "image": "https://www.cassette.digital/radio-art/funky-radio.jpg",
       "accent": "#f77f00",
       "moods": [
         "dance",
@@ -3110,7 +3110,7 @@
       "homepage": null,
       "supportUrl": null,
       "description": "Classic rock from the seventies, eighties and nineties.",
-      "image": null,
+      "image": "https://www.cassette.digital/radio-art/rdmix-classic-rock.jpg",
       "accent": "#6a040f",
       "moods": [],
       "eras": [
@@ -3456,7 +3456,7 @@
       "homepage": "https://www.cc-seas.columbia.edu/wkcr/",
       "supportUrl": null,
       "description": "Columbia University's station since 1941: deep jazz, classical, American roots and new music, programmed by students who know their archives.",
-      "image": null,
+      "image": "https://www.cassette.digital/radio-art/wkcr.png",
       "accent": "#4a6fa5",
       "moods": [
         "late-night"
@@ -4582,7 +4582,7 @@
       "homepage": "https://radio.nrk.no/direkte/p3musikk",
       "supportUrl": null,
       "description": "The music channel from NRK P3, Norway's public broadcaster.",
-      "image": null,
+      "image": "https://www.cassette.digital/radio-art/nrk-p3-musikk.png",
       "accent": "#0a4c8c",
       "moods": [],
       "eras": [],
