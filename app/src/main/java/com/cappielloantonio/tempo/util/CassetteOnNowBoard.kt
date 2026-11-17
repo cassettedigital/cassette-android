@@ -177,6 +177,8 @@ class CassetteOnNowBoard(context: Context, private val listener: Listener) {
         val slug = card.station.slug
         if (released || cards[slug] !== card || card.wanted != cover) return
         card.coverUrl = url
+        // the station's page draws the same picture from the same address, with no new load
+        if (url != null) CassetteRadioLive.noteDrawnCover(slug, cover, url)
         card.coverSettled = true
         if (card.shown) listener.changed(slug)
         update()

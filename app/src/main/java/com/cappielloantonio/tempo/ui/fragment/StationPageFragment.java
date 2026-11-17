@@ -24,6 +24,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.cappielloantonio.tempo.R;
 import com.cappielloantonio.tempo.databinding.FragmentStationPageBinding;
 import com.cappielloantonio.tempo.databinding.ItemRadioPlayBinding;
@@ -64,6 +65,11 @@ public class StationPageFragment extends Fragment {
     private final PlaysAdapter plays = new PlaysAdapter();
     private final CassetteTileAdapter similar = new CassetteTileAdapter();
     private final Runnable tick = this::load;
+    /** How many songs before the one on now the page shows (the route's recent list). */
+    private static final int RECENT_SHOWN = 10;
+    /** The song on now as the dial last heard it, drawn before the page's own read. */
+    @Nullable
+    private CassetteRadio.Play knownNow;
 
     /** Open a station's page from anywhere. */
     public static void open(Fragment from, String slug) {
@@ -144,6 +150,65 @@ public class StationPageFragment extends Fragment {
         bind.stationSimilarTiles.setAdapter(similar);
         CassetteType.twoVoice(bind.stationSimilarHeading, getString(R.string.cassette_more_like), station.getName(),
                 ContextCompat.getColor(requireContext(), R.color.cs_ink2));
+        drawKnown();
+    }
+
+    /**
+     * The page opens as one sequence rather than in jumps (the founder, 2026-11-17: "Now playing showed, bring
+     * that image forward, create a skeleton state for the album art below, and wait"): the song on now as the
+     * dial last heard it, with the cover the dial drew; the songs before it held open as quiet rows the same
+     * size; More like from the catalog. The page's own read fills them in place, so nothing below moves.
+     */
+    private void drawKnown() {
+        CassetteRadioLive.OnAir known = CassetteRadioLive.lastHeard(station.getSlug());
+        List<CassetteRadio.Play> rows = new ArrayList<>();
+        if (known != null && known.getTitle() != null) {
+            // the very address the dial's card drew the cover from, so it comes from memory with no new load
+            // and the song's own cover, as the page's read draws it: a show's picture is the show row's
+            String drawn = CassetteRadioLive.drawnCover(station.getSlug(), known.getSongCover());
+            knownNow = new CassetteRadio.Play(known.getTitle(), known.getArtist() != null ? known.getArtist() : "", null,
+                    drawn != null ? drawn : known.getSongCover(), null, null, null, drawn != null ? null : known.getSongCoverSrc());
+            rows.add(knownNow);
+        }
+        boolean show = known != null && known.getShow() != null;
+        bind.stationShow.setVisibility(show ? View.VISIBLE : View.GONE);
+        if (show) {
+            bind.stationShowName.setText(known.getShow());
+            java.text.DateFormat clock = android.text.format.DateFormat.getTimeFormat(requireContext());
+            Long until = known.getUntil();
+            bind.stationShowWhen.setVisibility(until != null ? View.VISIBLE : View.GONE);
+            if (until != null) bind.stationShowWhen.setText(getString(R.string.cassette_until, clock.format(new java.util.Date(until))));
+            loadShowImage(station.getImage());
+        }
+        int waiting = station.getHasRecentPlays() ? RECENT_SHOWN : 0;
+        plays.set(rows, !rows.isEmpty(), waiting);
+        bind.stationOnAir.setVisibility(show || !rows.isEmpty() || waiting > 0 ? View.VISIBLE : View.GONE);
+        drawSimilar(station.getSimilar());
+    }
+
+    private void loadShowImage(@Nullable String image) {
+        Glide.with(this).load(image)
+                .placeholder(new android.graphics.drawable.ColorDrawable(ContextCompat.getColor(requireContext(), R.color.cs_raised)))
+                .transition(DrawableTransitionOptions.withCrossFade(200))
+                .into(bind.stationShowImage);
+    }
+
+    /** More like *station*: the page's list when it has one, else the catalog's. */
+    private void drawSimilar(List<String> slugs) {
+        List<CassetteTileAdapter.Tile> tiles = new ArrayList<>();
+        for (String s : slugs) {
+            CassetteRadio.Station other = CassetteRadio.bySlug(requireContext(), s);
+            if (other == null) continue;
+            tiles.add(CassetteTileAdapter.Tile.station(other,
+                    () -> open(this, other.getSlug()),
+                    () -> {
+                        MediaManager.startRadio(browser, other.toInternetRadioStation());
+                        activity.setBottomSheetInPeek(true);
+                    }));
+        }
+        if (tiles.isEmpty()) return;
+        similar.setItems(tiles);
+        bind.stationSimilar.setVisibility(View.VISIBLE);
     }
 
     private boolean onAir() {
@@ -194,6 +259,8 @@ public class StationPageFragment extends Fragment {
             main.post(() -> {
                 if (bind == null) return;
                 if (page != null) draw(page);
+                // no answer: the held rows go, and what the dial knew stays
+                else plays.letGo();
                 main.removeCallbacks(tick);
                 if (isResumed()) main.postDelayed(tick, 30_000);
             });
@@ -211,32 +278,25 @@ public class StationPageFragment extends Fragment {
             bind.stationShowName.setText(live.getShow());
             bind.stationShowWhen.setText(when);
             bind.stationShowWhen.setVisibility(when != null ? View.VISIBLE : View.GONE);
-            Glide.with(this).load(live.getArtwork() != null && page.getNow() == null ? live.getArtwork() : station.getImage())
-                    .into(bind.stationShowImage);
+            loadShowImage(live.getArtwork() != null && page.getNow() == null ? live.getArtwork() : station.getImage());
         }
         List<CassetteRadio.Play> rows = new ArrayList<>();
-        if (page.getNow() != null) rows.add(page.getNow());
+        CassetteRadio.Play now = page.getNow();
+        // the same song the page opened with keeps the cover it was drawn with: no second load, no flicker
+        if (now != null && knownNow != null && now.getTitle().equalsIgnoreCase(knownNow.getTitle())
+                && now.getArtist().equalsIgnoreCase(knownNow.getArtist())) {
+            now = new CassetteRadio.Play(now.getTitle(), now.getArtist(), now.getPlayedAt(), knownNow.getCover(),
+                    now.getAlbumSlug(), now.getAlbumTitle(), now.getAlbumArtist(), knownNow.getCoverSrc());
+        }
+        if (now != null) rows.add(now);
         rows.addAll(page.getRecent());
-        plays.set(rows, page.getNow() != null);
+        plays.set(rows, now != null, 0);
         // the next show (or song) when there is no show row to carry it
         String next = live != null ? live.getNext() : null;
         bind.stationNext.setVisibility(!show && next != null ? View.VISIBLE : View.GONE);
         if (next != null) bind.stationNext.setText(getString(R.string.cassette_next_line, next));
         bind.stationOnAir.setVisibility(show || !rows.isEmpty() ? View.VISIBLE : View.GONE);
-
-        List<CassetteTileAdapter.Tile> tiles = new ArrayList<>();
-        for (String s : page.getSimilar()) {
-            CassetteRadio.Station other = CassetteRadio.bySlug(requireContext(), s);
-            if (other == null) continue;
-            tiles.add(CassetteTileAdapter.Tile.station(other,
-                    () -> open(this, other.getSlug()),
-                    () -> {
-                        MediaManager.startRadio(browser, other.toInternetRadioStation());
-                        activity.setBottomSheetInPeek(true);
-                    }));
-        }
-        similar.setItems(tiles);
-        bind.stationSimilar.setVisibility(tiles.isEmpty() ? View.GONE : View.VISIBLE);
+        drawSimilar(page.getSimilar());
     }
 
     /** A song the station played: its record here when we carry it, else its page on Cassette. */
@@ -275,10 +335,19 @@ public class StationPageFragment extends Fragment {
     private final class PlaysAdapter extends RecyclerView.Adapter<PlaysAdapter.Holder> {
         private List<CassetteRadio.Play> items = new ArrayList<>();
         private boolean firstIsNow;
+        /** Rows held open, the same size, for songs still on their way. */
+        private int waiting;
 
-        void set(List<CassetteRadio.Play> next, boolean nowFirst) {
+        void set(List<CassetteRadio.Play> next, boolean nowFirst, int open) {
             items = next;
             firstIsNow = nowFirst;
+            waiting = open;
+            notifyDataSetChanged();
+        }
+
+        void letGo() {
+            if (waiting == 0) return;
+            waiting = 0;
             notifyDataSetChanged();
         }
 
@@ -290,13 +359,27 @@ public class StationPageFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(@NonNull Holder h, int position) {
+            int quiet = ContextCompat.getColor(h.itemView.getContext(), R.color.cs_raised);
+            if (position >= items.size()) {
+                bindWaiting(h, quiet);
+                return;
+            }
+            h.itemView.setEnabled(true);
             CassetteRadio.Play p = items.get(position);
             boolean now = position == 0 && firstIsNow;
             h.bind.playTitle.setText(p.getTitle());
             h.bind.playArtist.setText(p.getArtist());
             h.bind.playWhen.setText(now ? getString(R.string.cassette_now) : ago(p.getPlayedAt()));
             h.bind.playWhen.setTextColor(ContextCompat.getColor(h.itemView.getContext(), now ? R.color.cs_accent : R.color.cs_ink2));
-            Glide.with(h.itemView).load(p.getCover()).into(h.bind.playCover);
+            // the cover on the image ladder at its square's size, else its own address; a cover that comes late
+            // fades in over a quiet square rather than popping
+            int px = h.bind.playCover.getLayoutParams().height;
+            String ladder = p.coverFor(px);
+            Glide.with(h.itemView).load(ladder)
+                    .placeholder(new android.graphics.drawable.ColorDrawable(quiet))
+                    .error(Glide.with(h.itemView).load(p.getCover()))
+                    .transition(DrawableTransitionOptions.withCrossFade(200))
+                    .into(h.bind.playCover);
             h.itemView.setOnClickListener(v -> openSong(p));
             h.itemView.setOnLongClickListener(v -> {
                 copySong(p);
@@ -304,9 +387,27 @@ public class StationPageFragment extends Fragment {
             });
         }
 
+        /** A song row's quiet stand-in: a square and two bars where its cover, title and artist will be. */
+        private void bindWaiting(Holder h, int quiet) {
+            Glide.with(h.itemView).clear(h.bind.playCover);
+            h.bind.playCover.setImageDrawable(new android.graphics.drawable.ColorDrawable(quiet));
+            h.bind.playTitle.setText(bar(18, quiet));
+            h.bind.playArtist.setText(bar(11, quiet));
+            h.bind.playWhen.setText("");
+            h.itemView.setOnClickListener(null);
+            h.itemView.setOnLongClickListener(null);
+            h.itemView.setEnabled(false);
+        }
+
+        private CharSequence bar(int width, int color) {
+            android.text.SpannableString s = new android.text.SpannableString(new String(new char[width]).replace('\0', '\u2007'));
+            s.setSpan(new android.text.style.BackgroundColorSpan(color), 0, s.length(), 0);
+            return s;
+        }
+
         @Override
         public int getItemCount() {
-            return items.size();
+            return items.size() + waiting;
         }
 
         final class Holder extends RecyclerView.ViewHolder {

@@ -129,7 +129,38 @@ object CassetteRadioLive {
      * what's playing (the record we carry, the station's cover for the song, the show's own picture), with
      * its address on the image ladder (`{rung}` to fill) when the cloud sent one.
      */
-    class OnAir(val now: String?, val until: Long?, val cover: String?, val coverSrc: String?)
+    class OnAir @JvmOverloads constructor(
+        val now: String?, val until: Long?, val cover: String?, val coverSrc: String?,
+        /** The song's own artist and title, and the show's name, for a station page to draw them apart. */
+        val artist: String? = null, val title: String? = null, val show: String? = null,
+        /** The song's own cover and its ladder reference (the record we carry, else the station's), never the show's picture. */
+        val songCover: String? = null, val songCoverSrc: String? = null,
+    )
+
+    /** What each station's card last heard, and when (a read's answer, kept in memory only). */
+    private val heard = java.util.concurrent.ConcurrentHashMap<String, Pair<OnAir, Long>>()
+    /** The cover a card drew for each station, at its picture's address and the address it was drawn from. */
+    private val drawnCovers = java.util.concurrent.ConcurrentHashMap<String, Pair<String, String>>()
+
+    /**
+     * What a card heard on `slug` within the last `maxAgeMs`: what the station's page opened from the dial
+     * draws at once (the founder, 2026-11-17: "Now playing showed, bring that image forward").
+     */
+    @JvmStatic
+    @JvmOverloads
+    fun lastHeard(slug: String, maxAgeMs: Long = 150_000): OnAir? =
+        heard[slug]?.takeIf { System.currentTimeMillis() - it.second < maxAgeMs }?.first
+
+    /** A card drew `cover` (the picture's own address) from `drawnFrom` (the address it loaded). */
+    @JvmStatic
+    fun noteDrawnCover(slug: String, cover: String, drawnFrom: String) {
+        drawnCovers[slug] = cover to drawnFrom
+    }
+
+    /** The address a card drew `cover` from on `slug`, so a page can show the same picture without a new load. */
+    @JvmStatic
+    fun drawnCover(slug: String, cover: String?): String? =
+        drawnCovers[slug]?.takeIf { cover != null && it.first == cover }?.second
 
     /** The cloud's now-playing answer as a card reads it, or null when it says nothing. */
     @JvmStatic
@@ -145,7 +176,10 @@ object CassetteRadioLive {
             .firstNotNullOfOrNull { (from, key, ref) -> from?.str(key)?.let { it to from.obj(ref)?.str("src") } }
         val until = show?.str("until")?.let(::millis)
         if (now == null && picture == null && until == null) return null
-        return OnAir(now, until, picture?.first, picture?.second)
+        val songPicture = listOf(Triple(match, "coverUrl", "coverRef"), Triple(track, "coverUrl", "coverRef"))
+            .firstNotNullOfOrNull { (from, key, ref) -> from?.str(key)?.let { it to from.obj(ref)?.str("src") } }
+        return OnAir(now, until, picture?.first, picture?.second, track?.str("artist"), track?.str("title"), show?.str("name"),
+            songPicture?.first, songPicture?.second)
     }
 
     /** One read of what's on, for On now (the route the website's cards read). Null when the cloud can't say. Off the main thread. */
@@ -153,6 +187,7 @@ object CassetteRadioLive {
     fun onAir(slug: String): OnAir? = try {
         client.newCall(Request.Builder().url(Cassette.BASE_URL + "/api/radio/now-playing?station=" + Uri.encode(slug)).build())
             .execute().use { r -> r.body?.string()?.takeIf { r.isSuccessful }?.let(::parseOnAir) }
+            ?.also { heard[slug] = it to System.currentTimeMillis() }
     } catch (e: Exception) {
         Log.w("CassetteRadioLive", "on air failed", e)
         null

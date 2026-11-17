@@ -49,6 +49,10 @@ object CassetteRadio {
         val isStation: Boolean = false,
         /** Its mark on the image ladder, `{rung}` to fill (lib/radio/picture-refs.ts); the bundled copy has none. */
         val imageSrc: String? = null,
+        /** The stations most like it, by slug: its page's More like, drawn at once while the page's own read is out. */
+        val similar: List<String> = emptyList(),
+        /** It publishes the songs it played, so its page holds their rows open while they load. */
+        val hasRecentPlays: Boolean = false,
     ) {
         /** Its mark for a frame `px` pixels across: the ladder's rung when the cloud sent one, else the plain address. */
         fun imageUrl(px: Int): String? =
@@ -134,9 +138,11 @@ object CassetteRadio {
             val kicker = listOfNotNull(network, cities.firstOrNull(), "Live".takeIf { isStation }).joinToString(" · ")
             val live = o.get("hasNowPlaying")?.takeIf { it.isJsonPrimitive }?.let { runCatching { it.asBoolean }.getOrNull() } ?: false
             val imageSrc = o.get("imageRef")?.takeIf { it.isJsonObject }?.asJsonObject?.str("src")
+            val similar = o.getAsJsonArray("similar")?.mapNotNull { runCatching { it.asString }.getOrNull() }.orEmpty()
+            val recentPlays = o.get("hasRecentPlays")?.takeIf { it.isJsonPrimitive }?.let { runCatching { it.asBoolean }.getOrNull() } ?: false
             Station(slug, name, label, o.str("section") ?: "", stream, o.str("homepage"), o.str("supportUrl"), o.str("image"), o.str("accent"), words,
                 kicker = kicker, network = network ?: "", description = o.str("description") ?: "", live = live,
-                isStation = isStation, imageSrc = imageSrc)
+                isStation = isStation, imageSrc = imageSrc, similar = similar, hasRecentPlays = recentPlays)
         }.orEmpty()
         return out.sortedBy { order.indexOf(it.section).let { i -> if (i < 0) Int.MAX_VALUE else i } }
     }
@@ -213,8 +219,15 @@ object CassetteRadio {
     }
 
     /** One song a station played (lib/radio/types.ts RadioPlay), with the record on Cassette it matched. */
-    class Play(val title: String, val artist: String, val playedAt: Long?, val cover: String?,
-               val albumSlug: String?, val albumTitle: String?, val albumArtist: String?)
+    class Play @JvmOverloads constructor(
+        val title: String, val artist: String, val playedAt: Long?, val cover: String?,
+        val albumSlug: String?, val albumTitle: String?, val albumArtist: String?,
+        /** The cover on the image ladder, `{rung}` to fill (lib/radio/picture-refs.ts), when the cloud sent one. */
+        val coverSrc: String? = null,
+    ) {
+        /** Its cover for a frame `px` pixels across: the ladder's rung when the cloud sent one, else the plain address. */
+        fun coverFor(px: Int): String? = CassetteImageLadder.rungUrl(coverSrc, CassetteImageLadder.ladderSize(px)) ?: cover
+    }
 
     /** A station's page (lib/radio/station-page.ts): what's on, what came before, the stations like it. */
     class Page(val live: CassetteRadioLive.Live?, val now: Play?, val recent: List<Play>, val similar: List<String>)
@@ -251,10 +264,13 @@ object CassetteRadio {
 
     private fun play(t: JsonObject, match: JsonObject?): Play? {
         val title = t.str("title") ?: return null
+        // the cover and its ladder reference come from the same place: the record we carry, else the station's
+        val coverFrom = if (match?.str("coverUrl") != null) match else t
         return Play(title, t.str("artist") ?: "",
             t.str("playedAt")?.let { runCatching { java.time.Instant.parse(it).toEpochMilli() }.getOrNull() },
-            match?.str("coverUrl") ?: t.str("coverUrl"),
-            match?.str("albumSlug"), match?.str("title"), match?.str("artistName"))
+            coverFrom?.str("coverUrl"),
+            match?.str("albumSlug"), match?.str("title"), match?.str("artistName"),
+            coverFrom?.get("coverRef")?.takeIf { it.isJsonObject }?.asJsonObject?.str("src"))
     }
 
     /** The record on this phone a station's song came from, by its record's name and artist. Off the main thread. */
