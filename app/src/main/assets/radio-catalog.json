@@ -3413,7 +3413,7 @@
       "homepage": "https://www.classicalcalifornia.org/",
       "supportUrl": "https://www.classicalcalifornia.org/give",
       "description": "Los Angeles' classical station, the largest in the country, hosted live.",
-      "image": "https://upload.wikimedia.org/wikipedia/commons/e/e2/KUSC_Logo.jpg",
+      "image": "https://www.cassette.digital/radio-art/classical-california.png",
       "accent": "#1d3557",
       "moods": [
         "focus"
@@ -4037,7 +4037,7 @@
       "homepage": "https://www.radiofrance.fr/fip",
       "supportUrl": null,
       "description": "Radio France's FIP: jazz into Afrobeat into Debussy, with hosts who never tell you what's next.",
-      "image": "https://cdn.radiofrance.fr/s3/cruiser-production/2019/06/f5b944ca-9a21-4970-8eed-e711dac8ac15/200x200_fip-rock_ok.jpg",
+      "image": "https://www.cassette.digital/radio-art/fip.png",
       "accent": "#e4007c",
       "moods": [
         "chill"
@@ -4084,7 +4084,7 @@
       "homepage": "https://www.radiofrance.fr/fip/radio-rock",
       "supportUrl": null,
       "description": "FIP's rock stream: garage, psych, post-punk, and the records between.",
-      "image": "https://cdn.radiofrance.fr/s3/cruiser-production/2019/06/f5b944ca-9a21-4970-8eed-e711dac8ac15/200x200_fip-rock_ok.jpg",
+      "image": "https://www.radiofrance.fr/pikapi/images/cda37279-f985-4017-bc03-2dad643c7306/2048",
       "accent": "#c1121f",
       "moods": [],
       "eras": [],
@@ -4123,7 +4123,7 @@
       "homepage": "https://www.radiofrance.fr/fip/radio-jazz",
       "supportUrl": null,
       "description": "FIP's jazz stream, hard bop to spiritual, all day.",
-      "image": "https://www.radiofrance.fr/s3/cruiser-production/2019/06/840a4431-0db0-4a94-aa28-53f8de011ab6/300x300_fip-jazz-01.jpg",
+      "image": "https://www.radiofrance.fr/pikapi/images/2de59c50-9912-401e-9d1f-95a2f0b66567/2048",
       "accent": "#3d5a80",
       "moods": [
         "late-night"
@@ -4162,7 +4162,7 @@
       "homepage": "https://www.radiofrance.fr/fip/radio-groove",
       "supportUrl": null,
       "description": "FIP's groove stream: funk, soul, disco, boogie.",
-      "image": "https://cdn.radiofrance.fr/s3/cruiser-production/2019/06/f5b944ca-9a21-4970-8eed-e711dac8ac15/200x200_fip-rock_ok.jpg",
+      "image": "https://www.radiofrance.fr/pikapi/images/95cf76c3-26bc-404e-be1c-b81666188c3f/2048",
       "accent": "#f77f00",
       "moods": [
         "dance",
@@ -4204,7 +4204,7 @@
       "homepage": "https://www.radiofrance.fr/fip/radio-monde",
       "supportUrl": null,
       "description": "FIP's world stream: music from every continent, curated in Paris.",
-      "image": "https://cdn.radiofrance.fr/s3/cruiser-production/2019/06/f5b944ca-9a21-4970-8eed-e711dac8ac15/200x200_fip-rock_ok.jpg",
+      "image": "https://www.radiofrance.fr/pikapi/images/524fabe1-7645-4847-aa93-932d9835de67/2048",
       "accent": "#2a9d8f",
       "moods": [
         "sunny"
@@ -4243,7 +4243,7 @@
       "homepage": "https://www.radiofrance.fr/fip/radio-nouveautes",
       "supportUrl": null,
       "description": "FIP's new-releases stream: this month's records across every genre FIP plays.",
-      "image": "https://cdn.radiofrance.fr/s3/cruiser-production/2019/06/f5b944ca-9a21-4970-8eed-e711dac8ac15/200x200_fip-rock_ok.jpg",
+      "image": "https://www.radiofrance.fr/pikapi/images/9f85ac9d-1151-429a-9645-d030e92b441f/2048",
       "accent": "#e4007c",
       "moods": [],
       "eras": [],
@@ -4320,7 +4320,7 @@
       "homepage": "https://www.radiofrance.fr/fip/radio-electro",
       "supportUrl": null,
       "description": "FIP's electronic stream, from ambient to club.",
-      "image": "https://cdn.radiofrance.fr/s3/cruiser-production/2019/06/f5b944ca-9a21-4970-8eed-e711dac8ac15/200x200_fip-rock_ok.jpg",
+      "image": "https://www.radiofrance.fr/pikapi/images/bf85964f-395a-4e6a-beb4-6cc0590d20bb/2048",
       "accent": "#4361ee",
       "moods": [
         "dance",
@@ -4360,7 +4360,7 @@
       "homepage": "https://www.radiofrance.fr/fip/radio-metal",
       "supportUrl": null,
       "description": "FIP's metal stream: a public broadcaster that takes doom seriously.",
-      "image": "https://www.radiofrance.fr/s3/cruiser-production/2022/07/160994f8-296b-4cd8-97a0-34c9111cdd9d/400x400_fip-metal-20222x_2.webp",
+      "image": "https://www.radiofrance.fr/pikapi/images/a3406ba2-41d4-4a94-89a2-c45470d606ff/2048",
       "accent": "#540b0e",
       "moods": [
         "heavy"
@@ -4399,7 +4399,7 @@
       "homepage": "https://www.radiofrance.fr/fip/radio-pop",
       "supportUrl": null,
       "description": "FIP's pop stream: the elegant end of pop, French and otherwise.",
-      "image": "https://cdn.radiofrance.fr/s3/cruiser-production/2020/06/14f16d25-960c-4cf4-8e39-682268b1a0c1/200x200_fip-pop_ok.jpg",
+      "image": "https://www.radiofrance.fr/pikapi/images/867b3aac-d06c-4f79-85a3-fc1565526889/2048",
       "accent": "#ff5d8f",
       "moods": [
         "sunny"
@@ -4440,7 +4440,7 @@
       "homepage": "https://www.radiofrance.fr/fip/radio-hip-hop",
       "supportUrl": null,
       "description": "FIP's hip-hop stream: boom bap to abstract, both sides of the Atlantic.",
-      "image": "https://cdn.radiofrance.fr/s3/cruiser-production/2019/06/f5b944ca-9a21-4970-8eed-e711dac8ac15/200x200_fip-rock_ok.jpg",
+      "image": "https://www.radiofrance.fr/pikapi/images/5c52d959-7ea2-4c9e-b298-5aab893a9b86/2048",
       "accent": "#9d4edd",
       "moods": [
         "late-night"
