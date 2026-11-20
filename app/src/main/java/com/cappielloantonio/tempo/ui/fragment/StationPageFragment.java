@@ -270,7 +270,8 @@ public class StationPageFragment extends Fragment {
     private void draw(CassetteRadio.Page page) {
         CassetteRadioLive.Live live = page.getLive();
         java.text.DateFormat clock = android.text.format.DateFormat.getTimeFormat(requireContext());
-        String when = live != null ? CassetteRadioLive.whenLine(live, System.currentTimeMillis(), t -> clock.format(new java.util.Date(t))) : null;
+        // who is on, then when: the host the station names leads the line, as on the iPhone
+        String when = live != null ? CassetteRadioLive.showLine(live, System.currentTimeMillis(), t -> clock.format(new java.util.Date(t))) : null;
 
         boolean show = live != null && live.getShow() != null;
         bind.stationShow.setVisibility(show ? View.VISIBLE : View.GONE);

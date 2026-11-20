@@ -38,6 +38,19 @@ class CassetteRadioLiveTest {
     }
 
     @Test
+    fun showLineLeadsWithTheHost() {
+        val now = 0L
+        val until = 60 * 60_000L
+        assertEquals("with Monster Zero · until T60, then For The Record",
+            CassetteRadioLive.showLine(CassetteRadioLive.Live(host = "Monster Zero", until = until, next = "For The Record", nextStarts = until), now, clock))
+        assertEquals("with Bailey", CassetteRadioLive.showLine(CassetteRadioLive.Live(host = "Bailey"), now, clock))
+        assertEquals("with Bailey · Next: Joe Frank", CassetteRadioLive.showLine(CassetteRadioLive.Live(host = "Bailey", next = "Joe Frank"), now, clock))
+        // no host named: the when line as it was
+        assertEquals("Until T60", CassetteRadioLive.showLine(CassetteRadioLive.Live(host = " ", until = until), now, clock))
+        assertNull(CassetteRadioLive.showLine(CassetteRadioLive.Live(), now, clock))
+    }
+
+    @Test
     fun theCloudsAnswerPrefersTheRecordWeCarry() {
         val live = CassetteRadioLive.parseNowPlaying("""
             {"station":"kexp","fetchedAt":"2026-11-09T18:00:00Z",

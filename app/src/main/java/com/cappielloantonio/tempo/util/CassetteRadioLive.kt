@@ -97,6 +97,21 @@ object CassetteRadioLive {
         return if (backToBack || nextStarts == null) "$untilText, $nextText" else "$untilText · $nextText"
     }
 
+    /**
+     * The station page's line under the show: who is on, then when ("with Monster Zero · until 8:00 PM, then
+     * For The Record"), the way the iPhone's station page reads. No host named, the when line alone.
+     */
+    @JvmStatic
+    fun showLine(live: Live, now: Long, clock: (Long) -> String): String? {
+        val host = live.host?.trim()?.takeIf { it.isNotEmpty() }
+        val whenText = whenLine(live, now, clock)
+        if (host == null) return whenText
+        if (whenText == null) return "with $host"
+        // "Until" reads lower case after the host; "Next: …" and a start time keep their own case
+        val tail = if (whenText.startsWith("Until ")) "until " + whenText.removePrefix("Until ") else whenText
+        return "with $host · $tail"
+    }
+
     /** The cloud's answer (lib/radio/types.ts RadioNowPlaying), or null when it says nothing. */
     @JvmStatic
     fun parseNowPlaying(json: String): Live? {
