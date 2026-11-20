@@ -141,6 +141,16 @@ object CassetteHome {
     }
 
     /**
+     * Home's rows as [load] gives them, asking the cloud now rather than waiting out the
+     * minute's rest: a sync wave just ended and what the phone can draw has changed.
+     */
+    @JvmStatic
+    fun reload(context: Context, callback: Callback) {
+        lastAsk = 0L
+        load(context, callback)
+    }
+
+    /**
      * The car's Home (Android Auto, iPhone One Home in CarPlay 10-28): the held answer's
      * rows as the phone draws them, only those holding something here. Off the main thread.
      * Asks the cloud for a fresh answer when one is due, for next time.

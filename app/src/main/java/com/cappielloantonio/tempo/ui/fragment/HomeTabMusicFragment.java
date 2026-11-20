@@ -157,6 +157,17 @@ public class HomeTabMusicFragment extends Fragment implements ClickCallback {
     private void initSyncBanner() {
         com.cappielloantonio.tempo.util.CassetteSyncStatus.live().observe(getViewLifecycleOwner(), status -> {
             boolean active = status != null && status.active;
+            // cassette: Home looks again at what the phone holds when a record finishes
+            // arriving, and once more, from the cloud, when the wave ends. Before, Home
+            // only looked on open or a pull, so a first sync ended with the banner gone
+            // and nothing of the person's music on Home (founder, 2026-11-20).
+            int albumsDone = status != null ? status.albumsDone : 0;
+            boolean waveEnded = syncWasActive && !active;
+            boolean recordLanded = active && albumsDone > syncAlbumsSeen;
+            syncWasActive = active;
+            syncAlbumsSeen = albumsDone;
+            if (waveEnded) recheckHome(true);
+            else if (recordLanded) recheckHome(false);
             bind.homeSyncBanner.setVisibility(active ? View.VISIBLE : View.GONE);
             if (active) {
                 bind.homeSyncTitle.setText(status.headline());
@@ -361,6 +372,8 @@ public class HomeTabMusicFragment extends Fragment implements ClickCallback {
     public void onDestroyView() {
         super.onDestroyView();
         computerCheck.removeCallbacksAndMessages(null);
+        homeRecheck.removeCallbacksAndMessages(null);
+        drawnSignature = null;
         bind = null;
     }
 
@@ -419,6 +432,32 @@ public class HomeTabMusicFragment extends Fragment implements ClickCallback {
     private void loadCloudHome() {
         if (bind == null) return;
         com.cappielloantonio.tempo.util.CassetteHome.load(requireContext(), this::drawCloudHome);
+    }
+
+    /** Where the sync stood when Home last looked (initSyncBanner). */
+    private boolean syncWasActive = false;
+    private int syncAlbumsSeen = 0;
+    private final android.os.Handler homeRecheck = new android.os.Handler(android.os.Looper.getMainLooper());
+
+    /**
+     * cassette: look again at what the phone holds, a moment after music lands (a burst of
+     * records is one look). At the end of a sync wave the cloud is asked too, so the playlists
+     * the phone can now play come with it; the stand-in rows refresh for a Home the cloud
+     * hasn't drawn yet.
+     */
+    private void recheckHome(boolean fromCloud) {
+        homeRecheck.removeCallbacksAndMessages(null);
+        homeRecheck.postDelayed(() -> {
+            if (bind == null || !isAdded()) return;
+            if (fromCloud) {
+                com.cappielloantonio.tempo.util.CassetteHome.reload(requireContext(), this::drawCloudHome);
+            } else {
+                loadCloudHome();
+            }
+            homeViewModel.refreshMostRecentlyAddedAlbums(getViewLifecycleOwner());
+            homeViewModel.refreshRecentlyPlayedAlbumList(getViewLifecycleOwner());
+            paintComputerCard();
+        }, 1_500);
     }
 
     /**
@@ -487,17 +526,35 @@ public class HomeTabMusicFragment extends Fragment implements ClickCallback {
     private void drawCloudHome(java.util.List<com.cappielloantonio.tempo.util.CassetteHome.DrawnRow> rows) {
         if (bind == null || !isAdded()) return;
         android.widget.LinearLayout container = bind.homeCloudRows;
+        resumeFromCloud = null;
+        for (com.cappielloantonio.tempo.util.CassetteHome.DrawnRow row : rows) {
+            if (row.isFilled() && "resume".equals(row.getKind())) resumeFromCloud = row.getSong();
+        }
+        // cassette: the same rows are not drawn again, so a look that finds nothing new
+        // (Home looks as music lands) leaves the page as it is.
+        String signature = signatureOf(rows);
+        if (signature.equals(drawnSignature)) {
+            applyResumeCard();
+            return;
+        }
+        drawnSignature = signature;
+        // each row stays where it was scrolled to when it is drawn again
+        java.util.Map<String, android.os.Parcelable> scrolled = new java.util.HashMap<>();
+        for (int i = 0; i < container.getChildCount(); i++) {
+            View child = container.getChildAt(i);
+            Object id = child.getTag(R.id.home_cloud_rows);
+            androidx.recyclerview.widget.RecyclerView tiles = child.findViewById(R.id.home_row_tiles);
+            if (id instanceof String && tiles != null && tiles.getLayoutManager() != null) {
+                scrolled.put((String) id, tiles.getLayoutManager().onSaveInstanceState());
+            }
+        }
         container.removeAllViews();
         int drawn = 0;
         LayoutInflater inflater = LayoutInflater.from(requireContext());
         int answerColor = androidx.core.content.ContextCompat.getColor(requireContext(), R.color.cs_accent_text);
-        resumeFromCloud = null;
         for (com.cappielloantonio.tempo.util.CassetteHome.DrawnRow row : rows) {
             if (!row.isFilled()) continue;
-            if ("resume".equals(row.getKind())) {
-                resumeFromCloud = row.getSong();
-                continue;
-            }
+            if ("resume".equals(row.getKind())) continue;
             if ("all-shelves".equals(row.getKind())) {
                 // All shelves today: a plain row that opens every shelf made today
                 android.widget.TextView link = new android.widget.TextView(new android.view.ContextThemeWrapper(requireContext(), R.style.Cassette_Role_Shout));
@@ -521,10 +578,14 @@ public class HomeTabMusicFragment extends Fragment implements ClickCallback {
             com.cappielloantonio.tempo.util.CassetteType.twoVoice(rowBind.homeRowHeading, row.getShout(), row.getAnswer(), answerColor);
             // the reaching row's heading opens All shelves (iPhone HomeVC)
             if ("reach".equals(row.getKind())) rowBind.homeRowHeading.setOnClickListener(v -> activity.navController.navigate(R.id.allShelvesFragment));
-            rowBind.homeRowTiles.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
+            LinearLayoutManager rowLayout = new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false);
+            rowBind.homeRowTiles.setLayoutManager(rowLayout);
             com.cappielloantonio.tempo.ui.adapter.CassetteTileAdapter adapter = new com.cappielloantonio.tempo.ui.adapter.CassetteTileAdapter();
             rowBind.homeRowTiles.setAdapter(adapter);
             adapter.setItems(tiles);
+            android.os.Parcelable where = scrolled.get(row.getId());
+            if (where != null) rowLayout.onRestoreInstanceState(where);
+            rowBind.getRoot().setTag(R.id.home_cloud_rows, row.getId());
             container.addView(rowBind.getRoot());
             drawn++;
         }
@@ -539,6 +600,30 @@ public class HomeTabMusicFragment extends Fragment implements ClickCallback {
             }
         }
         applyResumeCard();
+    }
+
+    /** The cloud rows Home last drew, as {@link #signatureOf} spells them; null before the first draw. */
+    private String drawnSignature;
+
+    /** What a drawing of these rows shows: each row's words and what is in it, in order (Resume aside). */
+    private static String signatureOf(java.util.List<com.cappielloantonio.tempo.util.CassetteHome.DrawnRow> rows) {
+        StringBuilder sb = new StringBuilder();
+        for (com.cappielloantonio.tempo.util.CassetteHome.DrawnRow row : rows) {
+            if (!row.isFilled() || "resume".equals(row.getKind())) continue;
+            sb.append(row.getId()).append('|').append(row.getShout()).append('|').append(row.getAnswer()).append(':');
+            for (com.cappielloantonio.tempo.subsonic.models.AlbumID3 a : row.getAlbums())
+                sb.append(a.getId()).append('/').append(a.getName()).append('/').append(a.getCoverArtId()).append(',');
+            for (com.cappielloantonio.tempo.subsonic.models.ArtistID3 a : row.getArtists())
+                sb.append(a.getId()).append('/').append(a.getName()).append(',');
+            for (com.cappielloantonio.tempo.util.CassetteHome.DrawnMix m : row.getMixes())
+                sb.append(m.getId()).append('/').append(m.getTitle()).append('/').append(m.getCoverUrl()).append('/').append(m.getSongs().size()).append(',');
+            for (com.cappielloantonio.tempo.subsonic.models.Playlist p : row.getPlaylists())
+                sb.append(p.getId()).append('/').append(p.getName()).append('/').append(p.getSongCount()).append(',');
+            for (com.cappielloantonio.tempo.util.CassetteRadio.Station s : row.getStations())
+                sb.append(s.getSlug()).append(',');
+            sb.append(';');
+        }
+        return sb.toString();
     }
 
     private java.util.List<com.cappielloantonio.tempo.ui.adapter.CassetteTileAdapter.Tile> tilesFor(
