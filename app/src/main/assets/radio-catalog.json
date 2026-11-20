@@ -133,11 +133,6 @@
         "blurb": "WPRB."
       },
       {
-        "id": "paris",
-        "label": "Paris",
-        "blurb": "FIP."
-      },
-      {
         "id": "brussels",
         "label": "Brussels",
         "blurb": "Kiosk Radio."
@@ -146,11 +141,6 @@
         "id": "milan",
         "label": "Milan",
         "blurb": "Radio Raheem."
-      },
-      {
-        "id": "oslo",
-        "label": "Oslo",
-        "blurb": "NRK P3 Musikk."
       },
       {
         "id": "copenhagen",
@@ -216,9 +206,9 @@
         "dr-p6-beat",
         "the-current",
         "wfuv",
-        "fip-rock",
         "radioparadise-main",
-        "dublab"
+        "dublab",
+        "nts-2"
       ],
       "about": {
         "text": "KEXP is a non-commercial radio station in Seattle, Washington, United States, specializing in indie music programmed by its disc jockeys. The station is operated by the non-profit entity Friends of KEXP, an affiliate of the University of Washington.",
@@ -260,10 +250,10 @@
       "similar": [
         "kiosk-radio",
         "soho-radio",
-        "fip",
         "nts-2",
         "wkcr",
-        "dublab"
+        "dublab",
+        "kexp"
       ],
       "about": {
         "text": "NTS Radio is a music radio platform founded in 2011 in Hackney, London by Femi Adeyemi \"for an international community of music lovers\". The platform prioritises showcasing niche artists in its radio programming and live events. NTS Radio's tagline is \"Don't Assume\".",
@@ -305,10 +295,10 @@
       "similar": [
         "soho-radio",
         "dublab",
-        "fip",
         "kexp",
         "kiosk-radio",
-        "nts-1"
+        "nts-1",
+        "funky-radio"
       ],
       "about": {
         "text": "NTS Radio is a music radio platform founded in 2011 in Hackney, London by Femi Adeyemi \"for an international community of music lovers\". The platform prioritises showcasing niche artists in its radio programming and live events. NTS Radio's tagline is \"Don't Assume\".",
@@ -395,12 +385,12 @@
       "hasNowPlaying": true,
       "hasRecentPlays": false,
       "similar": [
-        "fip",
         "nts-2",
         "kiosk-radio",
         "kexp",
         "netil-radio",
-        "nts-1"
+        "nts-1",
+        "radioparadise-mellow"
       ],
       "about": {
         "text": "dublab is a non-profit music public broadcasting internet radio station based in Los Angeles. They have also been involved with art exhibitions, film projects, event production, and record releases. dublab was founded in 1999 by Jonathan Buck, Mark McNeill and fellow students from KSCR Radio at the University of Southern California.",
@@ -443,9 +433,9 @@
         "the-current",
         "kexp",
         "dr-p6-beat",
-        "fip-rock",
         "radioparadise-main",
-        "kalx"
+        "kalx",
+        "kxlu"
       ],
       "about": {
         "text": "WFUV is a non-commercial radio station licensed to New York, New York. WFUV first went on the air in 1947. It became a professional public radio station in 1990 and is one of three NPR member stations in New York City. Its on-air staff has included Dennis Elsas, Vin Scelsa, Pete Fornatale, and Rita Houston.",
@@ -482,11 +472,11 @@
       "hasRecentPlays": false,
       "similar": [
         "kexp",
-        "fip",
         "the-current",
         "wfuv",
-        "fip-rock",
-        "radioparadise-global"
+        "radioparadise-global",
+        "radioparadise-mellow",
+        "dr-p6-beat"
       ],
       "about": {
         "text": "Radio Paradise is a non-commercial, listener-supported Internet radio station. The station is based in the United States, has a user base of thousands of simultaneous listeners, and a broad international audience.",
@@ -526,10 +516,10 @@
       "similar": [
         "nts-slow-focus",
         "dublab",
-        "fip",
         "new-sounds",
         "radioparadise-main",
-        "ambient-sleeping-pill"
+        "ambient-sleeping-pill",
+        "kiosk-radio"
       ],
       "about": {
         "text": "Radio Paradise is a non-commercial, listener-supported Internet radio station. The station is based in the United States, has a user base of thousands of simultaneous listeners, and a broad international audience.",
@@ -562,12 +552,12 @@
       "hasNowPlaying": true,
       "hasRecentPlays": false,
       "similar": [
-        "fip-rock",
         "radioparadise-main",
         "rdmix-classic-rock",
         "dr-p6-beat",
         "kexp",
-        "kfjc"
+        "kfjc",
+        "the-current"
       ],
       "about": {
         "text": "Radio Paradise is a non-commercial, listener-supported Internet radio station. The station is based in the United States, has a user base of thousands of simultaneous listeners, and a broad international audience.",
@@ -604,11 +594,11 @@
       "hasRecentPlays": false,
       "similar": [
         "radioparadise-main",
-        "fip",
-        "fip-monde",
         "nts-sweat",
         "soho-radio",
-        "radioparadise-mellow"
+        "radioparadise-mellow",
+        "dublab",
+        "kexp"
       ],
       "about": {
         "text": "Radio Paradise is a non-commercial, listener-supported Internet radio station. The station is based in the United States, has a user base of thousands of simultaneous listeners, and a broad international audience.",
@@ -646,10 +636,8 @@
       "hasNowPlaying": false,
       "hasRecentPlays": false,
       "similar": [
-        "fip-pop",
         "radio-swiss-pop",
         "0n-60s",
-        "fip",
         "nts-feelings",
         "soho-radio"
       ],
@@ -732,12 +720,12 @@
       "hasNowPlaying": false,
       "hasRecentPlays": false,
       "similar": [
-        "fip-hiphop",
         "nts-rap-house",
         "kexp",
         "radioparadise-mellow",
         "radio-swiss-jazz",
-        "dublab"
+        "dublab",
+        "rinse-fm"
       ],
       "about": {
         "text": "NTS Radio is a music radio platform founded in 2011 in Hackney, London by Femi Adeyemi \"for an international community of music lovers\". The platform prioritises showcasing niche artists in its radio programming and live events. NTS Radio's tagline is \"Don't Assume\".",
@@ -822,10 +810,8 @@
       "similar": [
         "netil-radio",
         "radio-raheem",
-        "fip-groove",
         "nts-labyrinth",
-        "nightride-datawave",
-        "fip-electro"
+        "nightride-datawave"
       ],
       "about": {
         "text": "NTS Radio is a music radio platform founded in 2011 in Hackney, London by Femi Adeyemi \"for an international community of music lovers\". The platform prioritises showcasing niche artists in its radio programming and live events. NTS Radio's tagline is \"Don't Assume\".",
@@ -863,9 +849,7 @@
       "section": "Sunny",
       "hasNowPlaying": false,
       "hasRecentPlays": false,
-      "similar": [
-        "fip-reggae"
-      ],
+      "similar": [],
       "about": {
         "text": "NTS Radio is a music radio platform founded in 2011 in Hackney, London by Femi Adeyemi \"for an international community of music lovers\". The platform prioritises showcasing niche artists in its radio programming and live events. NTS Radio's tagline is \"Don't Assume\".",
         "source": "Wikipedia",
@@ -906,9 +890,9 @@
         "nightride-darksynth",
         "nightride-fm",
         "kfjc",
-        "fip-electro",
         "nts-labyrinth",
-        "kalx"
+        "kalx",
+        "netil-radio"
       ],
       "about": {
         "text": "NTS Radio is a music radio platform founded in 2011 in Hackney, London by Femi Adeyemi \"for an international community of music lovers\". The platform prioritises showcasing niche artists in its radio programming and live events. NTS Radio's tagline is \"Don't Assume\".",
@@ -994,7 +978,6 @@
         "soul-radio-classics",
         "funky-radio",
         "nts-memory-lane",
-        "fip-groove",
         "nts-2",
         "soho-radio"
       ],
@@ -1033,12 +1016,12 @@
       "hasNowPlaying": false,
       "hasRecentPlays": false,
       "similar": [
-        "fip-jazz",
         "radio-swiss-jazz",
         "kcsm",
         "wkcr",
         "wmbr",
-        "wprb"
+        "wprb",
+        "kiosk-radio"
       ],
       "about": {
         "text": "NTS Radio is a music radio platform founded in 2011 in Hackney, London by Femi Adeyemi \"for an international community of music lovers\". The platform prioritises showcasing niche artists in its radio programming and live events. NTS Radio's tagline is \"Don't Assume\".",
@@ -1076,7 +1059,6 @@
       "hasNowPlaying": false,
       "hasRecentPlays": false,
       "similar": [
-        "fip-hiphop",
         "nts-100-percent-hip-hop",
         "kexp",
         "rinse-fm"
@@ -1117,12 +1099,12 @@
       "hasNowPlaying": false,
       "hasRecentPlays": false,
       "similar": [
-        "fip-electro",
         "nightride-fm",
         "netil-radio",
         "rinse-fm",
         "nightwave-plaza",
-        "nts-4-to-the-floor"
+        "nts-4-to-the-floor",
+        "nts-1"
       ],
       "about": {
         "text": "NTS Radio is a music radio platform founded in 2011 in Hackney, London by Femi Adeyemi \"for an international community of music lovers\". The platform prioritises showcasing niche artists in its radio programming and live events. NTS Radio's tagline is \"Don't Assume\".",
@@ -1160,9 +1142,7 @@
       "hasNowPlaying": false,
       "hasRecentPlays": false,
       "similar": [
-        "fip-monde",
         "radioparadise-global",
-        "fip-groove",
         "radioparadise-main",
         "new-sounds",
         "wmbr"
@@ -1205,9 +1185,9 @@
         "rainwave-game",
         "nightride-fm",
         "nightwave-plaza",
-        "fip-electro",
         "nts-labyrinth",
-        "dublab"
+        "dublab",
+        "kexp"
       ],
       "about": {
         "text": "NTS Radio is a music radio platform founded in 2011 in Hackney, London by Femi Adeyemi \"for an international community of music lovers\". The platform prioritises showcasing niche artists in its radio programming and live events. NTS Radio's tagline is \"Don't Assume\".",
@@ -1245,7 +1225,6 @@
       "hasNowPlaying": false,
       "hasRecentPlays": false,
       "similar": [
-        "fip-metal",
         "wsou",
         "nightride-darksynth",
         "kxlu"
@@ -1406,8 +1385,8 @@
         "funky-radio",
         "nts-feelings",
         "nts-memory-lane",
-        "fip-groove",
-        "fip-pop"
+        "radio-swiss-pop",
+        "soho-radio"
       ],
       "about": null
     },
@@ -1484,8 +1463,8 @@
         "funky-radio",
         "nts-memory-lane",
         "0n-60s",
-        "fip-groove",
-        "soho-radio"
+        "soho-radio",
+        "wwoz"
       ],
       "about": null
     },
@@ -1557,10 +1536,10 @@
       "similar": [
         "nts-feelings",
         "soul-radio-classics",
-        "fip-groove",
         "nts-memory-lane",
         "0n-60s",
-        "soho-radio"
+        "soho-radio",
+        "kiosk-radio"
       ],
       "about": null
     },
@@ -1593,12 +1572,12 @@
       "hasNowPlaying": false,
       "hasRecentPlays": false,
       "similar": [
-        "fip-rock",
         "radioparadise-main",
         "radioparadise-rock",
         "dr-p6-beat",
         "kexp",
-        "kfjc"
+        "kfjc",
+        "the-current"
       ],
       "about": null
     },
@@ -1637,11 +1616,11 @@
       "hasRecentPlays": true,
       "similar": [
         "soho-radio",
-        "fip",
         "kcsm",
         "kiosk-radio",
         "nts-1",
-        "wkcr"
+        "wkcr",
+        "wmbr"
       ],
       "about": {
         "text": "WWOZ is a non-profit community-supported radio station in New Orleans. It is owned by the New Orleans Jazz & Heritage Foundation. The station specializes in music from or relating to the cultural heritage of New Orleans and the surrounding region of Louisiana. The playlist includes jazz, blues, local, regional and world music.",
@@ -1685,7 +1664,7 @@
         "nts-sheet-music",
         "nts-slow-focus",
         "radio-swiss-classic",
-        "fip"
+        "new-sounds"
       ],
       "about": {
         "text": "WQXR-FM is an American non-commercial classical radio station, licensed to Newark, New Jersey, and serving the North Jersey and New York City area. It is owned by the nonprofit organization New York Public Radio (NYPR), which also operates WNYC (AM), WNYC-FM and the four-station New Jersey Public Radio group. The station is the core audio service for NYPR's WQXR brand.",
@@ -1774,10 +1753,10 @@
       "similar": [
         "wkcr",
         "wmbr",
-        "fip-jazz",
         "nts-expansions",
         "radio-swiss-jazz",
-        "wprb"
+        "wprb",
+        "kiosk-radio"
       ],
       "about": {
         "text": "KCSM is an FM radio station in San Mateo, California. The station broadcasts jazz music, 24 hours a day, commercial-free. The radio station is not-for-profit, and listener-supported. The broadcast is mirrored as streaming media on the World Wide Web, extending the station's audience far beyond the San Francisco Bay Area.",
@@ -1821,7 +1800,7 @@
         "nts-sheet-music",
         "nts-slow-focus",
         "radio-swiss-classic",
-        "fip"
+        "new-sounds"
       ],
       "about": {
         "text": "WFMT is a commercial FM radio station in Chicago, Illinois, with a classical music radio format. It is part of Window to the World Communications, Inc, in the same company as Chicago's PBS member station WTTW.",
@@ -1863,9 +1842,9 @@
         "wfuv",
         "kexp",
         "dr-p6-beat",
-        "fip-rock",
         "radioparadise-main",
-        "kalx"
+        "kalx",
+        "kxlu"
       ],
       "about": {
         "text": "KCMP is a radio station owned by Minnesota Public Radio (MPR) that airs an adult album alternative (AAA) music format, including a significant rotation of songs by local artists.",
@@ -1909,7 +1888,7 @@
         "nts-sheet-music",
         "nts-slow-focus",
         "radio-swiss-classic",
-        "fip"
+        "new-sounds"
       ],
       "about": {
         "text": "KUSC is a non-commercial radio station in Los Angeles, California, United States, broadcasting a classical music format. It is owned by the University of Southern California (USC) and is part of its Classical California network.",
@@ -1952,11 +1931,11 @@
       "hasRecentPlays": true,
       "similar": [
         "wprb",
-        "fip",
         "nts-1",
         "kcsm",
         "wmbr",
-        "fip-jazz"
+        "new-sounds",
+        "nts-expansions"
       ],
       "about": {
         "text": "WKCR-FM is a radio station licensed to New York, New York. The station is owned by Columbia University and serves the New York metropolitan area. Founded in 1941, the station traces its history back to 1908 with the first operations of the Columbia University Radio Club (CURC). In 1956, it became one of the first college radio stations to adopt FM broadcasting, which had been invented two decades earlier by Professor Edwin Howard Armstrong.",
@@ -2188,10 +2167,10 @@
       "similar": [
         "wprb",
         "kalx",
-        "fip",
         "kcsm",
         "wkcr",
-        "fip-jazz"
+        "nts-expansions",
+        "radio-swiss-jazz"
       ],
       "about": {
         "text": "WMBR is the Massachusetts Institute of Technology's student-run college radio station, licensed to Cambridge, Massachusetts, and broadcasting on 88.1 FM. Both students and community members can apply for positions, and like many college radio stations, WMBR offers diverse programming that includes a broad range of musical genres as well as talk shows.",
@@ -2231,7 +2210,6 @@
       "hasNowPlaying": false,
       "hasRecentPlays": false,
       "similar": [
-        "fip-metal",
         "nts-the-pit",
         "kxlu",
         "nightride-darksynth"
@@ -2278,11 +2256,11 @@
       "hasRecentPlays": false,
       "similar": [
         "netil-radio",
-        "fip-electro",
         "kiosk-radio",
         "nightride-fm",
         "nts-labyrinth",
-        "nts-1"
+        "nts-1",
+        "nightride-datawave"
       ],
       "about": {
         "text": "Rinse FM is a London-based community radio station, licensed for \"young people living and/or working within the central, east and south London areas\". It plays garage, grime, dubstep, house, jungle, UK funky and other dance music genres popular in the United Kingdom.",
@@ -2324,12 +2302,12 @@
       "hasNowPlaying": true,
       "hasRecentPlays": false,
       "similar": [
-        "fip",
         "nts-1",
         "kiosk-radio",
         "nts-2",
         "kexp",
-        "netil-radio"
+        "netil-radio",
+        "wwoz"
       ],
       "about": {
         "text": "Soho Radio is an independent radio station that broadcasts online from London and from New York, as well as on DAB in London. It was founded May 2014, with the New York branch opening in November 2020.",
@@ -2421,9 +2399,9 @@
         "kiosk-radio",
         "radio-raheem",
         "nts-1",
-        "fip-electro",
         "dublab",
-        "fip"
+        "kexp",
+        "nightride-fm"
       ],
       "about": null
     },
@@ -2460,12 +2438,12 @@
       "hasNowPlaying": true,
       "hasRecentPlays": false,
       "similar": [
-        "fip",
         "nts-1",
         "soho-radio",
         "netil-radio",
         "dublab",
-        "nts-2"
+        "nts-2",
+        "kexp"
       ],
       "about": null
     },
@@ -2505,455 +2483,10 @@
         "netil-radio",
         "nts-1",
         "dublab",
-        "fip",
-        "fip-electro"
+        "kexp",
+        "nts-2"
       ],
       "about": null
-    },
-    {
-      "slug": "fip",
-      "name": "FIP",
-      "source": "radiofrance",
-      "sourceLabel": "FIP · Radio France",
-      "kind": "station",
-      "streamUrl": "https://icecast.radiofrance.fr/fip-midfi.mp3",
-      "homepage": "https://www.radiofrance.fr/fip",
-      "supportUrl": null,
-      "shopUrl": null,
-      "description": "Radio France's FIP: jazz into Afrobeat into Debussy, with hosts who never tell you what's next.",
-      "image": "https://www.cassette.digital/radio-art/fip.png",
-      "accent": "#e4007c",
-      "moods": [
-        "chill"
-      ],
-      "eras": [],
-      "genres": [
-        "eclectic",
-        "jazz",
-        "world",
-        "electronic",
-        "classical"
-      ],
-      "cities": [
-        "paris"
-      ],
-      "cityLabels": [
-        "Paris"
-      ],
-      "section": "Live · Europe",
-      "hasNowPlaying": false,
-      "hasRecentPlays": false,
-      "similar": [
-        "kiosk-radio",
-        "soho-radio",
-        "nts-1",
-        "dublab",
-        "wmbr",
-        "kexp"
-      ],
-      "about": {
-        "text": "FIP is a French radio network founded in 1971. It is part of the Radio France group.",
-        "source": "Wikipedia",
-        "url": "https://en.wikipedia.org/wiki/FIP_(radio_station)",
-        "license": "CC BY-SA 4.0"
-      }
-    },
-    {
-      "slug": "fip-rock",
-      "name": "FIP Rock",
-      "source": "radiofrance",
-      "sourceLabel": "FIP · Radio France",
-      "kind": "channel",
-      "streamUrl": "https://icecast.radiofrance.fr/fiprock-midfi.mp3",
-      "homepage": "https://www.radiofrance.fr/fip/radio-rock",
-      "supportUrl": null,
-      "shopUrl": null,
-      "description": "FIP's rock stream: garage, psych, post-punk, and the records between.",
-      "image": "https://www.radiofrance.fr/pikapi/images/cda37279-f985-4017-bc03-2dad643c7306/2048",
-      "accent": "#c1121f",
-      "moods": [],
-      "eras": [],
-      "genres": [
-        "rock",
-        "indie",
-        "psychedelic"
-      ],
-      "cities": [],
-      "cityLabels": [],
-      "section": "Rock",
-      "hasNowPlaying": false,
-      "hasRecentPlays": false,
-      "similar": [
-        "dr-p6-beat",
-        "kexp",
-        "the-current",
-        "wfuv",
-        "radioparadise-main",
-        "radioparadise-rock"
-      ],
-      "about": {
-        "text": "FIP is a French radio network founded in 1971. It is part of the Radio France group.",
-        "source": "Wikipedia",
-        "url": "https://en.wikipedia.org/wiki/FIP_(radio_station)",
-        "license": "CC BY-SA 4.0"
-      }
-    },
-    {
-      "slug": "fip-jazz",
-      "name": "FIP Jazz",
-      "source": "radiofrance",
-      "sourceLabel": "FIP · Radio France",
-      "kind": "channel",
-      "streamUrl": "https://icecast.radiofrance.fr/fipjazz-midfi.mp3",
-      "homepage": "https://www.radiofrance.fr/fip/radio-jazz",
-      "supportUrl": null,
-      "shopUrl": null,
-      "description": "FIP's jazz stream, hard bop to spiritual, all day.",
-      "image": "https://www.radiofrance.fr/pikapi/images/2de59c50-9912-401e-9d1f-95a2f0b66567/2048",
-      "accent": "#3d5a80",
-      "moods": [
-        "late-night"
-      ],
-      "eras": [],
-      "genres": [
-        "jazz"
-      ],
-      "cities": [],
-      "cityLabels": [],
-      "section": "Late night",
-      "hasNowPlaying": false,
-      "hasRecentPlays": false,
-      "similar": [
-        "nts-expansions",
-        "radio-swiss-jazz",
-        "kcsm",
-        "wkcr",
-        "wmbr",
-        "wprb"
-      ],
-      "about": {
-        "text": "FIP is a French radio network founded in 1971. It is part of the Radio France group.",
-        "source": "Wikipedia",
-        "url": "https://en.wikipedia.org/wiki/FIP_(radio_station)",
-        "license": "CC BY-SA 4.0"
-      }
-    },
-    {
-      "slug": "fip-groove",
-      "name": "FIP Groove",
-      "source": "radiofrance",
-      "sourceLabel": "FIP · Radio France",
-      "kind": "channel",
-      "streamUrl": "https://icecast.radiofrance.fr/fipgroove-midfi.mp3",
-      "homepage": "https://www.radiofrance.fr/fip/radio-groove",
-      "supportUrl": null,
-      "shopUrl": null,
-      "description": "FIP's groove stream: funk, soul, disco, boogie.",
-      "image": "https://www.radiofrance.fr/pikapi/images/95cf76c3-26bc-404e-be1c-b81666188c3f/2048",
-      "accent": "#f77f00",
-      "moods": [
-        "dance",
-        "sunny"
-      ],
-      "eras": [],
-      "genres": [
-        "funk",
-        "soul",
-        "disco"
-      ],
-      "cities": [],
-      "cityLabels": [],
-      "section": "Dance",
-      "hasNowPlaying": false,
-      "hasRecentPlays": false,
-      "similar": [
-        "funky-radio",
-        "nts-2",
-        "soho-radio",
-        "nts-4-to-the-floor",
-        "radio-raheem",
-        "soul-radio-classics"
-      ],
-      "about": {
-        "text": "FIP is a French radio network founded in 1971. It is part of the Radio France group.",
-        "source": "Wikipedia",
-        "url": "https://en.wikipedia.org/wiki/FIP_(radio_station)",
-        "license": "CC BY-SA 4.0"
-      }
-    },
-    {
-      "slug": "fip-monde",
-      "name": "FIP Monde",
-      "source": "radiofrance",
-      "sourceLabel": "FIP · Radio France",
-      "kind": "channel",
-      "streamUrl": "https://icecast.radiofrance.fr/fipworld-midfi.mp3",
-      "homepage": "https://www.radiofrance.fr/fip/radio-monde",
-      "supportUrl": null,
-      "shopUrl": null,
-      "description": "FIP's world stream: music from every continent, curated in Paris.",
-      "image": "https://www.radiofrance.fr/pikapi/images/524fabe1-7645-4847-aa93-932d9835de67/2048",
-      "accent": "#2a9d8f",
-      "moods": [
-        "sunny"
-      ],
-      "eras": [],
-      "genres": [
-        "world"
-      ],
-      "cities": [],
-      "cityLabels": [],
-      "section": "Sunny",
-      "hasNowPlaying": false,
-      "hasRecentPlays": false,
-      "similar": [
-        "nts-sweat",
-        "radioparadise-global",
-        "radioparadise-main",
-        "fip",
-        "new-sounds",
-        "wmbr"
-      ],
-      "about": {
-        "text": "FIP is a French radio network founded in 1971. It is part of the Radio France group.",
-        "source": "Wikipedia",
-        "url": "https://en.wikipedia.org/wiki/FIP_(radio_station)",
-        "license": "CC BY-SA 4.0"
-      }
-    },
-    {
-      "slug": "fip-nouveautes",
-      "name": "FIP Nouveautés",
-      "source": "radiofrance",
-      "sourceLabel": "FIP · Radio France",
-      "kind": "channel",
-      "streamUrl": "https://icecast.radiofrance.fr/fipnouveautes-midfi.mp3",
-      "homepage": "https://www.radiofrance.fr/fip/radio-nouveautes",
-      "supportUrl": null,
-      "shopUrl": null,
-      "description": "FIP's new-releases stream: this month's records across every genre FIP plays.",
-      "image": "https://www.radiofrance.fr/pikapi/images/9f85ac9d-1151-429a-9645-d030e92b441f/2048",
-      "accent": "#e4007c",
-      "moods": [],
-      "eras": [],
-      "genres": [
-        "eclectic",
-        "new releases"
-      ],
-      "cities": [],
-      "cityLabels": [],
-      "section": "Eclectic",
-      "hasNowPlaying": false,
-      "hasRecentPlays": false,
-      "similar": [
-        "radioparadise-main",
-        "fip",
-        "kexp",
-        "soho-radio",
-        "wfmu",
-        "radioparadise-global"
-      ],
-      "about": {
-        "text": "FIP is a French radio network founded in 1971. It is part of the Radio France group.",
-        "source": "Wikipedia",
-        "url": "https://en.wikipedia.org/wiki/FIP_(radio_station)",
-        "license": "CC BY-SA 4.0"
-      }
-    },
-    {
-      "slug": "fip-reggae",
-      "name": "FIP Reggae",
-      "source": "radiofrance",
-      "sourceLabel": "FIP · Radio France",
-      "kind": "channel",
-      "streamUrl": "https://icecast.radiofrance.fr/fipreggae-midfi.mp3",
-      "homepage": "https://www.radiofrance.fr/fip/radio-reggae",
-      "supportUrl": null,
-      "shopUrl": null,
-      "description": "FIP's reggae stream: roots, dub, rocksteady.",
-      "image": "https://www.radiofrance.fr/pikapi/images/a242c7c5-bf1e-468b-9cb9-2154550f8be7/2048",
-      "accent": "#43aa8b",
-      "moods": [
-        "sunny"
-      ],
-      "eras": [
-        "1970s"
-      ],
-      "genres": [
-        "reggae",
-        "dub"
-      ],
-      "cities": [],
-      "cityLabels": [],
-      "section": "Sunny",
-      "hasNowPlaying": false,
-      "hasRecentPlays": false,
-      "similar": [
-        "nts-island-time"
-      ],
-      "about": {
-        "text": "FIP is a French radio network founded in 1971. It is part of the Radio France group.",
-        "source": "Wikipedia",
-        "url": "https://en.wikipedia.org/wiki/FIP_(radio_station)",
-        "license": "CC BY-SA 4.0"
-      }
-    },
-    {
-      "slug": "fip-electro",
-      "name": "FIP Electro",
-      "source": "radiofrance",
-      "sourceLabel": "FIP · Radio France",
-      "kind": "channel",
-      "streamUrl": "https://icecast.radiofrance.fr/fipelectro-midfi.mp3",
-      "homepage": "https://www.radiofrance.fr/fip/radio-electro",
-      "supportUrl": null,
-      "shopUrl": null,
-      "description": "FIP's electronic stream, from ambient to club.",
-      "image": "https://www.radiofrance.fr/pikapi/images/bf85964f-395a-4e6a-beb4-6cc0590d20bb/2048",
-      "accent": "#4361ee",
-      "moods": [
-        "dance",
-        "late-night"
-      ],
-      "eras": [],
-      "genres": [
-        "electronic"
-      ],
-      "cities": [],
-      "cityLabels": [],
-      "section": "Dance",
-      "hasNowPlaying": false,
-      "hasRecentPlays": false,
-      "similar": [
-        "netil-radio",
-        "rinse-fm",
-        "nightride-fm",
-        "nts-labyrinth",
-        "nightride-datawave",
-        "nightwave-plaza"
-      ],
-      "about": {
-        "text": "FIP is a French radio network founded in 1971. It is part of the Radio France group.",
-        "source": "Wikipedia",
-        "url": "https://en.wikipedia.org/wiki/FIP_(radio_station)",
-        "license": "CC BY-SA 4.0"
-      }
-    },
-    {
-      "slug": "fip-metal",
-      "name": "FIP Metal",
-      "source": "radiofrance",
-      "sourceLabel": "FIP · Radio France",
-      "kind": "channel",
-      "streamUrl": "https://icecast.radiofrance.fr/fipmetal-midfi.mp3",
-      "homepage": "https://www.radiofrance.fr/fip/radio-metal",
-      "supportUrl": null,
-      "shopUrl": null,
-      "description": "FIP's metal stream: a public broadcaster that takes doom seriously.",
-      "image": "https://www.radiofrance.fr/pikapi/images/a3406ba2-41d4-4a94-89a2-c45470d606ff/2048",
-      "accent": "#540b0e",
-      "moods": [
-        "heavy"
-      ],
-      "eras": [],
-      "genres": [
-        "metal"
-      ],
-      "cities": [],
-      "cityLabels": [],
-      "section": "Heavy",
-      "hasNowPlaying": false,
-      "hasRecentPlays": false,
-      "similar": [
-        "nts-the-pit",
-        "wsou",
-        "nightride-darksynth",
-        "kxlu"
-      ],
-      "about": {
-        "text": "FIP is a French radio network founded in 1971. It is part of the Radio France group.",
-        "source": "Wikipedia",
-        "url": "https://en.wikipedia.org/wiki/FIP_(radio_station)",
-        "license": "CC BY-SA 4.0"
-      }
-    },
-    {
-      "slug": "fip-pop",
-      "name": "FIP Pop",
-      "source": "radiofrance",
-      "sourceLabel": "FIP · Radio France",
-      "kind": "channel",
-      "streamUrl": "https://icecast.radiofrance.fr/fippop-midfi.mp3",
-      "homepage": "https://www.radiofrance.fr/fip/radio-pop",
-      "supportUrl": null,
-      "shopUrl": null,
-      "description": "FIP's pop stream: the elegant end of pop, French and otherwise.",
-      "image": "https://www.radiofrance.fr/pikapi/images/867b3aac-d06c-4f79-85a3-fc1565526889/2048",
-      "accent": "#ff5d8f",
-      "moods": [
-        "sunny"
-      ],
-      "eras": [],
-      "genres": [
-        "pop",
-        "indie pop",
-        "chanson"
-      ],
-      "cities": [],
-      "cityLabels": [],
-      "section": "Sunny",
-      "hasNowPlaying": false,
-      "hasRecentPlays": false,
-      "similar": [
-        "nts-poolside",
-        "radio-swiss-pop",
-        "0n-60s",
-        "soho-radio"
-      ],
-      "about": {
-        "text": "FIP is a French radio network founded in 1971. It is part of the Radio France group.",
-        "source": "Wikipedia",
-        "url": "https://en.wikipedia.org/wiki/FIP_(radio_station)",
-        "license": "CC BY-SA 4.0"
-      }
-    },
-    {
-      "slug": "fip-hiphop",
-      "name": "FIP Hip-Hop",
-      "source": "radiofrance",
-      "sourceLabel": "FIP · Radio France",
-      "kind": "channel",
-      "streamUrl": "https://icecast.radiofrance.fr/fiphiphop-midfi.mp3",
-      "homepage": "https://www.radiofrance.fr/fip/radio-hip-hop",
-      "supportUrl": null,
-      "shopUrl": null,
-      "description": "FIP's hip-hop stream: boom bap to abstract, both sides of the Atlantic.",
-      "image": "https://www.radiofrance.fr/pikapi/images/5c52d959-7ea2-4c9e-b298-5aab893a9b86/2048",
-      "accent": "#9d4edd",
-      "moods": [
-        "late-night"
-      ],
-      "eras": [],
-      "genres": [
-        "hip-hop"
-      ],
-      "cities": [],
-      "cityLabels": [],
-      "section": "Late night",
-      "hasNowPlaying": false,
-      "hasRecentPlays": false,
-      "similar": [
-        "nts-100-percent-hip-hop",
-        "nts-rap-house",
-        "kexp",
-        "rinse-fm"
-      ],
-      "about": {
-        "text": "FIP is a French radio network founded in 1971. It is part of the Radio France group.",
-        "source": "Wikipedia",
-        "url": "https://en.wikipedia.org/wiki/FIP_(radio_station)",
-        "license": "CC BY-SA 4.0"
-      }
     },
     {
       "slug": "radio-swiss-jazz",
@@ -2982,12 +2515,12 @@
       "hasNowPlaying": false,
       "hasRecentPlays": false,
       "similar": [
-        "fip-jazz",
         "nts-expansions",
-        "fip",
         "kcsm",
         "kiosk-radio",
-        "wkcr"
+        "wkcr",
+        "wmbr",
+        "wprb"
       ],
       "about": null
     },
@@ -3022,7 +2555,7 @@
         "kusc",
         "wfmt",
         "wqxr",
-        "fip"
+        "ambient-sleeping-pill"
       ],
       "about": null
     },
@@ -3053,39 +2586,10 @@
       "hasNowPlaying": false,
       "hasRecentPlays": false,
       "similar": [
-        "fip-pop",
         "nts-poolside",
         "0n-60s",
         "soho-radio"
       ],
-      "about": null
-    },
-    {
-      "slug": "nrk-p13",
-      "name": "NRK P3 Musikk",
-      "source": "broadcaster",
-      "sourceLabel": "NRK",
-      "kind": "station",
-      "streamUrl": "https://lyd.nrk.no/nrk_radio_p13_mp3_h",
-      "homepage": "https://radio.nrk.no/direkte/p3musikk",
-      "supportUrl": null,
-      "shopUrl": null,
-      "description": "The music channel from NRK P3, Norway's public broadcaster.",
-      "image": "https://www.cassette.digital/radio-art/nrk-p3-musikk.png",
-      "accent": "#0a4c8c",
-      "moods": [],
-      "eras": [],
-      "genres": [],
-      "cities": [
-        "oslo"
-      ],
-      "cityLabels": [
-        "Oslo"
-      ],
-      "section": "Live · Europe",
-      "hasNowPlaying": true,
-      "hasRecentPlays": false,
-      "similar": [],
       "about": null
     },
     {
@@ -3119,11 +2623,11 @@
       "hasRecentPlays": false,
       "similar": [
         "kexp",
-        "fip-rock",
         "the-current",
         "wfuv",
         "radioparadise-main",
-        "kalx"
+        "kalx",
+        "kxlu"
       ],
       "about": {
         "text": "DR P6 Beat is one of DR's digital radio stations in Denmark. It launched on 11 April 2011 as the second of five new digital-only stations.",
@@ -3160,15 +2664,15 @@
       "cities": [],
       "cityLabels": [],
       "section": "Late night",
-      "hasNowPlaying": false,
+      "hasNowPlaying": true,
       "hasRecentPlays": false,
       "similar": [
         "nightride-chillsynth",
         "nightride-datawave",
-        "fip-electro",
         "nightwave-plaza",
         "nts-labyrinth",
-        "netil-radio"
+        "netil-radio",
+        "rinse-fm"
       ],
       "about": null
     },
@@ -3197,7 +2701,7 @@
       "cities": [],
       "cityLabels": [],
       "section": "Chill",
-      "hasNowPlaying": false,
+      "hasNowPlaying": true,
       "hasRecentPlays": false,
       "similar": [
         "nightride-fm",
@@ -3234,15 +2738,15 @@
       "cities": [],
       "cityLabels": [],
       "section": "Late night",
-      "hasNowPlaying": false,
+      "hasNowPlaying": true,
       "hasRecentPlays": false,
       "similar": [
         "nightride-fm",
-        "fip-electro",
         "netil-radio",
         "rinse-fm",
         "nightride-chillsynth",
-        "nts-4-to-the-floor"
+        "nts-4-to-the-floor",
+        "nts-labyrinth"
       ],
       "about": null
     },
@@ -3271,15 +2775,15 @@
       "cities": [],
       "cityLabels": [],
       "section": "Heavy",
-      "hasNowPlaying": false,
+      "hasNowPlaying": true,
       "hasRecentPlays": false,
       "similar": [
         "nts-the-tube",
         "kfjc",
         "nightride-datawave",
-        "fip-electro",
-        "fip-metal",
-        "nightride-fm"
+        "nightride-fm",
+        "nts-labyrinth",
+        "kalx"
       ],
       "about": null
     },
@@ -3348,10 +2852,10 @@
       "similar": [
         "nightride-fm",
         "nts-otaku",
-        "fip-electro",
         "nts-labyrinth",
         "kiosk-radio",
-        "netil-radio"
+        "netil-radio",
+        "nightride-chillsynth"
       ],
       "about": null
     },
