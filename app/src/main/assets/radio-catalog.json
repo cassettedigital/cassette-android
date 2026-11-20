@@ -108,16 +108,6 @@
         "blurb": "WFMU across the river, WFUV in the Bronx."
       },
       {
-        "id": "new-orleans",
-        "label": "New Orleans",
-        "blurb": "WWOZ."
-      },
-      {
-        "id": "chicago",
-        "label": "Chicago",
-        "blurb": "WFMT."
-      },
-      {
         "id": "minneapolis",
         "label": "Minneapolis",
         "blurb": "The Current."
@@ -128,11 +118,6 @@
         "blurb": "WMBR, across the river in Cambridge."
       },
       {
-        "id": "princeton",
-        "label": "Princeton",
-        "blurb": "WPRB."
-      },
-      {
         "id": "brussels",
         "label": "Brussels",
         "blurb": "Kiosk Radio."
@@ -141,11 +126,6 @@
         "id": "milan",
         "label": "Milan",
         "blurb": "Radio Raheem."
-      },
-      {
-        "id": "copenhagen",
-        "label": "Copenhagen",
-        "blurb": "DR P6 Beat."
       }
     ]
   },
@@ -203,12 +183,12 @@
       "hasNowPlaying": true,
       "hasRecentPlays": true,
       "similar": [
-        "dr-p6-beat",
         "the-current",
         "wfuv",
         "radioparadise-main",
         "dublab",
-        "nts-2"
+        "nts-2",
+        "soho-radio"
       ],
       "about": {
         "text": "KEXP is a non-commercial radio station in Seattle, Washington, United States, specializing in indie music programmed by its disc jockeys. The station is operated by the non-profit entity Friends of KEXP, an affiliate of the University of Washington.",
@@ -340,11 +320,11 @@
       "hasRecentPlays": false,
       "similar": [
         "kalx",
-        "wprb",
-        "new-sounds",
         "nts-1",
         "wkcr",
-        "kfjc"
+        "kfjc",
+        "netil-radio",
+        "resonance-fm"
       ],
       "about": {
         "text": "WFMU is a non-commercial, listener-supported, independent community radio station licensed to East Orange, New Jersey, with studios in Jersey City. It is owned by Auricle Communications, broadcasting a free-form radio format.",
@@ -432,10 +412,10 @@
       "similar": [
         "the-current",
         "kexp",
-        "dr-p6-beat",
         "radioparadise-main",
         "kalx",
-        "kxlu"
+        "kxlu",
+        "wmbr"
       ],
       "about": {
         "text": "WFUV is a non-commercial radio station licensed to New York, New York. WFUV first went on the air in 1947. It became a professional public radio station in 1990 and is one of three NPR member stations in New York City. Its on-air staff has included Dennis Elsas, Vin Scelsa, Pete Fornatale, and Rita Houston.",
@@ -476,7 +456,7 @@
         "wfuv",
         "radioparadise-global",
         "radioparadise-mellow",
-        "dr-p6-beat"
+        "soho-radio"
       ],
       "about": {
         "text": "Radio Paradise is a non-commercial, listener-supported Internet radio station. The station is based in the United States, has a user base of thousands of simultaneous listeners, and a broad international audience.",
@@ -516,10 +496,10 @@
       "similar": [
         "nts-slow-focus",
         "dublab",
-        "new-sounds",
         "radioparadise-main",
         "ambient-sleeping-pill",
-        "kiosk-radio"
+        "kiosk-radio",
+        "netil-radio"
       ],
       "about": {
         "text": "Radio Paradise is a non-commercial, listener-supported Internet radio station. The station is based in the United States, has a user base of thousands of simultaneous listeners, and a broad international audience.",
@@ -553,11 +533,10 @@
       "hasRecentPlays": false,
       "similar": [
         "radioparadise-main",
-        "rdmix-classic-rock",
-        "dr-p6-beat",
         "kexp",
         "kfjc",
-        "the-current"
+        "the-current",
+        "wfuv"
       ],
       "about": {
         "text": "Radio Paradise is a non-commercial, listener-supported Internet radio station. The station is based in the United States, has a user base of thousands of simultaneous listeners, and a broad international audience.",
@@ -636,7 +615,6 @@
       "hasNowPlaying": false,
       "hasRecentPlays": false,
       "similar": [
-        "radio-swiss-pop",
         "0n-60s",
         "nts-feelings",
         "soho-radio"
@@ -681,8 +659,8 @@
         "nts-field-recordings",
         "nts-sheet-music",
         "radioparadise-mellow",
-        "radio-swiss-classic",
-        "kusc"
+        "kusc",
+        "nightride-chillsynth"
       ],
       "about": {
         "text": "NTS Radio is a music radio platform founded in 2011 in Hackney, London by Femi Adeyemi \"for an international community of music lovers\". The platform prioritises showcasing niche artists in its radio programming and live events. NTS Radio's tagline is \"Don't Assume\".",
@@ -723,9 +701,9 @@
         "nts-rap-house",
         "kexp",
         "radioparadise-mellow",
-        "radio-swiss-jazz",
         "dublab",
-        "rinse-fm"
+        "rinse-fm",
+        "soul-radio-classics"
       ],
       "about": {
         "text": "NTS Radio is a music radio platform founded in 2011 in Hackney, London by Femi Adeyemi \"for an international community of music lovers\". The platform prioritises showcasing niche artists in its radio programming and live events. NTS Radio's tagline is \"Don't Assume\".",
@@ -929,11 +907,10 @@
       "hasRecentPlays": false,
       "similar": [
         "nts-slow-focus",
-        "radio-swiss-classic",
         "kusc",
-        "new-sounds",
-        "wfmt",
-        "wqxr"
+        "ambient-sleeping-pill",
+        "nts-field-recordings",
+        "wkcr"
       ],
       "about": {
         "text": "NTS Radio is a music radio platform founded in 2011 in Hackney, London by Femi Adeyemi \"for an international community of music lovers\". The platform prioritises showcasing niche artists in its radio programming and live events. NTS Radio's tagline is \"Don't Assume\".",
@@ -1016,12 +993,12 @@
       "hasNowPlaying": false,
       "hasRecentPlays": false,
       "similar": [
-        "radio-swiss-jazz",
         "kcsm",
         "wkcr",
         "wmbr",
-        "wprb",
-        "kiosk-radio"
+        "kiosk-radio",
+        "nts-1",
+        "soho-radio"
       ],
       "about": {
         "text": "NTS Radio is a music radio platform founded in 2011 in Hackney, London by Femi Adeyemi \"for an international community of music lovers\". The platform prioritises showcasing niche artists in its radio programming and live events. NTS Radio's tagline is \"Don't Assume\".",
@@ -1144,7 +1121,6 @@
       "similar": [
         "radioparadise-global",
         "radioparadise-main",
-        "new-sounds",
         "wmbr"
       ],
       "about": {
@@ -1266,10 +1242,10 @@
       "similar": [
         "ambient-sleeping-pill",
         "nts-slow-focus",
-        "new-sounds",
         "radioparadise-mellow",
         "nts-sheet-music",
-        "radio-swiss-classic"
+        "kusc",
+        "resonance-fm"
       ],
       "about": {
         "text": "NTS Radio is a music radio platform founded in 2011 in Hackney, London by Femi Adeyemi \"for an international community of music lovers\". The platform prioritises showcasing niche artists in its radio programming and live events. NTS Radio's tagline is \"Don't Assume\".",
@@ -1342,7 +1318,7 @@
       "cities": [],
       "cityLabels": [],
       "section": "Vintage",
-      "hasNowPlaying": false,
+      "hasNowPlaying": true,
       "hasRecentPlays": false,
       "similar": [
         "fifties-sixties-retro-hits",
@@ -1378,14 +1354,13 @@
       "cities": [],
       "cityLabels": [],
       "section": "Vintage",
-      "hasNowPlaying": false,
+      "hasNowPlaying": true,
       "hasRecentPlays": false,
       "similar": [
         "fifties-sixties-retro-hits",
         "funky-radio",
         "nts-feelings",
         "nts-memory-lane",
-        "radio-swiss-pop",
         "soho-radio"
       ],
       "about": null
@@ -1456,15 +1431,14 @@
       "cities": [],
       "cityLabels": [],
       "section": "Vintage",
-      "hasNowPlaying": false,
+      "hasNowPlaying": true,
       "hasRecentPlays": false,
       "similar": [
         "nts-feelings",
         "funky-radio",
         "nts-memory-lane",
         "0n-60s",
-        "soho-radio",
-        "wwoz"
+        "soho-radio"
       ],
       "about": null
     },
@@ -1494,7 +1468,7 @@
       "cities": [],
       "cityLabels": [],
       "section": "Vintage",
-      "hasNowPlaying": false,
+      "hasNowPlaying": true,
       "hasRecentPlays": false,
       "similar": [
         "0n-50s",
@@ -1531,7 +1505,7 @@
       "cities": [],
       "cityLabels": [],
       "section": "Dance",
-      "hasNowPlaying": false,
+      "hasNowPlaying": true,
       "hasRecentPlays": false,
       "similar": [
         "nts-feelings",
@@ -1542,184 +1516,6 @@
         "kiosk-radio"
       ],
       "about": null
-    },
-    {
-      "slug": "rdmix-classic-rock",
-      "name": "RdMix Classic Rock",
-      "source": "independent",
-      "sourceLabel": "Independent",
-      "kind": "channel",
-      "streamUrl": "https://cast1.torontocast.com:4610/stream",
-      "homepage": null,
-      "supportUrl": null,
-      "shopUrl": null,
-      "description": "Classic rock from the seventies, eighties and nineties.",
-      "image": "https://www.cassette.digital/radio-art/rdmix-classic-rock.jpg",
-      "accent": "#6a040f",
-      "moods": [],
-      "eras": [
-        "1970s",
-        "1980s",
-        "1990s"
-      ],
-      "genres": [
-        "classic rock",
-        "rock"
-      ],
-      "cities": [],
-      "cityLabels": [],
-      "section": "1970s",
-      "hasNowPlaying": false,
-      "hasRecentPlays": false,
-      "similar": [
-        "radioparadise-main",
-        "radioparadise-rock",
-        "dr-p6-beat",
-        "kexp",
-        "kfjc",
-        "the-current"
-      ],
-      "about": null
-    },
-    {
-      "slug": "wwoz",
-      "name": "WWOZ",
-      "source": "public",
-      "sourceLabel": "WWOZ 90.7",
-      "kind": "station",
-      "streamUrl": "https://wwoz-sc.streamguys1.com/wwoz-hi.mp3",
-      "homepage": "https://www.wwoz.org/",
-      "supportUrl": "https://www.wwoz.org/support",
-      "shopUrl": null,
-      "description": "New Orleans' listener-supported jazz and heritage station: brass bands, blues, R&B, zydeco, and the city's own DJs.",
-      "image": "https://www.cassette.digital/radio-art/wwoz.png",
-      "accent": "#8e44ad",
-      "moods": [
-        "sunny"
-      ],
-      "eras": [],
-      "genres": [
-        "jazz",
-        "blues",
-        "r&b",
-        "brass band",
-        "zydeco"
-      ],
-      "cities": [
-        "new-orleans"
-      ],
-      "cityLabels": [
-        "New Orleans"
-      ],
-      "section": "Live · United States",
-      "hasNowPlaying": true,
-      "hasRecentPlays": true,
-      "similar": [
-        "soho-radio",
-        "kcsm",
-        "kiosk-radio",
-        "nts-1",
-        "wkcr",
-        "wmbr"
-      ],
-      "about": {
-        "text": "WWOZ is a non-profit community-supported radio station in New Orleans. It is owned by the New Orleans Jazz & Heritage Foundation. The station specializes in music from or relating to the cultural heritage of New Orleans and the surrounding region of Louisiana. The playlist includes jazz, blues, local, regional and world music.",
-        "source": "Wikipedia",
-        "url": "https://en.wikipedia.org/wiki/WWOZ",
-        "license": "CC BY-SA 4.0"
-      }
-    },
-    {
-      "slug": "wqxr",
-      "name": "WQXR",
-      "source": "public",
-      "sourceLabel": "WQXR 105.9",
-      "kind": "station",
-      "streamUrl": "https://stream.wqxr.org/wqxr",
-      "homepage": "https://www.wqxr.org/",
-      "supportUrl": "https://www.wqxr.org/support",
-      "shopUrl": null,
-      "description": "New York's classical station, hosted all day, from the morning show to live concerts.",
-      "image": "https://www.cassette.digital/radio-art/wqxr.png",
-      "accent": "#1f4e79",
-      "moods": [
-        "focus"
-      ],
-      "eras": [],
-      "genres": [
-        "classical"
-      ],
-      "cities": [
-        "new-york"
-      ],
-      "cityLabels": [
-        "New York"
-      ],
-      "section": "Live · United States",
-      "hasNowPlaying": true,
-      "hasRecentPlays": false,
-      "similar": [
-        "kusc",
-        "wfmt",
-        "nts-sheet-music",
-        "nts-slow-focus",
-        "radio-swiss-classic",
-        "new-sounds"
-      ],
-      "about": {
-        "text": "WQXR-FM is an American non-commercial classical radio station, licensed to Newark, New Jersey, and serving the North Jersey and New York City area. It is owned by the nonprofit organization New York Public Radio (NYPR), which also operates WNYC (AM), WNYC-FM and the four-station New Jersey Public Radio group. The station is the core audio service for NYPR's WQXR brand.",
-        "source": "Wikipedia",
-        "url": "https://en.wikipedia.org/wiki/WQXR-FM",
-        "license": "CC BY-SA 4.0, shortened"
-      }
-    },
-    {
-      "slug": "new-sounds",
-      "name": "New Sounds",
-      "source": "public",
-      "sourceLabel": "WNYC",
-      "kind": "station",
-      "streamUrl": "https://stream.wqxr.org/q2",
-      "homepage": "https://www.newsounds.org/",
-      "supportUrl": "https://nypublicradio.org/support/",
-      "shopUrl": null,
-      "description": "John Schaefer's New Sounds: new music from everywhere, ambient to avant-garde, chosen by hand in New York.",
-      "image": "https://media.wnyc.org/i/600/600/l/80/1/ns_showcard-newsounds-radio-1.jpg",
-      "accent": "#3a506b",
-      "moods": [
-        "focus",
-        "late-night"
-      ],
-      "eras": [],
-      "genres": [
-        "contemporary classical",
-        "ambient",
-        "experimental",
-        "world"
-      ],
-      "cities": [
-        "new-york"
-      ],
-      "cityLabels": [
-        "New York"
-      ],
-      "section": "Live · United States",
-      "hasNowPlaying": true,
-      "hasRecentPlays": false,
-      "similar": [
-        "resonance-fm",
-        "ambient-sleeping-pill",
-        "nts-field-recordings",
-        "nts-sheet-music",
-        "radioparadise-mellow",
-        "wfmu"
-      ],
-      "about": {
-        "text": "New Sounds is a radio program on WNYC that features contemporary and world music. Hosted by John Schaefer, the program has been running since 1982.",
-        "source": "Wikipedia",
-        "url": "https://en.wikipedia.org/wiki/New_Sounds_(radio_program)",
-        "license": "CC BY-SA 4.0"
-      }
     },
     {
       "slug": "kcsm",
@@ -1754,58 +1550,14 @@
         "wkcr",
         "wmbr",
         "nts-expansions",
-        "radio-swiss-jazz",
-        "wprb",
-        "kiosk-radio"
+        "kiosk-radio",
+        "nts-1",
+        "soho-radio"
       ],
       "about": {
         "text": "KCSM is an FM radio station in San Mateo, California. The station broadcasts jazz music, 24 hours a day, commercial-free. The radio station is not-for-profit, and listener-supported. The broadcast is mirrored as streaming media on the World Wide Web, extending the station's audience far beyond the San Francisco Bay Area.",
         "source": "Wikipedia",
         "url": "https://en.wikipedia.org/wiki/KCSM_(FM)",
-        "license": "CC BY-SA 4.0, shortened"
-      }
-    },
-    {
-      "slug": "wfmt",
-      "name": "WFMT",
-      "source": "public",
-      "sourceLabel": "WFMT 98.7",
-      "kind": "station",
-      "streamUrl": "https://wfmt.streamguys1.com/main-mp3",
-      "homepage": "https://www.wfmt.com/",
-      "supportUrl": "https://www.wfmt.com/support/",
-      "shopUrl": null,
-      "description": "Chicago's classical and fine-arts station since 1951, hosted live.",
-      "image": "https://www.cassette.digital/radio-art/wfmt.jpg",
-      "accent": "#8b1e3f",
-      "moods": [
-        "focus"
-      ],
-      "eras": [],
-      "genres": [
-        "classical"
-      ],
-      "cities": [
-        "chicago"
-      ],
-      "cityLabels": [
-        "Chicago"
-      ],
-      "section": "Live · United States",
-      "hasNowPlaying": false,
-      "hasRecentPlays": false,
-      "similar": [
-        "kusc",
-        "wqxr",
-        "nts-sheet-music",
-        "nts-slow-focus",
-        "radio-swiss-classic",
-        "new-sounds"
-      ],
-      "about": {
-        "text": "WFMT is a commercial FM radio station in Chicago, Illinois, with a classical music radio format. It is part of Window to the World Communications, Inc, in the same company as Chicago's PBS member station WTTW.",
-        "source": "Wikipedia",
-        "url": "https://en.wikipedia.org/wiki/WFMT",
         "license": "CC BY-SA 4.0, shortened"
       }
     },
@@ -1841,10 +1593,10 @@
       "similar": [
         "wfuv",
         "kexp",
-        "dr-p6-beat",
         "radioparadise-main",
         "kalx",
-        "kxlu"
+        "kxlu",
+        "wmbr"
       ],
       "about": {
         "text": "KCMP is a radio station owned by Minnesota Public Radio (MPR) that airs an adult album alternative (AAA) music format, including a significant rotation of songs by local artists.",
@@ -1883,12 +1635,11 @@
       "hasNowPlaying": true,
       "hasRecentPlays": false,
       "similar": [
-        "wfmt",
-        "wqxr",
         "nts-sheet-music",
         "nts-slow-focus",
-        "radio-swiss-classic",
-        "new-sounds"
+        "ambient-sleeping-pill",
+        "wkcr",
+        "dublab"
       ],
       "about": {
         "text": "KUSC is a non-commercial radio station in Los Angeles, California, United States, broadcasting a classical music format. It is owned by the University of Southern California (USC) and is part of its Classical California network.",
@@ -1930,64 +1681,17 @@
       "hasNowPlaying": true,
       "hasRecentPlays": true,
       "similar": [
-        "wprb",
         "nts-1",
         "kcsm",
         "wmbr",
-        "new-sounds",
-        "nts-expansions"
+        "nts-expansions",
+        "wfmu",
+        "kalx"
       ],
       "about": {
         "text": "WKCR-FM is a radio station licensed to New York, New York. The station is owned by Columbia University and serves the New York metropolitan area. Founded in 1941, the station traces its history back to 1908 with the first operations of the Columbia University Radio Club (CURC). In 1956, it became one of the first college radio stations to adopt FM broadcasting, which had been invented two decades earlier by Professor Edwin Howard Armstrong.",
         "source": "Wikipedia",
         "url": "https://en.wikipedia.org/wiki/WKCR-FM",
-        "license": "CC BY-SA 4.0, shortened"
-      }
-    },
-    {
-      "slug": "wprb",
-      "name": "WPRB",
-      "source": "public",
-      "sourceLabel": "WPRB 103.3",
-      "kind": "station",
-      "streamUrl": "https://wprb.streamguys1.com/live",
-      "homepage": "https://wprb.com/",
-      "supportUrl": "https://pledge.wprb.com/",
-      "shopUrl": null,
-      "description": "Princeton's freeform college station: indie, experimental, jazz, whatever the DJ carried in.",
-      "image": "https://www.cassette.digital/radio-art/wprb.jpg",
-      "accent": "#ff6b35",
-      "moods": [
-        "late-night"
-      ],
-      "eras": [],
-      "genres": [
-        "indie",
-        "experimental",
-        "jazz",
-        "freeform"
-      ],
-      "cities": [
-        "princeton"
-      ],
-      "cityLabels": [
-        "Princeton"
-      ],
-      "section": "Live · United States",
-      "hasNowPlaying": true,
-      "hasRecentPlays": true,
-      "similar": [
-        "kalx",
-        "wmbr",
-        "kfjc",
-        "wkcr",
-        "kxlu",
-        "wfmu"
-      ],
-      "about": {
-        "text": "WPRB is an FM radio station licensed to Princeton, New Jersey, and owned by Princeton Broadcasting Service, Inc. It broadcasts a freeform radio format, including shoegaze, slowcore, noise music, harsh noise wall, plunderphonics, illbient, jazz, electronic, folk, reggae, ska, metal, world, soul, rap, blues, screamo, and rock. While the station is non-profit, it is licensed as a commercial radio station. Much of the on-air staff and management are Princeton University alumni and students.",
-        "source": "Wikipedia",
-        "url": "https://en.wikipedia.org/wiki/WPRB",
         "license": "CC BY-SA 4.0, shortened"
       }
     },
@@ -2025,11 +1729,11 @@
       "hasRecentPlays": true,
       "similar": [
         "kfjc",
-        "wprb",
         "kxlu",
         "wmbr",
         "wfmu",
-        "new-sounds"
+        "resonance-fm",
+        "wkcr"
       ],
       "about": {
         "text": "KALX is a radio station that broadcasts from the University of California, Berkeley in Berkeley, California, United States. The station employs three full-time paid staff members, but is largely run by its nearly 300 volunteers, including Berkeley students and other members of the local community.",
@@ -2072,11 +1776,11 @@
       "hasRecentPlays": false,
       "similar": [
         "kalx",
-        "wprb",
         "kxlu",
-        "new-sounds",
         "resonance-fm",
-        "wfmu"
+        "wfmu",
+        "wkcr",
+        "wmbr"
       ],
       "about": {
         "text": "KFJC is a student-run college and community radio station licensed to Foothill College in Los Altos Hills, California. The station, which has a Variety format, broadcasts a broad spectrum of musical genres as well as public affairs programming. KFJC serves the southern San Francisco Bay Area.",
@@ -2120,10 +1824,10 @@
       "similar": [
         "kalx",
         "kfjc",
-        "wprb",
-        "dr-p6-beat",
         "kexp",
-        "the-current"
+        "the-current",
+        "wfmu",
+        "wfuv"
       ],
       "about": {
         "text": "KXLU is a non-commercial, free-form, college and community radio station broadcasting out of Loyola Marymount University in southwest Los Angeles, California.",
@@ -2165,12 +1869,12 @@
       "hasNowPlaying": true,
       "hasRecentPlays": false,
       "similar": [
-        "wprb",
         "kalx",
         "kcsm",
         "wkcr",
         "nts-expansions",
-        "radio-swiss-jazz"
+        "soho-radio",
+        "kfjc"
       ],
       "about": {
         "text": "WMBR is the Massachusetts Institute of Technology's student-run college radio station, licensed to Cambridge, Massachusetts, and broadcasting on 88.1 FM. Both students and community members can apply for positions, and like many college radio stations, WMBR offers diverse programming that includes a broad range of musical genres as well as talk shows.",
@@ -2207,7 +1911,7 @@
         "New York"
       ],
       "section": "Live · United States",
-      "hasNowPlaying": false,
+      "hasNowPlaying": true,
       "hasRecentPlays": false,
       "similar": [
         "nts-the-pit",
@@ -2307,7 +2011,7 @@
         "nts-2",
         "kexp",
         "netil-radio",
-        "wwoz"
+        "dublab"
       ],
       "about": {
         "text": "Soho Radio is an independent radio station that broadcasts online from London and from New York, as well as on DAB in London. It was founded May 2014, with the New York branch opening in November 2020.",
@@ -2349,12 +2053,12 @@
       "hasNowPlaying": true,
       "hasRecentPlays": false,
       "similar": [
-        "new-sounds",
         "kalx",
         "kfjc",
         "wfmu",
         "wkcr",
-        "wprb"
+        "nts-1",
+        "nts-labyrinth"
       ],
       "about": {
         "text": "Resonance 104.4 FM is a London based non-profit community radio station specialising in the arts run by the London Musicians' Collective (LMC). The station has been called \"the best radio station in London\" by The Guardian and \"the best radio station in the world\" by The Village Voice. Resonance is operated by hundreds of volunteer technical and production staff.",
@@ -2487,154 +2191,6 @@
         "nts-2"
       ],
       "about": null
-    },
-    {
-      "slug": "radio-swiss-jazz",
-      "name": "Radio Swiss Jazz",
-      "source": "srg",
-      "sourceLabel": "Radio Swiss",
-      "kind": "channel",
-      "streamUrl": "https://stream.srg-ssr.ch/m/rsj/mp3_128",
-      "homepage": "https://www.radioswissjazz.ch/",
-      "supportUrl": null,
-      "shopUrl": null,
-      "description": "Swiss public radio's jazz channel: no ads, no talk, a title on every song.",
-      "image": "https://www.cassette.digital/radio-art/radio-swiss-jazz.jpg",
-      "accent": "#c1121f",
-      "moods": [
-        "late-night",
-        "chill"
-      ],
-      "eras": [],
-      "genres": [
-        "jazz"
-      ],
-      "cities": [],
-      "cityLabels": [],
-      "section": "Late night",
-      "hasNowPlaying": false,
-      "hasRecentPlays": false,
-      "similar": [
-        "nts-expansions",
-        "kcsm",
-        "kiosk-radio",
-        "wkcr",
-        "wmbr",
-        "wprb"
-      ],
-      "about": null
-    },
-    {
-      "slug": "radio-swiss-classic",
-      "name": "Radio Swiss Classic",
-      "source": "srg",
-      "sourceLabel": "Radio Swiss",
-      "kind": "channel",
-      "streamUrl": "https://stream.srg-ssr.ch/m/rsc_de/mp3_128",
-      "homepage": "https://www.radioswissclassic.ch/",
-      "supportUrl": null,
-      "shopUrl": null,
-      "description": "Swiss public radio's classical channel: no ads, no talk.",
-      "image": "https://www.cassette.digital/radio-art/radio-swiss-classic.jpg",
-      "accent": "#1d3557",
-      "moods": [
-        "focus"
-      ],
-      "eras": [],
-      "genres": [
-        "classical"
-      ],
-      "cities": [],
-      "cityLabels": [],
-      "section": "Focus",
-      "hasNowPlaying": false,
-      "hasRecentPlays": false,
-      "similar": [
-        "nts-sheet-music",
-        "nts-slow-focus",
-        "kusc",
-        "wfmt",
-        "wqxr",
-        "ambient-sleeping-pill"
-      ],
-      "about": null
-    },
-    {
-      "slug": "radio-swiss-pop",
-      "name": "Radio Swiss Pop",
-      "source": "srg",
-      "sourceLabel": "Radio Swiss",
-      "kind": "channel",
-      "streamUrl": "https://stream.srg-ssr.ch/m/rsp/mp3_128",
-      "homepage": "https://www.radioswisspop.ch/",
-      "supportUrl": null,
-      "shopUrl": null,
-      "description": "Swiss public radio's pop channel: melodic pop and soft rock, no ads.",
-      "image": "https://www.cassette.digital/radio-art/radio-swiss-pop.jpg",
-      "accent": "#f4a261",
-      "moods": [
-        "sunny"
-      ],
-      "eras": [],
-      "genres": [
-        "pop",
-        "soft rock"
-      ],
-      "cities": [],
-      "cityLabels": [],
-      "section": "Sunny",
-      "hasNowPlaying": false,
-      "hasRecentPlays": false,
-      "similar": [
-        "nts-poolside",
-        "0n-60s",
-        "soho-radio"
-      ],
-      "about": null
-    },
-    {
-      "slug": "dr-p6-beat",
-      "name": "DR P6 Beat",
-      "source": "broadcaster",
-      "sourceLabel": "DR",
-      "kind": "station",
-      "streamUrl": "https://live-icy.dr.dk/A/A29H.mp3",
-      "homepage": "https://www.dr.dk/lyd/p6beat",
-      "supportUrl": null,
-      "shopUrl": null,
-      "description": "Denmark's public rock and alternative channel, hosted from Copenhagen.",
-      "image": "https://www.cassette.digital/radio-art/dr-p6-beat.png",
-      "accent": "#d62828",
-      "moods": [],
-      "eras": [],
-      "genres": [
-        "rock",
-        "indie",
-        "alternative"
-      ],
-      "cities": [
-        "copenhagen"
-      ],
-      "cityLabels": [
-        "Copenhagen"
-      ],
-      "section": "Live · Europe",
-      "hasNowPlaying": true,
-      "hasRecentPlays": false,
-      "similar": [
-        "kexp",
-        "the-current",
-        "wfuv",
-        "radioparadise-main",
-        "kalx",
-        "kxlu"
-      ],
-      "about": {
-        "text": "DR P6 Beat is one of DR's digital radio stations in Denmark. It launched on 11 April 2011 as the second of five new digital-only stations.",
-        "source": "Wikipedia",
-        "url": "https://en.wikipedia.org/wiki/DR_P6_Beat",
-        "license": "CC BY-SA 4.0"
-      }
     },
     {
       "slug": "nightride-fm",
@@ -2811,15 +2367,14 @@
       "cities": [],
       "cityLabels": [],
       "section": "Focus",
-      "hasNowPlaying": false,
+      "hasNowPlaying": true,
       "hasRecentPlays": false,
       "similar": [
         "nts-field-recordings",
         "nts-slow-focus",
-        "new-sounds",
         "radioparadise-mellow",
-        "radio-swiss-classic",
-        "kusc"
+        "kusc",
+        "resonance-fm"
       ],
       "about": null
     },
@@ -2847,7 +2402,7 @@
       "cities": [],
       "cityLabels": [],
       "section": "Dreamy",
-      "hasNowPlaying": false,
+      "hasNowPlaying": true,
       "hasRecentPlays": false,
       "similar": [
         "nightride-fm",
