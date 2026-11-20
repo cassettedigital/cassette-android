@@ -1255,44 +1255,6 @@
       }
     },
     {
-      "slug": "fifties-sixties-retro-hits",
-      "name": "50s 60s Retro Hits",
-      "source": "independent",
-      "sourceLabel": "Independent",
-      "kind": "channel",
-      "streamUrl": "https://stream.zeno.fm/pxzwykxbluitv",
-      "homepage": null,
-      "supportUrl": null,
-      "shopUrl": null,
-      "description": "Rock 'n' roll and classic hits from the fifties and sixties, all day.",
-      "image": "https://www.cassette.digital/radio-art/fifties-sixties-retro-hits.jpg",
-      "accent": "#e76f51",
-      "moods": [
-        "vintage"
-      ],
-      "eras": [
-        "1950s",
-        "1960s"
-      ],
-      "genres": [
-        "rock 'n' roll",
-        "classic hits",
-        "oldies"
-      ],
-      "cities": [],
-      "cityLabels": [],
-      "section": "Vintage",
-      "hasNowPlaying": false,
-      "hasRecentPlays": false,
-      "similar": [
-        "0n-50s",
-        "0n-60s",
-        "nts-feelings",
-        "nts-memory-lane"
-      ],
-      "about": null
-    },
-    {
       "slug": "0n-50s",
       "name": "0N 50s on Radio",
       "source": "independent",
@@ -1321,8 +1283,8 @@
       "hasNowPlaying": true,
       "hasRecentPlays": false,
       "similar": [
-        "fifties-sixties-retro-hits",
-        "1940s-radio",
+        "dagnys-jukebox",
+        "0n-60s",
         "nts-feelings"
       ],
       "about": null
@@ -1357,48 +1319,11 @@
       "hasNowPlaying": true,
       "hasRecentPlays": false,
       "similar": [
-        "fifties-sixties-retro-hits",
         "funky-radio",
         "nts-feelings",
         "nts-memory-lane",
+        "soul-radio-classics",
         "soho-radio"
-      ],
-      "about": null
-    },
-    {
-      "slug": "1940s-radio",
-      "name": "1940s Radio",
-      "source": "independent",
-      "sourceLabel": "Independent",
-      "kind": "channel",
-      "streamUrl": "https://cast2.asurahosting.com/proxy/1940sradio/stream",
-      "homepage": null,
-      "supportUrl": null,
-      "shopUrl": null,
-      "description": "Big bands, crooners and the wireless as it sounded in the forties and early fifties.",
-      "image": "https://www.cassette.digital/radio-art/1940s-radio.jpg",
-      "accent": "#8a5a44",
-      "moods": [
-        "vintage"
-      ],
-      "eras": [
-        "1940s",
-        "1950s"
-      ],
-      "genres": [
-        "big band",
-        "swing",
-        "oldies"
-      ],
-      "cities": [],
-      "cityLabels": [],
-      "section": "Vintage",
-      "hasNowPlaying": false,
-      "hasRecentPlays": false,
-      "similar": [
-        "0n-50s",
-        "fifties-sixties-retro-hits",
-        "nts-feelings"
       ],
       "about": null
     },
@@ -1472,8 +1397,8 @@
       "hasRecentPlays": false,
       "similar": [
         "0n-50s",
-        "fifties-sixties-retro-hits",
-        "nts-feelings"
+        "nts-feelings",
+        "soul-radio-classics"
       ],
       "about": null
     },
