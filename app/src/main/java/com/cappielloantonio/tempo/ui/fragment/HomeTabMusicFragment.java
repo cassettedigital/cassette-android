@@ -701,6 +701,9 @@ public class HomeTabMusicFragment extends Fragment implements ClickCallback {
         return tiles;
     }
 
+    // cassette: these Home rows scroll sideways and are match_parent wide, so fixed size is right;
+    // lint reads their wrap_content height as the scrolling side and fails the release build.
+    @android.annotation.SuppressLint("InvalidSetHasFixedSize")
     private void initRecentPlayedAlbumView() {
         if (homeViewModel.checkHomeSectorVisibility(Constants.HOME_SECTOR_LAST_PLAYED)) return;
 
@@ -724,6 +727,9 @@ public class HomeTabMusicFragment extends Fragment implements ClickCallback {
         recentPlayedAlbumSnapHelper.attachToRecyclerView(bind.recentlyPlayedAlbumsRecyclerView);
     }
 
+    // cassette: these Home rows scroll sideways and are match_parent wide, so fixed size is right;
+    // lint reads their wrap_content height as the scrolling side and fails the release build.
+    @android.annotation.SuppressLint("InvalidSetHasFixedSize")
     private void initRecentAddedAlbumView() {
         if (homeViewModel.checkHomeSectorVisibility(Constants.HOME_SECTOR_RECENTLY_ADDED)) return;
 
@@ -752,6 +758,9 @@ public class HomeTabMusicFragment extends Fragment implements ClickCallback {
      * artists as circles, from the same play spine as Recent. Hidden when the
      * play history has no resolvable artists yet.
      */
+    // cassette: these Home rows scroll sideways and are match_parent wide, so fixed size is right;
+    // lint reads their wrap_content height as the scrolling side and fails the release build.
+    @android.annotation.SuppressLint("InvalidSetHasFixedSize")
     private void initRecentlyPlayedArtistsView() {
         bind.recentlyPlayedArtistsRecyclerView.setLayoutManager(
                 new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
@@ -773,6 +782,9 @@ public class HomeTabMusicFragment extends Fragment implements ClickCallback {
         artistSnapHelper.attachToRecyclerView(bind.recentlyPlayedArtistsRecyclerView);
     }
 
+    // cassette: these Home rows scroll sideways and are match_parent wide, so fixed size is right;
+    // lint reads their wrap_content height as the scrolling side and fails the release build.
+    @android.annotation.SuppressLint("InvalidSetHasFixedSize")
     private void initPinnedPlaylistsView() {
         if (homeViewModel.checkHomeSectorVisibility(Constants.HOME_SECTOR_PINNED_PLAYLISTS)) return;
 
