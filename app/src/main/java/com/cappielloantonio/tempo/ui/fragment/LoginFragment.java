@@ -43,7 +43,9 @@ public class LoginFragment extends Fragment implements ClickCallback {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
+        // cassette: the + (Tempo's manual "Add server" form) is a developer door only, as on
+        // the iPhone (BUG-888). Release builds open on the Cassette sign-in alone (BUG-1102).
+        setHasOptionsMenu(com.cappielloantonio.tempo.BuildConfig.DEBUG);
     }
 
     @Override
@@ -72,8 +74,8 @@ public class LoginFragment extends Fragment implements ClickCallback {
      * The Cassette door: sign in with the Cassette account in a Custom Tab over the
      * app; the cloud sends the sign-in back to cassette://auth/callback
      * (PairCallbackActivity), which takes it only when it answers this sign-in
-     * (CassettePairing, BUG-938). The manual add-server dialog stays available
-     * under + as the dev/self-host door.
+     * (CassettePairing, BUG-938). The manual add-server dialog stays under +
+     * in debug builds only, as the developer door.
      */
     private void initCassetteSignIn() {
         bind.cassetteSignInButton.setOnClickListener(v ->
@@ -117,7 +119,7 @@ public class LoginFragment extends Fragment implements ClickCallback {
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.action_add) {
+        if (com.cappielloantonio.tempo.BuildConfig.DEBUG && item.getItemId() == R.id.action_add) {
             ServerSignupDialog dialog = new ServerSignupDialog();
             dialog.show(activity.getSupportFragmentManager(), null);
             return true;

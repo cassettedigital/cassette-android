@@ -102,6 +102,11 @@
             android:key="help"
             app:title="@string/cassette_help" />
 
+        <!-- cassette: Google Play wants the privacy policy reachable inside the app too (BUG-1001). -->
+        <Preference
+            android:key="privacy"
+            app:title="@string/cassette_privacy" />
+
         <Preference
             android:key="report_problem"
             app:title="@string/settings_report_problem_title" />

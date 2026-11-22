@@ -352,6 +352,11 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             startActivity(new Intent(Intent.ACTION_VIEW, android.net.Uri.parse("https://www.cassette.digital/help/your-android")));
             return true;
         });
+        Preference privacy = findPreference("privacy");
+        if (privacy != null) privacy.setOnPreferenceClickListener(p -> {
+            startActivity(new Intent(Intent.ACTION_VIEW, android.net.Uri.parse("https://www.cassette.digital/legal/privacy")));
+            return true;
+        });
         Preference credit = findPreference("credit");
         if (credit != null) credit.setOnPreferenceClickListener(p -> {
             startActivity(new Intent(Intent.ACTION_VIEW, android.net.Uri.parse("https://github.com/cassettedigital/cassette-android")));
