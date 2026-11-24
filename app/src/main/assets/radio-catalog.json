@@ -85,7 +85,7 @@
       {
         "id": "san-francisco",
         "label": "San Francisco",
-        "blurb": "KCSM in San Mateo, KALX in Berkeley, KFJC in Los Altos Hills."
+        "blurb": "KCSM in San Mateo, KFJC in Los Altos Hills."
       },
       {
         "id": "london",
@@ -319,12 +319,12 @@
       "hasNowPlaying": true,
       "hasRecentPlays": false,
       "similar": [
-        "kalx",
         "nts-1",
         "wkcr",
         "kfjc",
         "netil-radio",
-        "resonance-fm"
+        "resonance-fm",
+        "kexp"
       ],
       "about": {
         "text": "WFMU is a non-commercial, listener-supported, independent community radio station licensed to East Orange, New Jersey, with studios in Jersey City. It is owned by Auricle Communications, broadcasting a free-form radio format.",
@@ -413,9 +413,9 @@
         "the-current",
         "kexp",
         "radioparadise-main",
-        "kalx",
         "kxlu",
-        "wmbr"
+        "wmbr",
+        "nts-memory-lane"
       ],
       "about": {
         "text": "WFUV is a non-commercial radio station licensed to New York, New York. WFUV first went on the air in 1947. It became a professional public radio station in 1990 and is one of three NPR member stations in New York City. Its on-air staff has included Dennis Elsas, Vin Scelsa, Pete Fornatale, and Rita Houston.",
@@ -869,8 +869,8 @@
         "nightride-fm",
         "kfjc",
         "nts-labyrinth",
-        "kalx",
-        "netil-radio"
+        "netil-radio",
+        "rinse-fm"
       ],
       "about": {
         "text": "NTS Radio is a music radio platform founded in 2011 in Hackney, London by Femi Adeyemi \"for an international community of music lovers\". The platform prioritises showcasing niche artists in its radio programming and live events. NTS Radio's tagline is \"Don't Assume\".",
@@ -1519,9 +1519,9 @@
         "wfuv",
         "kexp",
         "radioparadise-main",
-        "kalx",
         "kxlu",
-        "wmbr"
+        "wmbr",
+        "nts-memory-lane"
       ],
       "about": {
         "text": "KCMP is a radio station owned by Minnesota Public Radio (MPR) that airs an adult album alternative (AAA) music format, including a significant rotation of songs by local artists.",
@@ -1611,59 +1611,12 @@
         "wmbr",
         "nts-expansions",
         "wfmu",
-        "kalx"
+        "kfjc"
       ],
       "about": {
         "text": "WKCR-FM is a radio station licensed to New York, New York. The station is owned by Columbia University and serves the New York metropolitan area. Founded in 1941, the station traces its history back to 1908 with the first operations of the Columbia University Radio Club (CURC). In 1956, it became one of the first college radio stations to adopt FM broadcasting, which had been invented two decades earlier by Professor Edwin Howard Armstrong.",
         "source": "Wikipedia",
         "url": "https://en.wikipedia.org/wiki/WKCR-FM",
-        "license": "CC BY-SA 4.0, shortened"
-      }
-    },
-    {
-      "slug": "kalx",
-      "name": "KALX",
-      "source": "public",
-      "sourceLabel": "KALX 90.7 · Berkeley",
-      "kind": "station",
-      "streamUrl": "https://stream.kalx.berkeley.edu:8443/kalx-128.mp3",
-      "homepage": "https://kalx.berkeley.edu/",
-      "supportUrl": "https://kalx.berkeley.edu/donate",
-      "shopUrl": null,
-      "description": "Berkeley's student-and-community station: freeform, deep, and allergic to playlists.",
-      "image": "https://www.cassette.digital/radio-art/kalx.png",
-      "accent": "#003262",
-      "moods": [
-        "late-night"
-      ],
-      "eras": [],
-      "genres": [
-        "indie",
-        "freeform",
-        "punk",
-        "experimental"
-      ],
-      "cities": [
-        "san-francisco"
-      ],
-      "cityLabels": [
-        "San Francisco"
-      ],
-      "section": "Live · United States",
-      "hasNowPlaying": true,
-      "hasRecentPlays": true,
-      "similar": [
-        "kfjc",
-        "kxlu",
-        "wmbr",
-        "wfmu",
-        "resonance-fm",
-        "wkcr"
-      ],
-      "about": {
-        "text": "KALX is a radio station that broadcasts from the University of California, Berkeley in Berkeley, California, United States. The station employs three full-time paid staff members, but is largely run by its nearly 300 volunteers, including Berkeley students and other members of the local community.",
-        "source": "Wikipedia",
-        "url": "https://en.wikipedia.org/wiki/KALX",
         "license": "CC BY-SA 4.0, shortened"
       }
     },
@@ -1700,12 +1653,12 @@
       "hasNowPlaying": true,
       "hasRecentPlays": false,
       "similar": [
-        "kalx",
         "kxlu",
         "resonance-fm",
         "wfmu",
         "wkcr",
-        "wmbr"
+        "wmbr",
+        "nightride-darksynth"
       ],
       "about": {
         "text": "KFJC is a student-run college and community radio station licensed to Foothill College in Los Altos Hills, California. The station, which has a Variety format, broadcasts a broad spectrum of musical genres as well as public affairs programming. KFJC serves the southern San Francisco Bay Area.",
@@ -1747,12 +1700,12 @@
       "hasNowPlaying": true,
       "hasRecentPlays": true,
       "similar": [
-        "kalx",
         "kfjc",
         "kexp",
         "the-current",
         "wfmu",
-        "wfuv"
+        "wfuv",
+        "wmbr"
       ],
       "about": {
         "text": "KXLU is a non-commercial, free-form, college and community radio station broadcasting out of Loyola Marymount University in southwest Los Angeles, California.",
@@ -1794,12 +1747,12 @@
       "hasNowPlaying": true,
       "hasRecentPlays": false,
       "similar": [
-        "kalx",
         "kcsm",
         "wkcr",
         "nts-expansions",
         "soho-radio",
-        "kfjc"
+        "kfjc",
+        "kexp"
       ],
       "about": {
         "text": "WMBR is the Massachusetts Institute of Technology's student-run college radio station, licensed to Cambridge, Massachusetts, and broadcasting on 88.1 FM. Both students and community members can apply for positions, and like many college radio stations, WMBR offers diverse programming that includes a broad range of musical genres as well as talk shows.",
@@ -1978,12 +1931,12 @@
       "hasNowPlaying": true,
       "hasRecentPlays": false,
       "similar": [
-        "kalx",
         "kfjc",
         "wfmu",
         "wkcr",
         "nts-1",
-        "nts-labyrinth"
+        "nts-labyrinth",
+        "ambient-sleeping-pill"
       ],
       "about": {
         "text": "Resonance 104.4 FM is a London based non-profit community radio station specialising in the arts run by the London Musicians' Collective (LMC). The station has been called \"the best radio station in London\" by The Guardian and \"the best radio station in the world\" by The Village Voice. Resonance is operated by hundreds of volunteer technical and production staff.",
@@ -2264,7 +2217,7 @@
         "nightride-datawave",
         "nightride-fm",
         "nts-labyrinth",
-        "kalx"
+        "kxlu"
       ],
       "about": null
     },
