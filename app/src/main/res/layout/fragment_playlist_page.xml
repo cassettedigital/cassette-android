@@ -48,7 +48,9 @@
                         android:layout_gravity="center_horizontal"
                         android:elevation="14dp"
                         android:scaleType="centerCrop"
-                        app:shapeAppearanceOverlay="@style/CassetteArtworkTile" />
+                        app:shapeAppearanceOverlay="@style/CassetteArtworkTile"
+                        app:strokeColor="@color/cs_tile_ring"
+                        app:strokeWidth="1dp" />
 
                     <TextView
                         android:id="@+id/playlist_name_label"

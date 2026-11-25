@@ -17,7 +17,9 @@
         android:background="@color/cs_elevated"
         android:importantForAccessibility="no"
         android:scaleType="centerCrop"
-        app:shapeAppearanceOverlay="@style/CassetteArtworkTile" />
+        app:shapeAppearanceOverlay="@style/CassetteArtworkTile"
+        app:strokeColor="@color/cs_tile_ring"
+        app:strokeWidth="1dp" />
 
     <TextView
         android:id="@+id/kept_off_name"

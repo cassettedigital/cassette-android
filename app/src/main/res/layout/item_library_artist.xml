@@ -14,6 +14,8 @@
         android:layout_gravity="center"
         android:scaleType="centerCrop"
         app:shapeAppearanceOverlay="@style/CassetteCircleFab"
+        app:strokeColor="@color/cs_tile_ring"
+        app:strokeWidth="1dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

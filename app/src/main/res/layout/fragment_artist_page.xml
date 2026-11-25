@@ -79,7 +79,9 @@
                             android:scaleType="centerCrop"
                             android:translationX="-86dp"
                             android:translationY="14dp"
-                            app:shapeAppearanceOverlay="@style/CassetteArtworkTile" />
+                            app:shapeAppearanceOverlay="@style/CassetteArtworkTile"
+                            app:strokeColor="@color/cs_tile_ring"
+                            app:strokeWidth="1dp" />
 
                         <com.google.android.material.imageview.ShapeableImageView
                             android:id="@+id/artist_fan_right"
@@ -91,7 +93,9 @@
                             android:scaleType="centerCrop"
                             android:translationX="86dp"
                             android:translationY="14dp"
-                            app:shapeAppearanceOverlay="@style/CassetteArtworkTile" />
+                            app:shapeAppearanceOverlay="@style/CassetteArtworkTile"
+                            app:strokeColor="@color/cs_tile_ring"
+                            app:strokeWidth="1dp" />
 
                         <com.google.android.material.imageview.ShapeableImageView
                             android:id="@+id/artist_fan_center"
@@ -100,7 +104,9 @@
                             android:layout_gravity="center"
                             android:elevation="10dp"
                             android:scaleType="centerCrop"
-                            app:shapeAppearanceOverlay="@style/CassetteArtworkTile" />
+                            app:shapeAppearanceOverlay="@style/CassetteArtworkTile"
+                            app:strokeColor="@color/cs_tile_ring"
+                            app:strokeWidth="1dp" />
                     </FrameLayout>
 
                     <LinearLayout

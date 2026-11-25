@@ -25,7 +25,9 @@
         android:scaleType="centerCrop"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:shapeAppearanceOverlay="@style/CassetteArtworkRow" />
+        app:shapeAppearanceOverlay="@style/CassetteArtworkRow"
+        app:strokeColor="@color/cs_tile_ring"
+        app:strokeWidth="1dp" />
 
     <TextView
         android:id="@+id/genre_tile_name"

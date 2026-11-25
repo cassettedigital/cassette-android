@@ -4,10 +4,15 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <ImageView
+    <!-- cassette: the kit's ring round the cover (IOS-17's twin, design wave 6); the shape is the
+         corner the picture is already cut to, so the ring follows it. -->
+    <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/album_catalogue_cover_image_view"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        app:shapeAppearanceOverlay="@style/CassetteArtworkRow"
+        app:strokeColor="@color/cs_tile_ring"
+        app:strokeWidth="1dp"
         app:layout_constraintDimensionRatio="W, 1:1"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"

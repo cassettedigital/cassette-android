@@ -52,7 +52,9 @@
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:scaleType="centerCrop"
-                            app:shapeAppearanceOverlay="@style/CassetteStationShape" />
+                            app:shapeAppearanceOverlay="@style/CassetteStationShape"
+                            app:strokeColor="@color/cs_tile_ring"
+                            app:strokeWidth="1dp" />
 
                         <TextView
                             android:id="@+id/station_word_art"
@@ -150,7 +152,9 @@
                         android:layout_marginEnd="12dp"
                         android:importantForAccessibility="no"
                         android:scaleType="centerCrop"
-                        app:shapeAppearanceOverlay="@style/CassetteArtworkRow" />
+                        app:shapeAppearanceOverlay="@style/CassetteArtworkRow"
+                        app:strokeColor="@color/cs_tile_ring"
+                        app:strokeWidth="1dp" />
 
                     <LinearLayout
                         android:layout_width="0dp"

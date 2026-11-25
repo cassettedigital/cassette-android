@@ -21,7 +21,9 @@
             android:layout_height="match_parent"
             android:background="?attr/selectableItemBackground"
             android:scaleType="centerCrop"
-            app:shapeAppearanceOverlay="@style/CassetteArtworkTile" />
+            app:shapeAppearanceOverlay="@style/CassetteArtworkTile"
+            app:strokeColor="@color/cs_tile_ring"
+            app:strokeWidth="1dp" />
 
         <!-- a station with no picture: its name as word art on its own colour -->
         <TextView

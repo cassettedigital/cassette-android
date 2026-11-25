@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- cassette: the kit's tile ring (IOS-17's twin, design wave 6): a hairline of ink at the kit's
+     kit_tile_ring strength round every picture, so a near-black cover keeps its edge on dark paper
+     and a cream one on light. -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:alpha="@dimen/kit_tile_ring" android:color="@color/cs_ink" />
+</selector>

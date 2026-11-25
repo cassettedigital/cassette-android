@@ -25,7 +25,9 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scaleType="centerCrop"
-            app:shapeAppearanceOverlay="@style/CassetteStationShape" />
+            app:shapeAppearanceOverlay="@style/CassetteStationShape"
+            app:strokeColor="@color/cs_tile_ring"
+            app:strokeWidth="1dp" />
 
         <TextView
             android:id="@+id/station_word_art"

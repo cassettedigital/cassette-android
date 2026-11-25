@@ -40,7 +40,9 @@
                     android:elevation="10dp"
                     android:scaleType="centerCrop"
                     android:translationX="-104dp"
-                    app:shapeAppearanceOverlay="@style/CassetteArtworkTile" />
+                    app:shapeAppearanceOverlay="@style/CassetteArtworkTile"
+                    app:strokeColor="@color/cs_tile_ring"
+                    app:strokeWidth="1dp" />
 
                 <com.google.android.material.imageview.ShapeableImageView
                     android:id="@+id/computer_fan_right"
@@ -50,7 +52,9 @@
                     android:elevation="10dp"
                     android:scaleType="centerCrop"
                     android:translationX="104dp"
-                    app:shapeAppearanceOverlay="@style/CassetteArtworkTile" />
+                    app:shapeAppearanceOverlay="@style/CassetteArtworkTile"
+                    app:strokeColor="@color/cs_tile_ring"
+                    app:strokeWidth="1dp" />
 
                 <com.google.android.material.imageview.ShapeableImageView
                     android:id="@+id/computer_fan_middle"
@@ -60,7 +64,9 @@
                     android:layout_marginBottom="14dp"
                     android:elevation="14dp"
                     android:scaleType="centerCrop"
-                    app:shapeAppearanceOverlay="@style/CassetteArtworkTile" />
+                    app:shapeAppearanceOverlay="@style/CassetteArtworkTile"
+                    app:strokeColor="@color/cs_tile_ring"
+                    app:strokeWidth="1dp" />
             </FrameLayout>
 
             <LinearLayout

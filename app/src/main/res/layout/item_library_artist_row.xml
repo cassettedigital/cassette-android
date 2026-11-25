@@ -21,7 +21,9 @@
         android:background="@color/cs_elevated"
         android:importantForAccessibility="no"
         android:scaleType="centerCrop"
-        app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Full" />
+        app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Full"
+        app:strokeColor="@color/cs_tile_ring"
+        app:strokeWidth="1dp" />
 
     <LinearLayout
         android:layout_width="0dp"
