@@ -13,7 +13,8 @@ import java.util.concurrent.ConcurrentHashMap
 object CassetteArtistRecord {
     private val covers = ConcurrentHashMap<String, String>()
 
-    private fun key(artist: String): String = artist.removePrefix("ar-")
+    /** The artist's id, from an id or a picture id ("ar-<id>" or "ar-<id>_<version>"). */
+    private fun key(artist: String): String = artist.removePrefix("ar-").substringBefore('_')
 
     /** The first record with a cover seen for this artist stays theirs. */
     @JvmStatic

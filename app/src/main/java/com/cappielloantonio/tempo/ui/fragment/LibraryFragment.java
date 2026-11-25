@@ -371,6 +371,11 @@ public class LibraryFragment extends Fragment implements ClickCallback {
             if (albums != null) {
                 albumAdapter.setItems(albums);
                 letteredAlbums.setItems(albums);
+                // D46: an artist with no photo wears one of these records, whichever list they came from
+                for (com.cappielloantonio.tempo.subsonic.models.AlbumID3 album : albums) {
+                    com.cappielloantonio.tempo.util.CassetteArtistRecord.remember(album.getArtistId(), album.getCoverArtId());
+                }
+                if (artistList != null) artistList.notifyDataSetChanged();
                 boolean lettered = albums.size() > com.cappielloantonio.tempo.util.CassetteLetters.THRESHOLD;
                 if (lettered != showingLetters && CATEGORY_ALBUMS.equals(Preferences.getLibraryLastCategory())) {
                     applyCategory(CATEGORY_ALBUMS);
