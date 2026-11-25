@@ -117,13 +117,19 @@ public class ComputerPageFragment extends Fragment {
     /** Name, state, totals, and the card's rows as far as they are known. */
     private void paint() {
         if (bind == null) return;
-        bind.computerName.setText(CassetteComputer.name());
         bind.computerKicker.setCompoundDrawablesRelativeWithIntrinsicBounds(
                 CassetteComputer.isLaptop() ? R.drawable.ic_lucide_laptop : R.drawable.ic_lucide_monitor, 0, 0, 0);
         // no word until the heartbeat has been read
         String state = CassetteComputer.state();
-        bind.computerState.setVisibility(state != null ? View.VISIBLE : View.GONE);
+        // With no name of its own the title says the state, as the iPhone's page does, never
+        // "YOUR COMPUTER / Your computer" (PXL-20); the italic state line then only sits under a
+        // name, in the kit's orange on this tool screen (R-orange-accent). Design wave 6.
+        String name = CassetteComputer.name();
+        boolean named = !name.equals("Your computer");
+        bind.computerName.setText(named || state == null ? name : state.substring(0, 1).toUpperCase(java.util.Locale.getDefault()) + state.substring(1));
+        bind.computerState.setVisibility(named && state != null ? View.VISIBLE : View.GONE);
         bind.computerState.setText(state);
+        bind.computerState.setTextColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.kit_accent_answer));
         CassetteComputer.Summary s = CassetteComputer.last();
         boolean known = s != null && s.getRegistered();
         bind.computerMeta.setVisibility(known ? View.VISIBLE : View.GONE);
@@ -200,7 +206,7 @@ public class ComputerPageFragment extends Fragment {
                 fresh.setItems(albums);
                 bind.computerNew.setVisibility(albums.isEmpty() ? View.GONE : View.VISIBLE);
                 CassetteType.twoVoice(bind.computerNewHeading, getString(R.string.cassette_new_in_library), getString(R.string.cassette_lately),
-                        ContextCompat.getColor(requireContext(), R.color.cs_ink2));
+                        ContextCompat.getColor(requireContext(), R.color.kit_accent_answer));
                 com.google.android.material.imageview.ShapeableImageView[] fan = {bind.computerFanLeft, bind.computerFanMiddle, bind.computerFanRight};
                 // the newest in the middle, lifted
                 int[] order = {1, 0, 2};

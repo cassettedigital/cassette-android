@@ -417,7 +417,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 if (phone != null) phone.setTitle(com.cappielloantonio.tempo.util.CassetteType.twoVoiceText(requireContext(),
                         getString(R.string.cassette_this_phone),
                         getResources().getQuantityString(R.plurals.cassette_album_count, albumCount, albumCount),
-                        androidx.core.content.ContextCompat.getColor(requireContext(), R.color.cs_ink2), 18));
+                        androidx.core.content.ContextCompat.getColor(requireContext(), R.color.kit_accent_answer), 18));
                 Preference music = findPreference("phone_music");
                 if (music != null) music.setSummary(android.text.format.Formatter.formatShortFileSize(requireContext(), size));
             });
@@ -440,7 +440,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         String state = com.cappielloantonio.tempo.util.CassetteComputer.state();
         cat.setTitle(com.cappielloantonio.tempo.util.CassetteType.twoVoiceText(requireContext(),
                 getString(R.string.cassette_your_computer), state,
-                androidx.core.content.ContextCompat.getColor(requireContext(), R.color.cs_ink2), 18));
+                androidx.core.content.ContextCompat.getColor(requireContext(), R.color.kit_accent_answer), 18));
         row.setTitle(com.cappielloantonio.tempo.util.CassetteComputer.name());
         com.cappielloantonio.tempo.util.CassetteSyncStatus.Snapshot sync = com.cappielloantonio.tempo.util.CassetteSyncStatus.live().getValue();
         row.setSummary(sync != null && sync.active ? sync.detail() : com.cappielloantonio.tempo.util.CassetteComputer.syncedLine());

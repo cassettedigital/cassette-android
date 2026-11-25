@@ -311,7 +311,7 @@ public class SearchFragment extends Fragment implements ClickCallback {
         bind.searchCatalog.setVisibility(hits.isEmpty() ? View.GONE : View.VISIBLE);
         if (hits.isEmpty()) return;
         com.cappielloantonio.tempo.util.CassetteType.twoVoice(bind.searchCatalogHeading, getString(R.string.cassette_on_cassette),
-                getString(R.string.cassette_not_in_library), androidx.core.content.ContextCompat.getColor(requireContext(), R.color.cs_ink2));
+                getString(R.string.cassette_not_in_library), androidx.core.content.ContextCompat.getColor(requireContext(), R.color.kit_accent_answer));
         for (com.cappielloantonio.tempo.util.CassetteCatalog.Hit h : hits) {
             com.cappielloantonio.tempo.databinding.ItemRadioPlayBinding row =
                     com.cappielloantonio.tempo.databinding.ItemRadioPlayBinding.inflate(getLayoutInflater(), bind.searchCatalogList, false);

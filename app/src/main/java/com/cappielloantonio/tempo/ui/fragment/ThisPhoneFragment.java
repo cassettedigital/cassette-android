@@ -106,7 +106,8 @@ public class ThisPhoneFragment extends Fragment {
             bind.thisPhoneToolbar.setTitle(t >= 1f ? getString(R.string.cassette_this_phone) : "");
         });
 
-        int ink2 = ContextCompat.getColor(requireContext(), R.color.cs_ink2);
+        // R-orange-accent (design wave 6): a heading's italic answer on a tool screen is the kit's orange
+        int ink2 = ContextCompat.getColor(requireContext(), R.color.kit_accent_answer);
         CassetteType.twoVoice(bind.thisPhoneKeptOffHeading, getString(R.string.cassette_kept_off), getString(R.string.cassette_kept_off_answer), ink2);
         CassetteType.twoVoice(bind.thisPhoneBiggestHeading, getString(R.string.cassette_biggest), getString(R.string.cassette_biggest_answer), ink2);
 
