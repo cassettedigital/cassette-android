@@ -19,8 +19,8 @@
     <color name="kit_success">#37745D</color>
     <color name="kit_warning">#836314</color>
     <color name="kit_tint_neutral">#6B5A44</color>
-    <color name="kit_tint_neutral_glow">#A17236</color>
-    <color name="kit_tint_neutral_text">#7A5A2E</color>
+    <color name="kit_tint_neutral_glow">#15110E</color>
+    <color name="kit_tint_neutral_text">#15110E</color>
     <dimen name="kit_radius_artwork_tile">3dp</dimen>
     <dimen name="kit_radius_artwork_row">5dp</dimen>
     <dimen name="kit_radius_small">4dp</dimen>
@@ -40,6 +40,31 @@
     <dimen name="kit_space_lg">16dp</dimen>
     <dimen name="kit_space_xl">24dp</dimen>
     <dimen name="kit_space_xxl">32dp</dimen>
+    <dimen name="kit_space_4">4dp</dimen>
+    <dimen name="kit_space_8">8dp</dimen>
+    <dimen name="kit_space_12">12dp</dimen>
+    <dimen name="kit_space_16">16dp</dimen>
+    <dimen name="kit_space_20">20dp</dimen>
+    <dimen name="kit_space_24">24dp</dimen>
+    <dimen name="kit_space_32">32dp</dimen>
+    <dimen name="kit_space_48">48dp</dimen>
+    <dimen name="kit_key_action">48dp</dimen>
+    <dimen name="kit_key_head">48dp</dimen>
+    <dimen name="kit_key_card">40dp</dimen>
+    <dimen name="kit_key_chip">36dp</dimen>
+    <dimen name="kit_key_row">34dp</dimen>
+    <dimen name="kit_key_player">78dp</dimen>
+    <dimen name="kit_key_letters">16sp</dimen>
+    <item name="kit_key_track" format="float" type="dimen">0.081</item>
+    <dimen name="kit_key_pad">20dp</dimen>
+    <dimen name="kit_key_gap">12dp</dimen>
+    <dimen name="kit_key_glyph">20dp</dimen>
+    <integer name="kit_motion_move">300</integer>
+    <integer name="kit_motion_panel">450</integer>
+    <integer name="kit_motion_quick">150</integer>
+    <integer name="kit_motion_glide">900</integer>
+    <integer name="kit_motion_spring">250</integer>
+    <integer name="kit_motion_cover">500</integer>
     <item name="kit_opacity_faint" format="float" type="dimen">0.08</item>
     <item name="kit_opacity_scrim" format="float" type="dimen">0.5</item>
     <item name="kit_opacity_disabled" format="float" type="dimen">0.4</item>
@@ -101,10 +126,10 @@
     <dimen name="kit_waveform_gap">3dp</dimen>
     <dimen name="kit_waveform_min">4dp</dimen>
     <dimen name="kit_waveform_max">18dp</dimen>
-    <dimen name="kit_ambient_scale">1.4dp</dimen>
-    <dimen name="kit_ambient_center_y">0.42dp</dimen>
-    <dimen name="kit_ambient_playing">0.5dp</dimen>
-    <dimen name="kit_ambient_paused">0.38dp</dimen>
+    <item name="kit_ambient_scale" format="float" type="dimen">1.4</item>
+    <item name="kit_ambient_center_y" format="float" type="dimen">0.42</item>
+    <item name="kit_ambient_playing" format="float" type="dimen">0.5</item>
+    <item name="kit_ambient_paused" format="float" type="dimen">0.38</item>
     <item name="kit_ambient_fade" format="float" type="dimen">0.9</item>
     <dimen name="kit_type_hero_title">30sp</dimen>
     <integer name="kit_type_hero_title_weight">700</integer>
@@ -182,4 +207,5 @@
     <integer name="kit_type_meta_weight">500</integer>
     <item name="kit_type_meta_tracking" format="float" type="dimen">0.131</item>
     <item name="kit_shape_station" format="float" type="dimen">0.18</item>
+    <item name="kit_shape_app_icon" format="float" type="dimen">0.22</item>
 </resources>

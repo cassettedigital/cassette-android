@@ -19,6 +19,6 @@
     <color name="kit_success">#48987A</color>
     <color name="kit_warning">#D4A020</color>
     <color name="kit_tint_neutral">#6B5A44</color>
-    <color name="kit_tint_neutral_glow">#A17236</color>
-    <color name="kit_tint_neutral_text">#D4AE7D</color>
+    <color name="kit_tint_neutral_glow">#EDE4D0</color>
+    <color name="kit_tint_neutral_text">#EDE4D0</color>
 </resources>

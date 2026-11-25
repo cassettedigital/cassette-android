@@ -21,8 +21,8 @@ object CassetteKitTokens {
         const val success: Long = 0xFF48987A
         const val warning: Long = 0xFFD4A020
         const val tintNeutral: Long = 0xFF6B5A44
-        const val tintNeutralGlow: Long = 0xFFA17236
-        const val tintNeutralText: Long = 0xFFD4AE7D
+        const val tintNeutralGlow: Long = 0xFFEDE4D0
+        const val tintNeutralText: Long = 0xFFEDE4D0
     }
     /** The same roles on the light paper, for a screen that follows the device's appearance. */
     object ColorLight {
@@ -44,8 +44,8 @@ object CassetteKitTokens {
         const val success: Long = 0xFF37745D
         const val warning: Long = 0xFF836314
         const val tintNeutral: Long = 0xFF6B5A44
-        const val tintNeutralGlow: Long = 0xFFA17236
-        const val tintNeutralText: Long = 0xFF7A5A2E
+        const val tintNeutralGlow: Long = 0xFF15110E
+        const val tintNeutralText: Long = 0xFF15110E
     }
     object Radius {
         const val artworkTile: Float = 3f
@@ -65,6 +65,7 @@ object CassetteKitTokens {
     /** A corner as a share of the side: multiply by the part's width. */
     object Shape {
         const val station: Float = 0.18f
+        const val appIcon: Float = 0.22f
     }
     object Space {
         const val xs: Float = 4f
@@ -73,6 +74,8 @@ object CassetteKitTokens {
         const val lg: Float = 16f
         const val xl: Float = 24f
         const val xxl: Float = 32f
+        /** The one spacing list: every gap is one of these. */
+        val list: List<Float> = listOf(4f, 8f, 12f, 16f, 20f, 24f, 32f, 48f)
     }
     data class TypeRole(val face: String, val weight: Int, val size: Float, val kern: Float, val upper: Boolean, val italic: Boolean)
     object Roles {
@@ -253,7 +256,79 @@ object CassetteKitTokens {
             val button = TypeRole("barlow_condensed", 700, 16f, 16f, 1.05f, 0.08125f, true)
             val link = TypeRole("dm_mono", 500, 12f, 12f, 1f, 0.16f, true)
             val meta = TypeRole("dm_mono", 500, 11f, 11f, 1.3f, 0.08f, false)
+            val poster = TypeRole("barlow_condensed", 800, 60f, 148f, 0.86f, 0f, true)
+            val heroName = TypeRole("barlow_condensed", 800, 36f, 108f, 0.86f, 0f, true)
+            val groupLabel = TypeRole("barlow_condensed", 700, 13f, 13f, 1.1f, 0.10769f, true)
+            val voice = TypeRole("newsreader", 500, 25f, 25f, 1.1f, -0.01f, false)
+            val name = TypeRole("barlow_condensed", 700, 21f, 21f, 1f, 0f, true)
+            val item = TypeRole("newsreader", 400, 18f, 18f, 1.4f, 0f, false)
+            val line = TypeRole("newsreader", 400, 15f, 15f, 1.45f, 0f, false)
+            val figures = TypeRole("dm_mono", 500, 11f, 11f, 1.3f, 0.08f, false)
         }
+    }
+    /** The page's frame (tokens.json `layout`). */
+    object Layout {
+        const val frame: Float = 1200f
+        const val edge: Float = 20f
+        const val edgeWide: Float = 32f
+        const val edgeWideFrom: Float = 760f
+        const val rail: Float = 220f
+        const val railMax: Float = 248f
+        const val railFolded: Float = 72f
+        const val railFoldsBelow: Float = 900f
+        const val stickyGap: Float = 16f
+        const val mastRoom: Float = 78f
+    }
+    /** The room between things (tokens.json `rhythm`): each held between a least and a most. */
+    object Rhythm {
+        const val sectionMin: Float = 40f
+        const val sectionMax: Float = 80f
+        const val shelfMin: Float = 24f
+        const val shelfMax: Float = 32f
+        const val readingMin: Float = 72f
+        const val readingMax: Float = 128f
+        const val underLargeMin: Float = 16f
+        const val underLargeMax: Float = 24f
+        const val underSmallMin: Float = 12f
+        const val underSmallMax: Float = 20f
+    }
+    /** How tall anything you press is, by its job, at the phone's density (tokens.json `control`). */
+    object Control {
+        const val action: Float = 48f
+        const val head: Float = 48f
+        const val card: Float = 40f
+        const val chip: Float = 36f
+        const val row: Float = 34f
+        const val player: Float = 78f
+        const val touch: Float = 44f
+        const val overCover: Float = 0.75f
+        const val overCoverMax: Float = 64f
+        /** A key's words, side room and glyph gap: the display face's capitals at 700 (the website's key, C-rows-model). */
+        const val keyLetters: Float = 16f
+        const val keyTrackEm: Float = 0.08125f
+        const val keyPad: Float = 20f
+        const val keyGap: Float = 12f
+    }
+    /** Corners by role at the phone's density (tokens.json `corner`, the founder's D8). */
+    object Corner {
+        const val card: Float = 14f
+        const val pictureCard: Float = 18f
+        const val panel: Float = 14f
+    }
+    /** How things move (tokens.json `motion`): a curve's four numbers, and durations in milliseconds. */
+    data class Curve(val x1: Float, val y1: Float, val x2: Float, val y2: Float)
+    object Motion {
+        val moveCurve = Curve(0.4f, 0f, 0.2f, 1f)
+        val glideCurve = Curve(0.65f, 0f, 0.35f, 1f)
+        val springCurve = Curve(0.34f, 1.45f, 0.64f, 1f)
+        val fadeCurve = Curve(0.65f, 0f, 0.35f, 1f)
+        val touchCurve = Curve(0.1f, 0.4f, 0f, 1f)
+        const val move: Long = 300L
+        const val panel: Long = 450L
+        const val quick: Long = 150L
+        const val glide: Long = 900L
+        const val spring: Long = 250L
+        const val cover: Long = 500L
     }
     /** The image ladder (tokens.json `images`): the only sizes Cassette shows a picture at. */
     object Images {
