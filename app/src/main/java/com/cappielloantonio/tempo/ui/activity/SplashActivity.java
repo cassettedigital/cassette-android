@@ -31,6 +31,12 @@ public class SplashActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         SplashScreen.installSplashScreen(this);
         super.onCreate(savedInstanceState);
+        // D40 (design wave 6): the reveal plays on the first open after an install or update, never
+        // on every cold start (AND-22: about a second each time). Every other open goes straight in.
+        if (!firstOpenOfThisInstall()) {
+            goToMain();
+            return;
+        }
         setContentView(R.layout.view_splash_lockup);
 
         final View root = findViewById(R.id.splash_lockup_root);
@@ -68,6 +74,20 @@ public class SplashActivity extends AppCompatActivity {
 
         // Safety net: never strand the user on the splash if a frame never comes.
         root.postDelayed(this::goToMain, 2500);
+    }
+
+    /** True once per install or update: the package's last install time, remembered when seen. */
+    private boolean firstOpenOfThisInstall() {
+        long installed;
+        try {
+            installed = getPackageManager().getPackageInfo(getPackageName(), 0).lastUpdateTime;
+        } catch (Exception e) {
+            return false;
+        }
+        android.content.SharedPreferences seen = getSharedPreferences("cassette_launch", MODE_PRIVATE);
+        if (seen.getLong("revealed_for_install", 0L) == installed) return false;
+        seen.edit().putLong("revealed_for_install", installed).apply();
+        return true;
     }
 
     private void goToMain() {
