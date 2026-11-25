@@ -212,7 +212,9 @@ public class PlaylistPageFragment extends Fragment implements ClickCallback {
             if (seconds > 0) parts.add(getString(R.string.cassette_minutes, Math.max(1, Math.round(seconds / 60f))));
         }
         bind.playlistMetaLabel.setText(android.text.TextUtils.join(" · ", parts));
-        bind.playlistMetaLabel.setVisibility(parts.isEmpty() ? View.GONE : View.VISIBLE);
+        // the facts keep their line while the songs load, so the keys never jump down when they
+        // arrive (E-record-head: the keys hold; design wave 6)
+        bind.playlistMetaLabel.setVisibility(parts.isEmpty() ? View.INVISIBLE : View.VISIBLE);
     }
 
     private boolean isThisPlaylistCurrent() {

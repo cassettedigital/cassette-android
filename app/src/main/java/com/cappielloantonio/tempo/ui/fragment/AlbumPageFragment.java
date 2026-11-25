@@ -207,7 +207,9 @@ public class AlbumPageFragment extends Fragment implements ClickCallback {
             if (seconds > 0) parts.add(getString(R.string.cassette_minutes, Math.max(1, Math.round(seconds / 60f))));
         }
         bind.albumMetaLabel.setText(android.text.TextUtils.join(" · ", parts));
-        bind.albumMetaLabel.setVisibility(parts.isEmpty() ? View.GONE : View.VISIBLE);
+        // the facts keep their line while the songs load, so the keys never jump down when they
+        // arrive (E-record-head: the keys hold; design wave 6)
+        bind.albumMetaLabel.setVisibility(parts.isEmpty() ? View.INVISIBLE : View.VISIBLE);
 
         // when part of the record is still on the computer, say so once, quietly
         Integer total = album != null ? album.getSongCount() : null;
