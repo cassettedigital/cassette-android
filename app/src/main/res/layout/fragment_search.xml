@@ -229,17 +229,17 @@
 
                         <FrameLayout
                             android:id="@+id/search_top_play"
-                            android:layout_width="52dp"
-                            android:layout_height="52dp"
+                            android:layout_width="@dimen/kit_key_card"
+                            android:layout_height="@dimen/kit_key_card"
                             android:background="@drawable/cs_cream_disc"
                             android:contentDescription="@string/cassette_play"
                             android:foreground="?attr/selectableItemBackgroundBorderless">
 
                             <ImageView
-                                android:layout_width="20dp"
-                                android:layout_height="20dp"
+                                android:layout_width="17dp"
+                                android:layout_height="17dp"
                                 android:layout_gravity="center"
-                                android:layout_marginStart="2dp"
+                                android:layout_marginStart="1dp"
                                 android:importantForAccessibility="no"
                                 android:src="@drawable/cs_play_glyph"
                                 app:tint="@color/cs_on_fill" />

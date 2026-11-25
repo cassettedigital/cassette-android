@@ -78,8 +78,8 @@
 
             <ImageView
                 android:id="@+id/on_air_play_glyph"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="@dimen/kit_key_card"
+                android:layout_height="@dimen/kit_key_card"
                 android:layout_gravity="center"
                 android:background="@drawable/cs_cream_disc"
                 android:elevation="2dp"

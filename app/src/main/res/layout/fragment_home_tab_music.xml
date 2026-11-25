@@ -224,18 +224,18 @@
                         android:maxLines="1" />
                 </LinearLayout>
 
-                <!-- cassette: iOS's cream play disc (ResumeCardCell, 44pt), not a
-                     bare glyph. Cream fill, dark glyph, matching the detail-page
-                     CTA and the album FAB. -->
+                <!-- cassette: the play disc ending a wide card, the kit's card step (40) and its
+                     rounded glyph, as the On now cards draw it (C-play-sizes, design wave 6). -->
                 <ImageButton
                     android:id="@+id/home_resume_play"
-                    android:layout_width="44dp"
-                    android:layout_height="44dp"
+                    android:layout_width="@dimen/kit_key_card"
+                    android:layout_height="@dimen/kit_key_card"
                     android:background="@drawable/cs_cream_disc"
                     android:contentDescription="@string/home_resume_eyebrow"
                     android:scaleType="fitCenter"
-                    android:padding="12dp"
-                    android:src="@drawable/ic_play"
+                    android:padding="11dp"
+                    android:paddingStart="12dp"
+                    android:src="@drawable/cs_play_glyph"
                     app:tint="?attr/colorSurface" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>

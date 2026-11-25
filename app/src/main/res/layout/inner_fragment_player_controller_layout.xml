@@ -398,8 +398,8 @@
     <!-- cassette: the 78dp cream play disc (kit component.playerDisc) -->
     <ImageButton
         android:id="@id/exo_play_pause"
-        android:layout_width="@dimen/kit_player_disc_size"
-        android:layout_height="@dimen/kit_player_disc_size"
+        android:layout_width="@dimen/kit_key_player"
+        android:layout_height="@dimen/kit_key_player"
         android:background="@drawable/cs_cream_disc"
         android:contentDescription="@string/cassette_play"
         android:elevation="2dp"
