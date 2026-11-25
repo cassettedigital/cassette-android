@@ -89,19 +89,16 @@
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/playlist_page_play_button"
                             style="@style/Cassette.Pill.Play"
-                            android:layout_width="0dp"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginEnd="5dp"
-                            android:layout_weight="1"
+                            android:layout_marginEnd="@dimen/kit_space_12"
                             android:text="@string/cassette_play" />
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/playlist_page_shuffle_button"
                             style="@style/Cassette.Pill.Shuffle"
-                            android:layout_width="0dp"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="5dp"
-                            android:layout_weight="1"
                             android:text="@string/cassette_shuffle" />
                     </LinearLayout>
                 </LinearLayout>

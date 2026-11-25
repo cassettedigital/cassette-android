@@ -232,15 +232,23 @@
         <item name="android:textFontWeight">800</item>
         <item name="android:textColor">@color/cs_ink</item>
     </style>
-    <style name="Cassette.Role.TileLabel" parent="CassetteDisplay">
+    <!-- the semibold file itself: inside a chip (a MaterialButton) the family's weight 600 never resolved
+         and Search's chips drew thin (PXL-01, design wave 6) -->
+    <style name="Cassette.Role.TileLabel" parent="">
+        <item name="fontFamily">@font/barlow_condensed_semibold</item>
+        <item name="android:fontFamily">@font/barlow_condensed_semibold</item>
         <item name="android:textSize">18sp</item>
-        <item name="android:textFontWeight">600</item>
         <item name="android:textColor">@color/cs_ink</item>
     </style>
-    <style name="Cassette.Role.Pill" parent="CassetteDisplay">
-        <item name="android:textSize">@dimen/kit_type_pill</item>
-        <item name="android:textFontWeight">700</item>
-        <item name="android:letterSpacing">@dimen/kit_type_pill_tracking</item>
+    <!-- cassette: a key's words, the website's key (C-rows-model, design wave 6): the display face's
+         capitals at 700, 16sp, tracked 0.08125em, every number from the kit. The bold file itself, not
+         the family at weight 700: a key's text appearance never resolved the weight, so PLAY and SHUFFLE
+         drew in thin Regular (PXL-01, "lanky and weak"). -->
+    <style name="Cassette.Role.Pill" parent="">
+        <item name="fontFamily">@font/barlow_condensed_bold</item>
+        <item name="android:fontFamily">@font/barlow_condensed_bold</item>
+        <item name="android:textSize">@dimen/kit_key_letters</item>
+        <item name="android:letterSpacing">@dimen/kit_key_track</item>
         <item name="android:textAllCaps">true</item>
     </style>
     <style name="Cassette.Role.Answer" parent="">

@@ -497,6 +497,7 @@
     <string name="cassette_appearance">Appearance</string>
     <!-- cassette: shared words, one place (the iPhone's d65942cd) -->
     <string name="cassette_play">Play</string>
+    <string name="cassette_tune_in">Tune in</string>
     <string name="cassette_pause">Pause</string>
     <string name="cassette_shuffle">Shuffle</string>
     <string name="cassette_empty_phone">Nothing on this phone yet</string>

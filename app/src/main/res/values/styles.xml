@@ -119,15 +119,19 @@
     <!-- cassette: the two pills that head every record page (iPhone 4b0bbde8,
          kit component.pill): a cream PLAY (PAUSE while that page plays) and a
          ghost SHUFFLE ring, both 48dp capsules in Barlow Bold capitals. -->
+    <!-- cassette: the key, the website's (the kit's Button at the phone's density, C-rows-model, design
+         wave 6): 48 tall, round ends, side room 20 both sides, its glyph (20) 12 before its words. A row
+         of them sits at their own widths, 12 apart, never stretched into halves. -->
     <style name="Cassette.Pill" parent="Widget.Material3.Button">
-        <item name="android:minHeight">@dimen/kit_pill_height</item>
+        <item name="android:minHeight">@dimen/kit_key_action</item>
+        <item name="android:minWidth">0dp</item>
         <item name="android:insetTop">0dp</item>
         <item name="android:insetBottom">0dp</item>
-        <item name="android:paddingStart">20dp</item>
-        <item name="android:paddingEnd">22dp</item>
+        <item name="android:paddingStart">@dimen/kit_key_pad</item>
+        <item name="android:paddingEnd">@dimen/kit_key_pad</item>
         <item name="android:textAppearance">@style/Cassette.Role.Pill</item>
-        <item name="iconSize">@dimen/kit_pill_glyph</item>
-        <item name="iconPadding">@dimen/kit_pill_glyph_gap</item>
+        <item name="iconSize">@dimen/kit_key_glyph</item>
+        <item name="iconPadding">@dimen/kit_key_gap</item>
         <item name="iconGravity">textStart</item>
         <item name="shapeAppearanceOverlay">@style/Cassette.Shape.Button</item>
         <item name="elevation">0dp</item>
@@ -159,15 +163,16 @@
         <item name="shapeAppearanceOverlay">@style/Cassette.Shape.Button</item>
     </style>
     <style name="Cassette.Pill.Shuffle" parent="Widget.Material3.Button.OutlinedButton">
-        <item name="android:minHeight">@dimen/kit_pill_height</item>
+        <item name="android:minHeight">@dimen/kit_key_action</item>
+        <item name="android:minWidth">0dp</item>
         <item name="android:insetTop">0dp</item>
         <item name="android:insetBottom">0dp</item>
-        <item name="android:paddingStart">20dp</item>
-        <item name="android:paddingEnd">22dp</item>
+        <item name="android:paddingStart">@dimen/kit_key_pad</item>
+        <item name="android:paddingEnd">@dimen/kit_key_pad</item>
         <item name="android:textAppearance">@style/Cassette.Role.Pill</item>
         <item name="android:textColor">@color/cs_ink</item>
-        <item name="iconSize">@dimen/kit_pill_glyph</item>
-        <item name="iconPadding">@dimen/kit_pill_glyph_gap</item>
+        <item name="iconSize">@dimen/kit_key_glyph</item>
+        <item name="iconPadding">@dimen/kit_key_gap</item>
         <item name="iconGravity">textStart</item>
         <item name="iconTint">@color/cs_ink</item>
         <item name="icon">@drawable/ic_lucide_shuffle</item>

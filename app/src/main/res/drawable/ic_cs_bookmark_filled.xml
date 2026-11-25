@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- cassette: keeping a station, the kit's bookmark (Glyph.tsx `bookmark`): its outline, then filled once
+     kept, never a check (the founder, 2026-11-19; the website's SaveStationKey). Design wave 6. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path android:pathData="M18,21L12,17L6,21V4.5A1.5,1.5 0,0 1,7.5 3h9A1.5,1.5 0,0 1,18 4.5Z" android:fillColor="#FFFFFF" android:strokeWidth="2" android:strokeColor="#FFFFFF" android:strokeLineCap="round" android:strokeLineJoin="round" />
+</vector>

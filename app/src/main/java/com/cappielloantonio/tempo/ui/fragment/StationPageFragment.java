@@ -218,7 +218,8 @@ public class StationPageFragment extends Fragment {
     private void paintPlay() {
         if (bind == null) return;
         boolean playing = onAir() && CassetteNowPlaying.current().isPlaying;
-        bind.stationPlay.setText(playing ? R.string.cassette_stop : R.string.cassette_play);
+        // Tune in, as the website's station key says it (its RadioTuneInKey; design wave 6)
+        bind.stationPlay.setText(playing ? R.string.cassette_stop : R.string.cassette_tune_in);
         bind.stationPlay.setIconResource(playing ? R.drawable.cs_pause_glyph : R.drawable.cs_play_glyph);
     }
 
@@ -226,7 +227,8 @@ public class StationPageFragment extends Fragment {
         if (bind == null) return;
         boolean saved = CassetteRadioSaved.isSaved(requireContext(), station.getSlug());
         bind.stationSave.setText(saved ? R.string.cassette_saved : R.string.cassette_save);
-        bind.stationSave.setIconResource(saved ? R.drawable.ic_done : R.drawable.ic_add);
+        // the kit's bookmark, filled once saved, never a check (the founder, 2026-11-19; design wave 6)
+        bind.stationSave.setIconResource(saved ? R.drawable.ic_cs_bookmark_filled : R.drawable.ic_cs_bookmark);
     }
 
     private void toggleSave() {
