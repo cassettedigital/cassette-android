@@ -173,6 +173,10 @@
         <item name="android:paddingStart">@dimen/kit_key_pad</item>
         <item name="android:paddingEnd">@dimen/kit_key_pad</item>
         <item name="android:textAppearance">@style/Cassette.Role.Pill</item>
+        <!-- the bold file on the key itself: the theme's own android:fontFamily (the regular family)
+             outranks a text appearance, so the role alone still drew PLAY in thin Regular (PXL-01) -->
+        <item name="android:fontFamily">@font/barlow_condensed_bold</item>
+        <item name="fontFamily">@font/barlow_condensed_bold</item>
         <item name="iconSize">@dimen/kit_key_glyph</item>
         <item name="iconPadding">@dimen/kit_key_gap</item>
         <item name="iconGravity">textStart</item>
@@ -213,6 +217,8 @@
         <item name="android:paddingStart">@dimen/kit_key_pad</item>
         <item name="android:paddingEnd">@dimen/kit_key_pad</item>
         <item name="android:textAppearance">@style/Cassette.Role.Pill</item>
+        <item name="android:fontFamily">@font/barlow_condensed_bold</item>
+        <item name="fontFamily">@font/barlow_condensed_bold</item>
         <item name="android:textColor">@color/cs_ink</item>
         <item name="iconSize">@dimen/kit_key_glyph</item>
         <item name="iconPadding">@dimen/kit_key_gap</item>

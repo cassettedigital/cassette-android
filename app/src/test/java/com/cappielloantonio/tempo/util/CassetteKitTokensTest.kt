@@ -90,6 +90,8 @@ class CassetteKitTokensTest {
             assertEquals(name, "@dimen/kit_key_glyph", s["iconSize"])
             assertEquals(name, "@dimen/kit_key_gap", s["iconPadding"])
             assertEquals(name, "@style/Cassette.Role.Pill", s["android:textAppearance"])
+            // on the key itself: the theme's android:fontFamily outranks a text appearance (PXL-01)
+            assertEquals(name, "@font/barlow_condensed_bold", s["android:fontFamily"])
         }
         val words = style("values/typography.xml", "Cassette.Role.Pill")
         assertEquals("@dimen/kit_key_letters", words["android:textSize"])
