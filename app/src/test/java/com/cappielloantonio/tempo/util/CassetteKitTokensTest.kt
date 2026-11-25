@@ -115,4 +115,42 @@ class CassetteKitTokensTest {
             }
         }
     }
+
+    /** Every Settings row is the one settings row, its two voices and its edge the kit's. */
+    @Test
+    fun theSettingsRowIsTheKits() {
+        val theme = style("values/styles.xml", "Cassette.PreferenceTheme")
+        for (attr in listOf("preferenceStyle", "preferenceScreenStyle", "dialogPreferenceStyle", "switchPreferenceCompatStyle")) {
+            val row = style("values/styles.xml", theme[attr]!!.removePrefix("@style/"))
+            assertEquals(attr, "@layout/cassette_setting_row", row["layout"])
+            assertEquals(attr, "false", row["iconSpaceReserved"])
+        }
+        val title = style("values/typography.xml", "Cassette.Setting.Title")
+        assertEquals("@dimen/kit_type_row_title", title["android:textSize"])
+        val answer = style("values/typography.xml", "Cassette.Setting.Answer")
+        assertEquals("@dimen/kit_type_caption", answer["android:textSize"])
+        assertEquals("@font/dm_mono", answer["android:fontFamily"])
+        val row = File(res, "layout/cassette_setting_row.xml").readText()
+        assertTrue("android:paddingStart=\"@dimen/kit_space_20\"" in row)
+        assertTrue("android:paddingEnd=\"@dimen/kit_space_20\"" in row)
+        assertTrue("@style/Cassette.Setting.Title" in row && "@style/Cassette.Setting.Answer" in row)
+    }
+
+    /** Every shaped picture wears the kit's ring (ink at the kit's tile-ring strength). */
+    @Test
+    fun everyPictureHasTheKitsRing() {
+        assertTrue(File(res, "color/cs_tile_ring.xml").readText().contains("android:alpha=\"@dimen/kit_tile_ring\""))
+        val shaped = Regex("""<com\.google\.android\.material\.imageview\.ShapeableImageView\b(.*?)/?>""", RegexOption.DOT_MATCHES_ALL)
+        val layouts = File(res, "layout").listFiles()!!.filter { it.name.endsWith(".xml") }
+        var seen = 0
+        for (f in layouts) {
+            for (m in shaped.findAll(f.readText())) {
+                val view = m.groupValues[1]
+                if ("shapeAppearanceOverlay" !in view) continue
+                seen++
+                assertTrue(f.name, "app:strokeColor=\"@color/cs_tile_ring\"" in view)
+            }
+        }
+        assertTrue(seen > 20)
+    }
 }
