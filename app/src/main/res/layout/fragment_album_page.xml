@@ -71,7 +71,7 @@
                         android:layout_marginTop="4dp"
                         android:background="?attr/selectableItemBackground"
                         android:ellipsize="end"
-                        android:maxLines="2"
+                        android:maxLines="1"
                         tools:text="Radiohead" />
 
                     <TextView

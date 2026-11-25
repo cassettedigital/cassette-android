@@ -118,7 +118,7 @@ public class StationPageFragment extends Fragment {
         });
 
         // the picture, or the name as word art on its own colour
-        bind.stationName.setText(station.getName());
+        com.cappielloantonio.tempo.util.CassetteRecordName.fit(bind.stationName, station.getName());
         bind.stationKicker.setText(station.getLabel());
         if (station.getImage() != null) {
             bind.stationWordArt.setVisibility(View.GONE);

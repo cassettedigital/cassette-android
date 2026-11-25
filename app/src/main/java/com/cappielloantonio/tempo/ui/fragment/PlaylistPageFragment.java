@@ -143,7 +143,7 @@ public class PlaylistPageFragment extends Fragment implements ClickCallback {
         }
 
         com.cappielloantonio.tempo.subsonic.models.Playlist playlist = playlistPageViewModel.getPlaylist();
-        bind.playlistNameLabel.setText(playlist.getName() != null ? playlist.getName().toUpperCase(java.util.Locale.getDefault()) : "");
+        com.cappielloantonio.tempo.util.CassetteRecordName.fit(bind.playlistNameLabel, playlist.getName() != null ? playlist.getName().toUpperCase(java.util.Locale.getDefault()) : "");
         // your own words for it, in the serif; a saved mixtape's boilerplate is left out
         String description = playlist.getComment();
         boolean own = description != null && !description.trim().isEmpty()

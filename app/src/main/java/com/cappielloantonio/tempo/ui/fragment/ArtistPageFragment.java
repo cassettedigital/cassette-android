@@ -173,7 +173,7 @@ public class ArtistPageFragment extends Fragment implements ClickCallback {
         ArtistID3 artist = artistPageViewModel.getArtist();
         if (artist == null || bind == null) return;
 
-        bind.artistNameLabel.setText(artist.getName() != null ? artist.getName().toUpperCase(java.util.Locale.getDefault()) : "");
+        com.cappielloantonio.tempo.util.CassetteRecordName.fit(bind.artistNameLabel, artist.getName() != null ? artist.getName().toUpperCase(java.util.Locale.getDefault()) : "");
         // MORE LIKE *artist*: other artists on this phone whose music carries the same moods and sound
         com.cappielloantonio.tempo.ui.adapter.CassetteShelf.moreLike(this, bind.moreLikeShelf, artist.getName(),
                 tint.text(requireContext()), () -> mediaBrowserListenableFuture,

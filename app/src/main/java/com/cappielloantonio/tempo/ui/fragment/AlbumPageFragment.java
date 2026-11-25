@@ -163,7 +163,7 @@ public class AlbumPageFragment extends Fragment implements ClickCallback {
     private void initHeader() {
         albumPageViewModel.getAlbum().observe(getViewLifecycleOwner(), album -> {
             if (bind == null || album == null) return;
-            bind.albumNameLabel.setText(album.getName() != null ? album.getName().toUpperCase(java.util.Locale.getDefault()) : "");
+            com.cappielloantonio.tempo.util.CassetteRecordName.fit(bind.albumNameLabel, album.getName() != null ? album.getName().toUpperCase(java.util.Locale.getDefault()) : "");
             bind.albumArtistLabel.setText(album.getArtist());
 
             CustomGlideRequest.Builder.from(requireContext(), album.getCoverArtId(), CustomGlideRequest.ResourceType.Album).build().into(bind.albumCoverImageView);
