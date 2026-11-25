@@ -258,6 +258,8 @@ public class HomeViewModel extends AndroidViewModel {
                 new java.util.LinkedHashMap<>();
         for (Child c : plays) {
             String artistId = c.getArtistId();
+            // D46: with no photo of their own, the artist wears one of their records
+            com.cappielloantonio.tempo.util.CassetteArtistRecord.remember(artistId, c.getCoverArtId());
             if (artistId == null || byArtist.containsKey(artistId)) continue;
             com.cappielloantonio.tempo.subsonic.models.ArtistID3 artist =
                     new com.cappielloantonio.tempo.subsonic.models.ArtistID3();

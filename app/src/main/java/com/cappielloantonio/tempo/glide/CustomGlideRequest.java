@@ -239,6 +239,13 @@ public class CustomGlideRequest {
         }
 
         public static Builder from(Context context, String item, ResourceType type) {
+            // D46 (design wave 6): an artist with no photo of their own on the phone wears one
+            // of their records, never a stock figure; only one with neither gets the kind's mark
+            if (type == ResourceType.Artist && item != null
+                    && com.cappielloantonio.tempo.util.CassetteArtistArt.localFile(context, item) == null) {
+                String record = com.cappielloantonio.tempo.util.CassetteArtistRecord.cover(item);
+                if (record != null) return new Builder(context, record, ResourceType.Album);
+            }
             return new Builder(context, item, type);
         }
 

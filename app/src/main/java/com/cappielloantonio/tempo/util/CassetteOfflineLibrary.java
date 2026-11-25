@@ -252,6 +252,8 @@ public final class CassetteOfflineLibrary {
                 albumsPerArtist.put(artistId, new HashSet<>());
             }
             albumsPerArtist.get(artistId).add(album.getId());
+            // D46: with no photo of their own, the artist wears one of these records
+            CassetteArtistRecord.remember(artistId, album.getCoverArtId());
         }
 
         for (String artistId : byArtist.keySet()) {
