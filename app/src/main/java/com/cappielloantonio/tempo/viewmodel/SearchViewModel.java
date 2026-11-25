@@ -31,12 +31,13 @@ public class SearchViewModel extends AndroidViewModel {
         return query;
     }
 
+    /**
+     * cassette (PXL-02): typing is not searching. A query became a recent search on every
+     * keystroke (k, ke, kex, kexp...); now only the keyboard's search key saves one
+     * (SearchFragment's editor action).
+     */
     public void setQuery(String query) {
         this.query = query;
-
-        if (!query.isEmpty()) {
-            insertNewSearch(query);
-        }
     }
 
     public LiveData<SearchResult2> search2(String title) {
