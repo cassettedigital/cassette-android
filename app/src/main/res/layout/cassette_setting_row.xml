@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- cassette: the one settings row, the twin of the kit's Panel rows and the iPhone's SettingRow (design
+     wave 6): the setting's name in the sheet's face, its answer in the quiet typewriter face at the row's end,
+     then whatever the row carries (a switch). From the page's 20 edge, no room held for icons the rows don't
+     have (PXL-03: Tempo's stock rows began 72dp in, thin, the answer under the name). Every preference in
+     Settings wears it through Cassette.PreferenceTheme. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?android:attr/selectableItemBackground"
+    android:baselineAligned="false"
+    android:gravity="center_vertical"
+    android:minHeight="@dimen/kit_hub_row_min_height"
+    android:orientation="horizontal"
+    android:paddingStart="@dimen/kit_space_20"
+    android:paddingTop="@dimen/kit_space_12"
+    android:paddingEnd="@dimen/kit_space_20"
+    android:paddingBottom="@dimen/kit_space_12">
+
+    <TextView
+        android:id="@android:id/title"
+        style="@style/Cassette.Setting.Title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:ellipsize="end"
+        android:maxLines="1" />
+
+    <TextView
+        android:id="@android:id/summary"
+        style="@style/Cassette.Setting.Answer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/kit_space_12"
+        android:ellipsize="end"
+        android:maxWidth="220dp"
+        android:maxLines="1" />
+
+    <LinearLayout
+        android:id="@android:id/widget_frame"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/kit_space_12"
+        android:gravity="center_vertical|end"
+        android:orientation="horizontal" />
+</LinearLayout>

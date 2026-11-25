@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- cassette: the settings row with a line under its name, for a row whose words are a sentence, not
+     an answer (About's Built on Tempo): the same row, the sentence under the name in the caption role
+     (design wave 6). -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?android:attr/selectableItemBackground"
+    android:baselineAligned="false"
+    android:gravity="center_vertical"
+    android:minHeight="@dimen/kit_hub_row_min_height"
+    android:orientation="horizontal"
+    android:paddingStart="@dimen/kit_space_20"
+    android:paddingTop="@dimen/kit_space_12"
+    android:paddingEnd="@dimen/kit_space_20"
+    android:paddingBottom="@dimen/kit_space_12">
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@android:id/title"
+            style="@style/Cassette.Setting.Title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1" />
+
+        <TextView
+            android:id="@android:id/summary"
+            style="@style/Cassette.Setting.Answer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/kit_space_4" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@android:id/widget_frame"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/kit_space_12"
+        android:gravity="center_vertical|end"
+        android:orientation="horizontal" />
+</LinearLayout>

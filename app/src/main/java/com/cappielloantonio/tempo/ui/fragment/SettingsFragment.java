@@ -136,7 +136,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         checkStreamingUi();
 
         setStreamingCacheSize();
-        setAppLanguage();
         setVersion();
         setDownloadQualityInfo();
 
@@ -145,7 +144,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         fillAnswers();
         actionChangeStreamingCacheStorage();
         actionChangeDownloadStorage();
-        actionDeleteDownloadStorage();
         actionReportProblem();
     }
 
@@ -175,6 +173,59 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             return true;
         }
         return super.onPreferenceTreeClick(preference);
+    }
+
+    /**
+     * A read-only row (Music, Download quality, the account's name and email) keeps its name in ink.
+     * The preference library paints a row that can't be tapped in its answer's colour, which on the
+     * settings row is the quiet ink2 (design wave 6).
+     */
+    @NonNull
+    @Override
+    protected androidx.recyclerview.widget.RecyclerView.Adapter onCreateAdapter(@NonNull androidx.preference.PreferenceScreen preferenceScreen) {
+        return new androidx.preference.PreferenceGroupAdapter(preferenceScreen) {
+            @Override
+            public void onBindViewHolder(@NonNull androidx.preference.PreferenceViewHolder holder, int position) {
+                super.onBindViewHolder(holder, position);
+                Preference row = getItem(position);
+                View title = holder.findViewById(android.R.id.title);
+                if (row != null && !row.isSelectable() && row.isEnabled() && title instanceof android.widget.TextView) {
+                    ((android.widget.TextView) title).setTextColor(
+                            androidx.core.content.ContextCompat.getColor(title.getContext(), R.color.cs_ink));
+                }
+            }
+        };
+    }
+
+    /**
+     * A choice opens in the app's one dialog (Cassette.Dialog, the warm round card every other
+     * question wears), never the preference library's own grey square one (PXL-06, design wave 6).
+     */
+    @Override
+    public void onDisplayPreferenceDialog(@NonNull Preference preference) {
+        if (!(preference instanceof ListPreference)) {
+            super.onDisplayPreferenceDialog(preference);
+            return;
+        }
+        ListPreference list = (ListPreference) preference;
+        CharSequence[] values = list.getEntryValues();
+        if (list.getEntries() == null || values == null) return;
+        CharSequence title = list.getDialogTitle() != null ? list.getDialogTitle() : list.getTitle();
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle(title)
+                .setSingleChoiceItems(list.getEntries(), list.findIndexOfValue(list.getValue()), (dialog, which) -> {
+                    String value = values[which].toString();
+                    if (list.callChangeListener(value)) list.setValue(value);
+                    dialog.dismiss();
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
+    }
+
+    /** A group head's answer, the kit's answer size beside the shout (the iPhone's SettingsHead). */
+    private int headAnswerSp() {
+        android.content.res.Resources r = getResources();
+        return Math.round(r.getDimension(R.dimen.kit_type_answer) / r.getDisplayMetrics().scaledDensity);
     }
 
     @Override
@@ -280,27 +331,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 }
             });
         }
-    }
-
-    private void setAppLanguage() {
-        ListPreference localePref = (ListPreference) findPreference("language");
-
-        Map<String, String> locales = UIUtil.getLangPreferenceDropdownEntries(requireContext());
-
-        CharSequence[] entries = locales.keySet().toArray(new CharSequence[locales.size()]);
-        CharSequence[] entryValues = locales.values().toArray(new CharSequence[locales.size()]);
-
-        localePref.setEntries(entries);
-        localePref.setEntryValues(entryValues);
-
-        localePref.setDefaultValue(entryValues[0]);
-        localePref.setSummary(Locale.forLanguageTag(localePref.getValue()).getDisplayLanguage());
-
-        localePref.setOnPreferenceChangeListener((preference, newValue) -> {
-            LocaleListCompat appLocale = LocaleListCompat.forLanguageTags((String) newValue);
-            AppCompatDelegate.setApplicationLocales(appLocale);
-            return true;
-        });
     }
 
     private void setVersion() {
@@ -417,7 +447,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 if (phone != null) phone.setTitle(com.cappielloantonio.tempo.util.CassetteType.twoVoiceText(requireContext(),
                         getString(R.string.cassette_this_phone),
                         getResources().getQuantityString(R.plurals.cassette_album_count, albumCount, albumCount),
-                        androidx.core.content.ContextCompat.getColor(requireContext(), R.color.kit_accent_answer), 18));
+                        androidx.core.content.ContextCompat.getColor(requireContext(), R.color.kit_accent_answer), headAnswerSp()));
                 Preference music = findPreference("phone_music");
                 if (music != null) music.setSummary(android.text.format.Formatter.formatShortFileSize(requireContext(), size));
             });
@@ -440,7 +470,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         String state = com.cappielloantonio.tempo.util.CassetteComputer.state();
         cat.setTitle(com.cappielloantonio.tempo.util.CassetteType.twoVoiceText(requireContext(),
                 getString(R.string.cassette_your_computer), state,
-                androidx.core.content.ContextCompat.getColor(requireContext(), R.color.kit_accent_answer), 18));
+                androidx.core.content.ContextCompat.getColor(requireContext(), R.color.kit_accent_answer), headAnswerSp()));
         row.setTitle(com.cappielloantonio.tempo.util.CassetteComputer.name());
         com.cappielloantonio.tempo.util.CassetteSyncStatus.Snapshot sync = com.cappielloantonio.tempo.util.CassetteSyncStatus.live().getValue();
         row.setSummary(sync != null && sync.active ? sync.detail() : com.cappielloantonio.tempo.util.CassetteComputer.syncedLine());
@@ -455,18 +485,26 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         });
     }
 
+    /** A row that can't be undone, its name in the kit's danger ink. */
+    private void dangerTitle(@Nullable Preference row, int words) {
+        if (row == null) return;
+        android.text.SpannableString title = new android.text.SpannableString(getString(words));
+        title.setSpan(new android.text.style.ForegroundColorSpan(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.cs_danger)),
+                0, title.length(), android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        // Preference ignores a title with the same words (TextUtils.equals drops spans): clear it first
+        row.setTitle(null);
+        row.setTitle(title);
+    }
+
     private void actionLogout() {
         // cassette (BUG-937): Sign out asks about the music on the phone, ends this
         // phone's sign-in on the cloud and forgets the account, the iPhone's way.
-        // Delete Account: on the website's Account page, in the danger colour
+        // Delete account: on the website's Account page. Sign out and Delete account both speak in
+        // the danger colour, the iPhone's Account (PXL-12: they were styled two ways; design wave 6)
+        dangerTitle(findPreference("logout"), R.string.settings_logout_title);
         Preference delete = findPreference("delete_account");
         if (delete != null) {
-            android.text.SpannableString title = new android.text.SpannableString(getString(R.string.cassette_delete_account));
-            title.setSpan(new android.text.style.ForegroundColorSpan(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.cs_danger)),
-                    0, title.length(), android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-            // Preference ignores a title with the same words (TextUtils.equals drops spans): clear it first
-            delete.setTitle(null);
-            delete.setTitle(title);
+            dangerTitle(delete, R.string.cassette_delete_account);
             delete.setOnPreferenceClickListener(p -> {
                 startActivity(new Intent(Intent.ACTION_VIEW, android.net.Uri.parse("https://cassette.digital/settings")));
                 return true;
@@ -522,14 +560,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                     findPreference("download_storage").setSummary(R.string.download_storage_internal_dialog_negative_button);
                 }
             });
-            dialog.show(activity.getSupportFragmentManager(), null);
-            return true;
-        });
-    }
-
-    private void actionDeleteDownloadStorage() {
-        findPreference("delete_download_storage").setOnPreferenceClickListener(preference -> {
-            DeleteDownloadStorageDialog dialog = new DeleteDownloadStorageDialog();
             dialog.show(activity.getSupportFragmentManager(), null);
             return true;
         });

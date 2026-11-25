@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- cassette: a Settings group's head, the iPhone's SettingsHead: the two-voice heading at its full size
+     (the shout, its italic answer in the kit's orange; R-orange-accent), from the page's 20 edge, with
+     the kit's heading air above and below (design wave 6). A group with no title keeps only its air. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingStart="@dimen/kit_heading_side"
+    android:paddingTop="@dimen/kit_heading_top"
+    android:paddingEnd="@dimen/kit_heading_side"
+    android:paddingBottom="@dimen/kit_space_4">
+
+    <TextView
+        android:id="@android:id/title"
+        style="@style/Cassette.Role.Shout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/kit_space_8"
+        android:ellipsize="end"
+        android:maxLines="1" />
+</FrameLayout>

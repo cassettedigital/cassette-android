@@ -81,6 +81,7 @@
         <item name="android:popupMenuStyle">@style/Cassette.PopupMenu</item>
         <item name="actionOverflowMenuStyle">@style/Cassette.PopupMenu.Overflow</item>
         <item name="materialAlertDialogTheme">@style/Cassette.Dialog</item>
+        <item name="preferenceTheme">@style/Cassette.PreferenceTheme</item>
         <item name="bottomSheetDialogTheme">@style/Cassette.BottomSheet</item>
         <item name="materialButtonStyle">@style/Cassette.Button</item>
     </style>
@@ -106,6 +107,48 @@
         <item name="colorSurface">@color/cs_elevated</item>
         <item name="colorSurfaceContainerHigh">@color/cs_elevated</item>
         <item name="elevationOverlayEnabled">false</item>
+    </style>
+
+    <!-- cassette: every Settings row is the one settings row (the iPhone's SettingRow, the kit's Panel
+         rows; design wave 6, PXL-03): from the page's 20 edge with no room held for icons, the name and
+         its answer on one line, and one trailing mark for what a tap does - the chevron opens a page,
+         the up-and-down mark opens a choice in place. Group heads are the two-voice heading. -->
+    <style name="Cassette.PreferenceTheme" parent="PreferenceThemeOverlay">
+        <item name="preferenceStyle">@style/Cassette.Setting</item>
+        <item name="preferenceScreenStyle">@style/Cassette.Setting.Opens</item>
+        <item name="dialogPreferenceStyle">@style/Cassette.Setting.Chooses</item>
+        <item name="switchPreferenceCompatStyle">@style/Cassette.Setting.Switch</item>
+        <item name="preferenceCategoryStyle">@style/Cassette.Setting.Head</item>
+    </style>
+    <style name="Cassette.Setting" parent="Preference.Material">
+        <item name="android:layout">@layout/cassette_setting_row</item>
+        <item name="layout">@layout/cassette_setting_row</item>
+        <item name="iconSpaceReserved">false</item>
+        <item name="singleLineTitle">true</item>
+    </style>
+    <style name="Cassette.Setting.Opens" parent="Preference.PreferenceScreen.Material">
+        <item name="android:layout">@layout/cassette_setting_row</item>
+        <item name="layout">@layout/cassette_setting_row</item>
+        <item name="widgetLayout">@layout/cassette_setting_opens</item>
+        <item name="android:widgetLayout">@layout/cassette_setting_opens</item>
+        <item name="iconSpaceReserved">false</item>
+    </style>
+    <style name="Cassette.Setting.Chooses" parent="Preference.DialogPreference.Material">
+        <item name="android:layout">@layout/cassette_setting_row</item>
+        <item name="layout">@layout/cassette_setting_row</item>
+        <item name="widgetLayout">@layout/cassette_setting_chooses</item>
+        <item name="android:widgetLayout">@layout/cassette_setting_chooses</item>
+        <item name="iconSpaceReserved">false</item>
+    </style>
+    <style name="Cassette.Setting.Switch" parent="Preference.SwitchPreferenceCompat.Material">
+        <item name="android:layout">@layout/cassette_setting_row</item>
+        <item name="layout">@layout/cassette_setting_row</item>
+        <item name="iconSpaceReserved">false</item>
+    </style>
+    <style name="Cassette.Setting.Head" parent="Preference.Category.Material">
+        <item name="android:layout">@layout/cassette_setting_head</item>
+        <item name="layout">@layout/cassette_setting_head</item>
+        <item name="iconSpaceReserved">false</item>
     </style>
 
     <!-- Material re-tints popup backgrounds with primary in code; wrapping the

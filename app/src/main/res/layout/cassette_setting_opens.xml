@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- cassette: the settings row's mark for "opens a page", the kit's chevron in ink3 (design wave 6). -->
+<ImageView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="16dp"
+    android:layout_height="16dp"
+    android:importantForAccessibility="no"
+    android:src="@drawable/ic_lucide_chevron_right"
+    android:tint="@color/cs_ink3" />

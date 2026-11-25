@@ -12,4 +12,4 @@
     app:popupTheme="@style/Cassette.NeutralTintContext"
     app:title="@string/menu_settings_button"
     app:titleCentered="true"
-    app:titleTextAppearance="@style/Cassette.Text.TitleLarge" />
+    app:titleTextAppearance="@style/Cassette.Text.BarTitle" />

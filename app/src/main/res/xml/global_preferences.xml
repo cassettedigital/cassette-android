@@ -14,13 +14,8 @@
         app:key="screen_account"
         app:title="@string/settings_screen_account">
 
-        <!-- Per-app display language. Kept: it overrides the app's UI language
-             independent of the phone's system language (Tempo ships several). -->
-        <ListPreference
-            app:defaultValue="default"
-            app:dialogTitle="@string/settings_language"
-            app:key="language"
-            app:title="@string/settings_language" />
+        <!-- D41 (design wave 6): no Language row, matching the iPhone; the phone's own per-app
+             language setting (locale_config) still chooses it. -->
 
         <Preference
             android:key="account_name"
@@ -52,6 +47,7 @@
 
         <Preference
             android:key="computer_row"
+            app:widgetLayout="@layout/cassette_setting_opens"
             app:title="@string/cassette_your_computer" />
 
         <Preference
@@ -70,6 +66,7 @@
 
         <Preference
             android:key="phone_albums"
+            app:widgetLayout="@layout/cassette_setting_opens"
             app:title="@string/cassette_albums_on_phone" />
     </PreferenceCategory>
 
@@ -83,6 +80,7 @@
 
         <Preference
             android:key="equalizer"
+            app:widgetLayout="@layout/cassette_setting_opens"
             android:title="@string/settings_equalizer_title" />
 
     <!-- cassette: Appearance, the iPhone's three-way choice. Auto follows the
@@ -100,15 +98,18 @@
 
         <Preference
             android:key="help"
+            app:widgetLayout="@layout/cassette_setting_opens"
             app:title="@string/cassette_help" />
 
         <!-- cassette: Google Play wants the privacy policy reachable inside the app too (BUG-1001). -->
         <Preference
             android:key="privacy"
+            app:widgetLayout="@layout/cassette_setting_opens"
             app:title="@string/cassette_privacy" />
 
         <Preference
             android:key="report_problem"
+            app:widgetLayout="@layout/cassette_setting_opens"
             app:title="@string/settings_report_problem_title" />
 
         <!-- cassette: the account's crash-report choice, the iPhone's switch (it follows the
@@ -133,16 +134,16 @@
 
         <Preference
             android:key="streaming_cache_storage"
+            app:widgetLayout="@layout/cassette_setting_chooses"
             app:title="@string/settings_streaming_cache_storage_title" />
 
         <Preference
             android:key="download_storage"
+            app:widgetLayout="@layout/cassette_setting_chooses"
             app:title="@string/settings_download_storage_title" />
 
-        <Preference
-            android:key="delete_download_storage"
-            app:summary="@string/settings_delete_download_storage_summary"
-            app:title="@string/settings_delete_download_storage_title" />
+        <!-- D41: no "Delete saved items" here, matching the iPhone; albums leave the phone from
+             Albums on this phone. -->
     </PreferenceScreen>
 
     <PreferenceScreen
@@ -156,6 +157,7 @@
         <!-- GPL v3: Cassette for Android is built on Tempo; the source is open. -->
         <Preference
             android:key="credit"
+            app:layout="@layout/cassette_setting_row_described"
             app:summary="@string/cassette_credit_summary"
             app:title="@string/cassette_credit_title" />
     </PreferenceScreen>

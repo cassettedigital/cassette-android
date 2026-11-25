@@ -259,6 +259,23 @@
         <item name="android:letterSpacing">@dimen/kit_type_answer_tracking</item>
         <item name="android:textColor">@color/cs_ink2</item>
     </style>
+    <!-- cassette: the settings row's two voices, the iPhone's SettingRowLabel and the kit's Panel rows
+         (design wave 6): the setting's name in the display face at the row-title role, its answer in the
+         typewriter face at the caption role, ink2. -->
+    <style name="Cassette.Setting.Title" parent="">
+        <item name="fontFamily">@font/barlow_condensed_semibold</item>
+        <item name="android:fontFamily">@font/barlow_condensed_semibold</item>
+        <item name="android:textSize">@dimen/kit_type_row_title</item>
+        <item name="android:letterSpacing">@dimen/kit_type_row_title_tracking</item>
+        <item name="android:textColor">@color/cs_ink</item>
+    </style>
+    <style name="Cassette.Setting.Answer" parent="">
+        <item name="fontFamily">@font/dm_mono</item>
+        <item name="android:fontFamily">@font/dm_mono</item>
+        <item name="android:textSize">@dimen/kit_type_caption</item>
+        <item name="android:letterSpacing">@dimen/kit_type_caption_tracking</item>
+        <item name="android:textColor">@color/cs_ink2</item>
+    </style>
     <style name="Cassette.Role.Kicker" parent="CassetteMono">
         <item name="android:textSize">@dimen/kit_type_kicker</item>
         <item name="android:textFontWeight">500</item>

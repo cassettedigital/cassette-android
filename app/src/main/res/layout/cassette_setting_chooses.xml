@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- cassette: the settings row's mark for "opens a choice in place", the up-and-down mark (IOS-15's
+     twin; design wave 6), never the next-page chevron. -->
+<ImageView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="16dp"
+    android:layout_height="16dp"
+    android:importantForAccessibility="no"
+    android:src="@drawable/ic_cs_chooses"
+    android:tint="@color/cs_ink3" />
