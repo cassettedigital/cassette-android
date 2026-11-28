@@ -365,10 +365,10 @@ public class StationPageFragment extends Fragment {
         public void onBindViewHolder(@NonNull Holder h, int position) {
             int quiet = ContextCompat.getColor(h.itemView.getContext(), R.color.cs_raised);
             if (position >= items.size()) {
-                bindWaiting(h, quiet);
+                com.cappielloantonio.tempo.util.CassetteWaitingRow.bind(h.bind);
                 return;
             }
-            h.itemView.setEnabled(true);
+            com.cappielloantonio.tempo.util.CassetteWaitingRow.release(h.bind);
             CassetteRadio.Play p = items.get(position);
             boolean now = position == 0 && firstIsNow;
             h.bind.playTitle.setText(p.getTitle());
@@ -389,24 +389,6 @@ public class StationPageFragment extends Fragment {
                 copySong(p);
                 return true;
             });
-        }
-
-        /** A song row's quiet stand-in: a square and two bars where its cover, title and artist will be. */
-        private void bindWaiting(Holder h, int quiet) {
-            Glide.with(h.itemView).clear(h.bind.playCover);
-            h.bind.playCover.setImageDrawable(new android.graphics.drawable.ColorDrawable(quiet));
-            h.bind.playTitle.setText(bar(18, quiet));
-            h.bind.playArtist.setText(bar(11, quiet));
-            h.bind.playWhen.setText("");
-            h.itemView.setOnClickListener(null);
-            h.itemView.setOnLongClickListener(null);
-            h.itemView.setEnabled(false);
-        }
-
-        private CharSequence bar(int width, int color) {
-            android.text.SpannableString s = new android.text.SpannableString(new String(new char[width]).replace('\0', '\u2007'));
-            s.setSpan(new android.text.style.BackgroundColorSpan(color), 0, s.length(), 0);
-            return s;
         }
 
         @Override

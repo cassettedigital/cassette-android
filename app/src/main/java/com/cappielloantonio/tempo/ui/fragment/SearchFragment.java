@@ -241,12 +241,24 @@ public class SearchFragment extends Fragment implements ClickCallback {
         searchViewModel.setQuery(query);
         final int ticket = ++generation;
         main.removeCallbacks(catalogTick);
-        bind.searchCatalog.setVisibility(View.GONE);
-        if (query.trim().isEmpty()) {
+        String trimmed = query.trim();
+        if (trimmed.isEmpty()) {
+            catalogPending = false;
+            hideCatalog();
             bind.searchResults.setVisibility(View.GONE);
             bind.searchEmpty.emptyStateTitle.setVisibility(View.GONE);
             bind.searchStart.setVisibility(View.VISIBLE);
             return;
+        }
+        // the catalog is asked for every query of two letters or more, a beat after the phone's own
+        // pass; until it answers, its section waits in stand-ins and nothing says there are no
+        // results (BUG-1157). It used to vanish on each keystroke and come back under "No results".
+        catalogPending = trimmed.length() >= 2;
+        if (catalogPending) {
+            showCatalogWaiting();
+            bind.searchEmpty.emptyStateTitle.setVisibility(View.GONE);
+        } else {
+            hideCatalog();
         }
         bind.searchStart.setVisibility(View.GONE);
         worker.execute(() -> {
@@ -267,6 +279,14 @@ public class SearchFragment extends Fragment implements ClickCallback {
 
     private final java.util.concurrent.ExecutorService catalogWorker = java.util.concurrent.Executors.newSingleThreadExecutor();
     private String catalogQuery = "";
+    /** The catalog is asked for the query in the field and hasn't answered (BUG-1157). */
+    private boolean catalogPending;
+    /** The phone's own pass for that query found nothing. */
+    private boolean phoneNothing;
+    /** The catalog's section shows its stand-ins now (so a keystroke doesn't redraw them). */
+    private boolean catalogWaitingShown;
+    /** Stand-in rows the catalog's section holds while it is out. */
+    private static final int CATALOG_WAITING_ROWS = 3;
     @Nullable private com.cappielloantonio.tempo.util.CassetteSearch.Results lastResults;
     private final Runnable catalogTick = this::searchCatalog;
 
@@ -306,12 +326,43 @@ public class SearchFragment extends Fragment implements ClickCallback {
         }
     }
 
-    private void showCatalog(java.util.List<com.cappielloantonio.tempo.util.CassetteCatalog.Hit> hits) {
-        bind.searchCatalogList.removeAllViews();
-        bind.searchCatalog.setVisibility(hits.isEmpty() ? View.GONE : View.VISIBLE);
-        if (hits.isEmpty()) return;
+    /** ON CASSETTE's two-voice heading. */
+    private void catalogHeading() {
         com.cappielloantonio.tempo.util.CassetteType.twoVoice(bind.searchCatalogHeading, getString(R.string.cassette_on_cassette),
                 getString(R.string.cassette_not_in_library), androidx.core.content.ContextCompat.getColor(requireContext(), R.color.kit_accent_answer));
+    }
+
+    /** The catalog's section while it is out: its heading over stand-ins the size of its rows (CassetteWaitingRow). */
+    private void showCatalogWaiting() {
+        if (catalogWaitingShown) return;
+        catalogWaitingShown = true;
+        bind.searchCatalogList.removeAllViews();
+        catalogHeading();
+        for (int i = 0; i < CATALOG_WAITING_ROWS; i++) {
+            com.cappielloantonio.tempo.databinding.ItemRadioPlayBinding row =
+                    com.cappielloantonio.tempo.databinding.ItemRadioPlayBinding.inflate(getLayoutInflater(), bind.searchCatalogList, false);
+            com.cappielloantonio.tempo.util.CassetteWaitingRow.bind(row);
+            row.playWhen.setVisibility(View.GONE);
+            bind.searchCatalogList.addView(row.getRoot());
+        }
+        bind.searchCatalog.setVisibility(View.VISIBLE);
+    }
+
+    private void hideCatalog() {
+        catalogWaitingShown = false;
+        bind.searchCatalogList.removeAllViews();
+        bind.searchCatalog.setVisibility(View.GONE);
+    }
+
+    private void showCatalog(java.util.List<com.cappielloantonio.tempo.util.CassetteCatalog.Hit> hits) {
+        catalogPending = false;
+        catalogWaitingShown = false;
+        bind.searchCatalogList.removeAllViews();
+        bind.searchCatalog.setVisibility(hits.isEmpty() ? View.GONE : View.VISIBLE);
+        // "No results" once the phone and the catalog have both answered with nothing, in its own place
+        bind.searchEmpty.emptyStateTitle.setVisibility(phoneNothing && hits.isEmpty() ? View.VISIBLE : View.GONE);
+        if (hits.isEmpty()) return;
+        catalogHeading();
         for (com.cappielloantonio.tempo.util.CassetteCatalog.Hit h : hits) {
             com.cappielloantonio.tempo.databinding.ItemRadioPlayBinding row =
                     com.cappielloantonio.tempo.databinding.ItemRadioPlayBinding.inflate(getLayoutInflater(), bind.searchCatalogList, false);
@@ -348,9 +399,10 @@ public class SearchFragment extends Fragment implements ClickCallback {
             if (com.cappielloantonio.tempo.util.CassetteSearch.fold(p.getName()).contains(q)) matchedPlaylists.add(p);
         }
         boolean nothing = results.isEmpty() && matchedPlaylists.isEmpty() && stationResults.isEmpty();
+        phoneNothing = nothing;
         bind.searchResults.setVisibility(nothing ? View.GONE : View.VISIBLE);
         bind.searchEmpty.emptyStateTitle.setText(R.string.cassette_empty_search);
-        bind.searchEmpty.emptyStateTitle.setVisibility(nothing ? View.VISIBLE : View.GONE);
+        bind.searchEmpty.emptyStateTitle.setVisibility(nothing && !catalogPending ? View.VISIBLE : View.GONE);
         if (nothing) return;
 
         // the top card: an artist whose name starts with what was typed, else the first album
