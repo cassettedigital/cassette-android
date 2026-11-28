@@ -59,7 +59,6 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="24dp"
                         android:breakStrategy="balanced"
-                        android:maxLines="3"
                         tools:text="CHILLAX" />
 
                     <TextView

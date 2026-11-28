@@ -118,7 +118,8 @@ public class StationPageFragment extends Fragment {
         });
 
         // the picture, or the name as word art on its own colour
-        com.cappielloantonio.tempo.util.CassetteRecordName.fit(bind.stationName, station.getName());
+        // a station's name wraps in full under its picture, as the website's station page does: no room, never cut
+        bind.stationName.setText(station.getName());
         bind.stationKicker.setText(station.getLabel());
         if (station.getImage() != null) {
             bind.stationWordArt.setVisibility(View.GONE);

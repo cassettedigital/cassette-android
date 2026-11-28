@@ -125,7 +125,6 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:breakStrategy="balanced"
-                            android:maxLines="3"
                             android:shadowColor="#66000000"
                             android:shadowDy="2"
                             android:shadowRadius="10"

@@ -61,8 +61,6 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="24dp"
                         android:breakStrategy="balanced"
-                        android:ellipsize="end"
-                        android:maxLines="3"
                         tools:text="IN RAINBOWS" />
 
                     <TextView
