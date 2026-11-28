@@ -65,6 +65,7 @@
     <integer name="kit_motion_glide">900</integer>
     <integer name="kit_motion_spring">250</integer>
     <integer name="kit_motion_cover">500</integer>
+    <integer name="kit_motion_tutorial">8000</integer>
     <item name="kit_opacity_faint" format="float" type="dimen">0.08</item>
     <item name="kit_opacity_scrim" format="float" type="dimen">0.5</item>
     <item name="kit_opacity_disabled" format="float" type="dimen">0.4</item>

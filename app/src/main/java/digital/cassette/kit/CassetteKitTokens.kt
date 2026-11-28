@@ -251,6 +251,7 @@ object CassetteKitTokens {
             val head = TypeRole("barlow_condensed", 800, 30f, 68f, 0.9f, -0.01f, true)
             val headSmall = TypeRole("barlow_condensed", 800, 24f, 36f, 0.92f, -0.01f, true)
             val body = TypeRole("newsreader", 400, 17f, 17f, 1.5f, 0f, false)
+            val reading = TypeRole("newsreader", 400, 17f, 19f, 1.55f, 0f, false)
             val caption = TypeRole("newsreader", 400, 15f, 15f, 1.45f, 0f, false)
             val label = TypeRole("dm_mono", 500, 11f, 11f, 1.3f, 0.16f, true)
             val button = TypeRole("barlow_condensed", 700, 16f, 16f, 1.05f, 0.08125f, true)
@@ -264,6 +265,7 @@ object CassetteKitTokens {
             val item = TypeRole("newsreader", 400, 18f, 18f, 1.4f, 0f, false)
             val line = TypeRole("newsreader", 400, 15f, 15f, 1.45f, 0f, false)
             val figures = TypeRole("dm_mono", 500, 11f, 11f, 1.3f, 0.08f, false)
+            val emphasis = TypeRole("barlow_condensed", 800, 34f, 60f, 0.9f, 0f, true)
         }
     }
     /** The page's frame (tokens.json `layout`). */
@@ -329,6 +331,7 @@ object CassetteKitTokens {
         const val glide: Long = 900L
         const val spring: Long = 250L
         const val cover: Long = 500L
+        const val tutorial: Long = 8000L
     }
     /** The image ladder (tokens.json `images`): the only sizes Cassette shows a picture at. */
     object Images {
